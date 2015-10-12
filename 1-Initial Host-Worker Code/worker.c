@@ -27,19 +27,19 @@ static void die(const char *message)
 
 static int runPythonCode(char *file,  int clntSock)
 {
-  ssize_t n;
+  //ssize_t n;
   pid_t pid;
-  static char buf[512];
-  int i, out[2];
-  if (pipe(out) != 0)
-  die("Cannot create pipe");
+  //static char buf[512];
+  //int i, out[2];
+  //if (pipe(out) != 0)
+  //die("Cannot create pipe");
 
   pid = fork();
   if (pid == -1) {
     die("Cannot create child process");
   } else if (pid > 0) {
     // parent
-    close(out[1]);
+    //close(out[1]);
 
     // Receive the output of the child via the pipe and send it to the
     // client over the client socket.
@@ -61,16 +61,16 @@ static int runPythonCode(char *file,  int clntSock)
     return 0;
   }
 
-  for(i = 0; i < 3; i++) {
+  /*for(i = 0; i < 3; i++) {
     close(i);
     if (dup(out[1]) != i)
     die("Can't reconnect standard input/output");
-  }
+  }*/
 
   // Replace the current process image with /bin/ls.
-  char *args[] = {"python", file, NULL};
+  char *args[] = {"lli", file, NULL};
   fprintf(stderr, "child calling execv\n");
-  if (execv("/usr/bin/python", args) == -1)
+  if (execv("/usr/bin/lli", args) == -1)
   perror("Cannot execute /bin/ls");
   return 0;
 }
@@ -157,7 +157,7 @@ int initializeConnection(char** argv) {
     fprintf(stderr, "\nconnection started from: %s\n",
     inet_ntoa(echoClntAddr.sin_addr));
 
-    HandleTCPClient(clntSock, servSock, "todo.py");
+    HandleTCPClient(clntSock, servSock, "todo.ll");
 
     fprintf(stderr, "connection terminated from: %s\n",
     inet_ntoa(echoClntAddr.sin_addr));
