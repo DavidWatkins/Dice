@@ -87,7 +87,6 @@ void HandleTCPClient(int inSocket, int outSocket, char *filename)
   //Read in file from socket:
   size_t n, num_expected;
   size_t num_read = 0;
-  // TODO use fget to read num bytes of the file that the host is sending
   fgets(buf, sizeof(buf), in);
   num_expected = atoi(buf);
   while ((n = read(inSocket,buf,sizeof(buf))) > 0) {
