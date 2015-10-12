@@ -40,6 +40,12 @@ static int handleFileRequest(const char *filename, int clntSock)
     // send the file
     size_t n;
     char buf[BUF_SIZE];
+    // send number of bytes expected
+    fseek(fp, 0L, SEEK_END);
+    int len = ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
+    sprintf(buf, "%d\n", len);
+    send(clntSock, buf, sizeof(buf), 0);
     while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
         printf("%s", buf);
         if (send(clntSock, buf, n, 0) != n) {

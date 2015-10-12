@@ -80,19 +80,19 @@ void HandleTCPClient(int inSocket, int outSocket, char *filename)
   char buf[BUF_SIZE];
 
   //Define input fd's
-  FILE *outputFile;
-  //if ((in = fdopen(inSocket, "r")) == NULL) die("fdopen failed");
+  FILE *in, *outputFile;
+  if ((in = fdopen(inSocket, "r")) == NULL) die("fdopen failed");
   if ((outputFile = fopen(filename, "wb")) == NULL) die("can't open output file");
 
   //Read in file from socket:
-  size_t n;
-  size_t num_expected = 223;
+  size_t n, num_expected;
   size_t num_read = 0;
   // TODO use fget to read num bytes of the file that the host is sending
+  fgets(buf, sizeof(buf), in);
+  num_expected = atoi(buf);
   while ((n = read(inSocket,buf,sizeof(buf))) > 0) {
     if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
     num_read = num_read + n;
-    fprintf(stderr, "num read: %zu", num_read);
     if (num_read >= num_expected)
         break;
   }
