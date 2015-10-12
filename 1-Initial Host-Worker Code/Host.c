@@ -41,6 +41,7 @@ static int handleFileRequest(const char *filename, int clntSock)
     size_t n;
     char buf[BUF_SIZE];
     while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+        printf("%s", buf);
         if (send(clntSock, buf, n, 0) != n) {
             perror("\nsend() failed");
             break;

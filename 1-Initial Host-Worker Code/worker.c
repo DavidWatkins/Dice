@@ -15,7 +15,7 @@
 
 #define MAXPENDING 5    /* Maximum outstanding connection requests */
 
-#define BUF_SIZE 4096
+#define BUF_SIZE 20
 
 #define KeyMax 5
 
@@ -39,6 +39,7 @@ static int runPythonCode(char *file,  int clntSock)
   if (pid == -1) {
     die("Cannot create child process");
   } else if (pid > 0) {
+    // parent
     close(out[1]);
 
     // Receive the output of the child via the pipe and send it to the
@@ -67,7 +68,8 @@ static int runPythonCode(char *file,  int clntSock)
 
   // Replace the current process image with /bin/ls.
   char *args[] = {"python", file, NULL};
-  if (execv("/bin/python", args) == -1)
+  fprintf(stderr, "calling execv\n");
+  if (execv("/usr/bin/python", args) == -1)
   perror("Cannot execute /bin/ls");
   return 0;
 }
@@ -83,19 +85,36 @@ void HandleTCPClient(int inSocket, int outSocket, char *filename)
 
   //Read in file from socket:
   size_t n;
+  size_t num_expected = 54;
+  size_t num_read = 0;
+  fprintf(stderr, "about to read from distributing host\n");
+  // TODO use fget to read num bytes of the file that the host is sending
+  while ((n = read(inSocket,buf,sizeof(buf))) > 0) {
+    if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
+    num_read = num_read + n;
+    fprintf(stderr, "num read: %zu", num_read);
+    if (num_read >= num_expected)
+        break;
+  }
+  /*
   while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
     if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
+    num_read = num_read + n;
+    fprintf(stderr, "num read: %zu", num_read);
+    if (num_read >= num_expected)
+        break;
   }
+  */
   // fread() returns 0 on EOF or on error
   // so we need to check if there was an error.
   if (ferror(in) || ferror(outputFile)) die("fread failed");
   fclose(outputFile);
-
+  fprintf(stderr, "finished writing TODO script\n");
   //Run program and send output to out
-  runPythonCode(filename, outSocket);
+  //runPythonCode(filename, outSocket);
 
   //Delete file
-  remove(filename);
+  //remove(filename);
 }
 
 int initializeConnection(char** argv) {
@@ -114,7 +133,6 @@ int initializeConnection(char** argv) {
 
   // CHANGE: progarm takes one parameter
   echoServPort = atoi(argv[1]);  /* 2nd arg:  local port */
-
   /* Create socket for incoming connections */
   if ((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
   die("socket() failed");
@@ -129,11 +147,11 @@ int initializeConnection(char** argv) {
   if (bind(servSock, (struct sockaddr *)&echoServAddr,
   sizeof(echoServAddr)) < 0)
   die("bind() failed");
-
+  fprintf(stderr, "successfully bound to port %d\n", echoServPort);
   /* Mark the socket so it will listen for incoming connections */
   if (listen(servSock, MAXPENDING) < 0)
   die("listen() failed");
-
+  fprintf(stderr, "listening");
   for (;;) /* Run forever */
   {
     /* Set the size of the in-out parameter */
@@ -149,7 +167,7 @@ int initializeConnection(char** argv) {
     fprintf(stderr, "\nconnection started from: %s\n",
     inet_ntoa(echoClntAddr.sin_addr));
 
-    HandleTCPClient(clntSock, servSock, "test.py");
+    HandleTCPClient(clntSock, servSock, "todo.py");
 
     fprintf(stderr, "connection terminated from: %s\n",
     inet_ntoa(echoClntAddr.sin_addr));
