@@ -31,7 +31,6 @@ static int runPythonCode(char *file,  int clntSock)
   pid_t pid;
   static char buf[512];
   int i, out[2];
-
   if (pipe(out) != 0)
   die("Cannot create pipe");
 
@@ -44,8 +43,10 @@ static int runPythonCode(char *file,  int clntSock)
 
     // Receive the output of the child via the pipe and send it to the
     // client over the client socket.
+    /*
     do {
       n = read(out[0], buf, sizeof(buf));
+      fprintf(stderr, "parent reading from child: %s", buf);
       if (n > 0) {
         if (send(clntSock, buf, n, 0) != n) {
           // send() failed.
@@ -56,7 +57,7 @@ static int runPythonCode(char *file,  int clntSock)
         }
       }
     } while(n > 0);
-
+    */
     return 0;
   }
 
@@ -68,7 +69,7 @@ static int runPythonCode(char *file,  int clntSock)
 
   // Replace the current process image with /bin/ls.
   char *args[] = {"python", file, NULL};
-  fprintf(stderr, "calling execv\n");
+  fprintf(stderr, "child calling execv\n");
   if (execv("/usr/bin/python", args) == -1)
   perror("Cannot execute /bin/ls");
   return 0;
@@ -79,15 +80,14 @@ void HandleTCPClient(int inSocket, int outSocket, char *filename)
   char buf[BUF_SIZE];
 
   //Define input fd's
-  FILE *in, *outputFile;
-  if ((in = fdopen(inSocket, "r")) == NULL) die("fdopen failed");
+  FILE *outputFile;
+  //if ((in = fdopen(inSocket, "r")) == NULL) die("fdopen failed");
   if ((outputFile = fopen(filename, "wb")) == NULL) die("can't open output file");
 
   //Read in file from socket:
   size_t n;
-  size_t num_expected = 54;
+  size_t num_expected = 223;
   size_t num_read = 0;
-  fprintf(stderr, "about to read from distributing host\n");
   // TODO use fget to read num bytes of the file that the host is sending
   while ((n = read(inSocket,buf,sizeof(buf))) > 0) {
     if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
@@ -96,22 +96,13 @@ void HandleTCPClient(int inSocket, int outSocket, char *filename)
     if (num_read >= num_expected)
         break;
   }
-  /*
-  while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
-    if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
-    num_read = num_read + n;
-    fprintf(stderr, "num read: %zu", num_read);
-    if (num_read >= num_expected)
-        break;
-  }
-  */
+
   // fread() returns 0 on EOF or on error
   // so we need to check if there was an error.
-  if (ferror(in) || ferror(outputFile)) die("fread failed");
+  if (ferror(outputFile)) die("fread failed");
   fclose(outputFile);
-  fprintf(stderr, "finished writing TODO script\n");
   //Run program and send output to out
-  //runPythonCode(filename, outSocket);
+  runPythonCode(filename, outSocket);
 
   //Delete file
   //remove(filename);
