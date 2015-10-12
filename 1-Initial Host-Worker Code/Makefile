@@ -9,6 +9,9 @@ CFLAGS = -g -Wall $(INCLUDES)
 
 LDFLAGS = -g
 
+.PHONY: all
+all: clean worker host
+
 worker: worker.o
 
 worker.o: worker.c
@@ -20,7 +23,3 @@ host.o: host.c
 .PHONY: clean
 clean:
 	rm -rf *.o *~ worker host
-
-.PHONY: all
-all:
-	clean worker host

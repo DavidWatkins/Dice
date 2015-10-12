@@ -48,11 +48,7 @@ static int handleFileRequest(const char *filename, int clntSock)
     }
     if (ferror(fp))
         perror("fread failed");
-
-func_end:
-
     // clean up
-    free(file);
     if (fp)
         fclose(fp);
 
@@ -64,11 +60,6 @@ int initializeClient(char* serverName, char* serverPort) {
   int sock;
   struct sockaddr_in serverAddr;
   struct hostent *he;
-
-  char *p = strrchr(filePath, '/');
-  if (!p)
-  printUsage();
-  fname = p + 1;
 
   // get server ip from server name
   if ((he = gethostbyname(serverName)) == NULL) {

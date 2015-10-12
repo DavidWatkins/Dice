@@ -30,7 +30,7 @@ static int runPythonCode(char *file,  int clntSock)
   ssize_t n;
   pid_t pid;
   static char buf[512];
-  int statusCode, i, out[2];
+  int i, out[2];
 
   if (pipe(out) != 0)
   die("Cannot create pipe");
@@ -72,7 +72,33 @@ static int runPythonCode(char *file,  int clntSock)
   return 0;
 }
 
-int initializeConnection(char* argv) {
+void HandleTCPClient(int inSocket, int outSocket, char *filename)
+{
+  char buf[BUF_SIZE];
+
+  //Define input fd's
+  FILE *in, *outputFile;
+  if ((in = fdopen(inSocket, "r")) == NULL) die("fdopen failed");
+  if ((outputFile = fopen(filename, "wb")) == NULL) die("can't open output file");
+
+  //Read in file from socket:
+  size_t n;
+  while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
+    if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
+  }
+  // fread() returns 0 on EOF or on error
+  // so we need to check if there was an error.
+  if (ferror(in) || ferror(outputFile)) die("fread failed");
+  fclose(outputFile);
+
+  //Run program and send output to out
+  runPythonCode(filename, outSocket);
+
+  //Delete file
+  remove(filename);
+}
+
+int initializeConnection(char** argv) {
   int servSock;                    /* Socket descriptor for server */
   int clntSock;                    /* Socket descriptor for client */
   struct sockaddr_in echoServAddr; /* Local address */
@@ -123,38 +149,12 @@ int initializeConnection(char* argv) {
     fprintf(stderr, "\nconnection started from: %s\n",
     inet_ntoa(echoClntAddr.sin_addr));
 
-    HandleTCPClient(clntSock, "test.py");
+    HandleTCPClient(clntSock, servSock, "test.py");
 
     fprintf(stderr, "connection terminated from: %s\n",
     inet_ntoa(echoClntAddr.sin_addr));
   }
   /* NOT REACHED */
-}
-
-void HandleTCPClient(int inSocket, int outSocket, char *filename)
-{
-  char buf[BUF_SIZE];
-
-  //Define input fd's
-  FILE *in, *outputFile;
-  if ((in = fdopen(inSocket, "r")) == NULL) die("fdopen failed");
-  if ((outputFile = fopen(filename, "wb")) == NULL) die("can't open output file");
-
-  //Read in file from socket:
-  size_t n;
-  while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
-    if (fwrite(buf, 1, n, outputFile) != n) die("fwrite failed");
-  }
-  // fread() returns 0 on EOF or on error
-  // so we need to check if there was an error.
-  if (ferror(in) || ferror(outputFile)) die("fread failed");
-  fclose(outputFile);
-
-  //Run program and send output to out
-  runPythonCode(filename, outSocket);
-
-  //Delete file
-  remove(filename);
 }
 
 int main(int argc, char *argv[])
@@ -165,4 +165,5 @@ int main(int argc, char *argv[])
     exit(1);
   }
   initializeConnection(argv);
+  return 0;
 }
