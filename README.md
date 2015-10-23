@@ -1,2 +1,2 @@
-# DiceLanguage
-A distributed programming language
+# JFlat
+Java, but worse
