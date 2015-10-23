@@ -1,0 +1,71 @@
+%
+% Create Problem Sections
+%
+
+\newcommand{\enterProblemHeader}[1]{
+	\nobreak\extramarks{}{Section \arabic{#1} continued on next page\ldots}\nobreak{}
+	\nobreak\extramarks{Section \arabic{#1} (continued)}{Section \arabic{#1} continued on next page\ldots}\nobreak{}
+}
+
+\newcommand{\exitProblemHeader}[1]{
+	\nobreak\extramarks{Section \arabic{#1} (continued)}{Section \arabic{#1} continued on next page\ldots}\nobreak{}
+	\stepcounter{#1}
+	\nobreak\extramarks{Section \arabic{#1}}{}\nobreak{}
+}
+
+\setcounter{secnumdepth}{0}
+\newcounter{partCounter}
+\newcounter{homeworkProblemCounter}
+\setcounter{homeworkProblemCounter}{1}
+\nobreak\extramarks{Problem \arabic{homeworkProblemCounter}}{}\nobreak{}
+
+%
+% Homework Problem Environment
+%
+% This environment takes an optional argument. When given, it will adjust the
+% problem counter. This is useful for when the problems given for your
+% assignment aren't sequential. See the last 3 problems of this template for an
+% example.
+%
+\newenvironment{homeworkProblem}[1][-1]{
+	\ifnum#1>0
+	\setcounter{homeworkProblemCounter}{#1}
+	\fi
+	
+%	\section{Problem \arabic{homeworkProblemCounter}}
+	
+	\setcounter{partCounter}{1}
+	\enterProblemHeader{homeworkProblemCounter}
+}{
+\exitProblemHeader{homeworkProblemCounter}
+}
+
+%
+%Chapter
+%
+
+\titleformat{\chapter}[display]
+{\normalfont\scshape\Huge}
+{\hspace*{-60pt}\thechapter.~#1}
+{-15pt}
+{\hspace*{-110pt}\rule{\dimexpr\textwidth+80pt\relax}{3pt}\Huge}
+\titleformat{name=\chapter,numberless}[display]
+{\normalfont\scshape\Huge}
+{\hspace*{-60pt}#1}
+{-15pt}
+{\hspace*{-110pt}\rule{\dimexpr\textwidth+80pt\relax}{3pt}\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{30pt}
+
+%
+% Title Page
+%
+
+\title{
+	\vspace{2in}
+	\textmd{\textbf{\hmwkTitle}}\\
+}
+
+\author{\textbf{\hmwkAuthorName}}
+\date{}
+
+\renewcommand{\part}[1]{\textbf{\large Part \Alph{partCounter}}\stepcounter{partCounter}\\}
