@@ -1,0 +1,145 @@
+Add what null means for each operator.
+
+Library
+
+string class
+print
+
+Expressions / Operators (mostly inspired from GNU C Ref Manual)
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
+
+Expressions:
+
+An expression consists of at least one operand and zero or more operators. Operands are typed objects such as constants, variables, and method calls that return values. Here are some examples of expressions: 
+     42;        (* Expression evaluates to int 42 *)
+     1 + 1;     (* Expression evaluates to int 2 *)
+     3.0 - 2.0; (* Expression evaluates to double 1.0 *)
+     
+Parentheses group subexpressions: 
+     ( 2 * ( 2 + 2 ) - ( 3 - 2) );  (* Evaluates to 7 *)
+	
+
+- Method Calls as Expressions
+
+A call to any method which returns a value is an expression.
+
+     Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressions evaluates to 7 *)
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
+
+Operators:
+
+An operator specifies an operation to be performed on its operands. Operators may have one or two operands depending on the operator. 
+
+
+- Assignment Operators:
+
+Assignment operators store values in variables. JFlat provides several variations of assignment operators.
+
+The standard assignment operator "=" simply stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
+
+     int x = 10;
+     double y = 4.0 + 2.0;
+     int z = (2 * (3 + Class.methodReturnsInt() ));
+     int x = null;   (* Valid *)
+     3 = 10; (* Invalid! *)
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
+
+- Arithmetic Operators:
+
+JFlat provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with negation.
+
+     (* Addition. *)
+     int x = 5 + 3;   
+     double y = 57.53 + 10.90;
+
+     (* Subtraction. *)
+     x = 5 - 3;
+     y = 57.53 - 10.90;
+
+     (* Multiplication. *)
+     x = 5 * 3;
+     y = 57.53 * 10.90;
+
+     (* Division. *)
+     x = 5 / 3;       (* Integer division of positive values truncates towards zero, so 5/3 is 1 *)
+     y = 57.53 / 10.90;
+
+     (* Negation. *)
+     int x = -5;
+     double y = -3.1415;
+
+Type designation for mixed types (ints and doubles) occurs from left to right.
+
+     1.0 + 3;   (* Expression evaluates to double 4.0 *);
+     1 + 3.0;   (* Expression evaluates to int 4 *);
+
+
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
+
+- Conditional Expressions:
+
+You use the comparison operators to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. When you use any of the comparison operators, the result is either "true" or "false". The not-equal-to operator "!=" tests its two operands for inequality.
+
+The equal-to operator "==" tests its two operands for equality. The result is a "true" boolean if the operands are equal, and "false" if the operands are not equal.
+     int x = 5;
+     int y = 5;
+     bool z = (x == y);  (* z evaluates to "true" *)
+     x = x + 1;
+     z = (x != y);       (* z evaluates to "true" *)
+
+**** Comparing double values for exact equality or inequality can produce unexpected results. (will we have this problem with our implementation?)
+
+Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null conditional comparisons are allowed as well. 
+
+     int w = 5;
+     int x = 5;
+     int y = 6;
+     bool z = false;
+     
+     z = (x < y);     (* z evaluates to "true" *)
+     z = (w <= x);    (* z evaluates to "true" *)
+     z = (w > x);     (* z evaluates to "false" *)
+     z = (w >= x);    (* z evaluates to "true" *)
+
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
+
+— Logical Operators:
+
+Logical operators test the truth value of a pair of operands. The logical conjunction operator "and" tests if two expressions are both true. If the first expression is false, then the second expression is not evaluated. The logical conjunction operator "or" tests if at least one of two expressions it true. If the first expression is true, then the second expression is not evaluated.
+
+     int x = 5;
+     int y = 10;
+     bool z = false;
+  
+     z = ((x == 5) and (y == 10));          (* z evaluates to "true" *);
+     z = ((x == 7) and (y == 10));          (* z evaluates to "false" *);
+     z = ((x == 7) or (y == 10));           (* z evaluates to "true" *);
+     z = not ((x == 7) or (y == 10));       (* z evaluates to "false" *);
+   
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
+
+- Operator Precedence:
+
+When an expression contains multiple operators, such as x + y * Class.methodReturnsValue(), the operators are grouped based on rules of precedence. For instance, the meaning of that expression is to call the method with no arguments, multiply the result by y, then add that result to x. 
+
+The following is a list of types of expressions, presented in order of highest precedence first. Sometimes two or more operators have equal precedence; all those operators are applied from left to right unless stated otherwise.
+
+    Method calls, array subscripting, and membership access operator expressions.
+    Unary operators, including logical negation and unary negative.
+When several unary operators are consecutive, the later ones are nested within the earlier ones: not-x means not(-x).
+    Multiplication, division, and modular division expressions.
+    Addition and subtraction expressions.
+    Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to
+    expressions.
+    Equal-to and not-equal-to expressions.
+    Logical AND expressions.
+    Logical OR expressions.
+    All assignment expressions, including compound assignment. When multiple assignment statements appear as subexpressions in a single larger expression, they are evaluated right to left.
+
+(*———————————————————————————————————————————————————————————————————————————————————*)
