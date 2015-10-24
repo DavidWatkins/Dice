@@ -1,13 +1,13 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS SCOPE CONSTRUCTOR
+%token CLASS EXTENDS SCOPE CONSTRUCTOR INCLUDE THIS
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
-%token INT DOUBLE BOOL CHAR FILE VOID
 %token RETURN IF ELSE FOR WHILE
 %token <int> INT_LITERAL
-%token <int> DOUBLE_LITERAL
+%token <float> DOUBLE_LITERAL
+%token <bool> BOOLEAN_LIT
 %token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
@@ -25,19 +25,54 @@
 %type <Ast.program> program
 
 %%
-(*
-  program:
-    includes:
-      include list
-    cdecls: cdecl list:
-
-*)
 
 program:
   includes cdecls EOF { $1 }
 
-cdecls:
 
+/******************
+  INCLUDES
+******************/
+
+includes:
+   /* nothing */ { [] }
+  | include_list { List.rev $1 }
+
+include_list:
+    include              { [$1] }
+  | include_list include { $2::$1 }
+
+include:
+   INCLUDE LPAREN ID RPAREN { $3 }
+
+
+/******************
+ CLASSES
+******************/
+
+cdecls:
+    /* nothing */ { [] }
+  | cdecl_list    { List.rev $1 }
+
+cdecl_list:
+    /* nothing */     { [] }
+  | cdecl_list cdecl  { $2::$1 }
+
+cdecl:
+    CLASS ID LBRACE constructor_decls field_decls fdecl_list RBRACE { {
+      cname = $2;
+      extends = ();
+      constructors = $4;
+      fields = $5;
+      methods = $6;
+    } }
+  | CLASS ID EXTENDS ID LBRACE constructor_decls field_list fdecl_list RBRACE { {
+      cname = $2;
+      extends = $4;
+      constructors = $6;
+      fields = $7;
+      methods = $8;
+    } }
 
 (* Class Declarations are composed of variable declarations and function declarations *)
 cidecls:
@@ -49,12 +84,7 @@ cname:
     CLASS ID {$1}
   | CLASS ID EXTENDS ID
 
-cdecl:
-    CLASS ID LBRACE field_list fdecl_list RBRACE { {
-        cname=$2;
-        extends=();
-        f} }
-  | CLASS ID EXTENDS ID LBRACE field_list fdecl_list RBRACE
+
 
 formals_opt:
     /* nothing */ { [] }
@@ -116,6 +146,7 @@ expr_opt:
 expr:
     LITERAL          { Literal($1) }
   | ID               { Id($1) }
+  | ID DOT ID        { Deref(ID, ID) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }

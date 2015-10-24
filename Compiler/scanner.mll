@@ -44,6 +44,8 @@ rule token = parse
 | "char"   { TYPE }
 | "void"   { TYPE }
 | "null"   { NULL }
+| "true"   { BOOLEAN_LIT(true) }
+| "false"  { BOOLEAN_LIT(false) }
 
 (* Classes *)
 | "class"       { CLASS }
@@ -51,11 +53,14 @@ rule token = parse
 | "public"      { SCOPE }
 | "private"     { SCOPE }
 | "extends"     { EXTENDS }
+| "include"     { INCLUDE }
+| "this"        { THIS }
 
 | ['-']['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
 | ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
 | ['-']['0'-'9']+'.'['0'-'9']+ as lxm { DOUBLE_LITERAL(double_of_string lxm) }
 | ['0'-'9']+'.'['0'-'9']+ as lxm { DOUBLE_LITERAL(double_of_string lxm) }
+| '"' (([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])* as s) '"' { STRING_LIT(s) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | (* Added String LIteral *)
 | eof { EOF }

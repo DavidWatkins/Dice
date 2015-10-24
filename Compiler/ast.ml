@@ -6,6 +6,7 @@ type datatype = Int | Double | Void
 type expr =
     Literal of int
   | Id of string
+  | Deref of string * string
   | Binop of expr * op * expr
   | Assign of string * expr
   | Call of string * expr list
@@ -33,6 +34,7 @@ type func_decl = {
 type class_decl = {
   cname : string;
   extends : string;
+  constructors : func_decl list;
   fields : field list;
   methods : func_decl list;
 }
