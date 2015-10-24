@@ -1,0 +1,121 @@
+This chapter describes the lexical elements that make up JFlat source code. These elements are called tokens. There are five types of tokens: keywords, identifiers, constants, operators, and separators. White space, sometimes required to separate tokens, is also described in this chapter.
+
+
+Identifiers
+===========
+Identifiers are sequences of characters used for naming variables, functions and new data types. Valid identifier characters include ASCII letters, decimal digits, and the underscore character ‘_’. The first character of an identifier cannot be a digit.
+
+An identifier cannot have the same spelling (character sequence) as a keyword, boolean literal, or the null literal, or a compile-time error occurs. Lowercase letters and uppercase letters are distinct, such that foo and Foo are two different identifiers.
+
+
+Keywords
+=========
+Keywords are special identifiers reserved for use as part of the programming language itself. You cannot use them for any other purpose. JFlat recognizes the following keywords:
+
+int
+double
+char
+bool
+class
+public
+private
+if
+else
+elseif
+for
+continue
+while
+break
+return
+void
+include
+
+read, write, print, open, close
+
+
+Literals
+=========
+A literal is the source code representation of a value of a primitive type or the null type.
+
+
+Integer Literals
+-----------------
+An integer literal may be expressed in decimal (base 10). A positive integer is represented with either the single ASCII digit 0, representing the integer zero, or an ASCII digit from 1 to 9 optionally followed by one or more ASCII digits from 0 to 9. A negative integer is represented with the representation of a non-zero positive integer, prefixed with the negation operator.
+
+
+Double Literals
+----------------
+A double literal has the following parts: a whole-number part, a decimal point (represented by an ASCII period character), and a fraction part.
+
+
+Boolean Literals
+----------------
+The boolean type has two values, represented by the boolean literals true and false, formed from ASCII letters.
+
+Character Literals
+------------------
+A character literal is always of type char, expressed as a character or one of the following escape sequences enclosed in ASCII single quotes.
+
+\\
+Backslash character.
+\'
+Single quotation mark. 
+\"
+Double quotation mark. 
+\n
+Newline character. 
+\r
+Carriage return. 
+\t
+Horizontal tab.
+
+It is a compile-time error for the character following the character literal to be other than a '.
+
+
+
+String Literals
+----------------
+A string literal is always of type char[] and is initialized with zero or more characters or escape sequences enclosed in double quotes.
+char[] x = "abcdef";
+
+
+
+The Null Literal
+-----------------
+The null type has one value, the null reference, represented by the null literal null, which is formed from ASCII characters.
+
+
+
+Separators
+===========
+A separator separates tokens. White space (see next section) is a separator, but it is not a token. The other separators are all single-character tokens themselves:
+
+     ( ) [ ] { } ; , .
+
+
+White Space
+===========
+White space refers to one or more of the following characters:
+    the ASCII SP character, also known as "space"
+    the ASCII HT character, also known as "horizontal tab"
+    the ASCII FF character, also known as "form feed"
+    LineTerminator
+
+White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional. Hence, the following two snippets of source code denote the same program.
+
+    public int foo()
+     {
+       print( "hello, world\n" );
+       return 0;
+     }
+
+    public int foo(){print("hello, world\n");
+    return 0;}
+
+
+Comments
+=========
+All the text from the ASCII characters (* to the ASCII characters *) is ignored. Multiline comments can be distinguished from code by preceding each line of the comment with a * similar to the following:
+(* This is a long comment 
+ * that spans multiple lines because
+ * there is a lot to say. *)
