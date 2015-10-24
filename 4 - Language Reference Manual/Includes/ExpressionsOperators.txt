@@ -14,7 +14,7 @@ Expressions:
 An expression consists of at least one operand and zero or more operators. Operands are typed objects such as constants, variables, and method calls that return values. Here are some examples of expressions: 
      42;        (* Expression evaluates to int 42 *)
      1 + 1;     (* Expression evaluates to int 2 *)
-     3.0 - 2.0; (* Expression evaluates to double 1.0 *)
+     3.0 - 2.0; (* Expression evaluates to float 1.0 *)
      
 Parentheses group subexpressions: 
      ( 2 * ( 2 + 2 ) - ( 3 - 2) );  (* Evaluates to 7 *)
@@ -40,7 +40,7 @@ Assignment operators store values in variables. JFlat provides several variation
 The standard assignment operator "=" simply stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
 
      int x = 10;
-     double y = 4.0 + 2.0;
+     float y = 4.0 + 2.0;
      int z = (2 * (3 + Class.methodReturnsInt() ));
      int x = null;   (* Valid *)
      3 = 10; (* Invalid! *)
@@ -53,7 +53,7 @@ JFlat provides operators for standard arithmetic operations: addition, subtracti
 
      (* Addition. *)
      int x = 5 + 3;   
-     double y = 57.53 + 10.90;
+     float y = 57.53 + 10.90;
 
      (* Subtraction. *)
      x = 5 - 3;
@@ -69,11 +69,11 @@ JFlat provides operators for standard arithmetic operations: addition, subtracti
 
      (* Negation. *)
      int x = -5;
-     double y = -3.1415;
+     float y = -3.1415;
 
-Type designation for mixed types (ints and doubles) occurs from left to right.
+Type designation for mixed types (ints and floats) occurs from left to right.
 
-     1.0 + 3;   (* Expression evaluates to double 4.0 *);
+     1.0 + 3;   (* Expression evaluates to float 4.0 *);
      1 + 3.0;   (* Expression evaluates to int 4 *);
 
 
@@ -91,7 +91,7 @@ The equal-to operator "==" tests its two operands for equality. The result is a 
      x = x + 1;
      z = (x != y);       (* z evaluates to "true" *)
 
-**** Comparing double values for exact equality or inequality can produce unexpected results. (will we have this problem with our implementation?)
+**** Comparing float values for exact equality or inequality can produce unexpected results. (will we have this problem with our implementation?)
 
 Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null conditional comparisons are allowed as well. 
 
