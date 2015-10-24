@@ -43,7 +43,7 @@ include_list:
   | include_list include { $2::$1 }
 
 include:
-   INCLUDE LPAREN ID RPAREN { $3 }
+   INCLUDE LPAREN ID RPAREN SEMI { $3 }
 
 
 /******************
@@ -51,26 +51,25 @@ include:
 ******************/
 
 cdecls:
-    /* nothing */ { [] }
-  | cdecl_list    { List.rev $1 }
+    cdecl_list    { List.rev $1 }
 
 cdecl_list:
-    /* nothing */     { [] }
+    cdecl             { [$1] }
   | cdecl_list cdecl  { $2::$1 }
 
 cdecl:
-    CLASS ID LBRACE constructor_decls field_decls fdecl_list RBRACE { {
+    CLASS ID LBRACE field_decls constructor_decls fdecl_list RBRACE { {
       cname = $2;
       extends = ();
-      constructors = $4;
-      fields = $5;
+      constructors = $5;
+      fields = $4;
       methods = $6;
     } }
-  | CLASS ID EXTENDS ID LBRACE constructor_decls field_list fdecl_list RBRACE { {
+  | CLASS ID EXTENDS ID LBRACE field_list constructor_decls fdecl_list RBRACE { {
       cname = $2;
       extends = $4;
-      constructors = $6;
-      fields = $7;
+      constructors = $7;
+      fields = $6;
       methods = $8;
     } }
 
@@ -86,8 +85,9 @@ constructor_decl_list:
    constructor_decl { [$1] }
   |constructor_decl_list constructor_decl { $2::$1 }
 
+(* constructor(int a, int b,..., int z) { vdecl_list; stmt_list; } *)
 constructor_decl:
-  CONSTRUCTOR ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
 
 /******************
  FIELDS
