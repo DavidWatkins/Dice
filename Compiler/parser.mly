@@ -83,17 +83,70 @@ constructor_decls:
   | constructor_decl_list  { List.rev $1 }
 
 constructor_decl_list:
-   constructor {}
+   constructor_decl { [$1] }
+  |constructor_decl_list constructor_decl { $2::$1 }
 
-(* Class Declarations are composed of variable declarations and function declarations *)
-cidecls:
-   /* nothing */ { [], [] }
- | decls vdecl { ($2 :: fst $1), snd $1 }
- | decls fdecl { fst $1, ($2 :: snd $1) }
+constructor_decl:
+  CONSTRUCTOR ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
 
-cname:
-    CLASS ID {$1}
-  | CLASS ID EXTENDS ID
+/******************
+ FIELDS
+******************/
+
+field_list:
+    /*Nothing*/ { [] }
+  | SCOPE ID    {}
+
+/******************
+ METHODS
+******************/
+
+/******************
+ EXPRESSIONS
+******************/
+/***************
+  OBJECTS AND LISTS
+***************/
+
+/* String(args) */
+obj_create:
+    ID LPAREN actual_opt RPAREN    { ObjCreate($1, $2) }
+
+/* int a[3]; */
+/* int a[3][4]; */
+list_create:
+    ID ID bracket_list   { ListCreate($1, $2, $3) }
+  | TYPE ID bracket_list { ListCreate($1, $2, $3) }
+
+bracket_list:
+    bracket { [$1] }
+  | bracket_list bracket { $2 :: $1 }
+
+bracket:
+  LBRACK INT_LITERAL RBRACK { Literal($2) }
+
+/* a[3] */
+/* a.var */
+/* a.toString() */
+access:
+    obj_access  { $1 }
+  | list_access { $1 }
+
+obj_access:
+    expr ACCESS ID { ObjAccess($1, $3) }
+
+list_access:
+    expr LBRACK expr RBRACK { ListAccess($1, $3) }
+
+
+actuals_opt:
+    /* nothing */ { [] }
+  | actuals_list  { List.rev $1 }
+
+actuals_list:
+    expr                    { [$1] }
+  | actuals_list COMMA expr { $3 :: $1 }
+
 
 
 
@@ -106,9 +159,7 @@ formal_list:
   | formal_list COMMA ID { $3 :: $1 }
 
 
-field_list:
-    /*Nothing*/ { [] }
-  | SCOPE ID    {}
+
 
 fdecl:
    ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE

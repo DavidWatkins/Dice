@@ -1,7 +1,7 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or
+type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Deref
 type scope = Private | Public
 type bool = True | False
-type datatype = Int | Double | Void
+type datatype = Datatype of string
 
 type expr =
     Literal of int
@@ -10,6 +10,9 @@ type expr =
   | Binop of expr * op * expr
   | Assign of string * expr
   | Call of string * expr list
+  | ObjCreate of string * expr list
+  | ArrayAccess of expr * expr
+  | ArrayCreate of datatype * string * expr list
   | Noexpr
 
 type stmt =
