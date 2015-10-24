@@ -13,11 +13,11 @@ Bool
 
 2.1.1 Integer
 
-The integer type stores the given value in 32 bits. You should use integer types for storing whole number values (and the char data type for storing characters). The integer type can hold values ranging from -2,147,483,648 to 2,147,483,647.
+The integer type stores the given value in 32 bits. You should use integer types for storing whole number values (and the char data type for storing characters). The integer type can hold values ranging from -2,147,483,648 to 2,147,483,647. All integers are signed.
 
 2.1.2 Double
 
-The double type stores the given value in 64 bits. You should use double types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The double type can hold values ranging from 1e-37 to 1e37. Since all values are represented in binary, certain floating point values must be approximated. It is therefore recommended that the programmer compare doubles within a given range rather than with the equivalence operator ==.
+The double type stores the given value in 64 bits. You should use double types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The double type can hold values ranging from 1e-37 to 1e37. Doubles are always signed. Since all values are represented in binary, certain floating point values must be approximated. It is therefore recommended that the programmer compare doubles within a given range rather than with the equivalence operator ==.
 
 2.1.3 Void ( can’t find explanation in C or java LRM)
 
@@ -35,11 +35,7 @@ A character constant is a single character enclosed with single quotation marks,
 \:   Double quotation mark
 
 
-2.1.5 FILE
-
-The FILE type is used to indicate a file which is being accessed by the program. Thus, whenever the programmer opens a file, a FILE type is returned which is the same size as an integer.
-
-2.1.6 Bool
+2.1.5 Bool
 
 The bool type is a binary indicator which can be set to either True or False. The bool type is stored as one byte (??). A bool must be given a value at the time of declaration:
 
@@ -47,12 +43,102 @@ bool x = True;  // Valid declaration
 bool y;  // Invalid declaration, value not declared
 
 
+2.2 Arrays
+
+An array is a data structure which lets you store one or more elements consecutively in memory. Elements in an array are indexed beginning at position zero, not one.
+
+You declare an array by specifying its elements, name, and the number of elements it can store. An example is:
+
+int myArray[2];
+
+You can also initialize the elements in an array when you declare it as:
+
+int myArray[2] = {3, 4};
+
+If you initialize the values of an array during declaration, you must initialize every element in the array. Thus the following code is invalid: 
+int myArray[2] = {3}; (* invalid code *)
+
+You can access an element in an array by specifying the name of the array and the index of that element. You can use the accessed value for computation or you can change the value of the index as long as its type is the same type as the array. As an example, if you have an array of a = [1, 2, 3, 4], you can access the 3, which is the 3rd element of the array, with:
+
+a[2]; (* 3 *)
+a[2] = 5; (* change the value at the specified index to 5 *)
+a[2]; (* 5 *)
+
+The type of an array can be any primitive, including the array type. This means that you can declare an n-dimensional array, the members of which can be accessed by first indexing to the desired element of the first array, which is of type array, and then accessing into the desired element of the next array, and continuing n-1 times. For example, with a 2-dimensional array:
+
+int a[2][3]; (* declaring a two element array, each of which is a three element array of ints *)
+
 
 
 5. Program Structure and Scope
 
 Program Structure
 
-A Dice program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, which is required to be linked at the top of each program.
+A Dice program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, which is required to be linked at the top of each program, such as:
+
+#include <stdlib>
+#include <mylib>
+
+class FOO {
+
+	// my code
+
+}
+
+
+
+Program Scope
+
+Scope refers to which variables, methods, and classes are available at any given time in the program. All classes are available to all other classes regardless of their relative position in a program or library. Variable scope falls into two categories: fields (instance variables) which are defined at the top of a class, and local variables, which are defined within a method. Fields can be public or private. If a field is public then it is accessible whenever an instance of that class is instantiated. For instance, if I have a class X, then class Y can be defined as follows:
+
+class Y {
+
+    public int num;
+
+    constructor() {
+	
+	X myObj = X();
+	this.num = myObj.number;
+}
+}
+
+class X {
+	
+    public int number;
+
+}
+
+In this example, class Y has one field which is an int. In its constructor, an instance of class X is declared, and a public field within that object is used to set the value for the given int. If a field is declared private, however, it can only be accessed by the methods in the same class. For example, if there is a class Y with a private field, the following is valid:
+
+class Y {
+
+    private int num;
+
+    constructor() {
+
+	this.num = 5;
+}
+
+    private int getNum() {
+	
+	return this.num;
+}
+
+However, if I have a class X, that class cannot access the private field within Y. The following is invalid:
+
+class X {
+	
+    public int number;
+	
+    constructor() {
+
+	Y myObj = Y();
+	this.number = myObj.num;  (* This code is invalid since ‘num’ is a private field within Y *)
+}
+}
+
+Methods are also declared as public or private, and their accessibility is the same as fields. 
+
+Local variables are variables that are declared inside of a method. Local variables are only accessible within the same method in which they are declared, and they may have the same name as fields within the same class since fields in a class are only accessible by calling this keyword.
 
 ￼ C language reference manual 2.1.1
