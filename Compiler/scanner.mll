@@ -62,7 +62,6 @@ rule token = parse
 | ['0'-'9']+'.'['0'-'9']+ as lxm { DOUBLE_LITERAL(double_of_string lxm) }
 | '"' (([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])* as s) '"' { STRING_LIT(s) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
-| (* Added String LIteral *)
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

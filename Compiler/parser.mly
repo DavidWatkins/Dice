@@ -27,7 +27,7 @@
 %%
 
 program:
-  includes cdecls EOF { $1 }
+  includes cdecls EOF { Program($1, $2) }
 
 
 /******************
@@ -73,6 +73,17 @@ cdecl:
       fields = $7;
       methods = $8;
     } }
+
+/******************
+ CONSTRUCTORS
+******************/
+
+constructor_decls:
+    /* nothing */  { [] }
+  | constructor_decl_list  { List.rev $1 }
+
+constructor_decl_list:
+   constructor {}
 
 (* Class Declarations are composed of variable declarations and function declarations *)
 cidecls:

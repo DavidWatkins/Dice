@@ -39,4 +39,4 @@ type class_decl = {
   methods : func_decl list;
 }
 
-type program = include list * class_decl list
+type program = Program of include list * class_decl list
