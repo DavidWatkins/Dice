@@ -133,7 +133,7 @@ The following is a list of types of expressions, presented in order of highest p
     Method calls, array subscripting, and membership access operator expressions.
     Unary operators, including logical negation and unary negative.
 When several unary operators are consecutive, the later ones are nested within the earlier ones: not-x means not(-x).
-    Multiplication, division, and modular division expressions.
+    Multiplication, division.
     Addition and subtraction expressions.
     Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to
     expressions.
