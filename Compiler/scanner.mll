@@ -54,6 +54,7 @@ rule token = parse
 
 | ['-']['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
 | ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
+| ['-']['0'-'9']+'.'['0'-'9']+ as lxm { DOUBLE_LITERAL(double_of_string lxm) }
 | ['0'-'9']+'.'['0'-'9']+ as lxm { DOUBLE_LITERAL(double_of_string lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | (* Added String LIteral *)
