@@ -224,6 +224,7 @@ expr:
   | expr OR     expr { Binop($1, Or,   $3) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
+  | expr DOT    ID   { }
   | LPAREN expr RPAREN { $2 }
 
 actuals_opt:

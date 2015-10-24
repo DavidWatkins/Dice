@@ -5,6 +5,7 @@ type datatype = Datatype of string
 
 type expr =
     Literal of int
+  | BOOLEAN_LIT of bool
   | Id of string
   | Deref of string * string
   | Binop of expr * op * expr
@@ -23,8 +24,8 @@ type stmt =
   | For of expr * expr * expr * stmt
   | While of expr * stmt
 
-type vdecl = datatype * string
-type field = scope * datatype * string
+type vdecl = Vdecl of datatype * string
+type field = Field of scope * datatype * string
 type include = string
 
 type func_decl = {
