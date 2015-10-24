@@ -14,7 +14,7 @@ Keywords are special identifiers reserved for use as part of the programming lan
 
 this
 int
-double
+float
 char
 bool
 class
@@ -44,9 +44,9 @@ Integer Literals
 An integer literal may be expressed in decimal (base 10). A positive integer is represented with either the single ASCII digit 0, representing the integer zero, or an ASCII digit from 1 to 9 optionally followed by one or more ASCII digits from 0 to 9. A negative integer is represented with the representation of a non-zero positive integer, prefixed with the negation operator.
 
 
-Double Literals
+Float Literals
 ----------------
-A double literal has the following parts: a whole-number part, a decimal point (represented by an ASCII period character), and a fraction part.
+A float literal has the following parts: a whole-number part, a decimal point (represented by an ASCII period character), and a fraction part.
 
 
 Boolean Literals
