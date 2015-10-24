@@ -5,7 +5,7 @@
 2.1 Primitive Data Types:
 
 Integer
-Double
+Float
 Void
 Char
 FILE
@@ -15,9 +15,9 @@ Bool
 
 The integer type stores the given value in 32 bits. You should use integer types for storing whole number values (and the char data type for storing characters). The integer type can hold values ranging from -2,147,483,648 to 2,147,483,647. All integers are signed.
 
-2.1.2 Double
+2.1.2 Float
 
-The double type stores the given value in 64 bits. You should use double types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The double type can hold values ranging from 1e-37 to 1e37. Doubles are always signed. Since all values are represented in binary, certain floating point values must be approximated. It is therefore recommended that the programmer compare doubles within a given range rather than with the equivalence operator ==.
+The float type stores the given value in 64 bits. You should use float types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The float type can hold values ranging from 1e-37 to 1e37. Floats are always signed. Since all values are represented in binary, certain floating point values must be approximated. It is therefore recommended that the programmer compare floats within a given range rather than with the equivalence operator ==.
 
 2.1.3 Void ( can’t find explanation in C or java LRM)
 
@@ -141,4 +141,4 @@ Methods are also declared as public or private, and their accessibility is the s
 
 Local variables are variables that are declared inside of a method. Local variables are only accessible within the same method in which they are declared, and they may have the same name as fields within the same class since fields in a class are only accessible by calling this keyword.
 
-￼ C language reference manual 2.1.1
+ C language reference manual 2.1.1
