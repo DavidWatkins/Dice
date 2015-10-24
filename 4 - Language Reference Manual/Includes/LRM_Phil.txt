@@ -1,0 +1,58 @@
+2. Data Types:
+
+
+	
+2.1 Primitive Data Types:
+
+Integer
+Double
+Void
+Char
+FILE
+Bool
+
+2.1.1 Integer
+
+The integer type stores the given value in 32 bits. You should use integer types for storing whole number values (and the char data type for storing characters). The integer type can hold values ranging from -2,147,483,648 to 2,147,483,647.
+
+2.1.2 Double
+
+The double type stores the given value in 64 bits. You should use double types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The double type can hold values ranging from 1e-37 to 1e37. Since all values are represented in binary, certain floating point values must be approximated. It is therefore recommended that the programmer compare doubles within a given range rather than with the equivalence operator ==.
+
+2.1.3 Void ( can’t find explanation in C or java LRM)
+
+The void type is used to indicate an empty return value from a method call. As it is assumed that every method will return a value, and that value must have a type, the type of a return which has no value is null. An example would look like:
+
+public void inc(a) { a++ }
+
+2.1.4 Char ( C has this as a constant…)
+
+A character constant is a single character enclosed with single quotation marks, such as ‘p’. The size of the char data type is 8 bits. Some characters cannot be represented using only one character. These extra characters are represented with an “escape sequence”, which consists of a backslash and another character. Some examples are:
+
+\n  Newline character
+\t   Tab character
+\’   Single quotation mark
+\:   Double quotation mark
+
+
+2.1.5 FILE
+
+The FILE type is used to indicate a file which is being accessed by the program. Thus, whenever the programmer opens a file, a FILE type is returned which is the same size as an integer.
+
+2.1.6 Bool
+
+The bool type is a binary indicator which can be set to either True or False. The bool type is stored as one byte (??). A bool must be given a value at the time of declaration:
+
+bool x = True;  // Valid declaration
+bool y;  // Invalid declaration, value not declared
+
+
+
+
+5. Program Structure and Scope
+
+Program Structure
+
+A Dice program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, which is required to be linked at the top of each program.
+
+￼ C language reference manual 2.1.1

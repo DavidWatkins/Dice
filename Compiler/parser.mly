@@ -6,7 +6,9 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token INT DOUBLE BOOL CHAR FILE VOID
 %token RETURN IF ELSE FOR WHILE
-%token <int> LITERAL
+%token <int> INT_LITERAL
+%token <int> DOUBLE_LITERAL
+%token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
 
@@ -23,9 +25,16 @@
 %type <Ast.program> program
 
 %%
+(*
+  program:
+    includes:
+      include list
+    cdecls: cdecl list:
+
+*)
 
 program:
-  cdecls EOF { $1 }
+  includes cdecls EOF { $1 }
 
 cdecls:
 

@@ -2,7 +2,7 @@
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
+| "(*"     { comment lexbuf }           (* Comments *)
 
 | '('      { LPAREN }
 | ')'      { RPAREN }
@@ -26,9 +26,9 @@ rule token = parse
 | "and"    { AND }
 | "or"     { OR }
 | "not"    { NOT }
-| "."      { DOT }
-| "["      { LBRACKET }
-| "]"      { RBRACKET }
+| '.'      { DOT }
+| '['      { LBRACKET }
+| ']'      { RBRACKET }
 
 (* Branch Control *)
 | "if"     { IF }
@@ -42,8 +42,8 @@ rule token = parse
 | "double" { TYPE }
 | "bool"   { TYPE }
 | "char"   { TYPE }
-| "FILE"   { TYPE }
 | "void"   { TYPE }
+| "null"   { NULL }
 
 (* Classes *)
 | "class"       { CLASS }
@@ -52,11 +52,14 @@ rule token = parse
 | "private"     { SCOPE }
 | "extends"     { EXTENDS }
 
-| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
+| ['-']['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
+| ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
+| ['0'-'9']+'.'['0'-'9']+ as lxm { DOUBLE_LITERAL(double_of_string lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| (* Added String LIteral *)
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse
-  "*/" { token lexbuf }
+  "*)" { token lexbuf }
 | _    { comment lexbuf }
