@@ -11,12 +11,12 @@ If either zero or more than one class contains a definition for a method with th
 
 The members of a class type are all of the following:
 
-	- Members inherited from its superclasses
-	- Members declared in the body of the class
+	- Members inherited from its ancestors (its direct superclass and its ancestors)
+	- Members declared in the body of the class, with the exception of constructors
 
 Access modifiers
 ----------------
-Class member declarations must include access modifiers but the class declaration itself does not. Field and method declarations must include one of the access modifiers `public` or `private`. Fields and methods with the access modifier `public` can be accessed by methods defined in any class. Fields and methods with the access modifier `private` can be accessed by methods defined either in the same class or in classes that derive that class.
+Class member declarations must include access modifiers but the class declaration itself does not. Field and method declarations must include one of the access modifiers `public` or `private`. Fields and methods with the access modifier `public` can be accessed by methods defined in any class. Fields and methods with the access modifier `private` can be accessed by methods defined either in the same class or in successor classes (classes derived directly from that class and their successors).
 
 Fields
 ------
@@ -39,6 +39,8 @@ Example: public double amountPaid(double wage, int duration)
 The method body contains one or more statements enclosed between the ASCII characters `{` and `}`. If the type of the return value is not void, then the method body must include a return statement.
 
 Methods can be overloaded: If two methods of a class (whether both declared in the same class, or both inherited by a class, or one declared and one inherited) have the same name but signatures that are not override-equivalent, then the method name is said to be overloaded. There can be multiple methods with the same name defined for a class, as long as each has a different number and/or type of parameters.
+
+The name of a method may not be the same as the name of the class it is defined in.
 
 
 Constructors
