@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.7)  22 OCT 2015 17:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.7)  24 OCT 2015 21:27
 entering extended mode
 **master.tex
 (master.tex
@@ -1025,41 +1025,89 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 
 ]
 Chapter 2.
-) (Includes/LexicalConventions.tex [3
+Missing character: There is no ‚ in font cmr10!
+Missing character: There is no Ä in font cmr10!
+Missing character: There is no ò in font cmr10!
+Missing character: There is no ‚ in font cmr10!
+Missing character: There is no Ä in font cmr10!
+Missing character: There is no ô in font cmr10!
+Missing character: There is no ‚ in font cmr10!
+Missing character: There is no Ä in font cmr10!
+Missing character: There is no ú in font cmr10!
+Missing character: There is no ‚ in font cmr10!
+Missing character: There is no Ä in font cmr10!
+Missing character: There is no ù in font cmr10!
+! Undefined control sequence.
+l.29 	\n
+          Newline character
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
-]
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 30.
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
+File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 30.
+
+! Undefined control sequence.
+l.31 	\‚
+        Äô   Single quotation mark
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no Ä in font cmr10!
+Missing character: There is no ô in font cmr10!
+[3
+
+]) (Includes/LexicalConventions.tex [4]
 Chapter 3.
-) (Includes/Syntax.tex [4
+) (Includes/ExpressionsOperators.tex [5
 
 ]
 Chapter 4.
-) (Includes/Classes.tex [5
+) (Includes/Syntax.tex [6
 
 ]
 Chapter 5.
-) (Includes/Library.tex [6
+) (Includes/Statements.tex [7
 
 ]
 Chapter 6.
-) [7
+) (Includes/Classes.tex [8
+
+]
+Chapter 7.
+) (Includes/Library.tex [9
+
+]
+Chapter 8.
+) [10
 
 ] (master.aux) ) 
 Here is how much of TeX's memory you used:
- 23158 strings out of 493698
- 464453 string characters out of 3144412
- 528715 words of memory out of 3000000
- 26060 multiletter control sequences out of 15000+200000
- 10276 words of font info for 39 fonts, out of 3000000 for 9000
+ 23200 strings out of 493698
+ 465109 string characters out of 3144412
+ 530715 words of memory out of 3000000
+ 26091 multiletter control sequences out of 15000+200000
+ 12580 words of font info for 49 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  64i,12n,70p,10404b,283s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmb
 x10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Pro
-gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program File
-s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on master.pdf (8 pages, 79784 bytes).
+gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX
+ 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on master.pdf (11 pages, 98144 bytes).
 PDF statistics:
- 52 PDF objects out of 1000 (max. 8388607)
+ 65 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

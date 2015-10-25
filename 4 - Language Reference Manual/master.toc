@@ -1,6 +1,21 @@
 \contentsline {chapter}{\numberline {1}Introduction}{2}
 \contentsline {chapter}{\numberline {2}Types}{3}
-\contentsline {chapter}{\numberline {3}Lexical Conventions}{4}
-\contentsline {chapter}{\numberline {4}Program Syntax}{5}
-\contentsline {chapter}{\numberline {5}Classes}{6}
-\contentsline {chapter}{\numberline {6}Standard Library Classes}{7}
+\contentsline {section}{Primitive Data Types:}{3}
+\contentsline {section}{Integer}{3}
+\contentsline {section}{Double}{3}
+\contentsline {section}{Void}{3}
+\contentsline {section}{Char}{3}
+\contentsline {section}{Bool}{4}
+\contentsline {chapter}{\numberline {3}Lexical Conventions}{5}
+\contentsline {chapter}{\numberline {4}Expressions and Operators}{6}
+\contentsline {chapter}{\numberline {5}Program Structure and Scope}{7}
+\contentsline {section}{Program Structure}{7}
+\contentsline {chapter}{\numberline {6}Statements}{8}
+\contentsline {section}{Expression Statements}{8}
+\contentsline {section}{The if Statement}{8}
+\contentsline {section}{The while Statement}{8}
+\contentsline {section}{The for Statement}{8}
+\contentsline {section}{Blocks}{8}
+\contentsline {section}{The return Statement}{8}
+\contentsline {chapter}{\numberline {7}Classes}{9}
+\contentsline {chapter}{\numberline {8}Standard Library Classes}{10}
