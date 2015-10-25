@@ -1,8 +1,18 @@
 { open Parser }
 
+let alpha = ['a'-'z' 'A'-'Z']
+let ascii = ([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])
+let digit = ['0'-'9']
+let id = alpha (alpha | digit | '_')*
+let string = '"' ( ascii* as s) '"'
+let char = ''' ( ascii | digit ) '''
+let float = ('-' digit+ | digit+) ['.'] digit+
+let int = digit+ | '-' digit+
+let whitespace = [' ' '\t' '\r' '\n']
+
 rule token = parse
-  [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "(*"     { comment lexbuf }           (* Comments *)
+  whitespace { token lexbuf } (* Whitespace *)
+| "(*"       { comment lexbuf }           (* Comments *)
 
 | '('      { LPAREN }
 | ')'      { RPAREN }
@@ -56,13 +66,12 @@ rule token = parse
 | "include"     { INCLUDE }
 | "this"        { THIS }
 
-| ['-']['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
-| ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
-| ['-']['0'-'9']+'.'['0'-'9']+ as lxm { FLOAT_LITERAL(float_of_string lxm) }
-| ['0'-'9']+'.'['0'-'9']+ as lxm { FLOAT_LITERAL(float_of_string lxm) }
-| '"' (([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])* as s) '"' { STRING_LIT(s) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
-| eof { EOF }
+| int as lxm   { INT_LITERAL(int_of_string lxm) }
+| float as lxm { FLOAT_LITERAL(float_of_string lxm) }
+| char as lxm  { CHAR_LITERAL(String.get lxm 1) }
+| string       { STRING_LIT(s) }
+| id as lxm    { ID(lxm) }
+| eof          { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse

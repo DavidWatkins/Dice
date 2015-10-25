@@ -1,13 +1,16 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Deref
+type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or
 type scope = Private | Public
 type bool = True | False
-type datatype = Datatype of string
+type datatype = Arraytype of string | Datatype of string
 
 type expr =
     Literal of int
-  | BOOLEAN_LIT of bool
+  | This
+  | Boolean_Lit of bool
+  | Float_Lit of float
+  | String_Lit of string
+  | Char_Lit
   | Id of string
-  | Deref of string * string
   | Binop of expr * op * expr
   | Assign of string * expr
   | Call of string * expr list

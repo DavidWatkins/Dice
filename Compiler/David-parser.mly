@@ -6,7 +6,7 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE
 %token <int> INT_LITERAL
-%token <float> DOUBLE_LITERAL
+%token <float> FLOAT_LITERAL
 %token <bool> BOOLEAN_LIT
 %token <string> STRING_LITERAL
 %token <string> ID
@@ -95,74 +95,18 @@ constructor_decl:
 
 field_list:
     /*Nothing*/ { [] }
-  | SCOPE ID    {}
+    field       { [$1] }
+  | field_list field { $2::$1 }
+
+field:
+    SCOPE TYPE ID SEMI { Field($1, $2, $3) }
+  | SCOPE ID ID SEMI   { Field($1, $2, $3) }
 
 /******************
  METHODS
 ******************/
-
-/******************
- EXPRESSIONS
-******************/
-/***************
-  OBJECTS AND LISTS
-***************/
-
-/* String(args) */
-obj_create:
-    ID LPAREN actual_opt RPAREN    { ObjCreate($1, $2) }
-
-/* int a[3]; */
-/* int a[3][4]; */
-list_create:
-    ID ID bracket_list   { ListCreate($1, $2, $3) }
-  | TYPE ID bracket_list { ListCreate($1, $2, $3) }
-
-bracket_list:
-    bracket { [$1] }
-  | bracket_list bracket { $2 :: $1 }
-
-bracket:
-  LBRACK INT_LITERAL RBRACK { Literal($2) }
-
-/* a[3] */
-/* a.var */
-/* a.toString() */
-access:
-    obj_access  { $1 }
-  | list_access { $1 }
-
-obj_access:
-    expr ACCESS ID { ObjAccess($1, $3) }
-
-list_access:
-    expr LBRACK expr RBRACK { ListAccess($1, $3) }
-
-
-actuals_opt:
-    /* nothing */ { [] }
-  | actuals_list  { List.rev $1 }
-
-actuals_list:
-    expr                    { [$1] }
-  | actuals_list COMMA expr { $3 :: $1 }
-
-
-
-
-formals_opt:
-    /* nothing */ { [] }
-  | formal_list   { List.rev $1 }
-
-formal_list:
-    ID                   { [$1] }
-  | formal_list COMMA ID { $3 :: $1 }
-
-
-
-
 fdecl:
-   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   SCOPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { fname = $1;
 	 formals = $3;
 	 locals = List.rev $6;
@@ -182,10 +126,9 @@ vdecl_list:
 
 vdecl:
    TYPE ID SEMI { $2 }
-
-field:
-  SCOPE TYPE ID SEMI { { scope=$1;
-                         fname=$3; } }
+/******************
+ EXPRESSIONS
+******************/
 
 stmt_list:
     /* nothing */  { [] }
@@ -206,9 +149,8 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
+    INT_LITERAL          { Literal($1) }
   | ID               { Id($1) }
-  | ID DOT ID        { Deref(ID, ID) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -221,11 +163,58 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr NOT    expr { Binop($1, Not,   $3) }
-  | expr OR     expr { Binop($1, Or,   $3) }
+  | expr OR     expr { Binop($1, Or,    $3) }
+  | access           { Binop($1, Deref, $3) }
+  | { ArrayAccess of expr * expr }
+  | { ArrayCreate of datatype * string * expr list }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
-  | expr DOT    ID   { }
   | LPAREN expr RPAREN { $2 }
+
+actuals_opt:
+    /* nothing */ { [] }
+  | actuals_list  { List.rev $1 }
+
+actuals_list:
+    expr                    { [$1] }
+  | actuals_list COMMA expr { $3 :: $1 }
+
+  /* int a[3]; */
+  /* int a[3][4]; */
+  list_create:
+      ID ID bracket_list   { ListCreate($1, $2, $3) }
+    | TYPE ID bracket_list { ListCreate($1, $2, $3) }
+
+  bracket_list:
+      bracket { [$1] }
+    | bracket_list bracket { $2 :: $1 }
+
+  bracket:
+    LBRACK INT_LITERAL RBRACK { Literal($2) }
+
+  /* a[3] */
+  /* a.var */
+  /* a.toString() */
+  access:
+      obj_access  { $1 }
+    | list_access { $1 }
+
+  obj_access:
+      expr ACCESS ID { ObjAccess($1, $3) }
+
+  list_access:
+      expr LBRACK expr RBRACK { ListAccess($1, $3) }
+
+/***************
+  PARAMS
+***************/
+formals_opt:
+    /* nothing */ { [] }
+  | formal_list   { List.rev $1 }
+
+formal_list:
+    ID                   { [$1] }
+  | formal_list COMMA ID { $3 :: $1 }
 
 actuals_opt:
     /* nothing */ { [] }
