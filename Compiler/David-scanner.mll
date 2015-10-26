@@ -69,7 +69,7 @@ rule token = parse
 | int as lxm   { INT_LITERAL(int_of_string lxm) }
 | float as lxm { FLOAT_LITERAL(float_of_string lxm) }
 | char as lxm  { CHAR_LITERAL(String.get lxm 1) }
-| string       { STRING_LIT(s) }
+| string       { STRING_LITERAL(s) }
 | id as lxm    { ID(lxm) }
 | eof          { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }

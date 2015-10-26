@@ -1,22 +1,25 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or
 type scope = Private | Public
 type bool = True | False
-type datatype = Arraytype of string | Datatype of string
+type datatype = 
+    Arraytype of string 
+  | Datatype of string
 
 type expr =
     Literal of int
-  | This
+  | This (* WHAT SHOULD GO HERE???*)
   | Boolean_Lit of bool
   | Float_Lit of float
   | String_Lit of string
-  | Char_Lit
+  | Char_Lit of char
   | Id of string
   | Binop of expr * op * expr
   | Assign of string * expr
   | Call of string * expr list
   | ObjCreate of string * expr list
-  | ArrayAccess of expr * expr
+  | ObjAccess of string * expr list
   | ArrayCreate of datatype * string * expr list
+  | ArrayAccess of expr * expr
   | Noexpr
 
 type stmt =
