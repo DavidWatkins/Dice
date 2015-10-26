@@ -1,2 +1,2 @@
-# JFlat
+# Dice
 Java, but worse
