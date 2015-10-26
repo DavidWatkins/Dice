@@ -1,0 +1,127 @@
+6. Statements
+A statement forms a complete unit of execution.
+
+6.1 Expression Statements
+An expression statement consists of an expression followed by a semicolon. The execution of such a statement causes the associated expression to be evaluated.
+
+The following types of expressions can be made into a statement by terminating the expression with a semicolon (;):
+	- Assignment expressions
+	Example: aValue = 8933.234;
+	- Method invocations
+	Example: Game.updateScore(Player1, 5);
+	- Object creation expressions
+	Example: Bicycle myBike = new Bicycle();
+
+6.2 Declaration Statements
+A declaration statement declares a variable by specifying its data type and name.
+Example: double aValue;
+In addition to the data type and name, a declaration statement can initialize the variable with a value.
+Example:
+double aValue = 8933.234;
+
+6.3 Control Flow Statements
+Control flow statements regulate the order in which statements get executed.
+https://docs.oracle.com/javase/tutorial/java/nutsandbolts/flow.html
+
+6.3.1 if-then, if-then-else
+The `if-then` statement tells the program to execute a certain section of code only if a particular test evaluates to true. The conditional expression that is evaluated is enclosed in balanced parentheses. The section of code that is conditionally executed is specified as a sequence of statements enclosed in balanced braces. If the conditional expression evaluates to false, control jumps to the end of the if-then statement.
+Example:
+if (bar == 5) {
+	print("bar equals 5");
+}
+
+The `if-then-else` statement provides an alternate path of execution when "if" clause evaluates to false. This alternate path of execution is denoted by a sequence of statements enclosed in balanced braces, in the same format as the path of execution to take if the conditional evaluates to true, prefixed by the keyword "else".
+Example:
+if (bar == 5) {
+	print("bar equals 5");
+} else {
+	print("bar does not equal 5");
+}
+
+6.3.2 Loop Statements: for, while
+The `for` statement allows the programmer the iterate over a range of values. The `for` statement has the following format:
+for (initialization; termination; update) {statement(s)}
+	- The `initialization` expression initializes the loop counter. It is executed once at the beginning of the `for` statement
+	- When the `termination` expression evaluates to false, the loop terminates.
+	- The `update` expression is invoked after each iteration and can either increment or decrement the value of the loop counter.
+The following example uses a `for` statement to print the numbers from 1 to 10:
+for (int loopCounter=1; loopCounter<11; loopCounter++) {
+	print(loopCounter);
+}
+
+The `while` statement executes a user-defined block of statements as long as a particular conditional expression evaluates to true. The syntax of a `while` statement is:
+while (expression) {
+	statement(s)
+}
+The following example uses a `while` statement to print the numbers from 1 to 10:
+int loopCounter = 1;
+while (loopCounter < 11) {
+	print(loopCounter);
+	loopCounter = loopCounter + 1;
+}
+
+6.3.3 Branching Statements: break, continue, return
+If a `break` statement is included within either a `for` or `while` statement, then it  terminates execution of the innermost looping statement it is nested within. All break statements have the same syntax:
+break;
+
+In the following example, the `break` statement terminates execution of the inner `while` statement and does not prevent the `for` statement from executing its block of statements for all iterations of i from 1 to 10. This results in the the values of j from 100 to 110 being printed, in each of the 10 iterations of the `for` loop.
+for (int i=1; i<11; i++) {
+	int j = 100;
+	while (j<120) {
+		if (j>110) {
+			break;
+		}
+		print(j);
+		j = j + 1;
+	}
+}
+
+In the following example, the `break` statement terminates execution of the inner `for` statement and does not prevent the `while` statement from executing its block of statements for all iterations of i from 1 to 1000. This results in the the values of j from 100 to 110 being printed, in each of the 1000 iterations of the `while` loop.
+int i = 1;
+while (i<1001) {
+	for (int j=100; j<120; j++) {
+		if (j>110) {
+			break;
+		}
+	}
+	i = i + 1;
+}
+
+The continue statement skips the current iteration of a `for` or `while` statement, causing the flow of execution to skip to the end of the innermost loop's body and evaluate the conditional expression that controls the loop.
+The following example uses a `continue` statement within a `for` loop to print only the odd integers between 1 and 10. The code prints "hello" 1000 times and on each of the 1000 `while` loop iterations, prints the odd integers.
+
+int counter = 1;
+while (counter < 1001) {
+	print("hello");
+	for (int i=1; i<11; i++) {
+		if (i - 2*(i/2) == 0) {
+			continue;
+		} else {
+			print(i);
+		}
+	}
+	counter = counter + 1;
+}
+
+
+The `return` statement exits from the current method, and control flow returns to where the method was invoked. To return a value, simply put the value (or an expression that calculates the value) after the return keyword:
+return count + 4;
+
+The data type of the returned value must match the type of the method's declared return value. When a method is declared void, either no return statement is needed or the following `return` statement is used:
+return;
+
+
+6.4 Blocks
+A block is a group of zero or more statements between balanced braces and can be used anywhere a single statement is allowed. The following example, BlockDemo, illustrates the use of blocks:
+
+class BlockDemo {
+     public void main(String[] args) {
+          bool condition = true;
+          if (condition) { // begin block 1
+               print("Condition is true.");
+          } // end block one
+          else { // begin block 2
+               print("Condition is false.");
+          } // end block 2
+     }
+}
