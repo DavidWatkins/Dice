@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.6)  26 OCT 2015 02:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.6)  26 OCT 2015 02:56
 entering extended mode
 **master.tex
 (master.tex
@@ -1219,13 +1219,13 @@ File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 93.
 
-(_minted-master/882BDF3A2CFF0045302AF60E95703F7B26225DE33F39775F78A0A81437DD569
+(_minted-master/2F8CC14A0C66D072C73DA4CB66BC7C3126225DE33F39775F78A0A81437DD569
 6.pygtex)
 (_minted-master/6F17C57777EC2488C859AD9FF9407C9026225DE33F39775F78A0A81437DD569
 6.pygtex)
-(_minted-master/45F311FDDD1D416951481D1C847FE2B10B5D37B27BB6E190E189DA0E7129817
+(_minted-master/1FD7A46ACB68EEE47BAE6ADD7CCD44B60B5D37B27BB6E190E189DA0E7129817
 2.pygtex)
-(_minted-master/65794E71D20C5860DE337B7A78B6653226225DE33F39775F78A0A81437DD569
+(_minted-master/6806A67564884A9CD942B94BF543922226225DE33F39775F78A0A81437DD569
 6.pygtex)) (Includes/ExpressionsOperators.tex
 File: logo.png Graphic file (type png)
  <use logo.png>
@@ -1280,7 +1280,7 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 [11]
 (_minted-master/CE551584C5092E5AA171A3D4A2B7EA9926225DE33F39775F78A0A81437DD569
 6.pygtex)
-(_minted-master/C6ACADF08C6B75EC15E07CD797B6D7DB26225DE33F39775F78A0A81437DD569
+(_minted-master/901F5F1981EDC00058B9BC70754EB2DC26225DE33F39775F78A0A81437DD569
 6.pygtex)
 (_minted-master/C1B781A837880A415F294F530C9095D526225DE33F39775F78A0A81437DD569
 6.pygtex)
@@ -1314,9 +1314,9 @@ Chapter 5.
 
 (_minted-master/3F987DAD2064B55F198615CB75DCD44926225DE33F39775F78A0A81437DD569
 6.pygtex)
-(_minted-master/625F4EBAFF9C52ABFBB3F37727A7621D26225DE33F39775F78A0A81437DD569
+(_minted-master/8B1ACF5A74F00E3A56982577ABB06CF926225DE33F39775F78A0A81437DD569
 6.pygtex)
-(_minted-master/D5DAD94785569EF5DFB616404F085AE426225DE33F39775F78A0A81437DD569
+(_minted-master/F9861C074816B5CCD4659A0D500408A126225DE33F39775F78A0A81437DD569
 6.pygtex)
 (_minted-master/2045F3B6004D69E775C0E05D1334EEBD26225DE33F39775F78A0A81437DD569
 6.pygtex [14
@@ -1410,7 +1410,7 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 [18]
 Chapter 6.
 
-(_minted-master/DA05C12B3077157201A64C661BD8777626225DE33F39775F78A0A81437DD569
+(_minted-master/73CA53FFB5A4AADAD5C8DD1AF459A15626225DE33F39775F78A0A81437DD569
 6.pygtex)
 (_minted-master/DEBA3D905446A5C607A241870CBA3F9D26225DE33F39775F78A0A81437DD569
 6.pygtex [19
@@ -1574,7 +1574,7 @@ ts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
 msfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
 cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt1
 0.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/palatino/uplbi8a.pfb>
-Output written on master.pdf (28 pages, 217852 bytes).
+Output written on master.pdf (28 pages, 217761 bytes).
 PDF statistics:
  138 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

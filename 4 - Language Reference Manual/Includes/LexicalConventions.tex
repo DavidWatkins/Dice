@@ -55,7 +55,7 @@
 		\item '\textbackslash r' - carriage return
 		\item '\textbackslash t' - tab character
 	\end{itemize}
-	It is a compile-time error for the character following the character literal to be other than a '.
+	It is a compile-time error for the character following the character literal to be other than a single-quote character '.
 	
 	\begin{minted}{c}
 	CHAR = "\' ( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )\' "
@@ -106,13 +106,13 @@
 	White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional. Hence, the following two snippets of source code are equivalent.
 	
 	\begin{minted}{java}
-public int foo()
-{
-	print( "hello, world\n" );
-	return 0;
-}
-
-public int foo(){print("hello, world\n"); return 0;}
+	public int foo()
+	{
+		print( "hello, world\n" );
+		return 0;
+	}
+	
+	public int foo(){print("hello, world\n"); return 0;}
 	\end{minted}
 	
 	\begin{minted}{java}
@@ -122,13 +122,13 @@ public int foo(){print("hello, world\n"); return 0;}
 	\section{Comments}
 	All the text from the ASCII characters (* to the ASCII characters *) is ignored. Multiline comments can be distinguished from code by preceding each line of the comment with a * similar to the following:
 	\begin{minted}{ocaml}
-(* This is a long comment 
-* that spans multiple lines because
-* there is a lot to say. *)
+	(* This is a long comment 
+	* that spans multiple lines because
+	* there is a lot to say. *)
 	\end{minted}
 
 	\begin{minted}{java}
-				COMMENT = "(\* [.]* \*)"
+				COMMENT = "(\* [^ \*)]* \*)"
 	\end{minted}
 
 \end{homeworkProblem}

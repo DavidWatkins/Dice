@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{c}{(* This is a long comment}
+\PYGdefault{c}{	* that spans multiple lines because}
+\PYGdefault{c}{	* there is a lot to say. *)}
+\end{Verbatim}
