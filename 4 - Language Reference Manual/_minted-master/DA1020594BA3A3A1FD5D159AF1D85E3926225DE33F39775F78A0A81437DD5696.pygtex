@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{n}{constructor} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{comma}\PYGdefault{o}{\PYGdefaultZhy{}}\PYGdefault{n}{separated} \PYGdefault{n}{list} \PYGdefault{n}{of} \PYGdefault{n}{parameters}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZob{}\PYGdefaultZlt{}}\PYGdefault{n}{list} \PYGdefault{n}{of} \PYGdefault{n}{statements}\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZcb{}}
+	\PYGdefault{o}{(*} \PYGdefault{n}{Example} \PYGdefault{o}{*)} \PYGdefault{n}{constructor} \PYGdefault{o}{(}\PYGdefault{k+kt}{int} \PYGdefault{n}{a}\PYGdefault{o}{,} \PYGdefault{k+kt}{char}\PYGdefault{o}{[]} \PYGdefault{n}{b}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}...\PYGdefaultZcb{}}
+\end{Verbatim}

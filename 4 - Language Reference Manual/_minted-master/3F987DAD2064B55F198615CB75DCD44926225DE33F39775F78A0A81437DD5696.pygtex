@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{o}{(*} \PYGdefault{n}{Assignment} \PYGdefault{n}{expressions} \PYGdefault{o}{*)}
+	\PYGdefault{n}{aValue} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{8933.234}\PYGdefault{o}{;}
+	\PYGdefault{o}{(*} \PYGdefault{n}{Method} \PYGdefault{n}{invocations} \PYGdefault{o}{*)}
+	\PYGdefault{n}{Game}\PYGdefault{o}{.}\PYGdefault{n+na}{updateScore}\PYGdefault{o}{(}\PYGdefault{n}{Player1}\PYGdefault{o}{,} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{);}
+	\PYGdefault{o}{(*} \PYGdefault{n}{Object} \PYGdefault{n}{creation} \PYGdefault{n}{expressions} \PYGdefault{o}{*)}
+	\PYGdefault{n}{Bicycle} \PYGdefault{n}{myBike} \PYGdefault{o}{=} \PYGdefault{k}{new} \PYGdefault{n}{Bicycle}\PYGdefault{o}{();}
+\end{Verbatim}

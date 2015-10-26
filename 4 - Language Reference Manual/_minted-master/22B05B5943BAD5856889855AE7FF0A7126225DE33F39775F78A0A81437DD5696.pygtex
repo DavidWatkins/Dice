@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{access} \PYGdefault{n}{modifier}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{k}{return} \PYGdefault{n}{type}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{method} \PYGdefault{n}{name}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{comma}\PYGdefault{o}{\PYGdefaultZhy{}}\PYGdefault{n}{separated} \PYGdefault{n}{list} \PYGdefault{n}{of} \PYGdefault{n}{parameters}\PYGdefault{o}{\PYGdefaultZgt{}}
+	\PYGdefault{o}{(*} \PYGdefault{n}{Example} \PYGdefault{o}{*)} \PYGdefault{k+kd}{public} \PYGdefault{k+kt}{double} \PYGdefault{n+nf}{amountPaid}\PYGdefault{o}{(}\PYGdefault{k+kt}{double} \PYGdefault{n}{wage}\PYGdefault{o}{,} \PYGdefault{k+kt}{int} \PYGdefault{n}{duration}\PYGdefault{o}{)}
+\end{Verbatim}

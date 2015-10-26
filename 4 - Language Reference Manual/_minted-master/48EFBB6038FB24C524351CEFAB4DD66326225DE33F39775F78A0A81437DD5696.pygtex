@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGdefault{l+m+mi}{42}\PYGdefault{o}{;}        \PYGdefault{o}{(*} \PYGdefault{n}{Expression} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{k+kt}{int} \PYGdefault{l+m+mi}{42} \PYGdefault{o}{*)}
+\PYGdefault{l+m+mi}{1} \PYGdefault{o}{+} \PYGdefault{l+m+mi}{1}\PYGdefault{o}{;}     \PYGdefault{o}{(*} \PYGdefault{n}{Expression} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{k+kt}{int} \PYGdefault{l+m+mi}{2} \PYGdefault{o}{*)}
+\PYGdefault{l+m+mf}{3.0} \PYGdefault{o}{\PYGdefaultZhy{}} \PYGdefault{l+m+mf}{2.0}\PYGdefault{o}{;} \PYGdefault{o}{(*} \PYGdefault{n}{Expression} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{k+kt}{float} \PYGdefault{l+m+mf}{1.0} \PYGdefault{o}{*)}
+\end{Verbatim}

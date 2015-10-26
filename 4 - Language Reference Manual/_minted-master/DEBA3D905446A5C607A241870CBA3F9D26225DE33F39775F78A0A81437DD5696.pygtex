@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{Y} \PYGdefault{o}{\PYGdefaultZob{}}
+
+		\PYGdefault{k+kd}{public} \PYGdefault{k+kt}{int} \PYGdefault{n}{num}\PYGdefault{o}{;}
+
+		\PYGdefault{n}{constructor}\PYGdefault{o}{()} \PYGdefault{o}{\PYGdefaultZob{}}
+
+			\PYGdefault{n}{X} \PYGdefault{n}{myObj} \PYGdefault{o}{=} \PYGdefault{n}{X}\PYGdefault{o}{();}
+			\PYGdefault{k}{this}\PYGdefault{o}{.}\PYGdefault{n+na}{num} \PYGdefault{o}{=} \PYGdefault{n}{myObj}\PYGdefault{o}{.}\PYGdefault{n+na}{number}\PYGdefault{o}{;}
+		\PYGdefault{o}{\PYGdefaultZcb{}}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+
+	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{X} \PYGdefault{o}{\PYGdefaultZob{}}
+
+		\PYGdefault{k+kd}{public} \PYGdefault{k+kt}{int} \PYGdefault{n}{number}\PYGdefault{o}{;}
+
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

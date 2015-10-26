@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{;}
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{;}
+	\PYGdefault{n}{bool} \PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{n}{x} \PYGdefault{o}{==} \PYGdefault{n}{y}\PYGdefault{o}{);}  \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}true\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+	\PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{n}{x} \PYGdefault{o}{+} \PYGdefault{l+m+mi}{1}\PYGdefault{o}{;}
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{n}{x} \PYGdefault{o}{!=} \PYGdefault{n}{y}\PYGdefault{o}{);}       \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}true\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+\end{Verbatim}

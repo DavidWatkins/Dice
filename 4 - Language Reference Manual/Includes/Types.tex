@@ -1,46 +1,146 @@
 \begin{homeworkProblem}
 	\chapter{Types}
-	\section{Primitive Data Types:}
-	\begin{itemize}
-		\item Integer
-		\item Double
-		\item Void
-		\item Character
-		\item Boolean
-	\end{itemize}
-	
-	\section{Integer}
-	The integer type stores the given value in 32 bits. You should use integer types for storing whole number values (and the char data type for storing characters). The integer type can hold values ranging from -2,147,483,648 to 2,147,483,647.
-	
-	\section{Double}
-	
-	The double type stores the given value in 64 bits. You should use double types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The double type can hold values ranging from 1e-37 to 1e37. Since all values are represented in binary, certain floating point values must be approximated. It is therefore recommended that the programmer compare doubles within a given range rather than with the equivalence operator ==.
-	
-	\section{Void}
-	
-	The void type is used to indicate an empty return value from a method call. As it is assumed that every method will return a value, and that value must have a type, the type of a return which has no value is null. An example would look like:
-	
-	public void inc(a) { a++ }
-	
-	\section{Char}
-	
-	A character constant is a single character enclosed with single quotation marks, such as ‘p’. The size of the char data type is 8 bits. Some characters cannot be represented using only one character. These extra characters are represented with an “escape sequence”, which consists of a backslash and another character. Some examples are:
-	
-%	\n  Newline character
-%	\t   Tab character
-%	\’   Single quotation mark
-%	\:   Double quotation mark
-	
-	\section{Bool}
-	
-	The bool type is a binary indicator which can be set to either True or False. The bool type is stored as one byte (??). A bool must be given a value at the time of declaration:
-	
-	bool x = True;  // Valid declaration
-	bool y;  // Invalid declaration, value not declared
-	
-	
-	
-	
+	\section{Primitive Data Types}
 
+	\subsection{int}
+	The integer type stores the given value in 32 bits. You should use integer types for storing whole number values (and the char data type for storing characters). The integer type can hold values ranging from -2,147,483,648 to 2,147,483,647.
+
+	Syntactically correct use of int:
+
+	\begin{minted}{java}
+	<scope> int funcName( <formal-opts> ) { <body> }
+	<scope> <type> funcName( <formal-opts> ) { int i; <body> }
+	class className {
+		<scope> int i;
+		<cbody>
+	}
+	\end{minted}
+
+
+	\subsection{float}
+
+	The float type stores the given value in 64 bits. You should use float types to store fractional number values or whole number values that do not fit into the range provided by the integer type. The float type can hold values ranging from 1e-37 to 1e37. Since all values are represented in binary, certain floating point values must be approximated. \\
+
+	Syntactically correct use of float:
+
+	\begin{minted}{java}
+	<scope> float funcName( <formal-opts> ) { <body> }
+	<scope> <type> funcName( <formal-opts> ) { float i; <body> }
+	class className {
+		<scope> float i;
+		<cbody>
+	}
+	\end{minted}
+
+
+	\subsection{void}
+
+	The void type is used to indicate an empty return value from a method call. As it is assumed that every method will return a value, and that value must have a type, the type of a return which has no value is null. A void type cannot be used for a variable type, only function return types. An example would look like: "public void inc(a) { a = a + 1; }" \\
+
+	Syntactically correct use of void:
+
+
+\begin{minted}{java}
+		<scope> void funcName( <formal-opts> ) { <body> }
+	\end{minted}
+
+
+	\subsection{char}
+
+	A character constant is a single character enclosed with single quotation marks, such as 'p'. The size of the char data type is 8 bits or 1 byte. Some characters cannot be represented using only one character.\\
+
+	Syntactically correct use of char:
+
+
+	\begin{minted}{java}
+	<scope> char[] funcName( <formal-opts> ) { <body> }
+	<scope> <type> funcName( <formal-opts> ) { char i; <body> }
+	class className {
+		<scope> char i;
+		<cbody>
+	}
+	\end{minted}
+
+
+	\subsection{bool}
+
+	The bool type is a binary indicator which can be set to either True or False. A bool can take one of two values, 'true' or 'false'. A bool could also be null.\\
+
+	Syntactically correct use of bool:
+
+	\begin{minted}{java}
+	<scope> bool funcName( <formal-opts> ) { <body> }
+	<scope> <type> funcName( <formal-opts> ) { bool i; <body> }
+	class className {
+		<scope> bool i;
+		<cbody>
+	}
+	bool i = true;
+	bool i = false;
+	\end{minted}
+
+
+	\section{Non-Primitive Data Types}
+	\subsection{Arrays}
+	An array is a data structure which lets you store one or more elements consecutively in memory. Elements in an array are indexed beginning at position zero, not one.\\
+
+	You declare an array by specifying its elements, name, and the number of elements it can store. An example is:\\
+
+
+	\begin{minted}{java}
+	int myArray[2];
+	\end{minted}
+
+	You can also initialize the elements in an array when you declare it as:
+
+
+	\begin{minted}{java}
+	int myArray[2] = {3, 4};
+	\end{minted}
+
+	If you initialize the values of an array during declaration, you must initialize every element in the array. Thus the following code is invalid: 
+
+	\begin{minted}{java}
+	int myArray[2] = {3}; (* invalid code *)
+	\end{minted}
+
+	The lexical convention for initializing an array is:
+
+
+	\begin{minted}{java}
+	<type T> arrayName[dim1, dim2, ..., dimN];
+	<type T> arrayName[dim1, dim2, ..., dimN] = [[[], [],...;
+	<type T> arrayName[,]; (* Defines an array with 2 dimensions of type T *)
+	\end{minted}
+
+	You can access an element in an array by specifying the name of the array and the index of that element. You can use the accessed value for computation or you can change the value of the index as long as its type is the same type as the array. As an example, if you have an array of a = [1, 2, 3, 4], you can access the 3, which is the 3rd element of the array, with:
+
+
+	\begin{minted}{java}
+	a[2]; (* 3 *)
+	a[2] = 5; (* change the value at the specified index to 5 *)
+	a[2]; (* 5 *)
+	\end{minted}
+
+	The type of an array can be any primitive, including the array type. This means that you can declare an n-dimensional array, the members of which can be accessed by first indexing to the desired element of the first array, which is of type array, and then accessing into the desired element of the next array, and continuing n-1 times. For example, with a 2-dimensional array:
+
+
+	\begin{minted}{java}
+	int a[2,3]; (* declaring a two element array,
+				each of which is a three element array of ints *)
+	\end{minted}
+	
+	JFlat will support arrays of arbitrary types as defined by the programmer. Accessing the length of an array may be done via:
+	\begin{minted}{java}
+	int a[5];
+	int length = a.length;
+	\end{minted}
+	
+	\subsection{Objects}
+	
+	See chapter 7 on classes to learn more about the syntax and usage of objects.
+
+	\section{Casting}
+	Casting is not supported in this language. There are interesting behaviors between ints and float defined in the section on operators that imitate casting, but there is no syntax to support casting between types directly. 
 
 \end{homeworkProblem}

@@ -1,4 +1,178 @@
 \begin{homeworkProblem}
 	\chapter{Expressions and Operators}
+	\section{Expressions}
+	
+	An expression is composed of one of the following:
+	\begin{itemize}
+		\item A literal value (See Literals section of chapter 2)
+		\item A reference to the current object via $this$ (See chapter 7)
+		\item An ID of a variable
+		\item An operand followed by an operator followed by an operand
+		\item The initialization of an object (See chapter 7)
+		\item The access of an array
+		\item an expression between ()
+	\end{itemize}
+	
+	An arithmetic expression consists of at least one operand and zero or more operators. Operands are typed objects such as constants, variables, and method calls that return values. Here are some examples of expressions: 
+	
+	\begin{minted}{java}
+42;        (* Expression evaluates to int 42 *)
+1 + 1;     (* Expression evaluates to int 2 *)
+3.0 - 2.0; (* Expression evaluates to float 1.0 *)
+	\end{minted}
+
+	
+	Parentheses group subexpressions:
+	\begin{minted}{java}
+( 2 * ( 2 + 2 ) - ( 3 - 2) );  (* Evaluates to 7 *)
+	\end{minted} 
+	
+	\subsection{Method Calls as Expressions}
+	A call to any method which returns a value is an expression.
+	\begin{minted}{java}
+	print("Hello");  (* Evaluates to null *)
+	\end{minted} 
+	
+	\subsection{Object Initialization as Expressions}
+	A call to a constructor of an object will evaluate to an instance of that object.
+	\begin{minted}{java}
+	String("Hello");  (* Evaluates to String *)
+	\end{minted}
+	
+	\subsection{Array Access as Expressions}
+	Creating an array evaluates to a type <type>[] with dimensions of what is passed
+	\begin{minted}{java}
+	int a[2] = [1,2];
+	a[2];  (* Evaluates to 1 *)
+	\end{minted}
+	
+	
+	\begin{minted}{java}
+Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressions evaluates to 7 *)
+	\end{minted}
+	
+	\section{Operators}
+		
+	An operator specifies an operation to be performed on its operands. Operators may have one or two operands depending on the operator. 
+	
+	\subsection{Assignment Operators}
+		
+	Assignment operators store values in variables. JFlat provides several variations of assignment operators.\\
+		
+	The standard assignment operator "=" simply stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
+		
+	\begin{minted}{java}
+	int x = 10;
+	float y = 4.0 + 2.0;
+	int z = (2 * (3 + Class.methodReturnsInt() ));
+	int x = null;   (* Valid *)
+	3 = 10; (* Invalid! *)
+	\end{minted}
+	
+	\subsection{Arithmetic Operators}
+	
+	JFlat provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with negation.
+	
+	\begin{minted}{java}
+	(* Addition. *)
+	int x = 5 + 3;   
+	float y = 57.53 + 10.90;
+	
+	(* Subtraction. *)
+	x = 5 - 3;
+	y = 57.53 - 10.90;
+	
+	(* Multiplication. *)
+	x = 5 * 3;
+	y = 57.53 * 10.90;
+	
+	(* Division. *)
+	x = 5 / 3; (* Integer division of positive values truncates towards zero, so 5/3 is 1 *)
+	y = 57.53 / 10.90;
+	
+	(* Negation. *)
+	int x = -5;
+	float y = -3.1415;
+	\end{minted}
+
+	Type designation for mixed types (ints and floats) occurs from left to right.
+
+	\begin{minted}{java}
+	1.0 + 3;   (* Expression evaluates to float 4.0 *);
+	1 + 3.0;   (* Expression evaluates to int 4 *);
+	\end{minted}
+	
+	\subsection{Conditional Operators}
+	
+	You use the comparison operators to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. When you use any of the comparison operators, the result is either "true" or "false". The not-equal-to operator "!=" tests its two operands for inequality.
+	
+	The equal-to operator "==" tests its two operands for equality. The result is a "true" boolean if the operands are equal, and "false" if the operands are not equal.
+	\begin{minted}{java}
+	int x = 5;
+	int y = 5;
+	bool z = (x == y);  (* z evaluates to "true" *)
+	x = x + 1;
+	z = (x != y);       (* z evaluates to "true" *)
+	\end{minted}
+
+	Comparing float values for exact equality or inequality can produce unexpected results. This is due to the underlying implementation of LLVM where floating point is approximated and not precise. 
+	
+	Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null conditional comparisons are allowed as well. 
+	
+	\begin{minted}{java}
+	int w = 5;
+	int x = 5;
+	int y = 6;
+	bool z = false;
+	String d = String("Hello");
+	
+	z = (x < y);     (* z evaluates to "true" *)
+	z = (w <= x);    (* z evaluates to "true" *)
+	z = (w > x);     (* z evaluates to "false" *)
+	z = (w >= x);    (* z evaluates to "true" *)
+	z = d == null;	 (* z evaluates to "false" *)
+	z = d != null;   (* z evaluates to "true" *)
+	\end{minted}
+	
+	The ==, !=, \textgreater=, \textgreater, \textless, \textless= operators are all defined to operate between any two values both either being of int or float. The The ==, != are also designated to compare any two values in JFlat, and if they are not both of type float, will only return true if the memory address is identical. The comparison of objects is recommended by defining an equals method within the class. 
+	
+	It is important to note that conditional expressions can be chained together using the $and, or, not$ operators, like so:
+	\begin{minted}{java}
+	int w = 5;
+	int x = 5;
+	int y = 6;
+	bool z = ((x == w) and (true)) or (y > x); (* z evaluates to "true" *)
+	\end{minted}
+	
+	Conditional expressions like this will terminate once a condition has been met, therefore the $(y>x)$ expression will not be evaluated because the first half, $((x == w) and (true))$, evaluated to true.
+	
+	\subsection{Array Operators}
+	Creating an array evaluates to a type \textless type\textgreater[] with dimensions of what is passed
+	\begin{minted}{java}
+	int a[2] = {1,2};
+	int b[1,2,1] = [[[1], [2]]];
+	a[2];  (* Evaluates to 1 *)
+	\end{minted}
+	
+	\subsection{Operator Precedence}
+	
+	When an expression contains multiple operators, such as x + y * Class.methodReturnsValue(), the operators are grouped based on rules of precedence. For instance, the meaning of that expression is to call the method with no arguments, multiply the result by y, then add that result to x. 
+	
+	The following is a list of types of expressions, presented in order of highest precedence first. Sometimes two or more operators have equal precedence; all those operators are applied from left to right unless stated otherwise.
+	
+	\begin{itemize}
+		\item Method calls, array subscripting, and membership access operator expressions.
+		\item Unary operators, including logical negation and unary negative.
+		\item When several unary operators are consecutive, the later ones are nested within the earlier ones: not-x means not(-x).
+		\item Multiplication, division.
+		\item Addition and subtraction expressions.
+		\item Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to
+		\item expressions.
+		\item Equal-to and not-equal-to expressions.
+		\item Logical AND expressions.
+		\item Logical OR expressions.
+		\item All assignment expressions, including compound assignment. When multiple assignment statements appear as subexpressions in a single larger expression, they are evaluated right to left.
+	\end{itemize}
+
 	
 \end{homeworkProblem}

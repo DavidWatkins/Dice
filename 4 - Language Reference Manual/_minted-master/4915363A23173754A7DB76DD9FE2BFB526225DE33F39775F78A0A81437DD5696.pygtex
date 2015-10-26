@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k}{while} \PYGdefault{o}{(}\PYGdefault{n}{expression}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}
+		\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{stmt}\PYGdefault{o}{\PYGdefaultZgt{}}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

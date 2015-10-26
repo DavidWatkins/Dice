@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.7)  24 OCT 2015 21:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.6)  26 OCT 2015 02:26
 entering extended mode
 **master.tex
 (master.tex
@@ -419,14 +419,10 @@ runsystem(del "master.aex")...executed.
 
 
 (_minted-master/default.pygstyle)
-("C:\Program Files\MiKTeX 2.9\tex\latex\karnaughmapalternative\karnaughmapsalte
-rnative.sty"
+("C:\Program Files\MiKTeX 2.9\tex\latex\misc\karnaughmapsalternative.sty"
+Package: karnaughmapsalternative 2013/03/13 v0.1 Barrera's version for a karnau
+gh map
 
-LaTeX Warning: You have requested package `karnaughmapsalternative',
-               but the package provides `karnaughmapalternative'.
-
-Package: karnaughmapalternative 2013/03/13 v0.1 Barrera's version for a karnaug
-h map
 ("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\frontendlayer\tikz.sty"
 ("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\basiclayer\pgf.sty"
 ("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\utilities\pgfrcs.sty"
@@ -917,6 +913,41 @@ Package: titlesec 2011/12/15 v2.10.0 Sectioning titles
 \titlewidthlast=\dimen264
 \titlewidthfirst=\dimen265
 )
+("C:\Program Files\MiKTeX 2.9\tex\latex\tcolorbox\tcolorbox.sty"
+Package: tcolorbox 2015/01/14 version 3.40 text color boxes
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\tools\verbatim.sty"
+Package: verbatim 2014/10/28 v1.5q LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks52
+\verbatim@line=\toks53
+\verbatim@in@stream=\read4
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\environ\environ.sty"
+Package: environ 2014/05/04 v0.3 A new way to define environments
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\trimspaces\trimspaces.sty"
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+\tcb@titlebox=\box85
+\tcb@upperbox=\box86
+\tcb@lowerbox=\box87
+\tcb@phantombox=\box88
+\c@tcbbreakpart=\count184
+\c@tcblayer=\count185
+\tcb@temp=\box89
+\tcb@temp=\box90
+\tcb@temp=\box91
+\tcb@temp=\box92
+\tcb@out=\write7
+\tcb@record@out=\write8
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\epigraph\epigraph.sty"
+Package: epigraph 2009/09/02 v1.5c typesetting epigraphs
+\beforeepigraphskip=\skip146
+\afterepigraphskip=\skip147
+\epigraphwidth=\skip148
+\epigraphrule=\skip149
+)
 ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
 libraryarrows.code.tex"
 File: tikzlibraryarrows.code.tex 2008/01/09 v3.0.0 (rcs-revision 1.1)
@@ -938,76 +969,102 @@ File: tikzlibraryshapes.multipart.code.tex 2008/01/09 v3.0.0 (rcs-revision 1.1)
 ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibraryshapes
 .multipart.code.tex"
 File: pgflibraryshapes.multipart.code.tex 2010/01/07 v3.0.0 (rcs-revision 1.2)
-\pgfnodepartlowerbox=\box85
-\pgfnodeparttwobox=\box86
-\pgfnodepartthreebox=\box87
-\pgfnodepartfourbox=\box88
-\pgfnodeparttwentybox=\box89
-\pgfnodepartnineteenbox=\box90
-\pgfnodeparteighteenbox=\box91
-\pgfnodepartseventeenbox=\box92
-\pgfnodepartsixteenbox=\box93
-\pgfnodepartfifteenbox=\box94
-\pgfnodepartfourteenbox=\box95
-\pgfnodepartthirteenbox=\box96
-\pgfnodeparttwelvebox=\box97
-\pgfnodepartelevenbox=\box98
-\pgfnodeparttenbox=\box99
-\pgfnodepartninebox=\box100
-\pgfnodeparteightbox=\box101
-\pgfnodepartsevenbox=\box102
-\pgfnodepartsixbox=\box103
-\pgfnodepartfivebox=\box104
+\pgfnodepartlowerbox=\box93
+\pgfnodeparttwobox=\box94
+\pgfnodepartthreebox=\box95
+\pgfnodepartfourbox=\box96
+\pgfnodeparttwentybox=\box97
+\pgfnodepartnineteenbox=\box98
+\pgfnodeparteighteenbox=\box99
+\pgfnodepartseventeenbox=\box100
+\pgfnodepartsixteenbox=\box101
+\pgfnodepartfifteenbox=\box102
+\pgfnodepartfourteenbox=\box103
+\pgfnodepartthirteenbox=\box104
+\pgfnodeparttwelvebox=\box105
+\pgfnodepartelevenbox=\box106
+\pgfnodeparttenbox=\box107
+\pgfnodepartninebox=\box108
+\pgfnodeparteightbox=\box109
+\pgfnodepartsevenbox=\box110
+\pgfnodepartsixbox=\box111
+\pgfnodepartfivebox=\box112
 )))) (header.tex) (functions.tex
-\c@partCounter=\count184
-\c@homeworkProblemCounter=\count185
+\c@partCounter=\count186
+\c@homeworkProblemCounter=\count187
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\titlesec\ttlkeys.def"
 File: ttlkeys.def 2011/12/15
+)
+LaTeX Font Info:    Try loading font information for T1+ppl on input line 69.
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\t1ppl.fd"
+File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
 )) (master.aux)
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
 
 ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count186
+\scratchcounter=\count188
 \scratchdimen=\dimen267
-\scratchbox=\box105
-\nofMPsegments=\count187
-\nofMParguments=\count188
-\everyMPshowfont=\toks52
-\MPscratchCnt=\count189
+\scratchbox=\box113
+\nofMPsegments=\count189
+\nofMParguments=\count190
+\everyMPshowfont=\toks54
+\MPscratchCnt=\count191
 \MPscratchDim=\dimen268
-\MPnumerator=\count190
-\makeMPintoPDFobject=\count191
-\everyMPtoPDFconversion=\toks53
-) ABD: EveryShipout initializing macros
-LaTeX Font Info:    Try loading font information for U+msa on input line 22.
+\MPnumerator=\count192
+\makeMPintoPDFobject=\count193
+\everyMPtoPDFconversion=\toks55
+) ABD: EveryShipout initializing macros <logo.png, id=4, 256.96pt x 256.96pt>
+File: logo.png Graphic file (type png)
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
+<use logo.png>
+Package pdftex.def Info: logo.png used on input line 23.
+(pdftex.def)             Requested size: 28.45274pt x 28.44997pt.
+LaTeX Font Info:    Try loading font information for U+msa on input line 25.
+ ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 22.
+LaTeX Font Info:    Try loading font information for U+msb on input line 25.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
+)
+Overfull \hbox (82.3124pt too wide) in paragraph at lines 32--33
+ []
+ []
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] (master.toc)
-\tf@toc=\write7
- [1
+[1
 
-] (Includes/Introduction.tex
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map} <./logo.png>]
+(master.toc [1
+
+])
+\tf@toc=\write9
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 45.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[2] (Includes/Introduction.tex
 Chapter 1.
 
 Underfull \hbox (badness 10000) in paragraph at lines 3--6
@@ -1021,93 +1078,505 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 7.
 ) (Includes/Types.tex
-[2
+[3
 
 ]
 Chapter 2.
+
+(_minted-master/4B75F75BEC6245FC985997B9C828929726225DE33F39775F78A0A81437DD569
+6.pygtex
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 2.
+)
+Underfull \hbox (badness 10000) in paragraph at lines 22--23
+
+ []
+
+
+(_minted-master/CE6C0A2A54D110EEE93F7D55E1F2BBA926225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 38--39
+
+ []
+
+
+(_minted-master/9CC6879E3BBCC2A7443EDF7FC1471AEF26225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 50--51
+
+ []
+
+[4
+
+]
+(_minted-master/F1FFCBEABB86209E52BC90C4796E75E726225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
+
+ []
+
+
+(_minted-master/EF6409668B88D4276BB14B944655721626225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 85--86
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 87--88
+
+ []
+
+
+(_minted-master/9B098D6E5CF301EFBCB4BFF245EBD2B126225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/14D13FF3454B0BA33DFB6380DDD08F1526225DE33F39775F78A0A81437DD569
+6.pygtex)
 Missing character: There is no ‚ in font cmr10!
 Missing character: There is no Ä in font cmr10!
-Missing character: There is no ò in font cmr10!
-Missing character: There is no ‚ in font cmr10!
-Missing character: There is no Ä in font cmr10!
-Missing character: There is no ô in font cmr10!
+Missing character: There is no ® in font cmr10!
+
+(_minted-master/7E8A3AEA44C947E7A93F46CD2D300B9B26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/3AF98CB9AC04D8FA7ED2E9BF33C4779426225DE33F39775F78A0A81437DD569
+6.pygtex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 5.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[5])
+(_minted-master/1ACA5402B55CCBC7F5E3ACF7BE2A5CB726225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/B4F22B8D4E3CDB87815808F95DE0689326225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/245B157D0F5B1C25C46D867B8B5203E326225DE33F39775F78A0A81437DD569
+6.pygtex)) (Includes/LexicalConventions.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[6]
+Chapter 3.
+
+(_minted-master/0A1FCB8B11ED5EA0ABDB2B1AC618404326225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/9CB5A0BDA7157EC3CEF8BAE43753555626225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/4C8470052CE6CF10AAF5C5E4AFC1FCCC26225DE33F39775F78A0A81437DD569
+6.pygtex [7
+
+])
+(_minted-master/FACC65E3F5B6EC59612CA1CA6626568C26225DE33F39775F78A0A81437DD569
+6.pygtex)
 Missing character: There is no ‚ in font cmr10!
 Missing character: There is no Ä in font cmr10!
 Missing character: There is no ú in font cmr10!
 Missing character: There is no ‚ in font cmr10!
 Missing character: There is no Ä in font cmr10!
 Missing character: There is no ù in font cmr10!
-! Undefined control sequence.
-l.29 	\n
-          Newline character
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
 
-LaTeX Font Info:    Try loading font information for OML+cmr on input line 30.
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
+Underfull \hbox (badness 10000) in paragraph at lines 49--50
+
+ []
+
+
+(_minted-master/1929BE571E3989B3499B730ACB4FD83B66C59AD215EFFD4A5DC443B49626F4B
+1.pygtex)
+(_minted-master/973D31AAF98A370991A9E050A4DBC20A66C59AD215EFFD4A5DC443B49626F4B
+1.pygtex)
+(_minted-master/3AFCB815C287A36CC0848C3B3AFB50760B5D37B27BB6E190E189DA0E7129817
+2.pygtex)
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 90.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[8]
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 93.
+ ("C:\Program Files\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
 File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 30.
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 93.
 
-! Undefined control sequence.
-l.31 	\‚
-        Äô   Single quotation mark
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
+(_minted-master/882BDF3A2CFF0045302AF60E95703F7B26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/6F17C57777EC2488C859AD9FF9407C9026225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/45F311FDDD1D416951481D1C847FE2B10B5D37B27BB6E190E189DA0E7129817
+2.pygtex)
+(_minted-master/65794E71D20C5860DE337B7A78B6653226225DE33F39775F78A0A81437DD569
+6.pygtex)) (Includes/ExpressionsOperators.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
 
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[9]
+Chapter 4.
+
+(_minted-master/48EFBB6038FB24C524351CEFAB4DD66326225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/D5DFFE7FAADE7A33F0C13F2AE282141926225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/61954A7A7D26BC752529FBCE44CE354A26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/95B7577C3D4D6BAAFB5A36ADF598A7E026225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/DED1A0A8A9586FB0AEC6E1A629FBCC4026225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/98AA409F59136DDD6358F65DB8AA35F726225DE33F39775F78A0A81437DD569
+6.pygtex) [10
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 60--61
+
+ []
+
+
+(_minted-master/E2BD9151B72FC116045D9C188FF8854226225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/626335347AF743B7C190F0A514ABA78926225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/B0D7B18E695FFBF3003A44F2AECA6CDE26225DE33F39775F78A0A81437DD569
+6.pygtex)
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 108.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[11]
+(_minted-master/CE551584C5092E5AA171A3D4A2B7EA9926225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/C6ACADF08C6B75EC15E07CD797B6D7DB26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/C1B781A837880A415F294F530C9095D526225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/BF8AD7FBD8DB2B628798CCEC8CC9DF3626225DE33F39775F78A0A81437DD569
+6.pygtex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 5.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[12])) (Includes/Statements.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[13]
+Chapter 5.
+
+(_minted-master/3F987DAD2064B55F198615CB75DCD44926225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/625F4EBAFF9C52ABFBB3F37727A7621D26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/D5DAD94785569EF5DFB616404F085AE426225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/2045F3B6004D69E775C0E05D1334EEBD26225DE33F39775F78A0A81437DD569
+6.pygtex [14
+
+])
+(_minted-master/B3443CCDA02579ED5546508A434A659D26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/4C74F731150922EB516A2C90FD506C4A26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/EAFF310AE62C40FEC7FD567B40A6C97626225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/4915363A23173754A7DB76DD9FE2BFB526225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/3AA1620761663B7B985B069E9073B6AE26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/B8FC75AB955DD2BAF8EFC7F6981579B826225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/DECAB1AC211034787F568D6FA53B7E9A26225DE33F39775F78A0A81437DD569
+6.pygtex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 1.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[15])
+(_minted-master/DEB513D5EE2D7CEEE7DD3F1068EC5AA526225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/9E3F34DABE225A78E3B0A1D970ED06A726225DE33F39775F78A0A81437DD569
+6.pygtex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 14.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[16])
+(_minted-master/AF398DB8049F927255402F7F76E1D91F26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/ED76D4A6D0ED85E7181AA2AD799469C726225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/DE7CA13CBEFD373BBA7DB65A31844C4826225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/AA04BA90C61341F0D6AF501EC8AD3A0526225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/FDC2579E20B44D7F7593AB11BB02F8DB26225DE33F39775F78A0A81437DD569
+6.pygtex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 1.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[17])
+(_minted-master/9CE77F841DB8578081BAEB7F54B184E926225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/0D3F49AFDBCE9BDD48CFFD131C7078D226225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/72D31A101A26839808A0438591A8A42C26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/A008233F8F20869A5388DD0DB5D5B5E926225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/CB0095C7D9EE2FC51E338A1F4F6DBA0126225DE33F39775F78A0A81437DD569
+6.pygtex)) (Includes/Syntax.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[18]
+Chapter 6.
+
+(_minted-master/DA05C12B3077157201A64C661BD8777626225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/DEBA3D905446A5C607A241870CBA3F9D26225DE33F39775F78A0A81437DD569
+6.pygtex [19
+
+])
+(_minted-master/200DD7D53B2F64BC949D7A1361AEA7DD26225DE33F39775F78A0A81437DD569
+6.pygtex)
+(_minted-master/BFB335362BA43A9E7B6FBF29D440A5E226225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 88--89
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--91
+
+ []
+
+File: logo.png Graphic file (type png)
+<use logo.png>
+Package pdftex.def Info: logo.png used on input line 91.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[20]) (Includes/Classes.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[21]
+Chapter 7.
+
+(_minted-master/EDAB77AD0066F9B1EC1088AE02AD849626225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 32--33
+
+ []
+
+
+(_minted-master/22B05B5943BAD5856889855AE7FF0A7126225DE33F39775F78A0A81437DD569
+6.pygtex [22
+
+])
+Underfull \hbox (badness 10000) in paragraph at lines 40--41
+
+ []
+
+
+(_minted-master/7107C4CFC733BA97FDC358A467DF414A26225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 47--48
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 49--50
+
+ []
+
+
+(_minted-master/DA1020594BA3A3A1FD5D159AF1D85E3926225DE33F39775F78A0A81437DD569
+6.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 60--61
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--65
+
+ []
+
+
+(_minted-master/3877FEC930648D020ABF27785458339826225DE33F39775F78A0A81437DD569
+6.pygtex)
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 80.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[23]) (Includes/Library.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[24]
+Chapter 8.
+Missing character: There is no ‚ in font cmr10!
 Missing character: There is no Ä in font cmr10!
 Missing character: There is no ô in font cmr10!
-[3
+[25
 
-]) (Includes/LexicalConventions.tex [4]
-Chapter 3.
-) (Includes/ExpressionsOperators.tex [5
+]) (Includes/References.tex
+File: logo.png Graphic file (type png)
+ <use logo.png>
+Package pdftex.def Info: logo.png used on input line 5.
+(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
 
-]
-Chapter 4.
-) (Includes/Syntax.tex [6
 
-]
-Chapter 5.
-) (Includes/Statements.tex [7
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 12.1358pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
 
-]
-Chapter 6.
-) (Includes/Classes.tex [8
+[26]
+Missing character: There is no ¬ in font cmti10!
+Missing character: There is no Æ in font cmti10!
+Missing character: There is no ‚ in font cmti10!
+Missing character: There is no Ñ in font cmti10!
+Missing character: There is no ¢ in font cmti10!
+)
+runsystem(del "master.pyg")...executed.
 
-]
-Chapter 7.
-) (Includes/Library.tex [9
-
-]
-Chapter 8.
-) [10
+ [27
 
 ] (master.aux) ) 
 Here is how much of TeX's memory you used:
- 23200 strings out of 493698
- 465109 string characters out of 3144412
- 530715 words of memory out of 3000000
- 26091 multiletter control sequences out of 15000+200000
- 12580 words of font info for 49 fonts, out of 3000000 for 9000
+ 24998 strings out of 493698
+ 523325 string characters out of 3144409
+ 577002 words of memory out of 3000000
+ 27663 multiletter control sequences out of 15000+200000
+ 9737 words of font info for 34 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 64i,12n,70p,10404b,283s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmb
-x10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Pro
-gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Fil
-es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX
- 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on master.pdf (11 pages, 98668 bytes).
+ 64i,14n,73p,10404b,664s stack positions out of 5000i,500n,10000p,200000b,50000s
+{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<C
+:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Progra
+m Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/
+MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Program Files/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmitt10.pfb><C:/Program Files/MiKTeX 2.9/fon
+ts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
+/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
+cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt1
+0.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/palatino/uplbi8a.pfb>
+Output written on master.pdf (28 pages, 217852 bytes).
 PDF statistics:
- 65 PDF objects out of 1000 (max. 8388607)
+ 138 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 13 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 18 words of extra memory for PDF output out of 10000 (max. 10000000)
 

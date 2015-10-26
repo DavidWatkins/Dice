@@ -1,0 +1,13 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{BlockDemo} \PYGdefault{o}{\PYGdefaultZob{}}
+		\PYGdefault{k+kd}{public} \PYGdefault{k+kt}{void} \PYGdefault{n+nf}{main}\PYGdefault{o}{(}\PYGdefault{k+kt}{char}\PYGdefault{o}{[,]} \PYGdefault{n}{args}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}
+			\PYGdefault{n}{bool} \PYGdefault{n}{condition} \PYGdefault{o}{=} \PYGdefault{k+kc}{true}\PYGdefault{o}{;}
+			\PYGdefault{k}{if} \PYGdefault{o}{(}\PYGdefault{n}{condition}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{o}{(*} \PYGdefault{n}{begin} \PYGdefault{n}{block} \PYGdefault{l+m+mi}{1} \PYGdefault{o}{*)}
+				\PYGdefault{n}{print}\PYGdefault{o}{(}\PYGdefault{l+s}{\PYGdefaultZdq{}Condition is true.\PYGdefaultZdq{}}\PYGdefault{o}{);}
+			\PYGdefault{o}{\PYGdefaultZcb{}} \PYGdefault{o}{(*} \PYGdefault{n}{end} \PYGdefault{n}{block} \PYGdefault{n}{one} \PYGdefault{o}{*)}
+			\PYGdefault{k}{else} \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{o}{(*} \PYGdefault{n}{begin} \PYGdefault{n}{block} \PYGdefault{l+m+mi}{2} \PYGdefault{o}{*)}
+				\PYGdefault{n}{print}\PYGdefault{o}{(}\PYGdefault{l+s}{\PYGdefaultZdq{}Condition is false.\PYGdefaultZdq{}}\PYGdefault{o}{);}
+			\PYGdefault{o}{\PYGdefaultZcb{}} \PYGdefault{o}{(*} \PYGdefault{n}{end} \PYGdefault{n}{block} \PYGdefault{l+m+mi}{2} \PYGdefault{o}{*)}
+		\PYGdefault{o}{\PYGdefaultZcb{}}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

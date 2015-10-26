@@ -1,0 +1,14 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{w} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{;}
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{;}
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{6}\PYGdefault{o}{;}
+	\PYGdefault{n}{bool} \PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{k+kc}{false}\PYGdefault{o}{;}
+	\PYGdefault{n}{String} \PYGdefault{n}{d} \PYGdefault{o}{=} \PYGdefault{n}{String}\PYGdefault{o}{(}\PYGdefault{l+s}{\PYGdefaultZdq{}Hello\PYGdefaultZdq{}}\PYGdefault{o}{);}
+
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{n}{x} \PYGdefault{o}{\PYGdefaultZlt{}} \PYGdefault{n}{y}\PYGdefault{o}{);}     \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}true\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{n}{w} \PYGdefault{o}{\PYGdefaultZlt{}=} \PYGdefault{n}{x}\PYGdefault{o}{);}    \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}true\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{n}{w} \PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{n}{x}\PYGdefault{o}{);}     \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}false\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{n}{w} \PYGdefault{o}{\PYGdefaultZgt{}=} \PYGdefault{n}{x}\PYGdefault{o}{);}    \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}true\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{n}{d} \PYGdefault{o}{==} \PYGdefault{k+kc}{null}\PYGdefault{o}{;}	 \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}false\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+	\PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{n}{d} \PYGdefault{o}{!=} \PYGdefault{k+kc}{null}\PYGdefault{o}{;}   \PYGdefault{o}{(*} \PYGdefault{n}{z} \PYGdefault{n}{evaluates} \PYGdefault{n}{to} \PYGdefault{l+s}{\PYGdefaultZdq{}true\PYGdefaultZdq{}} \PYGdefault{o}{*)}
+\end{Verbatim}

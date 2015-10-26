@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{Foo} \PYGdefault{o}{\PYGdefaultZob{}}
+		\PYGdefault{n}{constructor} \PYGdefault{o}{(}\PYGdefault{k+kt}{int} \PYGdefault{n}{x}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}...\PYGdefaultZcb{}}
+		\PYGdefault{o}{...}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{Bar} \PYGdefault{o}{\PYGdefaultZob{}}
+		\PYGdefault{k+kd}{public} \PYGdefault{k+kt}{void} \PYGdefault{n+nf}{main} \PYGdefault{o}{(}\PYGdefault{n}{String}\PYGdefault{o}{[]} \PYGdefault{n}{args}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{;} \PYGdefault{n}{Foo} \PYGdefault{n}{myFooObj} \PYGdefault{o}{=} \PYGdefault{n}{Foo}\PYGdefault{o}{(}\PYGdefault{n}{x}\PYGdefault{o}{);\PYGdefaultZcb{}}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{loopCounter} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{1}\PYGdefault{o}{;}
+	\PYGdefault{k}{while} \PYGdefault{o}{(}\PYGdefault{n}{loopCounter} \PYGdefault{o}{\PYGdefaultZlt{}} \PYGdefault{l+m+mi}{11}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}
+		\PYGdefault{n}{print}\PYGdefault{o}{(}\PYGdefault{n}{loopCounter}\PYGdefault{o}{);}
+		\PYGdefault{n}{loopCounter} \PYGdefault{o}{=} \PYGdefault{n}{loopCounter} \PYGdefault{o}{+} \PYGdefault{l+m+mi}{1}\PYGdefault{o}{;}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

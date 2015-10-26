@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{a}\PYGdefault{o}{[}\PYGdefault{l+m+mi}{5}\PYGdefault{o}{];}
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{length} \PYGdefault{o}{=} \PYGdefault{n}{a}\PYGdefault{o}{.}\PYGdefault{n+na}{length}\PYGdefault{o}{;}
+\end{Verbatim}

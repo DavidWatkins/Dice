@@ -1,3 +1,134 @@
 \begin{homeworkProblem}
 	\chapter{Lexical Conventions}
+	This chapter describes the lexical elements that make up JFlat source code. These elements are called tokens. There are five types of tokens: keywords, identifiers, constants, operators, and separators. White space, sometimes required to separate tokens, is also described in this chapter.
+	
+	\section{Identifiers}
+	Identifiers are sequences of characters used for naming variables, functions and new data types. Valid identifier characters include ASCII letters, decimal digits, and the underscore character '\textunderscore'. The first character of an identifier cannot be a digit.\\
+	An identifier cannot have the same spelling (character sequence) as a keyword, boolean literal, or the null literal, or a compile-time error occurs. Lowercase letters and uppercase letters are distinct, such that foo and Foo are two different identifiers.
+	
+	\begin{minted}{java}
+	ID = "['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z']|['0'-'9']|'\textunderscore')*"
+	\end{minted}
+	
+	\section{Keywords}
+	Keywords are special identifiers reserved for use as part of the programming language itself. You cannot use them for any other purpose. JFlat recognizes the following keywords:
+	
+	\begin{center}
+		\begin{tabular}{ccccc}
+		if & else & for & while & return \\
+		int & float & bool & char & void \\
+		null & true & false & class & constructor \\
+		public & private & extends & include & this \\
+		\end{tabular}
+	\end{center}
+
+	
+	\section{Literals}
+	A literal is the source code representation of a value of a primitive type or the null type.
+	
+	\subsection{Integer Literals}
+	An integer literal may be expressed in decimal (base 10). A positive integer is represented with either the single ASCII digit 0, representing the integer zero, or an ASCII digit from 1 to 9 optionally followed by one or more ASCII digits from 0 to 9. A negative integer is represented with the representation of a non-zero positive integer, prefixed with the negation operator, '-'.
+	
+	\begin{minted}{java}
+			INT = "['0'-'9']+ | '-' ['0'-'9']+"
+	\end{minted}
+	
+	\subsection{Float Literals}
+	A float literal has the following parts: a whole-number part, a decimal point (represented by an ASCII period character), and a fraction part. The whole number and fraction parts are defined by a single digit 0 or one digit from 1-9 followed by more ASCII digits from 0 to 9. A negative float is represented with the standard float prepended with a negation operator, '-'.
+	\begin{minted}{java}
+		FLOAT = "('-' ['0'-'9']+ | ['0'-'9']+) ['.'] ['0'-'9']+"
+	\end{minted}
+	
+	\subsection{Boolean Literals}
+	The boolean type has two values, represented by the boolean literals true and false, formed from ASCII letters.
+	\begin{minted}{java}
+				BOOL = "true|false"
+	\end{minted}
+	
+	\subsection{Character Literals}
+	A character literal is always of type char, and is formed by an ascii character appearing between two single quotes. The following characters are represented with an “escape sequence”, which consists of a backslash and another character:\\
+	\begin{itemize}
+		\item '\textbackslash\textbackslash' - backslash
+		\item '\textbackslash"' - double-quote
+		\item '\textbackslash'' - single-quote
+		\item '\textbackslash n' - newline
+		\item '\textbackslash r' - carriage return
+		\item '\textbackslash t' - tab character
+	\end{itemize}
+	It is a compile-time error for the character following the character literal to be other than a '.
+	
+	\begin{minted}{c}
+	CHAR = "\' ( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )\' "
+	\end{minted}
+	
+	
+	\subsection{String Literals}
+	A string literal is always of type char[] and is initialized with zero or more characters or escape sequences enclosed in double quotes.
+	char[] x = "abcdef";
+	
+	\begin{minted}{c}
+	STRING = "\"( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )*\""
+	\end{minted}
+	
+	\section{Separators}
+	A separator separates tokens. White space (see next section) is a separator, but it is not a token. The other separators are all single-character tokens themselves:
+	     ( ) [ ] { } ; , .
+	\begin{minted}{ocaml}
+				'('      { LPAREN }
+				')'      { RPAREN }
+				'{'      { LBRACE }
+				'}'      { RBRACE }
+				';'      { SEMI }
+				','      { COMMA }
+				'['      { LBRACKET }
+				']'      { RBRACKET }
+				'.'      { DOT }
+ 	\end{minted}
+ 	
+	\section{Operators}
+	The following operators are reserved lexical elements in the language. See the expression and operators section for more detail on their defined behavior.
+	\begin{center}
+		\begin{tabular}{ccccc}
+			+ & - & * & / & = \\
+			== & != & \textless & \textless= & \textgreater \\
+			\textgreater= 
+		\end{tabular}
+	\end{center}
+ 	
+	\section{White Space}
+	White space refers to one or more of the following characters:
+	\begin{itemize}
+		\item the ASCII SP character, also known as "space"
+		\item the ASCII HT character, also known as "horizontal tab"
+		\item the ASCII FF character, also known as "form feed"
+		\item LineTerminator
+	\end{itemize}
+	White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional. Hence, the following two snippets of source code are equivalent.
+	
+	\begin{minted}{java}
+public int foo()
+{
+	print( "hello, world\n" );
+	return 0;
+}
+
+public int foo(){print("hello, world\n"); return 0;}
+	\end{minted}
+	
+	\begin{minted}{java}
+				WHITESPACE = "[' ' '\t' '\r' '\n']"
+ 	\end{minted}
+	
+	\section{Comments}
+	All the text from the ASCII characters (* to the ASCII characters *) is ignored. Multiline comments can be distinguished from code by preceding each line of the comment with a * similar to the following:
+	\begin{minted}{ocaml}
+(* This is a long comment 
+* that spans multiple lines because
+* there is a lot to say. *)
+	\end{minted}
+
+	\begin{minted}{java}
+				COMMENT = "(\* [.]* \*)"
+	\end{minted}
+
 \end{homeworkProblem}

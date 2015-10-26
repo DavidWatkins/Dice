@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{n}{print}\PYGdefault{o}{(}\PYGdefault{l+s}{\PYGdefaultZdq{}hello world\PYGdefaultZdq{}}\PYGdefault{o}{);}
+\end{Verbatim}

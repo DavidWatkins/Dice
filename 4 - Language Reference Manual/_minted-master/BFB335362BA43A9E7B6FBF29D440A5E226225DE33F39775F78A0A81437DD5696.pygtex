@@ -1,0 +1,13 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{X} \PYGdefault{o}{\PYGdefaultZob{}}
+
+		\PYGdefault{k+kd}{public} \PYGdefault{k+kt}{int} \PYGdefault{n}{number}\PYGdefault{o}{;}
+
+		\PYGdefault{n}{constructor}\PYGdefault{o}{()} \PYGdefault{o}{\PYGdefaultZob{}}
+
+			\PYGdefault{n}{Y} \PYGdefault{n}{myObj} \PYGdefault{o}{=} \PYGdefault{n}{Y}\PYGdefault{o}{();}
+			\PYGdefault{o}{(*} \PYGdefault{n}{This} \PYGdefault{n}{code} \PYGdefault{n}{is} \PYGdefault{n}{invalid} \PYGdefault{n}{since} \PYGdefault{n}{num} \PYGdefault{n}{is} \PYGdefault{n}{a} \PYGdefault{k+kd}{private} \PYGdefault{n}{field} \PYGdefault{n}{within} \PYGdefault{n}{Y} \PYGdefault{o}{*)}
+			\PYGdefault{k}{this}\PYGdefault{o}{.}\PYGdefault{n+na}{number} \PYGdefault{o}{=} \PYGdefault{n}{myObj}\PYGdefault{o}{.}\PYGdefault{n+na}{num}\PYGdefault{o}{;}
+		\PYGdefault{o}{\PYGdefaultZcb{}}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

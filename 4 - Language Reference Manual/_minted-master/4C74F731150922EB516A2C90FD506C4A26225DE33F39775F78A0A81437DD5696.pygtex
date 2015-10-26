@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k}{for} \PYGdefault{o}{(}\PYGdefault{n}{initialization}\PYGdefault{o}{;} \PYGdefault{n}{termination}\PYGdefault{o}{;} \PYGdefault{n}{update}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{stmt}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

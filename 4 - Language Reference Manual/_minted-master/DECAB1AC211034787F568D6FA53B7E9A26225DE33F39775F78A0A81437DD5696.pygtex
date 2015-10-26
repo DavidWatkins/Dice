@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{k}{for} \PYGdefault{o}{(}\PYGdefault{k+kt}{int} \PYGdefault{n}{i}\PYGdefault{o}{=}\PYGdefault{l+m+mi}{1}\PYGdefault{o}{;} \PYGdefault{n}{i}\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{l+m+mi}{11}\PYGdefault{o}{;} \PYGdefault{n}{i}\PYGdefault{o}{++)} \PYGdefault{o}{\PYGdefaultZob{}}
+		\PYGdefault{k+kt}{int} \PYGdefault{n}{j} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{100}\PYGdefault{o}{;}
+		\PYGdefault{k}{while} \PYGdefault{o}{(}\PYGdefault{n}{j}\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{l+m+mi}{120}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}
+			\PYGdefault{k}{if} \PYGdefault{o}{(}\PYGdefault{n}{j}\PYGdefault{o}{\PYGdefaultZgt{}}\PYGdefault{l+m+mi}{110}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}
+				\PYGdefault{k}{break}\PYGdefault{o}{;}
+			\PYGdefault{o}{\PYGdefaultZcb{}}
+			\PYGdefault{n}{print}\PYGdefault{o}{(}\PYGdefault{n}{j}\PYGdefault{o}{);}
+			\PYGdefault{n}{j} \PYGdefault{o}{=} \PYGdefault{n}{j} \PYGdefault{o}{+} \PYGdefault{l+m+mi}{1}\PYGdefault{o}{;}
+		\PYGdefault{o}{\PYGdefaultZcb{}}
+	\PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

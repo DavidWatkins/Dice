@@ -1,16 +1,14 @@
 % file: master.tex
 \documentclass{report}
 
-\newcommand{\hmwkTitle}{JFlat Language Reference Manual}
-\newcommand{\hmwkDueDate}{}
-\newcommand{\hmwkClass}{JFlat Language Reference Manual}
-\newcommand{\hmwkClassTime}{}
-\newcommand{\hmwkClassInstructor}{}
-\newcommand{\hmwkAuthorName}{\begin{tabular}{rcl}
-			\textbf{Project Manager:}    &   David Watkins   &   \textbf{djw2146} \\
-			\textbf{System Architect:}   &   Emily Chen &   \textbf{ec2805} \\
-			\textbf{Language Guru:}      &   Phillip Schiffrin  &   \textbf{pjs2186} \\
-			\textbf{Tester \& Verifier:} &   Khaled Atef &   \textbf{kaa2168}
+\newcommand{\hmwkTitle}{JFlat Reference Manual \includegraphics[width=0.3cm]{logo}}
+\newcommand{\hmwkClass}{JFlat Reference Manual \includegraphics[width=1cm]{logo}}
+\newcommand{\tagline}{\textit{"Java, but worse"}}
+\newcommand{\authors}{\begin{tabular}{rcl}
+			\textbf{Project Manager:}    &   \textbf{David Watkins}   &   \textbf{djw2146} \\
+			\textbf{System Architect:}   &   \textbf{Emily Chen} &   \textbf{ec2805} \\
+			\textbf{Language Guru:}      &   \textbf{Phillip Schiffrin}  &   \textbf{pjs2186} \\
+			\textbf{Tester \& Verifier:} &   \textbf{Khaled Atef} &   \textbf{kaa2168}
 		\end{tabular}}
 \newcommand{\dueTime}{8:40AM}
 
@@ -19,7 +17,27 @@
 \input{functions}
 
 \begin{document}
-\maketitle
+\begin{titlepage}
+		\vspace*{3cm}
+	\noindent
+	\titlefont \hmwkClass \par
+	\epigraph{\tagline}%
+
+	\null\vfill
+	\vspace*{1cm}
+	\noindent
+	\hfill
+	\begin{minipage}{0.35\linewidth}
+		\begin{flushright}
+			\authors
+		\end{flushright}
+	\end{minipage}
+	%
+	\begin{minipage}{0.02\linewidth}
+
+	\end{minipage}
+	\titlepagedecoration
+\end{titlepage}
 \pagebreak
 \tableofcontents
 
@@ -29,9 +47,10 @@
 \input{Includes/Types}
 \input{Includes/LexicalConventions}
 \input{Includes/ExpressionsOperators}
-\input{Includes/Syntax}
 \input{Includes/Statements}
+\input{Includes/Syntax}
 \input{Includes/Classes}
 \input{Includes/Library}
+\input{Includes/References}
 
 \end{document}

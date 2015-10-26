@@ -1,0 +1,21 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PYGdefault{o}{(*} \PYGdefault{n}{Addition}\PYGdefault{o}{.} \PYGdefault{o}{*)}
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5} \PYGdefault{o}{+} \PYGdefault{l+m+mi}{3}\PYGdefault{o}{;}
+	\PYGdefault{k+kt}{float} \PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{57.53} \PYGdefault{o}{+} \PYGdefault{l+m+mf}{10.90}\PYGdefault{o}{;}
+
+	\PYGdefault{o}{(*} \PYGdefault{n}{Subtraction}\PYGdefault{o}{.} \PYGdefault{o}{*)}
+	\PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5} \PYGdefault{o}{\PYGdefaultZhy{}} \PYGdefault{l+m+mi}{3}\PYGdefault{o}{;}
+	\PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{57.53} \PYGdefault{o}{\PYGdefaultZhy{}} \PYGdefault{l+m+mf}{10.90}\PYGdefault{o}{;}
+
+	\PYGdefault{o}{(*} \PYGdefault{n}{Multiplication}\PYGdefault{o}{.} \PYGdefault{o}{*)}
+	\PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5} \PYGdefault{o}{*} \PYGdefault{l+m+mi}{3}\PYGdefault{o}{;}
+	\PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{57.53} \PYGdefault{o}{*} \PYGdefault{l+m+mf}{10.90}\PYGdefault{o}{;}
+
+	\PYGdefault{o}{(*} \PYGdefault{n}{Division}\PYGdefault{o}{.} \PYGdefault{o}{*)}
+	\PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{5} \PYGdefault{o}{/} \PYGdefault{l+m+mi}{3}\PYGdefault{o}{;} \PYGdefault{o}{(*} \PYGdefault{n}{Integer} \PYGdefault{n}{division} \PYGdefault{n}{of} \PYGdefault{n}{positive} \PYGdefault{n}{values} \PYGdefault{n}{truncates} \PYGdefault{n}{towards} \PYGdefault{n}{zero}\PYGdefault{o}{,} \PYGdefault{n}{so} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{/}\PYGdefault{l+m+mi}{3} \PYGdefault{n}{is} \PYGdefault{l+m+mi}{1} \PYGdefault{o}{*)}
+	\PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{57.53} \PYGdefault{o}{/} \PYGdefault{l+m+mf}{10.90}\PYGdefault{o}{;}
+
+	\PYGdefault{o}{(*} \PYGdefault{n}{Negation}\PYGdefault{o}{.} \PYGdefault{o}{*)}
+	\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{o}{\PYGdefaultZhy{}}\PYGdefault{l+m+mi}{5}\PYGdefault{o}{;}
+	\PYGdefault{k+kt}{float} \PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{o}{\PYGdefaultZhy{}}\PYGdefault{l+m+mf}{3.1415}\PYGdefault{o}{;}
+\end{Verbatim}

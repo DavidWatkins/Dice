@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{}(\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{LPAREN} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{})\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{RPAREN} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{}\PYGdefaultZob{}\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{LBRACE} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{}\PYGdefaultZcb{}\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{RBRACE} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{};\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{SEMI} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{},\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{COMMA} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{}[\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{LBRACKET} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{}]\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{RBRACKET} \PYGdefault{o}{\PYGdefaultZcb{}}
+				\PYGdefault{l+s+sc}{\PYGdefaultZsq{}.\PYGdefaultZsq{}}      \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{n+nc}{DOT} \PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}
