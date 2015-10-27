@@ -5,7 +5,7 @@
 	
 	\section{Program Structure}
 		
-	A JFlat program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, or $stdlib.jf$. When an include statement is executed at compile time, it will load in the files mentioned at the includes and insert the code at that location as if it were part of the head source file. Therefore at compilation, one only needs to compile with $jfc master.jf$. A program consists of zero or more include statements, followed by one or more class definitions. Only one class out of all classes may have a main method, defined with $public void main(char[,] args)$ which designates the entry point for a program to begin executing code. All JFlat files are expected to end with the file extension $.jf$ and follow the following syntactic layout. 
+	A Dice program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, or $stdlib.di$. When an include statement is executed at compile time, it will load in the files mentioned at the includes and insert the code at that location as if it were part of the head source file. Therefore at compilation, one only needs to compile with $dicec master.di$. A program consists of zero or more include statements, followed by one or more class definitions. Only one class out of all classes may have a main method, defined with $public void main(char[,] args)$ which designates the entry point for a program to begin executing code. All Dice files are expected to end with the file extension $.di$ and follow the following syntactic layout. 
 	
 	\begin{minted}{java}
 	include(stdlib)

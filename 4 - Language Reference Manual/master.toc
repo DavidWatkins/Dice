@@ -42,7 +42,7 @@
 \contentsline {subsection}{Looping: for, while}{15}
 \contentsline {subsection}{Branching: break, continue, return}{16}
 \contentsline {section}{Blocks}{17}
-\contentsline {section}{JFlat Functions}{17}
+\contentsline {section}{Dice Functions}{17}
 \contentsline {subsection}{File I/O}{17}
 \contentsline {subsubsection}{int fopen(char[] filename, bool isWriteEnabled)}{17}
 \contentsline {subsubsection}{bool fwrite(int fd, char[] values, int num, int offset)}{18}

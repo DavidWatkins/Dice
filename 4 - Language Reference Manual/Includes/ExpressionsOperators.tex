@@ -57,7 +57,7 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	
 	\subsection{Assignment Operators}
 		
-	Assignment operators store values in variables. JFlat provides several variations of assignment operators.\\
+	Assignment operators store values in variables. Dice provides several variations of assignment operators.\\
 		
 	The standard assignment operator "=" simply stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
 		
@@ -71,7 +71,7 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	
 	\subsection{Arithmetic Operators}
 	
-	JFlat provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with negation.
+	Dice provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with negation.
 	
 	\begin{minted}{java}
 	(* Addition. *)
@@ -134,7 +134,7 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	z = d != null;   (* z evaluates to "true" *)
 	\end{minted}
 	
-	The ==, !=, \textgreater=, \textgreater, \textless, \textless= operators are all defined to operate between any two values both either being of int or float. The The ==, != are also designated to compare any two values in JFlat, and if they are not both of type float, will only return true if the memory address is identical. The comparison of objects is recommended by defining an equals method within the class. 
+	The ==, !=, \textgreater=, \textgreater, \textless, \textless= operators are all defined to operate between any two values both either being of int or float. The The ==, != are also designated to compare any two values in Dice, and if they are not both of type float, will only return true if the memory address is identical. The comparison of objects is recommended by defining an equals method within the class. 
 	
 	It is important to note that conditional expressions can be chained together using the $and, or, not$ operators, like so:
 	\begin{minted}{java}

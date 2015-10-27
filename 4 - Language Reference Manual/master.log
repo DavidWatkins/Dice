@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.6)  26 OCT 2015 02:56
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.10.6)  26 OCT 2015 20:12
 entering extended mode
 **master.tex
 (master.tex
@@ -1027,11 +1027,11 @@ LaTeX Font Info:    ... okay on input line 19.
 \MPnumerator=\count192
 \makeMPintoPDFobject=\count193
 \everyMPtoPDFconversion=\toks55
-) ABD: EveryShipout initializing macros <logo.png, id=4, 256.96pt x 256.96pt>
-File: logo.png Graphic file (type png)
+) ABD: EveryShipout initializing macros <dice.png, id=4, 513.92pt x 513.92pt>
+File: dice.png Graphic file (type png)
 
-<use logo.png>
-Package pdftex.def Info: logo.png used on input line 23.
+<use dice.png>
+Package pdftex.def Info: dice.png used on input line 23.
 (pdftex.def)             Requested size: 28.45274pt x 28.44997pt.
 LaTeX Font Info:    Try loading font information for U+msa on input line 25.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
@@ -1048,19 +1048,19 @@ Overfull \hbox (82.3124pt too wide) in paragraph at lines 32--33
 
 [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map} <./logo.png>]
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map} <./dice.png>]
 (master.toc [1
 
 ])
 \tf@toc=\write9
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 45.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 45.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1140,14 +1140,14 @@ Missing character: There is no ¨ in font cmr10!
 6.pygtex)
 (_minted-master/3AF98CB9AC04D8FA7ED2E9BF33C4779426225DE33F39775F78A0A81437DD569
 6.pygtex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 5.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 5.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1158,14 +1158,14 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 6.pygtex)
 (_minted-master/245B157D0F5B1C25C46D867B8B5203E326225DE33F39775F78A0A81437DD569
 6.pygtex)) (Includes/LexicalConventions.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 2.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1200,14 +1200,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 49--50
 1.pygtex)
 (_minted-master/3AFCB815C287A36CC0848C3B3AFB50760B5D37B27BB6E190E189DA0E7129817
 2.pygtex)
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 90.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 90.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1227,14 +1227,14 @@ LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
 2.pygtex)
 (_minted-master/6806A67564884A9CD942B94BF543922226225DE33F39775F78A0A81437DD569
 6.pygtex)) (Includes/ExpressionsOperators.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 2.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1266,14 +1266,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 60--61
 6.pygtex)
 (_minted-master/B0D7B18E695FFBF3003A44F2AECA6CDE26225DE33F39775F78A0A81437DD569
 6.pygtex)
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 108.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 108.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1286,26 +1286,26 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 6.pygtex)
 (_minted-master/BF8AD7FBD8DB2B628798CCEC8CC9DF3626225DE33F39775F78A0A81437DD569
 6.pygtex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 5.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 5.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
 [12])) (Includes/Statements.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 2.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1336,14 +1336,14 @@ Chapter 5.
 6.pygtex)
 (_minted-master/DECAB1AC211034787F568D6FA53B7E9A26225DE33F39775F78A0A81437DD569
 6.pygtex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 1.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 1.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1352,14 +1352,14 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 6.pygtex)
 (_minted-master/9E3F34DABE225A78E3B0A1D970ED06A726225DE33F39775F78A0A81437DD569
 6.pygtex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 14.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 14.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1374,14 +1374,14 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 6.pygtex)
 (_minted-master/FDC2579E20B44D7F7593AB11BB02F8DB26225DE33F39775F78A0A81437DD569
 6.pygtex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 1.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 1.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1396,14 +1396,14 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
 6.pygtex)
 (_minted-master/CB0095C7D9EE2FC51E338A1F4F6DBA0126225DE33F39775F78A0A81437DD569
 6.pygtex)) (Includes/Syntax.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 2.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1429,26 +1429,26 @@ Underfull \hbox (badness 10000) in paragraph at lines 90--91
 
  []
 
-File: logo.png Graphic file (type png)
-<use logo.png>
-Package pdftex.def Info: logo.png used on input line 91.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+<use dice.png>
+Package pdftex.def Info: dice.png used on input line 91.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
 [20]) (Includes/Classes.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 2.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1502,26 +1502,26 @@ Underfull \hbox (badness 10000) in paragraph at lines 64--65
 
 (_minted-master/3877FEC930648D020ABF27785458339826225DE33F39775F78A0A81437DD569
 6.pygtex)
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 80.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 80.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
 [23]) (Includes/Library.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 2.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 2.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1533,14 +1533,14 @@ Missing character: There is no ™ in font cmr10!
 [25
 
 ]) (Includes/References.tex
-File: logo.png Graphic file (type png)
- <use logo.png>
-Package pdftex.def Info: logo.png used on input line 5.
-(pdftex.def)             Requested size: 8.5359pt x 8.53577pt.
+File: dice.png Graphic file (type png)
+ <use dice.png>
+Package pdftex.def Info: dice.png used on input line 5.
+(pdftex.def)             Requested size: 8.5359pt x 8.53185pt.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
- Make it at least 12.1358pt.
+ Make it at least 12.13188pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
@@ -1559,7 +1559,7 @@ runsystem(del "master.pyg")...executed.
 Here is how much of TeX's memory you used:
  24998 strings out of 493698
  523325 string characters out of 3144409
- 577002 words of memory out of 3000000
+ 576993 words of memory out of 3000000
  27663 multiletter control sequences out of 15000+200000
  9737 words of font info for 34 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
@@ -1574,9 +1574,9 @@ ts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
 msfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
 cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt1
 0.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/palatino/uplbi8a.pfb>
-Output written on master.pdf (28 pages, 217761 bytes).
+Output written on master.pdf (28 pages, 235408 bytes).
 PDF statistics:
- 138 PDF objects out of 1000 (max. 8388607)
+ 139 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  18 words of extra memory for PDF output out of 10000 (max. 10000000)
 

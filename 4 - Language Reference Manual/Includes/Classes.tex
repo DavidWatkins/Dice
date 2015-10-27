@@ -1,7 +1,7 @@
 \begin{homeworkProblem}
 	\chapter{Classes}
 	
-	Classes are the constructs whereby a programmer defines their own types. All state changes in a JFlat program must happen in the context of changes in state maintained by an object that is an instance of a user-defined class.
+	Classes are the constructs whereby a programmer defines their own types. All state changes in a Dice program must happen in the context of changes in state maintained by an object that is an instance of a user-defined class.
 	
 	\section{Class definition}
 	A class definition starts with the keyword 'class' followed by the class name (see identifiers in chapter 2) and the class body, enclosed by a pair of curly braces. The body of a class declares one or more of each of the following: fields, methods, and constructors.
@@ -39,7 +39,7 @@
 	
 	The method body contains one or more statements enclosed between the ASCII characters '\textbraceleft' and '\textbraceright'. If the type of the return value is not void, then the method body must include a return statement.\\
 	
-	One and only one of the classes to be compiled must contain a definition for a method named "main" that executes when the program runs. The 'main' method is not callable as an instance method. The 'main' method must have a void return type and accept a single parameter of type String[]. Hence, its signature must be:
+	One and only one of the classes to be compiled must contain a definition for a method named "main" that executes when the program runs. The 'main' method is not callable as an instance method. The 'main' method must have a void return type and accept a single parameter of type char[,]. Hence, its signature must be:
 	\begin{minted}{java}
 	public void main (char[,] args)
 	\end{minted}
