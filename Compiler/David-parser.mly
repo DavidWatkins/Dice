@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT
+%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT FUN
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
@@ -119,16 +119,29 @@ fdecl_list:
   /*Nothing*/ { [] }
   | fdecl_list fdecl { $2::$1 }
 
+
 fdecl:
-    SCOPE TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE { 
+    FUN SCOPE TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE { 
       {
-      fname = $3;
-      formals = List.rev $5;
-      locals = List.rev $8;
-      body = List.rev $9;
+      scope = $2;
+      fname = $4;
+      formals = List.rev $6;
+      locals = List.rev $9;
+      body = List.rev $10;
       } 
     }
 
+/*
+fdecl:
+    TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
+        {
+            fname = $2;
+            formals = List.rev $4;
+            locals = List.rev $7;
+            body = List.rev $8;
+        }
+    }
+*/
 
 /******************
  FORMALS/PARAMETERS & VARIABLES & ACTUALS
