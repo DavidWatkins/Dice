@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS CONSTRUCTOR INCLUDE THIS DOT
+%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
@@ -27,22 +27,22 @@
 %%
 
 program:
-  includes cdecls EOF { Program($1, $2) }
+    allincludes cdecls EOF { Program($1, $2) }
 
 
 /******************
   INCLUDES
 ******************/
 
-includes:
+allincludes:
    /* nothing */ { [] }
   | include_list { List.rev $1 }
 
 include_list:
-    include              { [$1] }
-  | include_list include { $2::$1 }
+    includes              { [$1] }
+  | include_list includes { $2::$1 }
 
-include:
+includes:
    INCLUDE LPAREN ID RPAREN SEMI { $3 }
 
 
@@ -58,14 +58,14 @@ cdecl_list:
   | cdecl_list cdecl  { $2::$1 }
 
 cdecl:
-    CLASS ID LBRACE field_list constructor_decls fdecl_list RBRACE { {
+    CLASS ID LBRACE field_list constructor_decls fdecls RBRACE { {
       cname = $2;
       extends = "";
       constructors = $5;
       fields = $4;
       methods = $6;
     } }
-  | CLASS ID EXTENDS ID LBRACE field_list constructor_decls fdecl_list RBRACE { {
+  | CLASS ID EXTENDS ID LBRACE field_list constructor_decls fdecls RBRACE { {
       cname = $2;
       extends = $4;
       constructors = $7;
@@ -78,12 +78,12 @@ cdecl:
 ******************/
 
 constructor_decls:
-    /* nothing */  { [] }
-  | constructor_decl_list  { List.rev $1 }
+    /* nothing */ {[]}
+  |  constructor_decl_list {List.rev $1}
 
 constructor_decl_list:
-   constructor_decl { [$1] }
-  |constructor_decl_list constructor_decl { $2::$1 }
+    constructor_decl {[$1]}
+  | constructor_decl_list constructor_decl { $2::$1 }
 
 constructor_decl:
   CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
@@ -101,7 +101,7 @@ constructor_decl:
 
 field_list:
     /*Nothing*/ { [] }
-  | field       { [$1] }
+/*  | field       { [$1] }       SHIFT/REDUCE - 2 */
   | field_list field { $2::$1 }
 
 field:
@@ -162,35 +162,29 @@ vdecl_list:
 vdecl:
    TYPE ID SEMI { $2 }
 
-actuals_opt:
-    /* nothing */ { [] }
-  | actuals_list  { List.rev $1 }
-
-actuals_list:
-    expr                    { [$1] }
-  | actuals_list COMMA expr { $3 :: $1 }
-
 
 /***************
   OBJECTS AND LISTS/ARRAYS
 ***************/
 
 /* String(args) */
-
+/*
 obj_create:
     ID LPAREN actuals_opt RPAREN    { ObjCreate($1, List.rev $3) }
-
+*/
   /* int a[3]; */
+  /*
 list_create:
       ID ID LBRACKET INT_LITERAL RBRACKET { ListCreate($1, $2, $4) }
     | TYPE ID LBRACKET INT_LITERAL RBRACKET { ListCreate($1, $2, $4) }
-
+*/
 
   /* int a[3][4]; NOT IMPLEMENTED FOR NOW 
 list_create:
       ID ID bracket_list   { ListCreate($1, $2, $3) }
     | TYPE ID bracket_list { ListCreate($1, $2, $3) }
-
+*/
+/*
 bracket_list:
       bracket { [$1] }
     | bracket_list bracket { $2 :: $1 }
@@ -204,6 +198,10 @@ bracket:
   /* a.method(actuals) */
   /* a[3] */
 
+
+/*  SHIFT REDUCE COMING PARTIALLY FROM ACCESS STUFF /*
+
+/*
 access:
       obj_access  { $1 }
     | list_access { $1 }
@@ -214,6 +212,15 @@ obj_access:
 
 list_access:
       expr LBRACKET expr RBRACKET { ListAccess($1, $3) }
+*/
+actuals_opt:
+    /* nothing */ { [] }
+  | actuals_list  { List.rev $1 }
+
+actuals_list:
+    expr                    { [$1] }
+  | actuals_list COMMA expr { $3 :: $1 }
+
 
 
 /******************
@@ -239,8 +246,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    /*INT_LITERAL          { Literal($1) }*/
-    INT_LITERAL          { Literal($1)}
+    INT_LITERAL      { Literal($1)}
   | ID               { Id($1) }
   | ID DOT ID        { Deref($1, $3)}
   | expr PLUS   expr { Binop($1, Add,   $3) }
@@ -256,13 +262,13 @@ expr:
   | expr AND    expr { Binop($1, And,   $3) }
   | expr NOT    expr { Binop($1, Not,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
-  | ID ASSIGN expr   { Assign($1, $3)}
  /* | access           { Binop($1, Deref, $3) } */ 
-  | { ArrayAccess of expr * expr }
-  | { ArrayCreate of datatype * string * expr list }
+/*  | { ArrayAccess of expr * expr }                562 REDUCE/REDUCE */
+  /*| { ArrayCreate of datatype * string * expr list }   */
   | ID ASSIGN expr   { Assign($1, $3) }
-  | ID LPAREN actuals_opt RPAREN { Call($1, List.rev $3) }
+  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
+/*  | access { $1 }*/
 
 
 
