@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT BIBLETHUMP
+%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS BIBLETHUMP
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
@@ -28,7 +28,6 @@
 
 program:
     allincludes cdecls EOF { Program($1, $2) }
-
 
 /******************
   INCLUDES
@@ -88,6 +87,7 @@ constructor_decl_list:
 constructor_decl:
   CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list BIBLETHUMP stmt_list RBRACE {
     {
+      scope = "Public";
       fname = "";
       formals = List.rev $3;
       locals = List.rev $6;
@@ -166,42 +166,47 @@ vdecl_list:
 vdecl:
    TYPE ID SEMI { $2 }
 
-
 /***************
-  OBJECTS AND LISTS/ARRAYS
+  OBJECTS AND ARRAYS
 ***************/
 
-/* String(args) */
+  /* Create objects and arrays */
+create:
+    obj_create      { $1 }
+  | array_create    { $1 }
 
+  /* String(args) */
 obj_create:
     ID LPAREN actuals_opt RPAREN    { ObjCreate($1, List.rev $3) }
 
   /* int a[3]; */
   /* int a[3,4] */
-list_create:
-      ID ID LBRACKET bracket_args RBRACKET   { ListCreate($1, $2, $4) }
-    | TYPE ID LBRACKET bracket_args RBRACKET { ListCreate($1, $2, $4) }
+array_create:
+      ID ID LBRACKET bracket_args RBRACKET   { ArrayCreate($1, $2, $4) }
+    | TYPE ID LBRACKET bracket_args RBRACKET { ArrayCreate($1, $2, $4) }
 
 bracket_args:
-    INT_LITERAL                 { [$1] }
+    INT_LITERAL                    { Int_Lit($1) }
   | bracket_args COMMA INT_LITERAL { $3 :: $1 }
 
 
   /* a.field */
-  /* a.methodReturnsObject.field */
+  /* a.methodReturnsObject.field <- NOT SUPPORTED!! */
   /* a.method(actuals) */
   /* a[3] */
   /* method(4) */
 access:
       obj_access  { $1 }
-    | list_access { $1 }
+    | array_access { $1 }
 
-obj_access: /* Changing the beginning ID below to the original expr will add 14 shift/reduce*/
-      ID DOT ID { ObjAccess($1, $3)}
+obj_access: 
+      ID DOT ID          { ObjAccess($1, $3)}
+    | THIS DOT ID        { ObjAccess($1, $3)}
     | ID DOT ID LPAREN actuals_opt RPAREN { ObjAccess($1, List.rev $3) }
 
-list_access:
-     ID LBRACKET bracket_args RBRACKET { ListAccess($1, $3)}
+array_access:
+      ID LBRACKET bracket_args RBRACKET { ArrayAccess($1, $3)}
+    | THIS DOT ID LBRACKET bracket_args RBRACKET { ThisArrayAccess($1, $3)}
 
 actuals_opt:
     /* nothing */ { [] }
@@ -239,9 +244,8 @@ expr:
   | BOOLEAN_LITERAL  { Boolean_Lit($1)}
   | STRING_LITERAL   { String_Lit($1)}  
   | ID               { Id($1) }
-  | list_create {$1}
-  | obj_create {$1}
-  | access { $1 }
+  | create           { $1 }
+  | access           { $1 }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }

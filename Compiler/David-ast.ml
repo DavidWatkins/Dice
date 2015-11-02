@@ -6,8 +6,7 @@ type datatype =
   | Datatype of string
 
 type expr =
-    Literal of int
-  | This (* WHAT SHOULD GO HERE???*)
+    Int_Lit of int
   | Boolean_Lit of bool
   | Float_Lit of float
   | String_Lit of string
@@ -15,11 +14,11 @@ type expr =
   | Id of string
   | Binop of expr * op * expr
   | Assign of string * expr
-  | Call of string * expr list
   | ObjCreate of string * expr list
-  | ObjAccess of string * expr list
+  | ObjAccess of string * expr list (* Replaced "Call" *)
   | ArrayCreate of datatype * string * expr list
   | ArrayAccess of expr * expr
+  | ThisArrayAccess of expr * expr
   | Noexpr
 
 type stmt =
@@ -35,6 +34,7 @@ type field = Field of scope * datatype * string
 type include = string
 
 type func_decl = {
+  scope : scope;
   fname : string;
   formals : string list;
   locals : string list;
