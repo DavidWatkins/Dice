@@ -201,7 +201,7 @@ obj_access: /* Changing the beginning ID below to the original expr will add 14 
     | ID DOT ID LPAREN actuals_opt RPAREN { ObjAccess($1, List.rev $3) }
 
 list_access:
-      ID LBRACKET expr RBRACKET { ListAccess($1, $3) }
+     ID LBRACKET bracket_args RBRACKET { ListAccess($1, $3)}
 
 actuals_opt:
     /* nothing */ { [] }
