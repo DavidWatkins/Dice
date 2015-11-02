@@ -1,13 +1,13 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT FUN
+%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT BIBLETHUMP
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
-%token <bool> BOOLEAN_LIT
+%token <bool> BOOLEAN_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID TYPE SCOPE
 %token EOF
@@ -58,19 +58,19 @@ cdecl_list:
   | cdecl_list cdecl  { $2::$1 }
 
 cdecl:
-    CLASS ID LBRACE field_list constructor_decls fdecls RBRACE { {
+    CLASS ID LBRACE fields BIBLETHUMP constructor_decls fdecls RBRACE { {
       cname = $2;
       extends = "";
-      constructors = $5;
+      constructors = $6;
       fields = $4;
-      methods = $6;
+      methods = $7;
     } }
-  | CLASS ID EXTENDS ID LBRACE field_list constructor_decls fdecls RBRACE { {
+  | CLASS ID EXTENDS ID LBRACE fields BIBLETHUMP constructor_decls fdecls RBRACE { {
       cname = $2;
       extends = $4;
-      constructors = $7;
+      constructors = $8;
       fields = $6;
-      methods = $8;
+      methods = $9;
     } }
 
 /******************
@@ -86,12 +86,12 @@ constructor_decl_list:
   | constructor_decl_list constructor_decl { $2::$1 }
 
 constructor_decl:
-  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
+  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list BIBLETHUMP stmt_list RBRACE {
     {
       fname = "";
       formals = List.rev $3;
       locals = List.rev $6;
-      body = List.rev $7;
+      body = List.rev $8;
     }
   }
 
@@ -99,9 +99,12 @@ constructor_decl:
  FIELDS
 ******************/
 
-field_list:
+fields:
     /*Nothing*/ { [] }
-/*  | field       { [$1] }       SHIFT/REDUCE - 2 */
+  | field_list {List.rev $1}
+
+field_list:
+    field     { [$1] }      
   | field_list field { $2::$1 }
 
 field:
@@ -121,27 +124,15 @@ fdecl_list:
 
 
 fdecl:
-    FUN SCOPE TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE { 
+    SCOPE TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list BIBLETHUMP stmt_list RBRACE { 
       {
-      scope = $2;
-      fname = $4;
-      formals = List.rev $6;
-      locals = List.rev $9;
+      scope = $1;
+      fname = $3;
+      formals = List.rev $5;
+      locals = List.rev $8;
       body = List.rev $10;
       } 
     }
-
-/*
-fdecl:
-    TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
-        {
-            fname = $2;
-            formals = List.rev $4;
-            locals = List.rev $7;
-            body = List.rev $8;
-        }
-    }
-*/
 
 /******************
  FORMALS/PARAMETERS & VARIABLES & ACTUALS
@@ -181,51 +172,37 @@ vdecl:
 ***************/
 
 /* String(args) */
-/*
+
 obj_create:
     ID LPAREN actuals_opt RPAREN    { ObjCreate($1, List.rev $3) }
-*/
+
   /* int a[3]; */
-  /*
+  /* int a[3,4] */
 list_create:
-      ID ID LBRACKET INT_LITERAL RBRACKET { ListCreate($1, $2, $4) }
-    | TYPE ID LBRACKET INT_LITERAL RBRACKET { ListCreate($1, $2, $4) }
-*/
+      ID ID LBRACKET bracket_args RBRACKET   { ListCreate($1, $2, $4) }
+    | TYPE ID LBRACKET bracket_args RBRACKET { ListCreate($1, $2, $4) }
 
-  /* int a[3][4]; NOT IMPLEMENTED FOR NOW 
-list_create:
-      ID ID bracket_list   { ListCreate($1, $2, $3) }
-    | TYPE ID bracket_list { ListCreate($1, $2, $3) }
-*/
-/*
-bracket_list:
-      bracket { [$1] }
-    | bracket_list bracket { $2 :: $1 }
+bracket_args:
+    INT_LITERAL                 { [$1] }
+  | bracket_args COMMA INT_LITERAL { $3 :: $1 }
 
-bracket:
-    LBRACK INT_LITERAL RBRACK { Literal($2) }
-*/
 
   /* a.field */
   /* a.methodReturnsObject.field */
   /* a.method(actuals) */
   /* a[3] */
-
-
-/*  SHIFT REDUCE COMING PARTIALLY FROM ACCESS STUFF /*
-
-/*
+  /* method(4) */
 access:
       obj_access  { $1 }
     | list_access { $1 }
 
-obj_access:
-      expr DOT ID { ObjAccess($1, $3)}
-    | expr DOT ID LPAREN actuals_opt RPAREN { ObjAccess($1, List.rev $3) }
+obj_access: /* Changing the beginning ID below to the original expr will add 14 shift/reduce*/
+      ID DOT ID { ObjAccess($1, $3)}
+    | ID DOT ID LPAREN actuals_opt RPAREN { ObjAccess($1, List.rev $3) }
 
 list_access:
-      expr LBRACKET expr RBRACKET { ListAccess($1, $3) }
-*/
+      ID LBRACKET expr RBRACKET { ListAccess($1, $3) }
+
 actuals_opt:
     /* nothing */ { [] }
   | actuals_list  { List.rev $1 }
@@ -233,8 +210,6 @@ actuals_opt:
 actuals_list:
     expr                    { [$1] }
   | actuals_list COMMA expr { $3 :: $1 }
-
-
 
 /******************
  EXPRESSIONS
@@ -260,8 +235,13 @@ expr_opt:
 
 expr:
     INT_LITERAL      { Literal($1)}
+  | FLOAT_LITERAL    { Float_Lit($1)}
+  | BOOLEAN_LITERAL  { Boolean_Lit($1)}
+  | STRING_LITERAL   { String_Lit($1)}  
   | ID               { Id($1) }
-  | ID DOT ID        { Deref($1, $3)}
+  | list_create {$1}
+  | obj_create {$1}
+  | access { $1 }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -275,14 +255,5 @@ expr:
   | expr AND    expr { Binop($1, And,   $3) }
   | expr NOT    expr { Binop($1, Not,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
- /* | access           { Binop($1, Deref, $3) } */ 
-/*  | { ArrayAccess of expr * expr }                562 REDUCE/REDUCE */
-  /*| { ArrayCreate of datatype * string * expr list }   */
   | ID ASSIGN expr   { Assign($1, $3) }
-  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
-/*  | access { $1 }*/
-
-
-
-  
