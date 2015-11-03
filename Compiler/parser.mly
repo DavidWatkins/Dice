@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS BIBLETHUMP
+%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
@@ -27,21 +27,18 @@
 %%
 
 program:
-    allincludes cdecls EOF { Program($1, $2) }
+    globals EOF { Program(fst $1, snd $1) }
+
+globals:
+		/* nothing */ 	{ [], [] }
+    |	globals include { ($2 :: fst $1), snd $1 }
+    |	globals cdecl   { fst $1, ($2 :: snd $1) }
 
 /******************
-  INCLUDES
+  INCLUDE
 ******************/
 
-allincludes:
-   /* nothing */ { [] }
-  | include_list { List.rev $1 }
-
-include_list:
-    includes              { [$1] }
-  | include_list includes { $2::$1 }
-
-includes:
+include:
    INCLUDE LPAREN ID RPAREN SEMI { $3 }
 
 
@@ -49,63 +46,59 @@ includes:
  CLASSES
 ******************/
 
-cdecls:
-    cdecl_list    { List.rev $1 }
-
-cdecl_list:
-    cdecl             { [$1] }
-  | cdecl_list cdecl  { $2::$1 }
-
 cdecl:
-    CLASS ID LBRACE fields BIBLETHUMP constructor_decls fdecls RBRACE { {
+    CLASS ID LBRACE cbody RBRACE { {
       cname = $2;
       extends = "";
-      constructors = $6;
-      fields = $4;
-      methods = $7;
+      body = $4
     } }
-  | CLASS ID EXTENDS ID LBRACE fields BIBLETHUMP constructor_decls fdecls RBRACE { {
+  | CLASS ID EXTENDS ID LBRACE cbody RBRACE { {
       cname = $2;
       extends = $4;
-      constructors = $8;
-      fields = $6;
-      methods = $9;
+      body = $6
     } }
+
+cbody:
+	/* nothing */ 	 { { 
+						 fields = [];
+	   					 constructors = [];
+	   					 methods = [];
+	   				 } }
+ | cbody field 		 { { 
+ 						 fields = $2 :: $1.fields;
+	   					 constructors = $1.constructors;
+	   					 methods = $1.methods;
+	   				 } }
+ | cbody constructor { { 
+ 						 fields = $1.fields;
+	   					 constructors = $2 :: $1.constructors;
+	   					 methods = $1.methods;
+	   				 } }
+ | cbody fdecl 		 { { 
+ 						 fields = $1.fields;
+	   					 constructors = $1.constructors;
+	   					 methods = $2 :: $1.methods;
+	   				 } }
+
 
 /******************
  CONSTRUCTORS
 ******************/
 
-constructor_decls:
-    /* nothing */ {[]}
-  |  constructor_decl_list {List.rev $1}
-
-constructor_decl_list:
-    constructor_decl {[$1]}
-  | constructor_decl_list constructor_decl { $2::$1 }
-
-constructor_decl:
-  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list BIBLETHUMP stmt_list RBRACE {
+constructor:
+  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
     {
       scope = "Public";
       fname = "";
       formals = List.rev $3;
       locals = List.rev $6;
-      body = List.rev $8;
+      body = List.rev $7;
     }
   }
 
 /******************
  FIELDS
 ******************/
-
-fields:
-    /*Nothing*/ { [] }
-  | field_list {List.rev $1}
-
-field_list:
-    field     { [$1] }      
-  | field_list field { $2::$1 }
 
 field:
     SCOPE TYPE ID SEMI { Field($1, $2, $3) }
@@ -115,22 +108,15 @@ field:
 /******************
  METHODS
 ******************/
-fdecls:
-    fdecl_list { List.rev $1 }
-
-fdecl_list:
-  /*Nothing*/ { [] }
-  | fdecl_list fdecl { $2::$1 }
-
 
 fdecl:
-    SCOPE TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list BIBLETHUMP stmt_list RBRACE { 
+    SCOPE TYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE { 
       {
       scope = $1;
       fname = $3;
       formals = List.rev $5;
       locals = List.rev $8;
-      body = List.rev $10;
+      body = List.rev $9;
       } 
     }
 
@@ -201,12 +187,12 @@ access:
 
 obj_access: 
       ID DOT ID          { ObjAccess($1, $3)}
-    | THIS DOT ID        { ObjAccess($1, $3)}
+    | THIS DOT ID        { SelfAccess($3)}
     | ID DOT ID LPAREN actuals_opt RPAREN { ObjAccess($1, List.rev $3) }
 
 array_access:
       ID LBRACKET bracket_args RBRACKET { ArrayAccess($1, $3)}
-    | THIS DOT ID LBRACKET bracket_args RBRACKET { ThisArrayAccess($1, $3)}
+    | THIS DOT ID LBRACKET bracket_args RBRACKET { ThisArrayAccess($3, $5)}
 
 actuals_opt:
     /* nothing */ { [] }

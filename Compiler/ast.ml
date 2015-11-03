@@ -17,8 +17,9 @@ type expr =
   | ObjCreate of string * expr list
   | ObjAccess of string * expr list (* Replaced "Call" *)
   | ArrayCreate of datatype * string * expr list
-  | ArrayAccess of expr * expr
-  | ThisArrayAccess of expr * expr
+  | ArrayAccess of string * expr
+  | ThisArrayAccess of string * expr
+  | SelfAccess of string
   | Noexpr
 
 type stmt =
@@ -44,8 +45,12 @@ type func_decl = {
 type class_decl = {
   cname : string;
   extends : string;
-  constructors : func_decl list;
+  body: cbody;
+}
+
+type cbody = {
   fields : field list;
+  constructors : func_decl list;
   methods : func_decl list;
 }
 
