@@ -27,18 +27,22 @@
 %%
 
 program:
-    globals EOF { Program(fst $1, snd $1) }
+    includes EOF { Program(fst $1, snd $1) }
 
-globals:
-		/* nothing */ 	{ [], [] }
-    |	globals include { ($2 :: fst $1), snd $1 }
-    |	globals cdecl   { fst $1, ($2 :: snd $1) }
+includes:
+    /* nothing */   { [], [] }
+    | includes include_decl { ($2 :: fst $1), snd $1 }
+    | includes cdecls   { $1, $2 }
+
+cdecls:
+    /* nothing */ { [] }
+  | cdecls cdecl  { $2 :: $1 }
 
 /******************
   INCLUDE
 ******************/
 
-include:
+include_decl:
    INCLUDE LPAREN ID RPAREN SEMI { $3 }
 
 
@@ -59,26 +63,26 @@ cdecl:
     } }
 
 cbody:
-	/* nothing */ 	 { { 
-						 fields = [];
-	   					 constructors = [];
-	   					 methods = [];
-	   				 } }
- | cbody field 		 { { 
- 						 fields = $2 :: $1.fields;
-	   					 constructors = $1.constructors;
-	   					 methods = $1.methods;
-	   				 } }
+  /* nothing */    { { 
+             fields = [];
+               constructors = [];
+               methods = [];
+             } }
+ | cbody field     { { 
+             fields = $2 :: $1.fields;
+               constructors = $1.constructors;
+               methods = $1.methods;
+             } }
  | cbody constructor { { 
- 						 fields = $1.fields;
-	   					 constructors = $2 :: $1.constructors;
-	   					 methods = $1.methods;
-	   				 } }
- | cbody fdecl 		 { { 
- 						 fields = $1.fields;
-	   					 constructors = $1.constructors;
-	   					 methods = $2 :: $1.methods;
-	   				 } }
+             fields = $1.fields;
+               constructors = $2 :: $1.constructors;
+               methods = $1.methods;
+             } }
+ | cbody fdecl     { { 
+             fields = $1.fields;
+               constructors = $1.constructors;
+               methods = $2 :: $1.methods;
+             } }
 
 
 /******************
@@ -139,8 +143,8 @@ datatype:
     array_type { $1 }
     | singular_type { $1 }
 
-array_type:
-    TYPE LBRACKET RBRACKET { Arraytype($1) }
+array_decl:
+    TYPE ID LBRACKET RBRACKET { Arraytype($1) }
 
 singular_type:
     TYPE { Datatype($1) }
@@ -150,7 +154,11 @@ vdecl_list:
   | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-   TYPE ID SEMI { $2 }
+   type ID SEMI   { Vdecl($1, $2) }
+
+type:
+    ID     { Datatype($1) }
+  | TYPE   { Datatype($1) }
 
 /***************
   OBJECTS AND ARRAYS
