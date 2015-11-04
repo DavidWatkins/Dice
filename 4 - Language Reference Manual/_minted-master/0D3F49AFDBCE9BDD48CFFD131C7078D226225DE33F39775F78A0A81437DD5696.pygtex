@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{n}{bool} \PYGdefault{n}{success} \PYGdefault{o}{=} \PYGdefault{n}{fclose}\PYGdefault{o}{(}\PYGdefault{n}{fd}\PYGdefault{o}{);}
-\end{Verbatim}

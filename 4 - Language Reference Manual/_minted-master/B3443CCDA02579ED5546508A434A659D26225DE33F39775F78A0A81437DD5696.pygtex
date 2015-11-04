@@ -1,7 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{k}{if} \PYGdefault{o}{(}\PYGdefault{n}{condition}\PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}}
-		\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{stmt}\PYGdefault{o}{\PYGdefaultZgt{}}
-	\PYGdefault{o}{\PYGdefaultZcb{}} \PYGdefault{k}{else} \PYGdefault{o}{\PYGdefaultZob{}}
-		\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{stmt2}\PYGdefault{o}{\PYGdefaultZgt{}}
-	\PYGdefault{o}{\PYGdefaultZcb{}} \PYGdefault{o}{(*} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{stmt2}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{n}{executed} \PYGdefault{n}{when} \PYGdefault{n}{not} \PYGdefault{n}{condition} \PYGdefault{o}{*)}
-\end{Verbatim}

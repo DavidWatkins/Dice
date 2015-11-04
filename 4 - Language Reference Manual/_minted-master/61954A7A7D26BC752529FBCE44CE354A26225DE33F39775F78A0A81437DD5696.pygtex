@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{n}{print}\PYGdefault{o}{(}\PYGdefault{l+s}{\PYGdefaultZdq{}Hello\PYGdefaultZdq{}}\PYGdefault{o}{);}  \PYGdefault{o}{(*} \PYGdefault{n}{Evaluates} \PYGdefault{n}{to} \PYGdefault{k+kc}{null} \PYGdefault{o}{*)}
-\end{Verbatim}

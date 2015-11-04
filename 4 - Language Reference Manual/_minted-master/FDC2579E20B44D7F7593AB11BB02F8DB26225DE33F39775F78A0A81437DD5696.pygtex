@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{n}{bool} \PYGdefault{n}{success} \PYGdefault{o}{=} \PYGdefault{n}{fwrite}\PYGdefault{o}{(}\PYGdefault{n}{fd}\PYGdefault{o}{,} \PYGdefault{l+s}{\PYGdefaultZdq{}This should work\PYGdefaultZdq{}}\PYGdefault{o}{,} \PYGdefault{l+m+mi}{4}\PYGdefault{o}{,} \PYGdefault{l+m+mi}{1}\PYGdefault{o}{);} \PYGdefault{o}{(*} \PYGdefault{n}{Writes} \PYGdefault{l+s}{\PYGdefaultZdq{}his \PYGdefaultZdq{}} \PYGdefault{n}{to} \PYGdefault{n}{a} \PYGdefault{n}{file} \PYGdefault{o}{*)}
-\end{Verbatim}
