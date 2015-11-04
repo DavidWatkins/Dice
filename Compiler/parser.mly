@@ -263,11 +263,11 @@ literals:
 /* ARRAY LITERALS */
 
 array_prim:
-	  int_list   { ArrayPrimitive($1) }
-	| float_list { ArrayPrimitive($1) }
-	| str_list 	 { ArrayPrimitive($1) }
-	| bool_list  { ArrayPrimitive($1) }
-	| char_list  { ArrayPrimitive($1) }
+	  int_list   { ArrayPrimitive(Datatype(Int), $1) }
+	| float_list { ArrayPrimitive(Datatype(Float), $1) }
+	| str_list 	 { ArrayPrimitive(Arraytype(Char, 1), $1) }
+	| bool_list  { ArrayPrimitive(Datatype(Bool), $1) }
+	| char_list  { ArrayPrimitive(Datatype(Char), $1) }
 
 int_list:
 		INT_LITERAL				   { [Int_Lit($1)] }
