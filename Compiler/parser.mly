@@ -245,8 +245,8 @@ expr:
 	| 	LPAREN expr RPAREN 					{ $2 }
 
 bracket_args:
-		expr								{ [Int_Lit($1)] }
-	| 	bracket_args RBRACKET LBRACKET expr { Int_Lit($4) :: $1 }
+		expr								{ [$1] }
+	| 	bracket_args RBRACKET LBRACKET expr { $4 :: $1 }
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
