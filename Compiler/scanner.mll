@@ -33,8 +33,6 @@ rule token = parse
 | "<="     { LEQ }
 | ">"      { GT }
 | ">="     { GEQ }
-| "<["	   { ARRLEFT }
-| "]>"	   { ARRRIGHT }
 | "and"    { AND }
 | "or"     { OR }
 | "not"    { NOT }
@@ -68,6 +66,7 @@ rule token = parse
 | "extends"     { EXTENDS }
 | "include"     { INCLUDE }
 | "this"        { THIS }
+| "array"		{ ARRAY }
 
 | int as lxm   { INT_LITERAL(int_of_string lxm) }
 | float as lxm { FLOAT_LITERAL(float_of_string lxm) }

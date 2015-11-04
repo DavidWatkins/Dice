@@ -32,7 +32,6 @@ type expr =
   | Call of string * expr list  
   | ArrayPrimitive of expr list
 
-
 type stmt =
     Block of stmt list
   | Expr of expr
