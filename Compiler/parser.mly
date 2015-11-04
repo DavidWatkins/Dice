@@ -2,7 +2,7 @@
 
 %token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
-%token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
+%token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA ARRRIGHT ARRLEFT
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ BAR
 %token RETURN IF ELSE FOR WHILE
@@ -16,7 +16,7 @@
 %nonassoc ELSE
 %left DOT
 %right ASSIGN
-%left LBRACKET
+%left ARRLEFT
 %left AND NOT OR
 %left EQ NEQ
 %left LT GT LEQ GEQ
@@ -237,12 +237,12 @@ expr:
 	| expr DOT    expr { ObjAccess($1, $3) }
 	| expr ASSIGN expr { Assign($1, $3) }
 	| ID LPAREN actuals_opt RPAREN { Call($1, $3) }
-	| expr LBRACKET bracket_args RBRACKET { ArrayOp($1, $3) } 
+	| expr ARRLEFT bracket_args ARRRIGHT { ArrayOp($1, $3) } 
 	| LPAREN expr RPAREN { $2 }
 
 bracket_args:
-		expr                                { [$1] }
-	| bracket_args RBRACKET LBRACKET expr { $4 :: $1 }
+		INT_LITERAL                                { [Int_Lit($1)] }
+	| bracket_args RBRACKET LBRACKET INT_LITERAL { Int_Lit($4) :: $1 }
 
 literals:
 		INT_LITERAL      { Int_Lit($1)}

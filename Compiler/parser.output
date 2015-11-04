@@ -102,11 +102,11 @@
   72       | expr DOT expr
   73       | expr ASSIGN expr
   74       | ID LPAREN actuals_opt RPAREN
-  75       | expr LBRACKET bracket_args RBRACKET
+  75       | expr ARRLEFT bracket_args ARRRIGHT
   76       | LPAREN expr RPAREN
 
-  77  bracket_args : expr
-  78               | bracket_args RBRACKET LBRACKET expr
+  77  bracket_args : INT_LITERAL
+  78               | bracket_args RBRACKET LBRACKET INT_LITERAL
 
   79  literals : INT_LITERAL
   80           | FLOAT_LITERAL
@@ -850,7 +850,6 @@ state 79
 	.  reduce 83
 
 
-80: reduce/reduce conflict (reduce 41, reduce 85) on LBRACKET
 state 80
 	type_tag : ID .  (41)
 	expr : ID . LPAREN actuals_opt RPAREN  (74)
@@ -860,6 +859,7 @@ state 80
 	DOT  reduce 85
 	SEMI  reduce 85
 	LBRACKET  reduce 41
+	ARRLEFT  reduce 85
 	AND  reduce 85
 	NOT  reduce 85
 	OR  reduce 85
@@ -913,11 +913,11 @@ state 84
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
 	SEMI  shift 109
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -935,7 +935,6 @@ state 84
 	.  error
 
 
-85: reduce/reduce conflict (reduce 40, reduce 86) on LBRACKET
 state 85
 	type_tag : primitive .  (40)
 	literals : primitive .  (86)
@@ -943,6 +942,7 @@ state 85
 	DOT  reduce 86
 	SEMI  reduce 86
 	LBRACKET  reduce 40
+	ARRLEFT  reduce 86
 	AND  reduce 86
 	NOT  reduce 86
 	OR  reduce 86
@@ -983,9 +983,8 @@ state 88
 	DOT  reduce 85
 	SEMI  reduce 85
 	RPAREN  reduce 85
-	LBRACKET  reduce 85
-	RBRACKET  reduce 85
 	COMMA  reduce 85
+	ARRLEFT  reduce 85
 	AND  reduce 85
 	NOT  reduce 85
 	OR  reduce 85
@@ -1018,12 +1017,12 @@ state 89
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 	expr : LPAREN expr . RPAREN  (76)
 
 	DOT  shift 108
 	RPAREN  shift 126
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -1166,11 +1165,11 @@ state 102
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
 	SEMI  shift 134
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -1328,27 +1327,11 @@ state 109
 
 
 state 110
-	expr : expr LBRACKET . bracket_args RBRACKET  (75)
+	expr : expr ARRLEFT . bracket_args ARRRIGHT  (75)
 
-	THIS  shift 66
-	INT  shift 35
-	FLOAT  shift 36
-	BOOL  shift 37
-	CHAR  shift 38
-	VOID  shift 39
-	TRUE  shift 67
-	FALSE  shift 68
-	LPAREN  shift 69
-	BAR  shift 72
-	INT_LITERAL  shift 77
-	FLOAT_LITERAL  shift 78
-	STRING_LITERAL  shift 79
-	ID  shift 88
+	INT_LITERAL  shift 144
 	.  error
 
-	expr  goto 144
-	primitive  goto 90
-	literals  goto 86
 	bracket_args  goto 145
 
 
@@ -1803,11 +1786,11 @@ state 135
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
 	RPAREN  shift 166
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -1842,10 +1825,10 @@ state 136
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -1888,11 +1871,11 @@ state 138
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
 	RPAREN  shift 168
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -1942,10 +1925,10 @@ state 141
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -1987,9 +1970,9 @@ state 143
 	expr : expr . DOT expr  (72)
 	expr : expr DOT expr .  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -2007,53 +1990,21 @@ state 143
 	DOT  reduce 72
 	SEMI  reduce 72
 	RPAREN  reduce 72
-	RBRACKET  reduce 72
 	COMMA  reduce 72
 
 
 state 144
-	expr : expr . PLUS expr  (59)
-	expr : expr . MINUS expr  (60)
-	expr : expr . TIMES expr  (61)
-	expr : expr . DIVIDE expr  (62)
-	expr : expr . EQ expr  (63)
-	expr : expr . NEQ expr  (64)
-	expr : expr . LT expr  (65)
-	expr : expr . LEQ expr  (66)
-	expr : expr . GT expr  (67)
-	expr : expr . GEQ expr  (68)
-	expr : expr . AND expr  (69)
-	expr : expr . NOT expr  (70)
-	expr : expr . OR expr  (71)
-	expr : expr . DOT expr  (72)
-	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
-	bracket_args : expr .  (77)
+	bracket_args : INT_LITERAL .  (77)
 
-	DOT  shift 108
-	LBRACKET  shift 110
-	AND  shift 111
-	NOT  shift 112
-	OR  shift 113
-	PLUS  shift 114
-	MINUS  shift 115
-	TIMES  shift 116
-	DIVIDE  shift 117
-	ASSIGN  shift 118
-	EQ  shift 119
-	NEQ  shift 120
-	LT  shift 121
-	LEQ  shift 122
-	GT  shift 123
-	GEQ  shift 124
-	RBRACKET  reduce 77
+	.  reduce 77
 
 
 state 145
-	expr : expr LBRACKET bracket_args . RBRACKET  (75)
-	bracket_args : bracket_args . RBRACKET LBRACKET expr  (78)
+	expr : expr ARRLEFT bracket_args . ARRRIGHT  (75)
+	bracket_args : bracket_args . RBRACKET LBRACKET INT_LITERAL  (78)
 
 	RBRACKET  shift 171
+	ARRRIGHT  shift 172
 	.  error
 
 
@@ -2074,7 +2025,7 @@ state 146
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2089,9 +2040,8 @@ state 146
 	DOT  reduce 69
 	SEMI  reduce 69
 	RPAREN  reduce 69
-	LBRACKET  reduce 69
-	RBRACKET  reduce 69
 	COMMA  reduce 69
+	ARRLEFT  reduce 69
 	AND  reduce 69
 	NOT  reduce 69
 	OR  reduce 69
@@ -2115,7 +2065,7 @@ state 147
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2130,9 +2080,8 @@ state 147
 	DOT  reduce 70
 	SEMI  reduce 70
 	RPAREN  reduce 70
-	LBRACKET  reduce 70
-	RBRACKET  reduce 70
 	COMMA  reduce 70
+	ARRLEFT  reduce 70
 	AND  reduce 70
 	NOT  reduce 70
 	OR  reduce 70
@@ -2156,7 +2105,7 @@ state 148
 	expr : expr OR expr .  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2171,9 +2120,8 @@ state 148
 	DOT  reduce 71
 	SEMI  reduce 71
 	RPAREN  reduce 71
-	LBRACKET  reduce 71
-	RBRACKET  reduce 71
 	COMMA  reduce 71
+	ARRLEFT  reduce 71
 	AND  reduce 71
 	NOT  reduce 71
 	OR  reduce 71
@@ -2197,16 +2145,15 @@ state 149
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	TIMES  shift 116
 	DIVIDE  shift 117
 	DOT  reduce 59
 	SEMI  reduce 59
 	RPAREN  reduce 59
-	LBRACKET  reduce 59
-	RBRACKET  reduce 59
 	COMMA  reduce 59
+	ARRLEFT  reduce 59
 	AND  reduce 59
 	NOT  reduce 59
 	OR  reduce 59
@@ -2238,16 +2185,15 @@ state 150
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	TIMES  shift 116
 	DIVIDE  shift 117
 	DOT  reduce 60
 	SEMI  reduce 60
 	RPAREN  reduce 60
-	LBRACKET  reduce 60
-	RBRACKET  reduce 60
 	COMMA  reduce 60
+	ARRLEFT  reduce 60
 	AND  reduce 60
 	NOT  reduce 60
 	OR  reduce 60
@@ -2279,7 +2225,7 @@ state 151
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	.  reduce 61
 
@@ -2301,7 +2247,7 @@ state 152
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	.  reduce 62
 
@@ -2323,9 +2269,9 @@ state 153
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
 	expr : expr ASSIGN expr .  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -2343,7 +2289,6 @@ state 153
 	DOT  reduce 73
 	SEMI  reduce 73
 	RPAREN  reduce 73
-	RBRACKET  reduce 73
 	COMMA  reduce 73
 
 
@@ -2364,7 +2309,7 @@ state 154
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2377,9 +2322,8 @@ state 154
 	DOT  reduce 63
 	SEMI  reduce 63
 	RPAREN  reduce 63
-	LBRACKET  reduce 63
-	RBRACKET  reduce 63
 	COMMA  reduce 63
+	ARRLEFT  reduce 63
 	AND  reduce 63
 	NOT  reduce 63
 	OR  reduce 63
@@ -2405,7 +2349,7 @@ state 155
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2418,9 +2362,8 @@ state 155
 	DOT  reduce 64
 	SEMI  reduce 64
 	RPAREN  reduce 64
-	LBRACKET  reduce 64
-	RBRACKET  reduce 64
 	COMMA  reduce 64
+	ARRLEFT  reduce 64
 	AND  reduce 64
 	NOT  reduce 64
 	OR  reduce 64
@@ -2446,7 +2389,7 @@ state 156
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2455,9 +2398,8 @@ state 156
 	DOT  reduce 65
 	SEMI  reduce 65
 	RPAREN  reduce 65
-	LBRACKET  reduce 65
-	RBRACKET  reduce 65
 	COMMA  reduce 65
+	ARRLEFT  reduce 65
 	AND  reduce 65
 	NOT  reduce 65
 	OR  reduce 65
@@ -2487,7 +2429,7 @@ state 157
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2496,9 +2438,8 @@ state 157
 	DOT  reduce 66
 	SEMI  reduce 66
 	RPAREN  reduce 66
-	LBRACKET  reduce 66
-	RBRACKET  reduce 66
 	COMMA  reduce 66
+	ARRLEFT  reduce 66
 	AND  reduce 66
 	NOT  reduce 66
 	OR  reduce 66
@@ -2528,7 +2469,7 @@ state 158
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2537,9 +2478,8 @@ state 158
 	DOT  reduce 67
 	SEMI  reduce 67
 	RPAREN  reduce 67
-	LBRACKET  reduce 67
-	RBRACKET  reduce 67
 	COMMA  reduce 67
+	ARRLEFT  reduce 67
 	AND  reduce 67
 	NOT  reduce 67
 	OR  reduce 67
@@ -2569,7 +2509,7 @@ state 159
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	PLUS  shift 114
 	MINUS  shift 115
@@ -2578,9 +2518,8 @@ state 159
 	DOT  reduce 68
 	SEMI  reduce 68
 	RPAREN  reduce 68
-	LBRACKET  reduce 68
-	RBRACKET  reduce 68
 	COMMA  reduce 68
+	ARRLEFT  reduce 68
 	AND  reduce 68
 	NOT  reduce 68
 	OR  reduce 68
@@ -2654,7 +2593,7 @@ state 166
 	ID  shift 88
 	.  error
 
-	stmt  goto 172
+	stmt  goto 173
 	expr  goto 84
 	primitive  goto 90
 	literals  goto 86
@@ -2682,7 +2621,7 @@ state 167
 
 	expr  goto 136
 	primitive  goto 90
-	expr_opt  goto 173
+	expr_opt  goto 174
 	literals  goto 86
 
 
@@ -2710,7 +2649,7 @@ state 168
 	ID  shift 88
 	.  error
 
-	stmt  goto 174
+	stmt  goto 175
 	expr  goto 84
 	primitive  goto 90
 	literals  goto 86
@@ -2741,43 +2680,29 @@ state 170
 	ID  shift 88
 	.  error
 
-	expr  goto 175
+	expr  goto 176
 	primitive  goto 90
 	literals  goto 86
 
 
-171: shift/reduce conflict (shift 176, reduce 75) on LBRACKET
 state 171
-	expr : expr LBRACKET bracket_args RBRACKET .  (75)
-	bracket_args : bracket_args RBRACKET . LBRACKET expr  (78)
+	bracket_args : bracket_args RBRACKET . LBRACKET INT_LITERAL  (78)
 
-	LBRACKET  shift 176
-	DOT  reduce 75
-	SEMI  reduce 75
-	RPAREN  reduce 75
-	RBRACKET  reduce 75
-	COMMA  reduce 75
-	AND  reduce 75
-	NOT  reduce 75
-	OR  reduce 75
-	PLUS  reduce 75
-	MINUS  reduce 75
-	TIMES  reduce 75
-	DIVIDE  reduce 75
-	ASSIGN  reduce 75
-	EQ  reduce 75
-	NEQ  reduce 75
-	LT  reduce 75
-	LEQ  reduce 75
-	GT  reduce 75
-	GEQ  reduce 75
+	LBRACKET  shift 177
+	.  error
 
 
 state 172
+	expr : expr ARRLEFT bracket_args ARRRIGHT .  (75)
+
+	.  reduce 75
+
+
+state 173
 	stmt : IF LPAREN expr RPAREN stmt .  (52)
 	stmt : IF LPAREN expr RPAREN stmt . ELSE stmt  (53)
 
-	ELSE  shift 177
+	ELSE  shift 178
 	THIS  reduce 52
 	INT  reduce 52
 	FLOAT  reduce 52
@@ -2800,20 +2725,20 @@ state 172
 	ID  reduce 52
 
 
-state 173
+state 174
 	stmt : FOR LPAREN expr_opt SEMI expr_opt . SEMI expr_opt RPAREN stmt  (54)
 
-	SEMI  shift 178
+	SEMI  shift 179
 	.  error
 
 
-state 174
+state 175
 	stmt : WHILE LPAREN expr RPAREN stmt .  (55)
 
 	.  reduce 55
 
 
-state 175
+state 176
 	actuals_list : actuals_list COMMA expr .  (34)
 	expr : expr . PLUS expr  (59)
 	expr : expr . MINUS expr  (60)
@@ -2830,10 +2755,10 @@ state 175
 	expr : expr . OR expr  (71)
 	expr : expr . DOT expr  (72)
 	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
+	expr : expr . ARRLEFT bracket_args ARRRIGHT  (75)
 
 	DOT  shift 108
-	LBRACKET  shift 110
+	ARRLEFT  shift 110
 	AND  shift 111
 	NOT  shift 112
 	OR  shift 113
@@ -2852,31 +2777,14 @@ state 175
 	COMMA  reduce 34
 
 
-state 176
-	bracket_args : bracket_args RBRACKET LBRACKET . expr  (78)
+state 177
+	bracket_args : bracket_args RBRACKET LBRACKET . INT_LITERAL  (78)
 
-	THIS  shift 66
-	INT  shift 35
-	FLOAT  shift 36
-	BOOL  shift 37
-	CHAR  shift 38
-	VOID  shift 39
-	TRUE  shift 67
-	FALSE  shift 68
-	LPAREN  shift 69
-	BAR  shift 72
-	INT_LITERAL  shift 77
-	FLOAT_LITERAL  shift 78
-	STRING_LITERAL  shift 79
-	ID  shift 88
+	INT_LITERAL  shift 180
 	.  error
 
-	expr  goto 179
-	primitive  goto 90
-	literals  goto 86
 
-
-state 177
+state 178
 	stmt : IF LPAREN expr RPAREN stmt ELSE . stmt  (53)
 
 	THIS  shift 66
@@ -2900,13 +2808,13 @@ state 177
 	ID  shift 88
 	.  error
 
-	stmt  goto 180
+	stmt  goto 181
 	expr  goto 84
 	primitive  goto 90
 	literals  goto 86
 
 
-state 178
+state 179
 	stmt : FOR LPAREN expr_opt SEMI expr_opt SEMI . expr_opt RPAREN stmt  (54)
 	expr_opt : .  (56)
 
@@ -2928,62 +2836,30 @@ state 178
 
 	expr  goto 136
 	primitive  goto 90
-	expr_opt  goto 181
+	expr_opt  goto 182
 	literals  goto 86
 
 
-state 179
-	expr : expr . PLUS expr  (59)
-	expr : expr . MINUS expr  (60)
-	expr : expr . TIMES expr  (61)
-	expr : expr . DIVIDE expr  (62)
-	expr : expr . EQ expr  (63)
-	expr : expr . NEQ expr  (64)
-	expr : expr . LT expr  (65)
-	expr : expr . LEQ expr  (66)
-	expr : expr . GT expr  (67)
-	expr : expr . GEQ expr  (68)
-	expr : expr . AND expr  (69)
-	expr : expr . NOT expr  (70)
-	expr : expr . OR expr  (71)
-	expr : expr . DOT expr  (72)
-	expr : expr . ASSIGN expr  (73)
-	expr : expr . LBRACKET bracket_args RBRACKET  (75)
-	bracket_args : bracket_args RBRACKET LBRACKET expr .  (78)
-
-	DOT  shift 108
-	LBRACKET  shift 110
-	AND  shift 111
-	NOT  shift 112
-	OR  shift 113
-	PLUS  shift 114
-	MINUS  shift 115
-	TIMES  shift 116
-	DIVIDE  shift 117
-	ASSIGN  shift 118
-	EQ  shift 119
-	NEQ  shift 120
-	LT  shift 121
-	LEQ  shift 122
-	GT  shift 123
-	GEQ  shift 124
-	RBRACKET  reduce 78
-
-
 state 180
+	bracket_args : bracket_args RBRACKET LBRACKET INT_LITERAL .  (78)
+
+	.  reduce 78
+
+
+state 181
 	stmt : IF LPAREN expr RPAREN stmt ELSE stmt .  (53)
 
 	.  reduce 53
 
 
-state 181
+state 182
 	stmt : FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt . RPAREN stmt  (54)
 
-	RPAREN  shift 182
+	RPAREN  shift 183
 	.  error
 
 
-state 182
+state 183
 	stmt : FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN . stmt  (54)
 
 	THIS  shift 66
@@ -3007,22 +2883,17 @@ state 182
 	ID  shift 88
 	.  error
 
-	stmt  goto 183
+	stmt  goto 184
 	expr  goto 84
 	primitive  goto 90
 	literals  goto 86
 
 
-state 183
+state 184
 	stmt : FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt .  (54)
 
 	.  reduce 54
 
 
-State 80 contains 1 reduce/reduce conflict.
-State 85 contains 1 reduce/reduce conflict.
-State 171 contains 1 shift/reduce conflict.
-
-
-54 terminals, 38 nonterminals
-103 grammar rules, 184 states
+56 terminals, 38 nonterminals
+103 grammar rules, 185 states

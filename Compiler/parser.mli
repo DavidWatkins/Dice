@@ -23,6 +23,8 @@ type token =
   | LBRACKET
   | RBRACKET
   | COMMA
+  | ARRRIGHT
+  | ARRLEFT
   | AND
   | NOT
   | OR

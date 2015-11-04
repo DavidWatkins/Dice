@@ -33,6 +33,8 @@ rule token = parse
 | "<="     { LEQ }
 | ">"      { GT }
 | ">="     { GEQ }
+| "<["	   { ARRLEFT }
+| "]>"	   { ARRRIGHT }
 | "and"    { AND }
 | "or"     { OR }
 | "not"    { NOT }
