@@ -31,6 +31,7 @@ type expr =
   | ObjAccess of expr * expr
   | Call of string * expr list  
   | ArrayPrimitive of expr list
+  | Null
 
 type stmt =
     Block of stmt list
