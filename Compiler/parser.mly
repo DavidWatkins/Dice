@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC ARRAY
+%token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
@@ -18,9 +18,10 @@
 %left DOT
 %right ASSIGN
 %left LBRACKET RBRACKET
-%left AND NOT OR
-%left EQ NEQ
 %left LT GT LEQ GEQ
+%left EQ NEQ
+%left NOT
+%left AND OR
 %left PLUS MINUS
 %left TIMES DIVIDE
 
@@ -98,7 +99,7 @@ cbody:
 ******************/
 
 constructor:
-	CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE fbody RBRACE {
+	CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
 		{
 			scope = Public;
 			fname = Constructor;
@@ -129,22 +130,21 @@ fname:
 	ID { $1 }
 
 fdecl:
-	scope datatype fname LPAREN formals_opt RPAREN LBRACE fbody RBRACE 
+	scope datatype fname LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
 	{ 
 		{
 			scope = $1;
 			fname = FName($3);
 			returnType = $2;
 			formals = List.rev $5;
-			locals = List.rev fst $8;
-			body = List.rev snd $8;
+			locals = List.rev $8;
+			body = List.rev $9;
 		} 
 	}
 
-fbody:
-		/*nothing*/  	{ [], [] }
-	| 	fbody vdecl     { ($2 :: fst $1), snd $1 }
-	| 	fbody stmt 	  	{ fst $1, ($2 :: snd $1) }
+vdecl_list:
+    /* nothing */    { [] }
+  | vdecl_list vdecl { $2 :: $1 }
 
 /******************
  FORMALS/PARAMETERS & VARIABLES & ACTUALS
@@ -184,14 +184,14 @@ primitive:
 	| 	VOID    	{ Void }
 
 name:
-	ID { Objecttype($1) }
+	CLASS ID { Objecttype($2) }
 
 type_tag:
 		primitive { $1 }
 	|	name	  { $1 }
 
 array_type:
-	ARRAY type_tag LBRACKET brackets RBRACKET { Arraytype($2, $4) }
+	type_tag LBRACKET brackets RBRACKET { Arraytype($1, $3) }
 
 datatype:
 		type_tag   { Datatype($1) }
@@ -251,8 +251,8 @@ bracket_args:
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
 	| FLOAT_LITERAL    		{ Float_Lit($1) }
-	| TRUE			   		{ Boolean_Lit(True) }
-	| FALSE			   		{ Boolean_Lit(False) }
+	| TRUE			   		{ Boolean_Lit(true) }
+	| FALSE			   		{ Boolean_Lit(false) }
 	| STRING_LITERAL   		{ String_Lit($1) }  
 	| CHAR_LITERAL			{ Char_Lit($1) }
 	| THIS 			   		{ This }

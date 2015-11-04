@@ -66,7 +66,6 @@ rule token = parse
 | "extends"     { EXTENDS }
 | "include"     { INCLUDE }
 | "this"        { THIS }
-| "array"		{ ARRAY }
 
 | int as lxm   { INT_LITERAL(int_of_string lxm) }
 | float as lxm { FLOAT_LITERAL(float_of_string lxm) }
