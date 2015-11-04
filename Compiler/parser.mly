@@ -241,12 +241,12 @@ expr:
 	| 	expr DOT    expr 					{ ObjAccess($1, $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
-	| 	expr LBRACKET bracket_args RBRACKET	{ ArrayOp($1, $3) } 
+	| 	expr LBRACKET bracket_args RBRACKET	{ ArrayOp($1, List.rev $3) } 
 	| 	LPAREN expr RPAREN 					{ $2 }
 
 bracket_args:
-		INT_LITERAL								   { [Int_Lit($1)] }
-	| 	bracket_args RBRACKET LBRACKET INT_LITERAL { Int_Lit($4) :: $1 }
+		expr								{ [Int_Lit($1)] }
+	| 	bracket_args RBRACKET LBRACKET expr { Int_Lit($4) :: $1 }
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
