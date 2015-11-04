@@ -18,10 +18,9 @@
 %left DOT
 %right ASSIGN
 %left LBRACKET RBRACKET
-%left LT GT LEQ GEQ
+%left AND NOT OR
 %left EQ NEQ
-%left NOT
-%left AND OR
+%left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
 
