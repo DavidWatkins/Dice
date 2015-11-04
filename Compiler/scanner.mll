@@ -39,6 +39,7 @@ rule token = parse
 | '.'      { DOT }
 | '['      { LBRACKET }
 | ']'      { RBRACKET }
+| '|'	   { BAR }
 
 (* Branch Control *)
 | "if"     { IF }
@@ -48,20 +49,20 @@ rule token = parse
 | "return" { RETURN }
 
 (* Data Types *)
-| "int"    { TYPE }
-| "double" { TYPE }
-| "bool"   { TYPE }
-| "char"   { TYPE }
-| "void"   { TYPE }
+| "int"    { INT }
+| "float"  { FLOAT }
+| "bool"   { BOOL }
+| "char"   { CHAR }
+| "void"   { VOID }
 | "null"   { NULL }
-| "true"   { BOOLEAN_LIT(true) }
-| "false"  { BOOLEAN_LIT(false) }
+| "true"   { TRUE }
+| "false"  { FALSE }
 
 (* Classes *)
 | "class"       { CLASS }
 | "constructor" { CONSTRUCTOR }
-| "public"      { SCOPE }
-| "private"     { SCOPE }
+| "public"      { PUBLIC }
+| "private"     { PRIVATE }
 | "extends"     { EXTENDS }
 | "include"     { INCLUDE }
 | "this"        { THIS }

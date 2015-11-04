@@ -1,9 +1,19 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or
 type scope = Private | Public
 type bool = True | False
-type datatype = 
-    Arraytype of string 
-  | Datatype of string
+type datatype =   Arraytype of primitive * int
+                | Datatype of primitive 
+type primitive = 
+    Int
+  | Float
+  | Void
+  | Bool
+  | Char
+  | Objecttype of string
+  | ConstructorType
+
+type extends = NoParent | Parent of string
+type fname = Constructor | FName of string
 
 type expr =
     Int_Lit of int
@@ -11,16 +21,17 @@ type expr =
   | Float_Lit of float
   | String_Lit of string
   | Char_Lit of char
+  | This
   | Id of string
   | Binop of expr * op * expr
-  | Assign of string * expr
-  | ObjCreate of string * expr list
-  | ObjAccess of string * expr list (* Replaced "Call" *)
-  | ArrayCreate of datatype * string * expr list
-  | ArrayAccess of string * expr
-  | ThisArrayAccess of string * expr
-  | SelfAccess of string
+  | Assign of expr * expr
   | Noexpr
+  | Primitive of primitive
+  | ArrayOp of expr * expr list
+  | ObjAccess of expr * expr
+  | Call of string * expr list  
+  | ArrayPrimitive of expr list
+
 
 type stmt =
     Block of stmt list
@@ -32,19 +43,20 @@ type stmt =
 
 type vdecl = Vdecl of datatype * string
 type field = Field of scope * datatype * string
-type include = string
+type include = Include of string
 
 type func_decl = {
   scope : scope;
-  fname : string;
-  formals : string list;
-  locals : string list;
+  fname : fname;
+  returnType : datatype;
+  formals : vdecl list;
+  locals : vdecl list;
   body : stmt list;
 }
 
 type class_decl = {
   cname : string;
-  extends : string;
+  extends : extends;
   body: cbody;
 }
 
