@@ -17,7 +17,8 @@
 %nonassoc ELSE
 %left DOT
 %right ASSIGN
-%left LBRACKET RBRACKET
+%right RBRACKET
+%left LBRACKET 
 %left LT GT LEQ GEQ
 %left EQ NEQ
 %left NOT
@@ -243,11 +244,11 @@ expr:
 	| 	expr DOT    expr 					{ ObjAccess($1, $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
-	| 	expr LBRACKET bracket_args RBRACKET	{ ArrayOp($1, List.rev $3) } 
+	| 	expr bracket_args RBRACKET		 	{ ArrayOp($1, List.rev $2) } 
 	| 	LPAREN expr RPAREN 					{ $2 }
 
 bracket_args:
-		expr								{ [$1] }
+		LBRACKET expr						 { [$2] }
 	| 	bracket_args RBRACKET LBRACKET expr { $4 :: $1 }
 
 literals:
