@@ -1,6 +1,25 @@
 (* Pretty Printer *)
 open Ast
 open Parser
+open Unix
+
+(* File manipulation *)
+
+let syscall cmd =
+  let ic, oc = Unix.open_process cmd in
+  let buf = Buffer.create 16 in
+  (try
+     while true do
+       Buffer.add_channel buf ic 1
+     done
+   with End_of_file -> ());
+  let _ = Unix.close_process (ic, oc) in
+  (Buffer.contents buf)
+
+let save file string =
+     let channel = open_out file in
+     output_string channel string;
+     close_out channel;;
 
 (* Print data types *)
 
@@ -214,10 +233,71 @@ let string_of_token = function
 	| 	ID(s)				-> "ID(" ^ s ^ ")"
 	|  	EOF					-> "EOF"
 
-let token_list_to_string token_list =
+let string_of_token_no_id = function
+		LPAREN				-> "LPAREN"	
+	| 	RPAREN				-> "RPAREN"	
+	| 	LBRACE				-> "LBRACE"	
+	| 	RBRACE				-> "RBRACE"	
+	| 	SEMI				-> "SEMI"	
+	| 	COMMA				-> "COMMA"	
+	| 	PLUS				-> "PLUS"	
+	| 	MINUS				-> "MINUS"	
+	| 	TIMES				-> "TIMES"	
+	| 	DIVIDE				-> "DIVIDE"	
+	| 	ASSIGN				-> "ASSIGN"	
+	| 	EQ					-> "EQ"
+	| 	NEQ					-> "NEQ"
+	| 	LT					-> "LT"
+	| 	LEQ					-> "LEQ"
+	| 	GT					-> "GT"
+	| 	GEQ					-> "GEQ"
+	| 	AND					-> "AND"
+	| 	OR					-> "OR"
+	| 	NOT					-> "NOT"
+	| 	DOT					-> "DOT"
+	| 	LBRACKET			-> "LBRACKET"		
+	| 	RBRACKET			-> "RBRACKET"		
+	| 	BAR					-> "BAR"
+	| 	IF					-> "IF"
+	| 	ELSE				-> "ELSE"	
+	| 	FOR					-> "FOR"
+	| 	WHILE				-> "WHILE"	
+	| 	RETURN				-> "RETURN"	
+	| 	INT					-> "INT"
+	| 	FLOAT				-> "FLOAT"	
+	| 	BOOL				-> "BOOL"	
+	| 	CHAR				-> "CHAR"	
+	| 	VOID				-> "VOID"	
+	| 	NULL				-> "NULL"	
+	| 	TRUE				-> "TRUE"	
+	| 	FALSE				-> "FALSE"	
+	| 	CLASS				-> "CLASS"	
+	| 	CONSTRUCTOR			-> "CONSTRUCTOR"		
+	| 	PUBLIC				-> "PUBLIC"	
+	| 	PRIVATE				-> "PRIVATE"	
+	| 	EXTENDS				-> "EXTENDS"	
+	| 	INCLUDE				-> "INCLUDE"	
+	| 	THIS				-> "THIS"	
+	| 	BREAK				-> "BREAK"	
+	| 	CONTINUE			-> "CONTINUE"		
+	| 	INT_LITERAL(i)		-> "INT_LITERAL"
+	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL"
+	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL"
+	| 	STRING_LITERAL(s)	-> "STRING_LITERAL"
+	| 	ID(s)				-> "ID"
+	|  	EOF					-> "EOF"
+
+let token_list_to_string_endl token_list =
   let rec helper last_line_number = function
     	(token, line)::tail ->
         (if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^
         string_of_token token ^ helper line tail
     | 	[] -> "\n"
   in helper 0 token_list
+
+let token_list_to_string token_list =
+  let rec helper = function
+    	(token, line)::tail ->
+        string_of_token_no_id token ^ " " ^ helper tail
+    | 	[] -> "\n"
+  in helper token_list
