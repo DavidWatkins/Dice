@@ -17,8 +17,8 @@ dice.cmo : utils.cmo processor.cmo parser.cmi exceptions.cmo
 dice.cmx : utils.cmx processor.cmx parser.cmx exceptions.cmx
 scanner.cmo : parser.cmi exceptions.cmo
 scanner.cmx : parser.cmx exceptions.cmx
-utils.cmo : sast.cmo parser.cmi ast.cmo
-utils.cmx : sast.cmx parser.cmx ast.cmo
+utils.cmo : parser.cmi ast.cmo
+utils.cmx : parser.cmx ast.cmo
 parser.cmi : ast.cmo
 
 %.cmo : %.ml
