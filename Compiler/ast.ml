@@ -1,15 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or
 type scope = Private | Public
-type datatype =   Arraytype of primitive * int
-				| Datatype of primitive 
-type primitive = 
-		Int_t
-	| 	Float_t
-	| 	Void_t
-	| 	Bool_t
-	| 	Char_t
-	| 	Objecttype of string
-	| 	ConstructorType
+type primitive = Int_t | Float_t | Void_t | Bool_t | Char_t | Objecttype of string | ConstructorType
+type datatype = Arraytype of primitive * int | Datatype of primitive 
 
 type extends = NoParent | Parent of string
 type fname = Constructor | FName of string
@@ -44,7 +36,7 @@ type stmt =
 
 type vdecl = Vdecl of datatype * string
 type field = Field of scope * datatype * string
-type include = Include of string
+type include_stmt = Include of string
 
 type func_decl = {
 	scope : scope;
@@ -55,16 +47,16 @@ type func_decl = {
 	body : stmt list;
 }
 
-type class_decl = {
-	cname : string;
-	extends : extends;
-	body: cbody;
-}
-
 type cbody = {
 	fields : field list;
 	constructors : func_decl list;
 	methods : func_decl list;
 }
 
-type program = Program of include list * class_decl list
+type class_decl = {
+	cname : string;
+	extends : extends;
+	body: cbody;
+}
+
+type program = Program of include_stmt list * class_decl list

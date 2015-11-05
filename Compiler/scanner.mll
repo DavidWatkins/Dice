@@ -16,7 +16,7 @@ let return = '\n'
 
 rule token = parse
   whitespace { token lexbuf } (* Whitespace *)
-  return 	 { incr lineno; token lexbuf}
+| return 	 { incr lineno; token lexbuf}
 | "(*"       { comment lexbuf }           (* Comments *)
 
 | '('      { LPAREN }
@@ -86,5 +86,5 @@ rule token = parse
 
 and comment = parse
     	return 	{ incr lineno; comment lexbuf }
-  		"*)" 	{ token lexbuf }
+  	|	"*)" 	{ token lexbuf }
 	|	_    	{ comment lexbuf }

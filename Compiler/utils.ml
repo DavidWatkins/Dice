@@ -17,9 +17,9 @@ let string_of_primitive = function
 	| 	Objecttype(s)				-> "class " ^ s
 	| 	ConstructorType				-> ""
 
-let print_brackets = function
-		1 	-> "[]"
-	| 	int -> "[]" ^ print_brackets ($1 - 1)
+let rec print_brackets = function
+		1 -> "[]"
+	| 	a -> "[]" ^ print_brackets (a - 1)
 		
 let string_of_datatype = function 
 		Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)
@@ -45,12 +45,10 @@ let string_of_op = function
 let rec string_of_bracket_expr = function
 		[] 				-> ""
 	| 	head :: tail 	-> "[" ^ (string_of_expr head) ^ "]" ^ (string_of_bracket_expr tail)
-
-let rec string_of_array_primitive = function
+and string_of_array_primitive = function
 		[] 				-> ""
 	| 	head :: tail 	-> (string_of_expr head) ^ ", " ^ (string_of_array_primitive tail)
-
-let rec string_of_expr = function 
+and string_of_expr = function 
 		Int_Lit(i)				-> string_of_int i
 	|	Boolean_Lit(b)			-> if b then "true" else "false"
 	|	Float_Lit(f)			-> string_of_float f
@@ -61,11 +59,12 @@ let rec string_of_expr = function
 	|	Binop(e1, o, e2)		-> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
 	|	Assign(e1, e2)			-> (string_of_expr e1) ^ " = " ^ (string_of_expr e2)
 	|	Noexpr					-> ""
-	|	ArrayOp(a, ops)			-> a ^ (string_of_bracket_expr ops)
+	|	ArrayOp(a, ops)			-> (string_of_expr a) ^ (string_of_bracket_expr ops)
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	ArrayPrimitive(d, el)	-> "|" ^ (string_of_array_primitive el) ^ "|"
 	|	Null					-> "null"
+;;
 
 (* Print statements *)
 
@@ -73,37 +72,38 @@ let rec string_of_stmt indent =
 	let indent_string = String.make indent '\t' in
  	let get_stmt_string = function 
 
-		Block(stmts) 			-> 
-			indent_string ^ "{\n" ^ 
-				String.concat "" (List.map (string_of_stmt (indent+1)) stmts) ^ 
-			indent_string ^ "}\n"
+			Block(stmts) 			-> 
+				indent_string ^ "{\n" ^ 
+					String.concat "" (List.map (string_of_stmt (indent+1)) stmts) ^ 
+				indent_string ^ "}\n"
 
-	| 	Expr(expr) 				-> 
-			indent_string ^ string_of_expr expr ^ ";\n";
+		| 	Expr(expr) 				-> 
+				indent_string ^ string_of_expr expr ^ ";\n";
 
-	| 	Return(expr) 			-> 
-			indent_string ^ "return " ^ string_of_expr expr ^ ";\n";
+		| 	Return(expr) 			-> 
+				indent_string ^ "return " ^ string_of_expr expr ^ ";\n";
 
-	| 	If(e, s, Block([])) 	-> 
-			indent_string ^ "if (" ^ string_of_expr e ^ ")\n" ^ 
-				(string_of_stmt (indent+1) s)
+		| 	If(e, s, Block([])) 	-> 
+				indent_string ^ "if (" ^ string_of_expr e ^ ")\n" ^ 
+					(string_of_stmt (indent+1) s)
 
-	| 	If(e, s1, s2) 			-> 
-			indent_string ^ "if (" ^ string_of_expr e ^ ")\n" ^ 
-				string_of_stmt (indent+1) s1 ^ 
-			indent_string ^ "else\n" ^ 
-				string_of_stmt (indent+1) s2
+		| 	If(e, s1, s2) 			-> 
+				indent_string ^ "if (" ^ string_of_expr e ^ ")\n" ^ 
+					string_of_stmt (indent+1) s1 ^ 
+				indent_string ^ "else\n" ^ 
+					string_of_stmt (indent+1) s2
 
-	| 	For(e1, e2, e3, s) 		-> 
-			indent_string ^ "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^ string_of_expr e3  ^ ") " ^ 
-				string_of_stmt (indent+1) s
+		| 	For(e1, e2, e3, s) 		-> 
+				indent_string ^ "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^ string_of_expr e3  ^ ") " ^ 
+					string_of_stmt (indent+1) s
 
-	| 	While(e, s) 			-> 
-			indent_string ^ "while (" ^ string_of_expr e ^ ") " ^ 
-				string_of_stmt (indent+1) s
+		| 	While(e, s) 			-> 
+				indent_string ^ "while (" ^ string_of_expr e ^ ") " ^ 
+					string_of_stmt (indent+1) s
 
-	|  	Break					-> indent_string ^ "break;\n"
-	|  	Continue				-> indent_string ^ "continue;\n"
+		|  	Break					-> indent_string ^ "break;\n"
+		|  	Continue				-> indent_string ^ "continue;\n"
+	in get_stmt_string
 
 (* Print Function *)
 
@@ -122,9 +122,9 @@ let string_of_func_decl fdecl =
 	(* Formals *)
 	"\t(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ")\n{\n" ^
 		(* locals *)
-		String.concat "" (List.map string_of_vdecl 2 fdecl.locals) ^
+		String.concat "\t\t" (List.map string_of_vdecl fdecl.locals) ^
 		(* body *)
-		String.concat "" (List.map string_of_stmt 2 fdecl.body) ^
+		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
 	"\t}\n"
 
 (* Class Printing *)
@@ -133,7 +133,7 @@ let string_of_extends = function
 		NoParent	-> ""
 	| 	Parent(s)	-> "extends " ^ s ^ " " 
 let string_of_field = function 
-	Field(s, d, s) -> (string_of_scope s) ^ " " ^ (string_of_datatype d) ^ " " ^ s ^ ";\n"
+	Field(s, d, id) -> (string_of_scope s) ^ " " ^ (string_of_datatype d) ^ " " ^ id ^ ";\n"
 
 let string_of_cbody cbody = 
 	String.concat "\t" (List.map string_of_field cbody.fields) ^
@@ -142,7 +142,7 @@ let string_of_cbody cbody =
 
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ " {\n" ^
-	(string_of_cbody cdecl.cbody) ^
+	(string_of_cbody cdecl.body) ^
 	"}\n"
 
 (* Include Printing *)
@@ -207,12 +207,13 @@ let string_of_token = function
 	| 	THIS				-> "THIS"	
 	| 	BREAK				-> "BREAK"	
 	| 	CONTINUE			-> "CONTINUE"		
-	| 	INT_LITERAL(i)		-> "INT_LITERAL(" ^ string_of_int ^ ")"
-	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL(" ^ string_of_float ^ ")"
-	| 	CHAR_LITERAL(s)		-> "CHAR_LITERAL(" ^ Char.escaped c ^ ")"
+	| 	INT_LITERAL(i)		-> "INT_LITERAL(" ^ string_of_int i ^ ")"
+	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL(" ^ string_of_float f ^ ")"
+	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL(" ^ Char.escaped c ^ ")"
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL(" ^ s ^ ")"
 	| 	ID(s)				-> "ID(" ^ s ^ ")"
+	|  	EOF					-> "EOF"
 
-let token_list_to_string = function
+let rec token_list_to_string = function
       	token :: tail -> string_of_token token ^ " " ^ token_list_to_string tail
     | 	[] -> "\n"

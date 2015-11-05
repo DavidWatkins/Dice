@@ -1,3 +1,6 @@
+(* Processor Exceptions *)
+exception MissingEOF
+
 (* Scanner Exceptions *)
 exception IllegalCharacter of char * int
 exception UnmatchedQuotation of int

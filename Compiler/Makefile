@@ -1,4 +1,4 @@
-OBJS = utils.cmo exceptions.cmo scanner.cmo parser.cmo ast.cmo dice.cmo 
+OBJS = utils.cmo exceptions.cmo scanner.cmo parser.cmo ast.cmo processor.cmo dice.cmo 
 
 dice : $(OBJS)
 	ocamlc -o dice $(OBJS)
@@ -15,6 +15,8 @@ parser.cmo : ast.cmo parser.cmi
 parser.cmx : ast.cmo parser.cmi
 dice.cmo : utils.cmo processor.cmo parser.cmi exceptions.cmo
 dice.cmx : utils.cmx processor.cmx parser.cmx exceptions.cmx
+processor.cmo : scanner.cmo parser.cmi
+processor.cmx : scanner.cmx parser.cmx
 scanner.cmo : parser.cmi exceptions.cmo
 scanner.cmx : parser.cmx exceptions.cmx
 utils.cmo : parser.cmi ast.cmo

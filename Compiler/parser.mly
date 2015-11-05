@@ -103,10 +103,10 @@ constructor:
 		{
 			scope = Public;
 			fname = Constructor;
-			returnType = ConstructorType;
+			returnType = Datatype(ConstructorType);
 			formals = List.rev $3;
-			locals = List.rev fst $6;
-			body = List.rev snd $6;
+			locals = List.rev $6;
+			body = List.rev $7;
 		}
 	}
 
@@ -265,11 +265,11 @@ literals:
 /* ARRAY LITERALS */
 
 array_prim:
-	  int_list   { ArrayPrimitive(Datatype(Int), $1) }
-	| float_list { ArrayPrimitive(Datatype(Float), $1) }
-	| str_list 	 { ArrayPrimitive(Arraytype(Char, 1), $1) }
-	| bool_list  { ArrayPrimitive(Datatype(Bool), $1) }
-	| char_list  { ArrayPrimitive(Datatype(Char), $1) }
+	  int_list   { ArrayPrimitive(Datatype(Int_t), $1) }
+	| float_list { ArrayPrimitive(Datatype(Float_t), $1) }
+	| str_list 	 { ArrayPrimitive(Arraytype(Char_t, 1), $1) }
+	| bool_list  { ArrayPrimitive(Datatype(Bool_t), $1) }
+	| char_list  { ArrayPrimitive(Datatype(Char_t), $1) }
 
 int_list:
 		INT_LITERAL				   { [Int_Lit($1)] }
@@ -284,10 +284,10 @@ str_list:
 	|	str_list COMMA STRING_LITERAL { String_Lit($3) :: $1 }
 
 bool_list:
-		TRUE				  { [Boolean_Lit(True)] }
-	| 	FALSE 				  { [Boolean_Lit(False)] }
-	|	bool_list COMMA TRUE  { Boolean_Lit(True) :: $1 }
-	|	bool_list COMMA FALSE { Boolean_Lit(False) :: $1 }
+		TRUE				  { [Boolean_Lit(true)] }
+	| 	FALSE 				  { [Boolean_Lit(false)] }
+	|	bool_list COMMA TRUE  { Boolean_Lit(true) :: $1 }
+	|	bool_list COMMA FALSE { Boolean_Lit(false) :: $1 }
 
 char_list:
 		CHAR_LITERAL				 { [Char_Lit($1)] }
