@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{k+kt}{int} \PYGdefault{n}{a}\PYGdefault{o}{[}\PYGdefault{l+m+mi}{2}\PYGdefault{o}{,}\PYGdefault{l+m+mi}{3}\PYGdefault{o}{];} \PYGdefault{o}{(*} \PYGdefault{n}{declaring} \PYGdefault{n}{a} \PYGdefault{n}{two} \PYGdefault{n}{element} \PYGdefault{n}{array}\PYGdefault{o}{,}
-				\PYGdefault{n}{each} \PYGdefault{n}{of} \PYGdefault{n}{which} \PYGdefault{n}{is} \PYGdefault{n}{a} \PYGdefault{n}{three} \PYGdefault{n}{element} \PYGdefault{n}{array} \PYGdefault{n}{of} \PYGdefault{n}{ints} \PYGdefault{o}{*)}
-\end{Verbatim}

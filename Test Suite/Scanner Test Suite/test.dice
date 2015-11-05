@@ -1,0 +1,5 @@
+class test {
+	public void main(char[][] args) {
+		print("Hello World");
+	}
+}

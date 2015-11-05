@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{k+kt}{int} \PYGdefault{n}{a}\PYGdefault{o}{[}\PYGdefault{l+m+mi}{2}\PYGdefault{o}{]} \PYGdefault{o}{=} \PYGdefault{o}{[}\PYGdefault{l+m+mi}{1}\PYGdefault{o}{,}\PYGdefault{l+m+mi}{2}\PYGdefault{o}{];}
-	\PYGdefault{n}{a}\PYGdefault{o}{[}\PYGdefault{l+m+mi}{2}\PYGdefault{o}{];}  \PYGdefault{o}{(*} \PYGdefault{n}{Evaluates} \PYGdefault{n}{to} \PYGdefault{l+m+mi}{1} \PYGdefault{o}{*)}
-\end{Verbatim}

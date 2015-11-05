@@ -7,6 +7,15 @@
 *.cmx
 *.cmxs
 *.cmxa
+*.s
+*.output
+
+# Latex Directories
+*/_minted-master/*
+*.aux
+*.log
+*.synctex.gz
+*.toc
 
 # ocamlbuild working directory
 _build/

@@ -1,7 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{10}\PYGdefault{o}{;}
-	\PYGdefault{k+kt}{float} \PYGdefault{n}{y} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{4.0} \PYGdefault{o}{+} \PYGdefault{l+m+mf}{2.0}\PYGdefault{o}{;}
-	\PYGdefault{k+kt}{int} \PYGdefault{n}{z} \PYGdefault{o}{=} \PYGdefault{o}{(}\PYGdefault{l+m+mi}{2} \PYGdefault{o}{*} \PYGdefault{o}{(}\PYGdefault{l+m+mi}{3} \PYGdefault{o}{+} \PYGdefault{n}{Class}\PYGdefault{o}{.}\PYGdefault{n+na}{methodReturnsInt}\PYGdefault{o}{()} \PYGdefault{o}{));}
-	\PYGdefault{k+kt}{int} \PYGdefault{n}{x} \PYGdefault{o}{=} \PYGdefault{k+kc}{null}\PYGdefault{o}{;}   \PYGdefault{o}{(*} \PYGdefault{n}{Valid} \PYGdefault{o}{*)}
-	\PYGdefault{l+m+mi}{3} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{10}\PYGdefault{o}{;} \PYGdefault{o}{(*} \PYGdefault{n}{Invalid}\PYGdefault{o}{!} \PYGdefault{o}{*)}
-\end{Verbatim}

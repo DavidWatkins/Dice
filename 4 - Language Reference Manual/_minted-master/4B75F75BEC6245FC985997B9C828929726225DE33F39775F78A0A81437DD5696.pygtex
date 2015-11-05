@@ -1,8 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-	\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{scope}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{k+kt}{int} \PYGdefault{n+nf}{funcName}\PYGdefault{o}{(} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{formal}\PYGdefault{o}{\PYGdefaultZhy{}}\PYGdefault{n}{opts}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{body}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZcb{}}
-	\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{scope}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{type}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{n+nf}{funcName}\PYGdefault{o}{(} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{formal}\PYGdefault{o}{\PYGdefaultZhy{}}\PYGdefault{n}{opts}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{)} \PYGdefault{o}{\PYGdefaultZob{}} \PYGdefault{k+kt}{int} \PYGdefault{n}{i}\PYGdefault{o}{;} \PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{body}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{o}{\PYGdefaultZcb{}}
-	\PYGdefault{k+kd}{class} \PYGdefault{n+nc}{className} \PYGdefault{o}{\PYGdefaultZob{}}
-		\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{scope}\PYGdefault{o}{\PYGdefaultZgt{}} \PYGdefault{k+kt}{int} \PYGdefault{n}{i}\PYGdefault{o}{;}
-		\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{cbody}\PYGdefault{o}{\PYGdefaultZgt{}}
-	\PYGdefault{o}{\PYGdefaultZcb{}}
-\end{Verbatim}
