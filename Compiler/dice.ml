@@ -22,8 +22,7 @@ let _ =
       let token_list = Processor.build_token_list lexbuf in
       let program = Processor.parser token_list in
       match action with
-          Tokens -> print_string "What\n"
-            (* print_string (Utils.token_list_to_string token_list) *)
+          Tokens -> print_string (Utils.token_list_to_string token_list)
         | Ast ->
             print_string "Not implemented\n"
         | PrettyPrint ->

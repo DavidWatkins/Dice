@@ -15,9 +15,9 @@ let whitespace = [' ' '\t' '\r']
 let return = '\n'
 
 rule token = parse
-  whitespace { token lexbuf } (* Whitespace *)
+  whitespace { token lexbuf }
 | return 	 { incr lineno; token lexbuf}
-| "(*"       { comment lexbuf }           (* Comments *)
+| "(*"       { comment lexbuf }
 
 | '('      { LPAREN }
 | ')'      { RPAREN }

@@ -120,7 +120,7 @@ let string_of_formal = function
 let string_of_func_decl fdecl =
 	"\t" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
 	(* Formals *)
-	"\t(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ")\n{\n" ^
+	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		(* locals *)
 		String.concat "\t\t" (List.map string_of_vdecl fdecl.locals) ^
 		(* body *)
@@ -141,7 +141,7 @@ let string_of_cbody cbody =
 	String.concat "\t" (List.map string_of_func_decl cbody.methods)
 
 let string_of_class_decl cdecl = 
-	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ " {\n" ^
+	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^
 	(string_of_cbody cdecl.body) ^
 	"}\n"
 
@@ -214,6 +214,10 @@ let string_of_token = function
 	| 	ID(s)				-> "ID(" ^ s ^ ")"
 	|  	EOF					-> "EOF"
 
-let rec token_list_to_string = function
-      	token :: tail -> string_of_token token ^ " " ^ token_list_to_string tail
+let token_list_to_string token_list =
+  let rec helper last_line_number = function
+    	(token, line)::tail ->
+        (if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^
+        string_of_token token ^ helper line tail
     | 	[] -> "\n"
+  in helper 0 token_list

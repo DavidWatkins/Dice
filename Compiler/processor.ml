@@ -5,10 +5,11 @@ let last_token = ref EOF
 
 let build_token_list lexbuf =
   let rec helper lexbuf token_list =
+    let token = Scanner.token lexbuf in
     let ln = !Scanner.lineno in
-    match Scanner.token lexbuf with
-      EOF as eof -> (eof, ln)::token_list
-    |  t          -> (t, ln)::(helper lexbuf token_list)
+    match token with
+        EOF as eof -> (eof, ln)::token_list
+    |   t          -> (t, ln)::(helper lexbuf token_list)
   in helper lexbuf []
 
 let parser token_list =
