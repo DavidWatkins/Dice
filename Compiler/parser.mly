@@ -5,7 +5,7 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ BAR
-%token RETURN IF ELSE FOR WHILE
+%token RETURN IF ELSE FOR WHILE BREAK CONTINUE
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
@@ -177,11 +177,11 @@ actuals_list:
 	DATATYPES
 ***************/
 primitive:
-		INT 		{ Int }
-	| 	FLOAT		{ Float } 
-	| 	CHAR		{ Char }
-	| 	BOOL 		{ Bool }
-	| 	VOID    	{ Void }
+		INT 		{ Int_t }
+	| 	FLOAT		{ Float_t } 
+	| 	CHAR		{ Char_t }
+	| 	BOOL 		{ Bool_t }
+	| 	VOID    	{ Void_t }
 
 name:
 	CLASS ID { Objecttype($2) }
@@ -218,6 +218,8 @@ stmt:
 	| 	FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt
 		 { For($3, $5, $7, $9) }
 	| 	WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+	|	BREAK SEMI		{ Break }
+	|	CONTINUE SEMI	{ Continue }
 
 expr_opt:
 		/* nothing */ { Noexpr }

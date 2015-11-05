@@ -1,4 +1,7 @@
-{ open Parser }
+{ 
+	open Parser 
+    let lineno = ref 1
+}
 
 let alpha = ['a'-'z' 'A'-'Z']
 let ascii = ([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])
@@ -8,10 +11,12 @@ let string = '"' ( ascii* as s) '"'
 let char = ''' ( ascii | digit ) '''
 let float = ('-' digit+ | digit+) ['.'] digit+
 let int = digit+ | '-' digit+
-let whitespace = [' ' '\t' '\r' '\n']
+let whitespace = [' ' '\t' '\r']
+let return = '\n'
 
 rule token = parse
   whitespace { token lexbuf } (* Whitespace *)
+  return 	 { incr lineno; token lexbuf}
 | "(*"       { comment lexbuf }           (* Comments *)
 
 | '('      { LPAREN }
@@ -66,6 +71,8 @@ rule token = parse
 | "extends"     { EXTENDS }
 | "include"     { INCLUDE }
 | "this"        { THIS }
+| "break" 		{ BREAK }
+| "continue"	{ CONTINUE }
 
 | int as lxm   { INT_LITERAL(int_of_string lxm) }
 | float as lxm { FLOAT_LITERAL(float_of_string lxm) }
@@ -73,8 +80,11 @@ rule token = parse
 | string       { STRING_LITERAL(s) }
 | id as lxm    { ID(lxm) }
 | eof          { EOF }
-| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+
+| '"' 			{ raise (Exceptions.UnmatchedQuotation(!lineno)) }
+| _ as illegal  { raise (Exceptions.IllegalCharacter(illegal, !lineno)) }
 
 and comment = parse
-  "*)" { token lexbuf }
-| _    { comment lexbuf }
+    	return 	{ incr lineno; comment lexbuf }
+  		"*)" 	{ token lexbuf }
+	|	_    	{ comment lexbuf }
