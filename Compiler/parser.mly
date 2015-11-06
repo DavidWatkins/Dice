@@ -15,16 +15,16 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
-%left DOT
 %right ASSIGN
-%right RBRACKET
-%left LBRACKET 
-%left LT GT LEQ GEQ
-%left EQ NEQ
-%left NOT
 %left AND OR
+%left EQ NEQ
+%left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
+%right NOT
+%right RBRACKET
+%left LBRACKET 
+%left DOT
 
 %start program
 %type <Ast.program> program
