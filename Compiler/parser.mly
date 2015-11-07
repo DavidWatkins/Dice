@@ -271,6 +271,11 @@ array_prim:
 	| str_list 	 { ArrayPrimitive(Arraytype(Char_t, 1), $1) }
 	| bool_list  { ArrayPrimitive(Datatype(Bool_t), $1) }
 	| char_list  { ArrayPrimitive(Datatype(Char_t), $1) }
+	| array_list { ArrayPrimitive(Arraytype(some_primtive, some_int), $1) }
+
+array_list:
+		BAR array_prim BAR { [$2] }
+	|	array_list COMMA BAR array_prim BAR { $4 :: $1 }
 
 int_list:
 		INT_LITERAL				   { [Int_Lit($1)] }
