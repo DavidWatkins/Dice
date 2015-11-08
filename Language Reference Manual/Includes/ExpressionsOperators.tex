@@ -56,6 +56,22 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 		
 	An operator specifies an operation to be performed on its operands. Operators may have one or two operands depending on the operator. 
 	
+	\subsection{Member Acccess Operator}
+	The member access operator . is used to access the members of an object.
+	
+	To access a member in the context of an instance method definition (i.e. accessing a member of the class that is being defined), use the operand $this$ on the left side of the operator and the name of the member on the right side:
+	\begin{minted}{java}
+	this.memberToAccess = "new value";
+	\end{minted}
+	
+	To access a member of an instantiated object, use the name of the object variable as the lhs operand and the name of the member as the rhs operand:
+	\begin{minted}{java}
+	Car c1;
+	float cost;
+	c1 = Car();
+	cost = c1.price;
+	\end{minted}
+
 	\subsection{Assignment Operators}
 		
 	Dice supports only the simple assignment operator "=", which stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
@@ -105,9 +121,9 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	1 + 3.0;   (* Expression evaluates to int 4 *);
 	\end{minted}
 	
-	\subsection{Conditional Operators}
+	\subsection{Equality and Relational Operators}
 	
-	You use the comparison operators to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. When you use any of the comparison operators, the result is either "true" or "false". The not-equal-to operator "!=" tests its two operands for inequality.
+	Equality and relational operators are used to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. When you use any of the relational operators, the result is either "true" or "false". The not-equal-to operator "!=" tests its two operands for inequality.
 	
 	The equal-to operator "==" tests its two operands for equality. The result is a "true" boolean if the operands are equal, and "false" if the operands are not equal.
 	\begin{minted}{java}
@@ -124,7 +140,7 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 
 	Comparing float values for exact equality or inequality can produce unexpected results. This is due to the underlying implementation of LLVM where floating point is approximated and not precise. 
 	
-	Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null conditional comparisons are allowed as well. 
+	Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null relational comparisons are allowed as well. 
 	
 	\begin{minted}{java}
 	int x;
@@ -148,16 +164,37 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	\end{minted}
 	
 	The ==, !=, \textgreater=, \textgreater, \textless, \textless= operators are all defined to operate between any two values both either being of int or float. The The ==, != are also designated to compare any two values in Dice, and if they are not both of type float, will only return true if the memory address is identical. The comparison of objects is recommended by defining an equals method within the class. 
-	
-	It is important to note that conditional expressions can be chained together using the $and, or, not$ operators, like so:
+
+	\subsection{Logical Operators}
+	$and$ is a binary operator such that
+	\begin{minted}{java}
+	expr1 and expr2
+	\end{minted}
+	evaluates to $true$ if and only if both $expr1$ and $expr2$ evaluate to $true$. If either operand evaluates to $false$, then the entire expression above evaluates to $false$.\\
+	$or$ is a binary operator such that
+	\begin{minted}{java}
+	expr1 or expr2
+	\end{minted}
+	evaluates to $true$ if either or both $expr1$ and $expr2$ evaluate to $true$. If both operands evaluate to $false$, then the entire expression above evaluates to $false$.\\
+	$not$ is a unary operator such that
+	\begin{minted}{java}
+	not expr1
+	\end{minted}
+	and
+	\begin{minted}{java}
+	not (expr1)
+	\end{minted}
+	evaluate to $true$ if the operand $expr1$ evaluates to $false$ and $false$ if $expr1$ evaluates to $true$.\\
+	Expressions can be chained together using the logical operators, like so:
 	\begin{minted}{java}
 	w = 5;
 	x = 5;
 	y = 6;
 	z = ((x == w) and (true)) or (y > x); (* z evaluates to "true" *)
+	z = not ((x == w) and (true)) or (y > x)); (* false *)
 	\end{minted}
 	
-	Conditional expressions like this will terminate once a condition has been met, therefore the $(y>x)$ expression will not be evaluated because the first half, $((x == w) and (true))$, evaluated to true.
+	Expressions with logical operations terminate once a condition has been met, therefore the $(y>x)$ expression will not be evaluated because the first half, $((x == w) and (true))$, evaluated to true.
 	
 	\subsection{Array Operators}
 	Creating an array evaluates to a type \textless type\textgreater[] with dimensions of what is passed
@@ -175,7 +212,7 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	
 	\begin{itemize}
 		\item Method calls, array subscripting, and membership access operator expressions.
-		\item Unary operators, including logical negation and unary negative.
+		\item Unary operators, including logical NOT.
 		\item When several unary operators are consecutive, the later ones are nested within the earlier ones: not-x means not(-x).
 		\item Multiplication, division.
 		\item Addition and subtraction expressions.
@@ -184,8 +221,7 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 		\item Equal-to and not-equal-to expressions.
 		\item Logical AND expressions.
 		\item Logical OR expressions.
-		\item All assignment expressions, including compound assignment. When multiple assignment statements appear as subexpressions in a single larger expression, they are evaluated right to left.
-	\end{itemize}
+		\item Simple assignment	\end{itemize}
 
 	
 \end{homeworkProblem}
