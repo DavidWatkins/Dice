@@ -68,18 +68,21 @@
 
 	Syntactically correct use of bool:
 
-	\begin{minted}{java}
-	<scope> bool funcName( <formal-opts> ) { <body> }
-	<scope> <type> funcName( <formal-opts> ) { bool i; <body> }
+	\begin{minted}{java}	
 	class className {
 		<scope> bool i;
 		<cbody>
 	}
-	bool i = true;
-	bool i = false;
 	\end{minted}
-
-
+	or
+	\begin{minted}{java}
+	<scope> bool funcName( <formal-opts> ) { <body> }
+	private bool foo() {
+		bool i;
+		i = true;
+		return i;
+	}
+	\end{minted}
 	\section{Non-Primitive Data Types}
 	\subsection{Arrays}
 	An array is a data structure which lets you store one or more elements consecutively in memory. Elements in an array are indexed beginning at position zero, not one.\\

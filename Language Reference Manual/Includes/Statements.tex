@@ -26,11 +26,6 @@
 	\begin{minted}{java}
 	float aValue;
 	\end{minted}
-
-	In addition to the data type and name, a declaration statement can initialize the variable with a value.
-	\begin{minted}{java} 
-	float aValue = 8933.234;
-	\end{minted}
 	
 	\section{Control Flow Statements}
 	The statements inside source files are generally executed from top to bottom, in the order that they appear. Control flow statements, however, break up the flow of execution by employing decision making, looping, and branching, enabling your program to conditionally execute particular blocks of code. This section describes the decision-making statements (if-then, if-then-else), the looping statements (for, while), and the branching statements (break, continue, return) supported by the Dice programming language.
@@ -71,7 +66,8 @@
 	
 	The following example uses a `for` statement to print the numbers from 1 to 10:
 	\begin{minted}{java} 
-	for (int loopCounter=1; loopCounter<11; loopCounter++) {
+	int loopCounter;
+	for (loopCounter=1; loopCounter<11; loopCounter++) {
 		print(loopCounter);
 	}
 	\end{minted}
@@ -84,7 +80,8 @@
 	\end{minted}
 	The following example uses a 'while' statement to print the numbers from 1 to 10:
 	\begin{minted}{java} 
-	int loopCounter = 1;
+	int loopCounter;
+	loopCounter = 1;
 	while (loopCounter < 11) {
 		print(loopCounter);
 		loopCounter = loopCounter + 1;
@@ -99,8 +96,10 @@
 	
 	In the following example, the 'break' statement terminates execution of the inner 'while' statement and does not prevent the 'for' statement from executing its block of statements for all iterations of i from 1 to 10. This results in the the values of j from 100 to 110 being printed, in each of the 10 iterations of the 'for' loop.
 	\begin{minted}{java} 
-	for (int i=1; i<11; i++) {
-		int j = 100;
+	int i;
+	int j;
+	for (i=1; i<11; i++) {
+		j = 100;
 		while (j<120) {
 			if (j>110) {
 				break;
@@ -113,9 +112,12 @@
 	
 	In the following example, the 'break' statement terminates execution of the inner 'for' statement and does not prevent the 'while' statement from executing its block of statements for all iterations of i from 1 to 1000. This results in the the values of j from 100 to 110 being printed, in each of the 1000 iterations of the 'while' loop.
 	\begin{minted}{java} 
-	int i = 1;
+	int i;
+	int j;
+
+	i = 1;
 	while (i<1001) {
-		for (int j=100; j<120; j++) {
+		for (j=100; j<120; j++) {
 			if (j>110) {
 				break;
 			}
@@ -128,10 +130,12 @@
 	The following example uses a 'continue' statement within a 'for' loop to print only the odd integers between 1 and 10. The code prints "hello" 1000 times and on each of the 1000 'while' loop iterations, prints the odd integers.
 	
 	\begin{minted}{java} 
-	int counter = 1;
+	int i;
+	int counter;
+	counter = 1;
 	while (counter < 1001) {
 		print("hello");
-		for (int i=1; i<11; i++) {
+		for (i=1; i<11; i++) {
 			if (i - 2*(i/2) == 0) {
 				continue;
 			} else {
@@ -161,7 +165,8 @@
 	\begin{minted}{java} 
 	class BlockDemo {
 		public void main(char[,] args) {
-			bool condition = true;
+			bool condition;
+			condition = true;
 			if (condition) { (* begin block 1 *)
 				print("Condition is true.");
 			} (* end block one *)
@@ -182,26 +187,32 @@
 	\subsubsection{int fopen(char[] filename, bool isWriteEnabled)}
 	Accepts a filename and a flag to determine whether the file will be written to. If the file exists, it will be opened in append mode, otherwise a new file will be created. If it is in read mode, it will return a file descriptor as normal, or if the file doesn't exist will return '-1'. Likewise for write enabled, if there is an error it will return -1. 
 	\begin{minted}{java} 
-	int fd = fopen("hello.txt", false);
+	int fd;
+	fd = fopen("hello.txt", false);
 	\end{minted}
 		
 	\subsubsection{bool fwrite(int fd, char[] values, int num, int offset)}
 	Accepts an array of values to be written to a file, the number of characters it should write, and the offset into the value array it should write from. If there is an error, returns false, otherwise returns true. 
 	\begin{minted}{java} 
-	bool success = fwrite(fd, "This should work", 4, 1); (* Writes "his " to a file *)
+	bool success;
+	success = fwrite(fd, "This should work", 4, 1); (* Writes "his " to a file *)
 	\end{minted}
 	
 	\subsubsection{bool fread(int fd, char[] storage, int num)}
 	Accepts an array to store values from the file that are to be read, and will read in num bytes. Returns true on success and false on error.
 	\begin{minted}{java} 
-	char a[100];
-	bool success = fread(fd, a, 20);
+	char[] a;
+	bool success;
+
+	a = char[100];
+	success = fread(fd, a, 20);
 	\end{minted}
 	
 	\subsubsection{bool fclose(int fd)}
 	Closes a file. Returns true on success, false on error.
 	\begin{minted}{java} 
-	bool success = fclose(fd);
+	bool success;
+	success = fclose(fd);
 	\end{minted}
 	
 	\subsection{Reading and Writing from Console}
@@ -223,7 +234,8 @@
 	\subsubsection{void input(char[] buf)}
 	Accepts a buf that will hold read bytes from the console. Then it will write those bytes to the array passed. Terminates when a user enters a newline or an EOF. 
 	\begin{minted}{java} 
-	char a[100];
+	char[] a;
+	a = char[100];
 	input(a);
 	\end{minted}
 	

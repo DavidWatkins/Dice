@@ -4,7 +4,7 @@
 	Classes are the constructs whereby a programmer defines their own types. All state changes in a Dice program must happen in the context of changes in state maintained by an object that is an instance of a user-defined class.
 	
 	\section{Class definition}
-	A class definition starts with the keyword 'class' followed by the class name (see identifiers in chapter 2) and the class body, enclosed by a pair of curly braces. The body of a class declares one or more of each of the following: fields, methods, and constructors.
+	A class definition starts with the keyword 'class' followed by the class name (see identifiers in chapter 2) and the class body. The class body, enclosed by a pair of curly braces, declares one or more of each of the following: fields, methods, and constructors.
 	
 	The members of a class type are all of the following:
 	\begin{itemize}
@@ -13,7 +13,7 @@
 	\end{itemize}
 	
 	\subsection{Access modifiers}
-	Class member declarations must include access modifiers but the class declaration itself does not. Field and method declarations must include one of the access modifiers 'public' or 'private'. Fields and methods with the access modifier 'public' can be accessed by methods defined in any class. Fields and methods with the access modifier 'private' can be accessed by methods defined either in the same class or in successor classes (classes derived directly from that class and their successors).
+	Class member declarations must include access modifiers but the class declaration itself does not; there is no notion of a private class in Dice. Field and method declarations must include one of the access modifiers: $public$ or $private$. Fields and methods with the access modifier $public$ can be accessed by methods defined in any class. Fields and methods with the access modifier $private$ can be accessed by methods defined either in the same class or in successor classes (classes derived directly from that class and their successors).
 	
 	\subsection{Fields}
 	The only fields that can be declared are instance variables, which are freshly incarnated for each instance of the class.

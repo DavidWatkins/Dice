@@ -42,8 +42,9 @@
 	\subsection{Array Access as Expressions}
 	Creating an array evaluates to a type \textless type\textgreater[] with dimensions of what is passed
 	\begin{minted}{java}
-	int a[2] = [1,2];
-	a[2];  (* Evaluates to 1 *)
+	int[] a;
+	a = |1,2|;
+	a[0];  (* 1 *)
 	\end{minted}
 	
 	
@@ -57,15 +58,17 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	
 	\subsection{Assignment Operators}
 		
-	Assignment operators store values in variables. Dice provides several variations of assignment operators.\\
-		
-	The standard assignment operator "=" simply stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
+	Dice supports only the simple assignment operator "=", which stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
 		
 	\begin{minted}{java}
-	int x = 10;
-	float y = 4.0 + 2.0;
-	int z = (2 * (3 + Class.methodReturnsInt() ));
-	int x = null;   (* Valid *)
+	int x;
+	float y;
+	int z;
+
+	x = 10;
+	y = 4.0 + 2.0;
+	z = (2 * (3 + Class.methodReturnsInt() ));
+	x = null;   (* Valid *)
 	3 = 10; (* Invalid! *)
 	\end{minted}
 	
@@ -74,9 +77,12 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	Dice provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with negation.
 	
 	\begin{minted}{java}
+	int x;
+	float y;
+
 	(* Addition. *)
-	int x = 5 + 3;   
-	float y = 57.53 + 10.90;
+	x = 5 + 3;   
+	y = 57.53 + 10.90;
 	
 	(* Subtraction. *)
 	x = 5 - 3;
@@ -90,9 +96,6 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	x = 5 / 3; (* Integer division of positive values truncates towards zero, so 5/3 is 1 *)
 	y = 57.53 / 10.90;
 	
-	(* Negation. *)
-	int x = -5;
-	float y = -3.1415;
 	\end{minted}
 
 	Type designation for mixed types (ints and floats) occurs from left to right.
@@ -108,9 +111,13 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	
 	The equal-to operator "==" tests its two operands for equality. The result is a "true" boolean if the operands are equal, and "false" if the operands are not equal.
 	\begin{minted}{java}
-	int x = 5;
-	int y = 5;
-	bool z = (x == y);  (* z evaluates to "true" *)
+	int x;
+	int y;
+	bool z;
+
+	x = 5;
+	y = 5;
+	z = (x == y);  (* z evaluates to "true" *)
 	x = x + 1;
 	z = (x != y);       (* z evaluates to "true" *)
 	\end{minted}
@@ -120,11 +127,17 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null conditional comparisons are allowed as well. 
 	
 	\begin{minted}{java}
-	int w = 5;
-	int x = 5;
-	int y = 6;
-	bool z = false;
-	String d = String("Hello");
+	int x;
+	int y;
+	int w;
+	bool z;
+	String d;
+
+	w = 5;
+	x = 5;
+	y = 6;
+	z = false;
+	d = String("Hello");
 	
 	z = (x < y);     (* z evaluates to "true" *)
 	z = (w <= x);    (* z evaluates to "true" *)
@@ -138,10 +151,10 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	
 	It is important to note that conditional expressions can be chained together using the $and, or, not$ operators, like so:
 	\begin{minted}{java}
-	int w = 5;
-	int x = 5;
-	int y = 6;
-	bool z = ((x == w) and (true)) or (y > x); (* z evaluates to "true" *)
+	w = 5;
+	x = 5;
+	y = 6;
+	z = ((x == w) and (true)) or (y > x); (* z evaluates to "true" *)
 	\end{minted}
 	
 	Conditional expressions like this will terminate once a condition has been met, therefore the $(y>x)$ expression will not be evaluated because the first half, $((x == w) and (true))$, evaluated to true.
@@ -149,9 +162,9 @@ Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressio
 	\subsection{Array Operators}
 	Creating an array evaluates to a type \textless type\textgreater[] with dimensions of what is passed
 	\begin{minted}{java}
-	int a[2] = {1,2};
-	int b[1,2,1] = [[[1], [2]]];
-	a[2];  (* Evaluates to 1 *)
+	int b[][][];
+	b = [[[1], [2]]];
+	b[0][0][0];  (* Evaluates to 1 *)
 	\end{minted}
 	
 	\subsection{Operator Precedence}

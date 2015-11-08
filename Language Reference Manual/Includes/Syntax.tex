@@ -41,7 +41,8 @@
 		
 		constructor() {
 			
-			X myObj = X();
+			X myObj;
+			myObj = X();
 			this.num = myObj.number;
 		}
 	}
@@ -80,7 +81,8 @@
 	
 		constructor() {
 	
-			Y myObj = Y();
+			Y myObj;
+			myObj = Y();
 			(* This code is invalid since num is a private field within Y *)
 			this.number = myObj.num;  
 		}
