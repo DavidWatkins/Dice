@@ -1,6 +1,14 @@
 \begin{homeworkProblem}
 	\chapter{Statements}
 	A statement forms a complete unit of execution. 
+	
+	\section{Include Statement}
+	If a .dice file contains a statement of the following form:
+	\begin{minted}{java}
+	include(mylib)
+	\end{minted}
+	then all classes defined in \textit{mylib} are available to be used in definitions of classes in 
+	the .dice file in which the include statement appears.	
 
 	\section{Expression Statements}
 	An expression statement consists of an expression followed by a semicolon. The execution of such a statement causes the associated expression to be evaluated. The following types of expressions can be made into a statement by terminating the expression with a semicolon (;):
@@ -8,9 +16,9 @@
 	(* Assignment expressions *)
 	aValue = 8933.234;
 	(* Method invocations *)
-	Game.updateScore(Player1, 5);
+	game.updateScore(Player1, 5);
 	(* Object creation expressions *)
-	Bicycle myBike = new Bicycle();
+	Bicycle myBike = Bicycle();
 	\end{minted}
 	
 	\section{Declaration Statements}
