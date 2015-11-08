@@ -5,9 +5,9 @@
 	
 	\section{Program Structure}
 		
-	A Dice program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, or $stdlib.dice$. When an include statement is executed at compile time, it will load in the files mentioned at the includes and insert the code at that location as if it were part of the head source file. Therefore at compilation, one only needs to compile with $dicec master.dice$. The compiler does not resolve recursive includes; if $foo.dice$ includes $bar.dice$ and $bar.dice$ includes $foo.dice$, the compiler throws an error.
+	A Dice program may exist either within one source file or spread among multiple files which can be linked at compile-time. An example of such a linked file is the standard library, or $stdlib.dice$. When an include statement is executed at compile time, it will load in the files mentioned at the includes and insert the code at that location as if it were part of the head source file. Therefore at compilation, one only needs to compile with $dicec master.dice$. If an included module defines a class that has the same name as one of the classes defined in the including module, then the compiler throws an error. The compiler does not resolve recursive includes; if $foo.dice$ includes $bar.dice$ and $bar.dice$ includes $foo.dice$, the compiler throws an error.
 
-	A program consists of zero or more include statements, followed by one or more class definitions. Only one class out of all classes may have a main method, defined with $public void main(char[][] args)$ which designates the entry point for a program to begin executing code. All Dice files are expected to end with the file extension $.dice$ and follow the following syntactic layout. 
+	A program consists of zero or more include statements, followed by one or more class definitions. Each class defined in a module must have a distinct name. Only one class out of all classes may have a main method, defined with \textit{public void main(char[][] args)} which designates the entry point for a program to begin executing code. All Dice files are expected to end with the file extension $.dice$ and follow the following syntactic layout. 
 	
 	\begin{minted}{java}
 	include(stdlib)
