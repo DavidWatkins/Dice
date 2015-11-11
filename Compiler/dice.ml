@@ -22,7 +22,7 @@ let _ =
     try
       let lexbuf = Lexing.from_channel file_in in
       let token_list = Processor.build_token_list lexbuf in
-      let program = Processor.parser token_list in
+      let program = Processor.parser filename token_list in
       match action with
           Tokens -> print_string (Utils.token_list_to_string token_list)
         | TokenEndl -> print_string (Utils.token_list_to_string_endl token_list)
@@ -48,6 +48,8 @@ let _ =
       | Parsing.Parse_error ->
           print_string
           (
-            "Syntax Error, line " ^ string_of_int !Processor.line_number ^
-            ", token " ^ Utils.string_of_token !Processor.last_token ^ "\n"
+            "File \"" ^ !Processor.filename ^ ", " ^
+            "line " ^ string_of_int !Processor.line_number ^ ", " ^
+            "character " ^ string_of_int !Processor.char_num ^ ", " ^
+            "Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
           )

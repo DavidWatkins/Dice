@@ -2,6 +2,7 @@
 open Ast
 open Parser
 open Unix
+open Processor
 
 (* File manipulation *)
 
@@ -291,7 +292,8 @@ let string_of_token_no_id = function
 
 let token_list_to_string_endl token_list =
   let rec helper last_line_number = function
-    	(token, line)::tail ->
+    	(token, curr)::tail ->
+    	let line = curr.lineno in 
         (if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^
         string_of_token token ^ helper line tail
     | 	[] -> "\n"
