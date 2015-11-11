@@ -261,45 +261,10 @@ literals:
 	| THIS 			   		{ This }
 	| ID 			   		{ Id($1) }	
 	| NULL				    { Null }
-	| BAR array_prim BAR 	{ $2 }
+	| BAR array_prim BAR 	{ ArrayPrimitive($2) }
 
 /* ARRAY LITERALS */
 
 array_prim:
-	  int_list   { ArrayPrimitive(Datatype(Int_t), $1) }
-	| float_list { ArrayPrimitive(Datatype(Float_t), $1) }
-	| str_list 	 { ArrayPrimitive(Datatype(Char_t), $1) }
-	| bool_list  { ArrayPrimitive(Datatype(Bool_t), $1) }
-	| char_list  { ArrayPrimitive(Datatype(Char_t), $1) }
-
-int_list:
-		INT_LITERAL				   		{ [Int_Lit($1)] }
-	|	BAR int_list BAR 				{ [ArrayPrimitive(Datatype(Int_t), $2)] }
-	|	int_list COMMA INT_LITERAL 		{ Int_Lit($3) :: $1 }
-	|	int_list COMMA BAR int_list BAR { ArrayPrimitive(Datatype(Int_t), $4) :: $1 }
-
-float_list:
-		FLOAT_LITERAL							{ [Float_Lit($1)] }
-	|	BAR float_list BAR 			   			{ [ArrayPrimitive(Datatype(Float_t), $2)] }
-	|	float_list COMMA FLOAT_LITERAL 			{ Float_Lit($3) :: $1 }
-	|	float_list COMMA BAR float_list BAR 	{ ArrayPrimitive(Datatype(Float_t), $4) :: $1 }
-
-str_list:
-		STRING_LITERAL				  { [String_Lit($1)] }
-	|	str_list COMMA STRING_LITERAL { String_Lit($3) :: $1 }
-
-bool_list:
-		TRUE				  				{ [Boolean_Lit(true)] }
-	| 	FALSE 				  				{ [Boolean_Lit(false)] }
-	|	BAR bool_list BAR 	  				{ [ArrayPrimitive(Datatype(Bool_t))] }
-	|	bool_list COMMA TRUE  				{ Boolean_Lit(true) :: $1 }
-	|	bool_list COMMA FALSE 				{ Boolean_Lit(false) :: $1 }
-	|	bool_list COMMA BAR bool_list BAR 	{ ArrayPrimitive(Datatype(Bool_t), $4) :: $1 }
-
-char_list:
-		CHAR_LITERAL				 		{ [Char_Lit($1)] }
-	|	BAR char_list BAR 					{ [ArrayPrimitive(Datatype(Char_t), $2)] }
-	|	BAR str_list BAR 					{ [ArrayPrimitive(Arraytype(Char_t, 1), $2)] }
-	|	char_list COMMA CHAR_LITERAL 		{ Char_Lit($3) :: $1 }
-	|	char_list COMMA BAR char_list BAR 	{ ArrayPrimitive(Datatype(Char_t), $4) :: $1 }
-	|	char_list COMMA BAR str_list BAR 	{ ArrayPrimitive(Arraytype(Char_t, 1), $4) :: $1 }
+		expr 					{ [$1] }
+	|	array_prim COMMA expr 	{ $3 :: $1 }

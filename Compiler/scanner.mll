@@ -1,13 +1,18 @@
 { 
 	open Parser 
     let lineno = ref 1
+
+    let unescaped s =
+    	Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
-let ascii = ([' '-'!' '#'-'[' ']'-'~'] | '\\' ['\\' '"' 'n' 'r' 't'])
+let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
+let escape_char = ''' (escape) '''
+let ascii = ([' '-'!' '#'-'[' ']'-'~'])
 let digit = ['0'-'9']
 let id = alpha (alpha | digit | '_')*
-let string = '"' ( ascii* as s) '"'
+let string = '"' ( (ascii | escape)* as s) '"'
 let char = ''' ( ascii | digit ) '''
 let float = ('-' digit+ | digit+) ['.'] digit+
 let int = digit+ | '-' digit+
@@ -74,12 +79,13 @@ rule token = parse
 | "break" 		{ BREAK }
 | "continue"	{ CONTINUE }
 
-| int as lxm   { INT_LITERAL(int_of_string lxm) }
-| float as lxm { FLOAT_LITERAL(float_of_string lxm) }
-| char as lxm  { CHAR_LITERAL(String.get lxm 1) }
-| string       { STRING_LITERAL(s) }
-| id as lxm    { ID(lxm) }
-| eof          { EOF }
+| int as lxm   		{ INT_LITERAL(int_of_string lxm) }
+| float as lxm 		{ FLOAT_LITERAL(float_of_string lxm) }
+| char as lxm  		{ CHAR_LITERAL( String.get lxm 1 ) }
+| escape_char as lxm{ CHAR_LITERAL( String.get (unescaped lxm) 1) }
+| string       		{ STRING_LITERAL(s) }
+| id as lxm    		{ ID(lxm) }
+| eof          		{ EOF }
 
 | '"' 			{ raise (Exceptions.UnmatchedQuotation(!lineno)) }
 | _ as illegal  { raise (Exceptions.IllegalCharacter(illegal, !lineno)) }

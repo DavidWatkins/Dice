@@ -21,7 +21,7 @@ type expr =
 	| 	ArrayOp of expr * expr list
 	| 	ObjAccess of expr * expr
 	| 	Call of string * expr list  
-	| 	ArrayPrimitive of datatype * expr list
+	| 	ArrayPrimitive of expr list
 	| 	Null
 
 type stmt =

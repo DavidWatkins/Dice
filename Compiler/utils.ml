@@ -66,6 +66,7 @@ let rec string_of_bracket_expr = function
 	| 	head :: tail 	-> "[" ^ (string_of_expr head) ^ "]" ^ (string_of_bracket_expr tail)
 and string_of_array_primitive = function
 		[] 				-> ""
+	|   [last]			-> (string_of_expr last)
 	| 	head :: tail 	-> (string_of_expr head) ^ ", " ^ (string_of_array_primitive tail)
 and string_of_expr = function 
 		Int_Lit(i)				-> string_of_int i
@@ -81,7 +82,7 @@ and string_of_expr = function
 	|	ArrayOp(a, ops)			-> (string_of_expr a) ^ (string_of_bracket_expr ops)
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-	|	ArrayPrimitive(d, el)	-> "|" ^ (string_of_array_primitive el) ^ "|"
+	|	ArrayPrimitive(el)	-> "|" ^ (string_of_array_primitive el) ^ "|"
 	|	Null					-> "null"
 ;;
 
@@ -141,7 +142,7 @@ let string_of_func_decl fdecl =
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		(* locals *)
-		String.concat "\t\t" (List.map string_of_vdecl fdecl.locals) ^
+		"\t\t" ^ String.concat "\t\t" (List.map string_of_vdecl fdecl.locals) ^
 		(* body *)
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
 	"\t}\n"
@@ -155,6 +156,7 @@ let string_of_field = function
 	Field(s, d, id) -> (string_of_scope s) ^ " " ^ (string_of_datatype d) ^ " " ^ id ^ ";\n"
 
 let string_of_cbody cbody = 
+	"\t" ^
 	String.concat "\t" (List.map string_of_field cbody.fields) ^
 	String.concat "\t" (List.map string_of_func_decl cbody.constructors) ^
 	String.concat "\t" (List.map string_of_func_decl cbody.methods)
