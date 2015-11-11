@@ -48,7 +48,7 @@ let _ =
       | Parsing.Parse_error ->
           print_string
           (
-            "File \"" ^ !Processor.filename ^ ", " ^
+            "File \"" ^ !Processor.filename ^ "\", " ^
             "line " ^ string_of_int !Processor.line_number ^ ", " ^
             "character " ^ string_of_int !Processor.char_num ^ ", " ^
             "Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
