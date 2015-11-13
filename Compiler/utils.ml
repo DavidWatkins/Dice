@@ -2,7 +2,6 @@
 open Ast
 open Parser
 open Unix
-open Processor
 
 (* File manipulation *)
 

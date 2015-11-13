@@ -12,20 +12,20 @@ let builder = builder context
 let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 10
 let double_type = double_type context
 
-(* let rec codegen_expr = function
-      Int_Lit i
-  |   Boolean_Lit b
-  |   Float_Lit f
-  |   String_Lit s
-  |   Char_Lit c
-  |   This
-  |   Id s
-  |   Binop (e1, op, e2)
-  |   Assign (e1, e2)
-  |   Noexpr
-  |   ArrayOp (e1, el)
-  |   ObjAccess (e1, e2)
-  |   Call (fname, el) ->
+let rec codegen_expr = function
+      Int_Lit i           -> builder
+  |   Boolean_Lit b       -> builder
+  |   Float_Lit f         -> builder
+  |   String_Lit s        -> builder
+  |   Char_Lit c          -> builder
+  |   This                -> builder
+  |   Id s                -> builder
+  |   Binop (e1, op, e2)  -> builder
+  |   Assign (e1, e2)     -> builder
+  |   Noexpr              -> builder
+  |   ArrayOp (e1, el)    -> builder
+  |   ObjAccess (e1, e2)  -> builder
+  |   Call (fname, el)    -> 
         (* Look up the name in the module table. *)
         let callee =
           match lookup_function callee the_module with
@@ -41,7 +41,7 @@ let double_type = double_type context
         build_call callee args "calltmp" builder
   |   ArrayPrimitive el
   |   Null
- *)
+
 
 (* let rec codegen_expr = function
   | Ast.Number n -> const_float double_type n
