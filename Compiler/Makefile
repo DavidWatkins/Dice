@@ -19,8 +19,8 @@ processor.cmo : scanner.cmo parser.cmi
 processor.cmx : scanner.cmx parser.cmx
 scanner.cmo : parser.cmi exceptions.cmo
 scanner.cmx : parser.cmx exceptions.cmx
-utils.cmo : parser.cmi ast.cmo
-utils.cmx : parser.cmx ast.cmo
+utils.cmo : processor.cmo parser.cmi ast.cmo
+utils.cmx : processor.cmx parser.cmx ast.cmo
 parser.cmi : ast.cmo
 unix.cma : 
 
