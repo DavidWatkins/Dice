@@ -3,6 +3,14 @@ open Ast
 open Parser
 open Processor
 
+let save file string =
+     let channel = open_out file in
+     output_string channel string;
+     close_out channel
+
+let replace input output =
+    Str.global_replace (Str.regexp_string input) output
+
 (* Print data types *)
 
 let string_of_scope = function 
@@ -164,8 +172,8 @@ let string_of_program = function
 (* Print tree representation *)
 
 let cbody_tree cbody = 
-	let indent_string = String.make 4 '\t' in
-	"\n" (* TODO: ^
+(* 	let indent_string = String.make 4 '\t' in
+ *)	"\n" (* TODO: ^
 	String.concat indent_string (List.map fields_tree cbody.fields) ^
 	String.concat indent_string (List.map string_of_func_decl cbody.constructors) ^
 	String.concat indent_string (List.map string_of_func_decl cbody.methods) *)

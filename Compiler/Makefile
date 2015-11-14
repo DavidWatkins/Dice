@@ -1,6 +1,6 @@
 TARGET=dice
 LIBS=-I,/usr/lib/ocaml/
-FLAGS=-pkg llvm
+FLAGS=-pkg llvm -lib str
 OCAMLBUILD=ocamlbuild
 
 all: native

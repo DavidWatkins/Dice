@@ -1,6 +1,7 @@
 open Llvm
 open Analyzer
 open Utils
+open Ast
 
 type action = Tokens | TokenEndl | PrettyPrint | Ast | Compile
 
@@ -35,7 +36,10 @@ let _ =
         | PrettyPrint ->
             print_string (Utils.string_of_program program)
         | Compile ->
-            print_string "Compiled Successfully"
+            (* let ll_filename = (Utils.replace ".dice" "" filename) ^ ".ll" in *)
+            match program with
+              Program(includes, classes) -> 
+            ignore(dump_module (Codegen.codegen_cdecls (Analyzer.analyze filename (includes, classes)))); print_string "Compiled Successfully\n"
 
     with
         Exceptions.IllegalCharacter(c, ln) ->
