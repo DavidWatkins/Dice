@@ -6,7 +6,7 @@ module Includes = Map.Make(String)
 module Env = Map.Make(String)
 module StringMap = Map.Make (String)
 
-let process_includes filename (includes, classes) =
+(* let process_includes filename (includes, classes) =
   (* Bring in each include  *)
   let processInclude include_statement = 
     let file_in = open_in filename in
@@ -19,14 +19,16 @@ let process_includes filename (includes, classes) =
       [] -> classes
     | h :: t -> 
       (* Check each include against the map *)
-      let result = processInclude h in
-      if StringMap.mem h m then 
-        iterate_includes (classes) (StringMap.add h true m) (t) 
+      let result = processInclude h in 
+      iterate_includes (classes @ fst h) (StringMap.add h true m) (snd h @ t)
+      (* iterate_includes (classes) (StringMap.add h true m) (t) *) 
+
+(*       if StringMap.mem h m then 
       else 
-        (function Program(i, c) -> iterate_includes (classes @ c) (StringMap.add h true m) t@c) result
+        (function Program(i, c) ->  (i@t)) result *)
       
   in
-  iterate_includes classes (StringMap.add filename true StringMap.empty) includes
+  iterate_includes classes (StringMap.add filename true StringMap.empty) includes *)
 
 
 (* let rec get_expr_type env = function
@@ -67,8 +69,8 @@ let convert_cdecls_to_sast cdecls =
   in iterate_cdecls (cdecls, [])
 
 (* Main method for analyzer *)
-let analyze filename (includes, cdecls) =
-  let cdecls = process_includes filename (includes, cdecls) in
+let analyze (includes, classes) =
+ (*  let cdecls = process_includes filename program in
   let sast = convert_cdecls_to_sast cdecls in
-  sast
-    
+  sast *)
+  classes

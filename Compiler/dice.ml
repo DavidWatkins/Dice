@@ -35,7 +35,7 @@ let _ =
         | PrettyPrint ->
             print_string (Utils.string_of_program program)
         | Compile ->
-            ignore(Analyzer.analyze filename program); print_string "Compiled Successfully"
+            print_string "Compiled Successfully"
 
     with
         Exceptions.IllegalCharacter(c, ln) ->
