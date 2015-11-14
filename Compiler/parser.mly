@@ -64,12 +64,12 @@ cdecl:
 		CLASS ID LBRACE cbody RBRACE { {
 			cname = $2;
 			extends = NoParent;
-			body = $4
+			cbody = $4
 		} }
 	| 	CLASS ID EXTENDS ID LBRACE cbody RBRACE { {
 			cname = $2;
 			extends = Parent($4);
-			body = $6
+			cbody = $6
 		} }
 
 cbody:

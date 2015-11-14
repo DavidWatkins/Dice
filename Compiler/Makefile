@@ -1,36 +1,20 @@
-OBJS = unix.cma utils.cmo exceptions.cmo scanner.cmo parser.cmo ast.cmo processor.cmo dice.cmo
+#!/bin/sh
 
-dice : $(OBJS)
-	ocamlc -o dice $(OBJS)
+TARGET=dice
+FLAGS=-libs unix,nums
+OCAMLBUILD=ocamlbuild
 
-scanner.ml : scanner.mll
-	ocamllex scanner.mll
+all: native
+	cp -L _build/$(TARGET).native $(TARGET)
 
-parser.ml parser.mli : parser.mly
-	ocamlyacc -v parser.mly
+clean:
+	$(OCAMLBUILD) -clean
+	rm $(TARGET)
 
-exceptions.cmo :
-exceptions.cmx :
-parser.cmo : ast.cmo parser.cmi
-parser.cmx : ast.cmo parser.cmi
-dice.cmo : utils.cmo processor.cmo parser.cmi exceptions.cmo
-dice.cmx : utils.cmx processor.cmx parser.cmx exceptions.cmx
-processor.cmo : scanner.cmo parser.cmi
-processor.cmx : scanner.cmx parser.cmx
-scanner.cmo : parser.cmi exceptions.cmo
-scanner.cmx : parser.cmx exceptions.cmx
-utils.cmo : parser.cmi ast.cmo
-utils.cmx : parser.cmx ast.cmo
-parser.cmi : ast.cmo
-unix.cma : 
+native:
+	$(OCAMLBUILD) $(FLAGS) $(TARGET).native
+byte:
+	$(OCAMLBUILD) $(FLAGS) $(TARGET).byte
+depend:
+	echo "Not needed." 
 
-%.cmo : %.ml
-	ocamlc -c $<
-
-%.cmi : %.mli
-	ocamlc -c $<
-
-.PHONY : clean
-clean :
-	rm -f dice parser.ml parser.mli scanner.ml \
-	*.cmo *.cmi *.out *.diff *.orig *.output

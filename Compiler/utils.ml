@@ -1,6 +1,7 @@
 (* Pretty Printer *)
 open Ast
 open Parser
+open Processor
 open Unix
 
 (* File manipulation *)
@@ -163,7 +164,7 @@ let string_of_cbody cbody =
 
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^
-	(string_of_cbody cdecl.body) ^
+	(string_of_cbody cdecl.cbody) ^
 	"}\n"
 
 (* Include Printing *)

@@ -5,7 +5,7 @@ let _ =
     print_string (
       "Usage: dice [required-option] <source file>\n" ^
         "required-option:\n" ^
-        "\t-tendl: Prints tokens with newlines intact" ^ 
+        "\t-tendl: Prints tokens with newlines intact\n" ^ 
         "\t-t: Prints token stream\n" ^
         "\t-p: Pretty prints Ast as a program\n" ^
         "\t-a: Prints abstract syntax tree\n" ^
