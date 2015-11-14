@@ -1,0 +1,27 @@
+class test {
+  public int a;
+  public int b;
+
+  public void printa(){
+    print(a);
+  }
+
+  public void printb(){
+    print(b);
+  }
+
+  incab(){
+    a = a + 1;
+    b = b + 1;
+  }
+
+  public void main(char[][] args) {
+      a = 42;
+      b = 21;
+      printa();
+      printb();
+      incab();
+      printa();
+      printb();
+  }
+}

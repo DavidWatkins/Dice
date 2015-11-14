@@ -1,0 +1,12 @@
+class test {
+	public void main(char[][] args) {
+		  printem(42,17,192,8);
+	}
+
+	printem(int a, int b, int c, int d) {
+		  print(a);
+		  print(b);
+		  print(c);
+		  print(d);
+	}
+}
