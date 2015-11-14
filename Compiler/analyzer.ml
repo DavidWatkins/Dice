@@ -6,7 +6,7 @@ module Includes = Map.Make(String)
 module Env = Map.Make(String)
 module StringMap = Map.Make (String)
 
-(* let process_includes filename (includes, classes) =
+let process_includes filename (includes, classes) =
   (* Bring in each include  *)
   let processInclude include_statement = 
     let file_in = open_in filename in
@@ -17,18 +17,15 @@ module StringMap = Map.Make (String)
   in
   let rec iterate_includes classes m = function
       [] -> classes
-    | h :: t -> 
+    | (Include h) :: t -> 
       (* Check each include against the map *)
       let result = processInclude h in 
-      iterate_includes (classes @ fst h) (StringMap.add h true m) (snd h @ t)
-      (* iterate_includes (classes) (StringMap.add h true m) (t) *) 
-
-(*       if StringMap.mem h m then 
+      if StringMap.mem h m then 
+        iterate_includes (classes) (StringMap.add h 1 m) (t)
       else 
-        (function Program(i, c) ->  (i@t)) result *)
-      
+        (function Program(i, c) -> iterate_includes (classes @ c) (StringMap.add h 1 m) (i @ t) ) result
   in
-  iterate_includes classes (StringMap.add filename true StringMap.empty) includes *)
+  iterate_includes classes (StringMap.add filename 1 StringMap.empty) includes
 
 
 (* let rec get_expr_type env = function
@@ -63,14 +60,13 @@ let rec convert_cdecl_to_sast cdecl =
     cdecl
 
 let convert_cdecls_to_sast cdecls = 
-  let rec iterate_cdecls = function
-     ([], sast)          -> sast
-  |  (cdecl::tail, sast) -> iterate_cdecls (tail, (convert_cdecl_to_sast cdecl) :: sast)
-  in iterate_cdecls (cdecls, [])
+  let rec iterate_cdecls sast = function
+     []          -> sast
+  |  cdecl::tail -> iterate_cdecls ((convert_cdecl_to_sast cdecl)::sast) tail 
+  in iterate_cdecls [] cdecls
 
 (* Main method for analyzer *)
-let analyze (includes, classes) =
- (*  let cdecls = process_includes filename program in
+let analyze filename (includes, classes) =
+  let cdecls = process_includes filename (includes, classes) in
   let sast = convert_cdecls_to_sast cdecls in
-  sast *)
-  classes
+  sast

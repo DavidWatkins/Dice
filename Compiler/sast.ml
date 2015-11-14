@@ -1,45 +1,45 @@
 open Ast
 
 type sexpr =
-		Int_Lit of int
-	| 	Boolean_Lit of bool
-	| 	Float_Lit of float
-	| 	String_Lit of string
-	| 	Char_Lit of char
-	| 	This
-	| 	Id of string
-	| 	Binop of sexpr * op * sexpr
-	| 	Assign of sexpr * sexpr
-	| 	Noexpr
-	|  	ArrayCreate of datatype * sexpr list
-	| 	ArrayAccess of sexpr * sexpr list
-	| 	ObjAccess of sexpr * sexpr
-	| 	Call of string * sexpr list  
-	| 	ArrayPrimitive of sexpr list
-	| 	Null
+		SInt_Lit of int
+	| 	SBoolean_Lit of bool
+	| 	SFloat_Lit of float
+	| 	SString_Lit of string
+	| 	SChar_Lit of char
+	| 	SThis
+	| 	SId of string
+	| 	SBinop of sexpr * op * sexpr
+	| 	SAssign of sexpr * sexpr
+	| 	SNoexpr
+	|  	SArrayCreate of datatype * sexpr list
+	| 	SArrayAccess of sexpr * sexpr list
+	| 	SObjAccess of sexpr * sexpr
+	| 	SCall of string * sexpr list  
+	| 	SArrayPrimitive of sexpr list
+	| 	SNull
 
 type sstmt =
-		Block of sstmt list
-	| 	Expr of sexpr
-	| 	Return of sexpr
-	| 	If of sexpr * sstmt * sstmt
-	| 	For of sexpr * sexpr * sexpr * sstmt
-	| 	While of sexpr * sstmt
-	|  	Break
-	|   Continue
+		SBlock of sstmt list
+	| 	SExpr of sexpr
+	| 	SReturn of sexpr
+	| 	SIf of sexpr * sstmt * sstmt
+	| 	SFor of sexpr * sexpr * sexpr * sstmt
+	| 	SWhile of sexpr * sstmt
+	|  	SBreak
+	|   SContinue
 
 type sfunc_decl = {
-	fname : fname;
-	returnType : datatype;
-	formals : formal list;
-	locals : vdecl list;
-	body : sstmt list;
+	sfname : fname;
+	sreturnType : datatype;
+	sformals : formal list;
+	slocals : vdecl list;
+	sbody : sstmt list;
 }
 
 type sclass_decl = {
-	cname : string;
-	fields : field list;
-	methods : sfunc_decl list;
+	scname : string;
+	sfields : field list;
+	smethods : sfunc_decl list;
 }
 
 (* Class Declarations | All method declarations | Main entry method *)
