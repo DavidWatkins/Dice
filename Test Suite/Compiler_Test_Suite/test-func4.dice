@@ -1,0 +1,16 @@
+class test {
+	public int a;
+	public int inca() { 
+		a = a + 1; 
+		return a; 
+	} 
+
+	public int add2(int x, int y) {
+		return x + y;
+	}
+
+	public void main(char[][] args) {
+	  a = 0;
+	  print(add2(inca(), a));
+	}
+}
