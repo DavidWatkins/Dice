@@ -43,4 +43,4 @@ type sclass_decl = {
 }
 
 (* Class Declarations | All method declarations | Main entry method *)
-type sprogram = Program of sclass_decl list * sfunc_decl list * sfunc_decl
+type sprogram = SProgram of sclass_decl list * sfunc_decl list * sfunc_decl

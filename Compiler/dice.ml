@@ -1,3 +1,7 @@
+open Llvm
+open Analyzer
+open Utils
+
 type action = Tokens | TokenEndl | PrettyPrint | Ast | Compile
 
 let _ =
@@ -27,14 +31,11 @@ let _ =
           Tokens -> print_string (Utils.token_list_to_string token_list)
         | TokenEndl -> print_string (Utils.token_list_to_string_endl token_list)
         | Ast ->
-            ignore(Utils.save "~temp" (Utils.token_list_to_string token_list));
-            print_string (Utils.syscall "menhir --interpret --interpret-show-cst parser.mly < ~temp");
-            ignore(Sys.remove "~temp");
-            ()
+            print_string (Utils.print_tree program)
         | PrettyPrint ->
             print_string (Utils.string_of_program program)
         | Compile ->
-            print_string "Not implemented\n"
+            ignore(Analyzer.analyze filename program); print_string "Compiled Successfully"
 
     with
         Exceptions.IllegalCharacter(c, ln) ->

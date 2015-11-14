@@ -1,11 +1,10 @@
-#!/bin/sh
-
 TARGET=dice
-FLAGS=-libs unix,nums
+LIBS=-I,/usr/lib/ocaml/
+FLAGS=-pkg llvm
 OCAMLBUILD=ocamlbuild
 
 all: native
-	cp -L _build/$(TARGET).native $(TARGET)
+	mv dice.native dice
 
 clean:
 	$(OCAMLBUILD) -clean

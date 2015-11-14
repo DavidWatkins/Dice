@@ -1,1 +1,2 @@
-<*.{byte,native}>: g++, use_llvm, use_llvm_analysis
+<*.{byte,native}>: g++
+
