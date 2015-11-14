@@ -72,7 +72,8 @@ test_function(){
 			#extract filename without extension for exectuable
 			name=$(echo $filename | cut -f 1 -d '.')
 			#run the executable and port output to temp test file
-			$($testPath$name > temp_Dice_Tester) 
+			$diceExecPath $diceOption "$testFile" > temp.ll
+			lli temp.ll > temp_Dice_Tester
 			diff temp_Dice_Tester "$testPath"$filename$testExtension > /dev/null
 			confirmation
 		fi
