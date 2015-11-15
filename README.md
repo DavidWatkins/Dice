@@ -30,7 +30,8 @@ opam install core batteries llvm
 ```bash
 cd Dice/Compiler
 ./build.sh
-./dice -c input.dice
+./dice -c input.dice > test.ll
+lli test.ll
 ```
 
 ##To test the compiler
@@ -39,3 +40,13 @@ cd Dice/Compiler
 cd Dice/'Test Suite'
 ./tester.sh
 ```
+
+###If you get an error: "error: expected value token" from lli
+This means your version of lli is probably incorrect. Running "lli --version" should return 3.7, but if it doesn't:
+- Run the following commands to remove the symlink of lli in your /usr/bin directory
+```bash
+sudo rm \usr\bin\lli
+ln -s /usr/lib/llvm-3.7/bin/lli /usr/bin/lli
+```
+- Now you should be able to use lli with the outputted llvm code from dice
+
