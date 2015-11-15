@@ -117,6 +117,7 @@ if [ "$testOption" == "-c" ]; then
 	diceOption=-c
 	testExtension=.out
 	test_function
+	rm temp.ll;
 fi
 
 #Print out number of bash script errors and 
