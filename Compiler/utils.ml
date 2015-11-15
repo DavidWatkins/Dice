@@ -73,6 +73,7 @@ and string_of_expr = function
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	ArrayPrimitive(el)	-> "|" ^ (string_of_array_primitive el) ^ "|"
+	|  	UMinus e1				-> "-" ^ string_of_expr e1
 	|	Null					-> "null"
 ;;
 

@@ -22,6 +22,7 @@ type expr =
 	| 	ObjAccess of expr * expr
 	| 	Call of string * expr list  
 	| 	ArrayPrimitive of expr list
+	|  	UMinus of expr
 	| 	Null
 
 type stmt =

@@ -40,6 +40,7 @@ let rec codegen_expr llbuilder = function
           build_call printf [| s |] "" llbuilder
         | _       -> build_global_stringptr "Hi" "" llbuilder) fname
   |   ArrayPrimitive el   -> build_global_stringptr "Hi" "" llbuilder
+  |   UMinus e            -> build_global_stringptr "Hi" "" llbuilder
   |   Null                -> build_global_stringptr "Hi" "" llbuilder
 
 let codegen_stmt llbuilder = function

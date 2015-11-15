@@ -244,6 +244,7 @@ expr:
 	| 	expr OR     expr 					{ Binop($1, Or,    $3) }
 	| 	expr DOT    expr 					{ ObjAccess($1, $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
+	|   MINUS expr 							{ UMinus($2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
 	| 	expr bracket_args RBRACKET		 	{ ArrayOp($1, List.rev $2) } 
 	| 	LPAREN expr RPAREN 					{ $2 }
