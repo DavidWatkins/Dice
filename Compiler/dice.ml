@@ -1,3 +1,8 @@
+open Llvm
+open Analyzer
+open Utils
+open Ast
+
 type action = Tokens | TokenEndl | PrettyPrint | Ast | Compile
 
 let _ =
@@ -5,7 +10,7 @@ let _ =
     print_string (
       "Usage: dice [required-option] <source file>\n" ^
         "required-option:\n" ^
-        "\t-tendl: Prints tokens with newlines intact" ^ 
+        "\t-tendl: Prints tokens with newlines intact\n" ^ 
         "\t-t: Prints token stream\n" ^
         "\t-p: Pretty prints Ast as a program\n" ^
         "\t-a: Prints abstract syntax tree\n" ^
@@ -27,14 +32,14 @@ let _ =
           Tokens -> print_string (Utils.token_list_to_string token_list)
         | TokenEndl -> print_string (Utils.token_list_to_string_endl token_list)
         | Ast ->
-            ignore(Utils.save "~temp" (Utils.token_list_to_string token_list));
-            print_string (Utils.syscall "menhir --interpret --interpret-show-cst parser.mly < ~temp");
-            ignore(Sys.remove "~temp");
-            ()
+            print_string (Utils.print_tree program)
         | PrettyPrint ->
             print_string (Utils.string_of_program program)
         | Compile ->
-            print_string "Not implemented\n"
+            (* let ll_filename = (Utils.replace ".dice" "" filename) ^ ".ll" in *)
+            match program with
+              Program(includes, classes) -> 
+            dump_module (Codegen.codegen_cdecls (Analyzer.analyze filename (includes, classes)))
 
     with
         Exceptions.IllegalCharacter(c, ln) ->

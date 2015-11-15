@@ -1,26 +1,15 @@
 (* Pretty Printer *)
 open Ast
 open Parser
-open Unix
 open Processor
-
-(* File manipulation *)
-
-let syscall cmd =
-  let ic, oc = Unix.open_process cmd in
-  let buf = Buffer.create 16 in
-  (try
-     while true do
-       Buffer.add_channel buf ic 1
-     done
-   with End_of_file -> ());
-  let _ = Unix.close_process (ic, oc) in
-  (Buffer.contents buf)
 
 let save file string =
      let channel = open_out file in
      output_string channel string;
-     close_out channel;;
+     close_out channel
+
+let replace input output =
+    Str.global_replace (Str.regexp_string input) output
 
 (* Print data types *)
 
@@ -164,7 +153,7 @@ let string_of_cbody cbody =
 
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^
-	(string_of_cbody cdecl.body) ^
+	(string_of_cbody cdecl.cbody) ^
 	"}\n"
 
 (* Include Printing *)
@@ -179,6 +168,40 @@ let string_of_program = function
 		String.concat "" (List.map string_of_include includes) ^ "\n" ^
 		String.concat "\n" (List.map string_of_class_decl cdecls)
 
+
+(* Print tree representation *)
+
+let cbody_tree cbody = 
+(* 	let indent_string = String.make 4 '\t' in
+ *)	"\n" (* TODO: ^
+	String.concat indent_string (List.map fields_tree cbody.fields) ^
+	String.concat indent_string (List.map string_of_func_decl cbody.constructors) ^
+	String.concat indent_string (List.map string_of_func_decl cbody.methods) *)
+
+let rec includes_tree = function 
+		[] -> ""
+	|  	[Include s] -> "\ninclude(" ^ s ^ "),\n\t"
+	|  	Include s :: tail -> "\ninclude(" ^ s ^ ")," ^ includes_tree tail
+
+let rec cdecls_tree = function 
+		[] -> ""
+	|  	[cdecl] -> 	"\n\t\tclass " ^ cdecl.cname ^ "\n" ^ 
+			"\t\t\textends: " ^ (string_of_extends cdecl.extends) ^ "\n" ^
+			"\t\t\tcbody:" ^ (cbody_tree cdecl.cbody) ^
+	"\n\t"
+	|  	cdecl::tail -> 
+		"\n\t\tclass " ^ cdecl.cname ^ "\n" ^ 
+			"\t\t\textends: " ^ (string_of_extends cdecl.extends) ^ "\n" ^
+			"\t\t\tcbody:" ^ (cbody_tree cdecl.cbody)
+
+
+
+let print_tree = function
+	Program(includes, cdecls) -> 
+		"[program:\n" ^
+			"\t[includes:" ^ includes_tree includes ^ "]\n" ^
+			"\t[cdecls:" ^ cdecls_tree cdecls ^ "]\n" ^
+		"]\n"
 
 (* Print tokens *)
 

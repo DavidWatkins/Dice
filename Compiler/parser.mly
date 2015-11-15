@@ -64,12 +64,12 @@ cdecl:
 		CLASS ID LBRACE cbody RBRACE { {
 			cname = $2;
 			extends = NoParent;
-			body = $4
+			cbody = $4
 		} }
 	| 	CLASS ID EXTENDS ID LBRACE cbody RBRACE { {
 			cname = $2;
 			extends = Parent($4);
-			body = $6
+			cbody = $6
 		} }
 
 cbody:
@@ -213,6 +213,7 @@ stmt_list:
 stmt:
 		expr SEMI { Expr($1) }
 	| 	RETURN expr SEMI { Return($2) }
+	|	RETURN SEMI		 { Return(Noexpr) }
 	| 	LBRACE stmt_list RBRACE { Block(List.rev $2) }
 	| 	IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
 	| 	IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }

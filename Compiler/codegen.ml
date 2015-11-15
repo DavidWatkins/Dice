@@ -1,8 +1,10 @@
-(*===----------------------------------------------------------------------===
+(* ===----------------------------------------------------------------------===
  * Code Generation
  *===----------------------------------------------------------------------===*)
 
 open Llvm
+(* Change to Sast *)
+open Ast
 
 exception Error of string
 
@@ -12,120 +14,62 @@ let builder = builder context
 let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 10
 let double_type = double_type context
 
-(* let rec codegen_expr = function
-      Int_Lit i
-  |   Boolean_Lit b
-  |   Float_Lit f
-  |   String_Lit s
-  |   Char_Lit c
-  |   This
-  |   Id s
-  |   Binop (e1, op, e2)
-  |   Assign (e1, e2)
-  |   Noexpr
-  |   ArrayOp (e1, el)
-  |   ObjAccess (e1, e2)
-  |   Call (fname, el) ->
-        (* Look up the name in the module table. *)
-        let callee =
-          match lookup_function callee the_module with
-            | Some callee -> callee
-            | None -> raise (Error "unknown function referenced")
-        in
-        let params = params callee in
+let i32_t = i32_type context;;
+let i8_t = i8_type context;;
 
-        (* If argument mismatch error. *)
-        if Array.length params == Array.length args then () else
-          raise (Error "incorrect # arguments passed");
-        let args = Array.map codegen_expr args in
-        build_call callee args "calltmp" builder
-  |   ArrayPrimitive el
-  |   Null
- *)
+let rec codegen_expr llbuilder = function
+      Int_Lit i           -> build_global_stringptr "Hi" "" llbuilder
+  |   Boolean_Lit b       -> build_global_stringptr "Hi" "" llbuilder
+  |   Float_Lit f         -> build_global_stringptr "Hi" "" llbuilder
+  |   String_Lit s        -> build_global_stringptr s "" llbuilder
+  |   Char_Lit c          -> build_global_stringptr "Hi" "" llbuilder
+  |   This                -> build_global_stringptr "Hi" "" llbuilder
+  |   Id s                -> build_global_stringptr "Hi" "" llbuilder
+  |   Binop(e1, op, e2)  -> build_global_stringptr "Hi" "" llbuilder
+  |   Assign(e1, e2)     -> build_global_stringptr "Hi" "" llbuilder
+  |   Noexpr              -> build_global_stringptr "Hi" "" llbuilder
+  |   ArrayOp(e1, el)    -> build_global_stringptr "Hi" "" llbuilder
+  |   ObjAccess(e1, e2)  -> build_global_stringptr "Hi" "" llbuilder
+  |   Call(fname, el)    -> (function
+        "print" -> 
+          let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
+          let printf = declare_function "printf" printf_ty the_module in
+          let s = codegen_expr llbuilder (List.hd el) in
+          let zero = const_int i32_t 0 in
+          let s = build_in_bounds_gep s [| zero |] "" llbuilder in
+          build_call printf [| s |] "" llbuilder
+        | _       -> build_global_stringptr "Hi" "" llbuilder) fname
+  |   ArrayPrimitive el   -> build_global_stringptr "Hi" "" llbuilder
+  |   Null                -> build_global_stringptr "Hi" "" llbuilder
 
-(* let rec codegen_expr = function
-  | Ast.Number n -> const_float double_type n
-  | Ast.Variable name ->
-      (try Hashtbl.find named_values name with
-        | Not_found -> raise (Error "unknown variable name"))
-  | Ast.Binary (op, lhs, rhs) ->
-      let lhs_val = codegen_expr lhs in
-      let rhs_val = codegen_expr rhs in
-      begin
-        match op with
-        | '+' -> build_add lhs_val rhs_val "addtmp" builder
-        | '-' -> build_sub lhs_val rhs_val "subtmp" builder
-        | '*' -> build_mul lhs_val rhs_val "multmp" builder
-        | '<' ->
-            (* Convert bool 0/1 to double 0.0 or 1.0 *)
-            let i = build_fcmp Fcmp.Ult lhs_val rhs_val "cmptmp" builder in
-            build_uitofp i double_type "booltmp" builder
-        | _ -> raise (Error "invalid binary operator")
-      end
-  | Ast.Call (callee, args) ->
-      (* Look up the name in the module table. *)
-      let callee =
-        match lookup_function callee the_module with
-        | Some callee -> callee
-        | None -> raise (Error "unknown function referenced")
-      in
-      let params = params callee in
+let codegen_stmt llbuilder = function
+      Block sl        -> build_global_stringptr "Hi" "" llbuilder
+  |   Expr e          -> codegen_expr llbuilder e
+  |   Return e        -> build_global_stringptr "Hi" "" llbuilder
+  |   If (e, s1, s2)       -> build_global_stringptr "Hi" "" llbuilder
+  |   For (e1, e2, e3 ,s)  -> build_global_stringptr "Hi" "" llbuilder
+  |   While (e, s)    -> build_global_stringptr "Hi" "" llbuilder
+  |   Break           -> build_global_stringptr "Hi" "" llbuilder    
+  |   Continue        -> build_global_stringptr "Hi" "" llbuilder
 
-      (* If argument mismatch error. *)
-      if Array.length params == Array.length args then () else
-        raise (Error "incorrect # arguments passed");
-      let args = Array.map codegen_expr args in
-      build_call callee args "calltmp" builder
+let codegen_func fdecl = 
+    let handle_func = function
+      FName "main" -> 
+        let fty = function_type i32_t [| |] in
+        let f = define_function "main" fty the_module in
+        let llbuilder = builder_at_end context (entry_block f) in
+        let _ = codegen_stmt llbuilder (List.hd fdecl.body) in
+        build_ret (const_int i32_t 0) llbuilder 
+      | _ -> build_global_stringptr "Hi" "" builder 
+    in
+    handle_func fdecl.fname
 
-let codegen_proto = function
-  | Ast.Prototype (name, args) ->
-      (* Make the function type: double(double,double) etc. *)
-      let doubles = Array.make (Array.length args) double_type in
-      let ft = function_type double_type doubles in
-      let f =
-        match lookup_function name the_module with
-        | None -> declare_function name ft the_module
-
-        (* If 'f' conflicted, there was already something named 'name'. If it
-         * has a body, don't allow redefinition or reextern. *)
-        | Some f ->
-            (* If 'f' already has a body, reject this. *)
-            if block_begin f <> At_end f then
-              raise (Error "redefinition of function");
-
-            (* If 'f' took a different number of arguments, reject. *)
-            if element_type (type_of f) <> ft then
-              raise (Error "redefinition of function with different # args");
-            f
-      in
-
-      (* Set names for all arguments. *)
-      Array.iteri (fun i a ->
-        let n = args.(i) in
-        set_value_name n a;
-        Hashtbl.add named_values n a;
-      ) (params f);
-      f
-
-let codegen_func = function
-  | Ast.Function (proto, body) ->
-      Hashtbl.clear named_values;
-      let the_function = codegen_proto proto in
-
-      (* Create a new basic block to start insertion into. *)
-      let bb = append_block context "entry" the_function in
-      position_at_end bb builder;
-
-      try
-        let ret_val = codegen_expr body in
-
-        (* Finish off the function. *)
-        let _ = build_ret ret_val builder in
-
-        (* Validate the generated code, checking for consistency. *)
-        Llvm_analysis.assert_valid_function the_function;
-
-        the_function
-      with e ->
-        delete_function the_function;
-        raise e *)
+let codegen_cdecls cdecls = 
+    let handle_cdecl cdecl = 
+      codegen_func (List.hd cdecl.cbody.methods)
+    in
+    let rec handle_cdecls = function
+      [] -> the_module
+      | h :: t -> ignore(handle_cdecl h); handle_cdecls t
+    in 
+    handle_cdecls cdecls

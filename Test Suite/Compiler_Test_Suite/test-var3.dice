@@ -1,0 +1,16 @@
+class test {
+
+	public int a;
+
+	public void print2(int x, int y) {
+	  print(x);
+	  print(y);
+	}
+
+	public void main(char[][] args) {
+	  int b;
+	  a = 42;
+	  b = 57;
+	  print2(a + b * 3, 77);
+	}
+}

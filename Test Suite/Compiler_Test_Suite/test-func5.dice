@@ -1,0 +1,16 @@
+class test {
+
+	public int foo(int a, int b){
+	  int c;
+	  int d;
+	  int e;
+	  print(a);
+	  e = a + b + 10;
+	  print(e);
+	}
+	
+	public void main(char[][] args) {
+  		foo(1,2);
+	}
+
+}

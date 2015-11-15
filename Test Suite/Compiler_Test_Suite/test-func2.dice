@@ -1,0 +1,17 @@
+class test {
+	
+	public int fun(int x, int y){
+		return 0;
+	}
+
+	public void main(char[][] args) {
+
+	  int i;
+	  i = 1;
+
+	  fun(i, i);
+
+	  print(i);
+	  return;
+	}
+}

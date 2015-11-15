@@ -56,7 +56,7 @@ type cbody = {
 type class_decl = {
 	cname : string;
 	extends : extends;
-	body: cbody;
+	cbody: cbody;
 }
 
 type program = Program of include_stmt list * class_decl list
