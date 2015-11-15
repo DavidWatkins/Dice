@@ -12,9 +12,6 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 errorFile=errors.log
 
-#Send all error messages to file
-exec 2> $errorFile
-
 # Set time limit for all operations
 ulimit -t 30
 
@@ -72,8 +69,11 @@ test_function(){
 			#extract filename without extension for exectuable
 			name=$(echo $filename | cut -f 1 -d '.')
 			#run the executable and port output to temp test file
-			$diceExecPath $diceOption "$testFile" > temp.ll
+			$diceExecPath $diceOption "$testFile" 2> temp.ll
 			lli temp.ll > temp_Dice_Tester
+			#Send all error messages to file
+			exec 2> $errorFile
+			
 			diff temp_Dice_Tester "$testPath"$filename$testExtension > /dev/null
 			confirmation
 		fi
