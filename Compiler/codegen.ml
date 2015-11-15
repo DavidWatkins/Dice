@@ -58,7 +58,7 @@ let codegen_func fdecl =
         let fty = function_type i32_t [| |] in
         let f = define_function "main" fty the_module in
         let llbuilder = builder_at_end context (entry_block f) in
-        let fbody = codegen_stmt llbuilder (List.hd fdecl.body) in
+        let _ = codegen_stmt llbuilder (List.hd fdecl.body) in
         build_ret (const_int i32_t 0) llbuilder 
       | _ -> build_global_stringptr "Hi" "" builder 
     in
