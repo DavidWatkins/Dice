@@ -14,8 +14,8 @@ let digit = ['0'-'9']
 let id = alpha (alpha | digit | '_')*
 let string = '"' ( (ascii | escape)* as s) '"'
 let char = ''' ( ascii | digit ) '''
-let float = ('-' digit+ | digit+) ['.'] digit+
-let int = digit+ | '-' digit+
+let float = (digit+) ['.'] digit+
+let int = digit+
 let whitespace = [' ' '\t' '\r']
 let return = '\n'
 
