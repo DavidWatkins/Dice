@@ -64,7 +64,7 @@ test_function(){
 
 		if [ "$testOption" == "-s" ]; then
 			#Create file to be tested (with tokens)
-			$diceExecPath $diceOption "$testFile" 2> temp_Dice_Tester
+			$diceExecPath $diceOption "$testFile" > temp_Dice_Tester
 			#Test output differences use the diff command and neglect screen output
 			diff temp_Dice_Tester "$testPath"$filename$testExtension > /dev/null
 			confirmation #function
@@ -72,7 +72,7 @@ test_function(){
 			#extract filename without extension for exectuable
 			name=$(echo $filename | cut -f 1 -d '.')
 			#run the executable and port output to temp test file
-			$diceExecPath $diceOption "$testFile" 2> temp.ll
+			$diceExecPath $diceOption "$testFile" > temp.ll
 			lli temp.ll > temp_Dice_Tester
 			diff temp_Dice_Tester "$testPath"$filename$testExtension > /dev/null
 			confirmation
