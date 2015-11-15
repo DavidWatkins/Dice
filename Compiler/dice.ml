@@ -39,7 +39,7 @@ let _ =
             (* let ll_filename = (Utils.replace ".dice" "" filename) ^ ".ll" in *)
             match program with
               Program(includes, classes) -> 
-            ignore(dump_module (Codegen.codegen_cdecls (Analyzer.analyze filename (includes, classes)))); print_string "Compiled Successfully\n"
+            dump_module (Codegen.codegen_cdecls (Analyzer.analyze filename (includes, classes)))
 
     with
         Exceptions.IllegalCharacter(c, ln) ->
