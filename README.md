@@ -33,4 +33,9 @@ cd Dice/Compiler
 ./dice -c input.dice
 ```
 
-##More info to come
+##To test the compiler
+- cd into Test Suite and run tester.sh after having compiled the compiler
+```bash
+cd Dice/'Test Suite'
+./tester.sh
+```
