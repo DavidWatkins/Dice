@@ -10,7 +10,7 @@ class test {
     print(b);
   }
 
-  incab(){
+  public void incab(){
     a = a + 1;
     b = b + 1;
   }

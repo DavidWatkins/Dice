@@ -17,4 +17,5 @@ class test {
 	  
 	  g = 7;
 	  print(g+100);
+	}
 }
