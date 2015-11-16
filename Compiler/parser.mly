@@ -1,4 +1,7 @@
-%{ open Ast %}
+%{  open Ast 
+	let unescape s =
+    	Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
+%}
 
 %token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
@@ -258,7 +261,7 @@ literals:
 	| FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
-	| STRING_LITERAL   		{ String_Lit($1) }  
+	| STRING_LITERAL   		{ String_Lit(unescape $1) }  
 	| CHAR_LITERAL			{ Char_Lit($1) }
 	| THIS 			   		{ This }
 	| ID 			   		{ Id($1) }	
