@@ -1,10 +1,10 @@
 \begin{homeworkProblem}
 	\chapter{Types}
-    There are two kinds of types in the Dice programming language: primitive types and reference types  There are, correspondingly, two kinds of data values that can be stored in variables, passed as arguments, returned by methods, and operated on: primitive values and reference values.\\
+    There are two kinds of types in the Dice programming language: primitive types and non-primitive types.  There are, correspondingly, two kinds of data values that can be stored in variables, passed as arguments, returned by methods, and operated on: primitive values and non-primitive values.\\
 	\begin{minted}{java}
     Type:
         PrimitiveType
-        ReferenceType
+        NonprimitiveType
     \end{minted}
     There is also a special null type, the type of the expression $null$, which has no name. Because the null type has no name, it is impossible to declare a variable of the null type. The null reference is the only possible value of an expression of null type. The null reference can always undergo a widening reference conversion to any reference type. In practice, the programmer can ignore the null type and just pretend that $null$ is merely a special literal that can be of any reference type.\\
 
