@@ -1,14 +1,11 @@
-%{  open Ast 
-	let unescape s =
-    	Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
-%}
+%{  open Ast  %}
 
 %token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ BAR
-%token RETURN IF ELSE FOR WHILE BREAK CONTINUE
+%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
@@ -103,14 +100,13 @@ cbody:
 ******************/
 
 constructor:
-	CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE {
+	CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE {
 		{
 			scope = Public;
 			fname = Constructor;
 			returnType = Datatype(ConstructorType);
 			formals = List.rev $3;
-			locals = List.rev $6;
-			body = List.rev $7;
+			body = List.rev $6;
 		}
 	}
 
@@ -134,21 +130,16 @@ fname:
 	ID { $1 }
 
 fdecl:
-	scope datatype fname LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
+	scope datatype fname LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
 	{ 
 		{
 			scope = $1;
 			fname = FName($3);
 			returnType = $2;
 			formals = List.rev $5;
-			locals = List.rev $8;
-			body = List.rev $9;
+			body = List.rev $8;
 		} 
 	}
-
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
 
 /******************
  FORMALS/PARAMETERS & VARIABLES & ACTUALS
@@ -164,9 +155,6 @@ formal_list:
 
 formal:
 	datatype ID { Formal($1, $2) }
-
-vdecl:
-	datatype ID SEMI { Vdecl($1, $2) }
 
 actuals_opt:
 		/* nothing */ { [] }
@@ -222,9 +210,11 @@ stmt:
 	| 	IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
 	| 	FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt
 		 { For($3, $5, $7, $9) }
-	| 	WHILE LPAREN expr RPAREN stmt { While($3, $5) }
-	|	BREAK SEMI		{ Break }
-	|	CONTINUE SEMI	{ Continue }
+	| 	WHILE LPAREN expr RPAREN stmt 	{ While($3, $5) }
+	|	BREAK SEMI					 	{ Break }
+	|	CONTINUE SEMI				 	{ Continue }
+	|   datatype ID SEMI 			 	{ Local($1, $2, Noexpr) }
+	| 	datatype ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
 
 expr_opt:
 		/* nothing */ { Noexpr }
@@ -249,7 +239,9 @@ expr:
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
 	|   MINUS expr 							{ UMinus($2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
-	| 	expr bracket_args RBRACKET		 	{ ArrayOp($1, List.rev $2) } 
+	| 	NEW ID LPAREN actuals_opt RPAREN 	{ ObjectCreate($2, $4) }
+	|	NEW type_tag bracket_args RBRACKET 	{ ArrayCreate(Datatype($2), List.rev $3) }
+	| 	expr bracket_args RBRACKET		 	{ ArrayAccess($1, List.rev $2) } 
 	| 	LPAREN expr RPAREN 					{ $2 }
 
 bracket_args:
@@ -261,7 +253,7 @@ literals:
 	| FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
-	| STRING_LITERAL   		{ String_Lit(unescape $1) }  
+	| STRING_LITERAL   		{ String_Lit($1) }  
 	| CHAR_LITERAL			{ Char_Lit($1) }
 	| THIS 			   		{ This }
 	| ID 			   		{ Id($1) }	

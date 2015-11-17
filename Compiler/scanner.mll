@@ -78,12 +78,13 @@ rule token = parse
 | "this"        { THIS }
 | "break" 		{ BREAK }
 | "continue"	{ CONTINUE }
+| "new" 		{ NEW }
 
 | int as lxm   		{ INT_LITERAL(int_of_string lxm) }
 | float as lxm 		{ FLOAT_LITERAL(float_of_string lxm) }
 | char as lxm  		{ CHAR_LITERAL( String.get lxm 1 ) }
 | escape_char as lxm{ CHAR_LITERAL( String.get (unescape lxm) 1) }
-| string       		{ STRING_LITERAL(s) }
+| string       		{ STRING_LITERAL(unescape s) }
 | id as lxm    		{ ID(lxm) }
 | eof          		{ EOF }
 

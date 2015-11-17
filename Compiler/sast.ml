@@ -32,7 +32,6 @@ type sfunc_decl = {
 	sfname : fname;
 	sreturnType : datatype;
 	sformals : formal list;
-	slocals : vdecl list;
 	sbody : sstmt list;
 }
 

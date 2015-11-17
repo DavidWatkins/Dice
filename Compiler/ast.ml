@@ -18,9 +18,11 @@ type expr =
 	| 	Binop of expr * op * expr
 	| 	Assign of expr * expr
 	| 	Noexpr
-	| 	ArrayOp of expr * expr list
+	| 	ArrayCreate of datatype * expr list
+	| 	ArrayAccess of expr * expr list
 	| 	ObjAccess of expr * expr
 	| 	Call of string * expr list  
+	|   ObjectCreate of string * expr list
 	| 	ArrayPrimitive of expr list
 	|  	UMinus of expr
 	| 	Null
@@ -34,8 +36,8 @@ type stmt =
 	| 	While of expr * stmt
 	|  	Break
 	|   Continue
+	|   Local of datatype * string * expr
 
-type vdecl = Vdecl of datatype * string
 type field = Field of scope * datatype * string
 type include_stmt = Include of string
 
@@ -44,7 +46,6 @@ type func_decl = {
 	fname : fname;
 	returnType : datatype;
 	formals : formal list;
-	locals : vdecl list;
 	body : stmt list;
 }
 

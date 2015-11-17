@@ -69,13 +69,19 @@ and string_of_expr = function
 	|	Binop(e1, o, e2)		-> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
 	|	Assign(e1, e2)			-> (string_of_expr e1) ^ " = " ^ (string_of_expr e2)
 	|	Noexpr					-> ""
-	|	ArrayOp(a, ops)			-> (string_of_expr a) ^ (string_of_bracket_expr ops)
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-	|	ArrayPrimitive(el)	-> "|" ^ (string_of_array_primitive el) ^ "|"
+	|	ArrayPrimitive(el)		-> "|" ^ (string_of_array_primitive el) ^ "|"
 	|  	UMinus e1				-> "-" ^ string_of_expr e1
 	|	Null					-> "null"
+	|   ArrayCreate(d, el)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_expr el
+  	|   ArrayAccess(e, el)  	-> (string_of_expr e) ^ (string_of_bracket_expr el)
+  	|   ObjectCreate(s, el) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 ;;
+
+let string_of_local_expr = function
+		Noexpr -> ""
+	|  	e 	   -> " = " ^ string_of_expr e
 
 (* Print statements *)
 
@@ -114,6 +120,7 @@ let rec string_of_stmt indent =
 
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
+		|   Local(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
 	in get_stmt_string
 
 (* Print Function *)
@@ -122,9 +129,6 @@ let string_of_fname = function
 		Constructor -> "constructor"
 	|	FName(s)	-> s
 
-let string_of_vdecl = function 
-	Vdecl(d, s) -> (string_of_datatype d) ^ " " ^ s ^ ";\n"
-
 let string_of_formal = function
 	Formal(d, s) -> (string_of_datatype d) ^ " " ^ s
 
@@ -132,8 +136,6 @@ let string_of_func_decl fdecl =
 	"\t" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
-		(* locals *)
-		"\t\t" ^ String.concat "\t\t" (List.map string_of_vdecl fdecl.locals) ^
 		(* body *)
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
 	"\t}\n"
@@ -252,7 +254,8 @@ let string_of_token = function
 	| 	INCLUDE				-> "INCLUDE"	
 	| 	THIS				-> "THIS"	
 	| 	BREAK				-> "BREAK"	
-	| 	CONTINUE			-> "CONTINUE"		
+	| 	CONTINUE			-> "CONTINUE"	
+	|   NEW 				-> "NEW"	
 	| 	INT_LITERAL(i)		-> "INT_LITERAL(" ^ string_of_int i ^ ")"
 	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL(" ^ string_of_float f ^ ")"
 	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL(" ^ Char.escaped c ^ ")"
@@ -306,7 +309,8 @@ let string_of_token_no_id = function
 	| 	INCLUDE				-> "INCLUDE"	
 	| 	THIS				-> "THIS"	
 	| 	BREAK				-> "BREAK"	
-	| 	CONTINUE			-> "CONTINUE"		
+	| 	CONTINUE			-> "CONTINUE"	
+	|   NEW 				-> "NEW"		
 	| 	INT_LITERAL(i)		-> "INT_LITERAL"
 	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL"
 	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL"

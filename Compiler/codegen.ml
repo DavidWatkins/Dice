@@ -25,11 +25,13 @@ let rec codegen_expr llbuilder = function
   |   Char_Lit c          -> build_global_stringptr "Hi" "" llbuilder
   |   This                -> build_global_stringptr "Hi" "" llbuilder
   |   Id s                -> build_global_stringptr "Hi" "" llbuilder
-  |   Binop(e1, op, e2)  -> build_global_stringptr "Hi" "" llbuilder
-  |   Assign(e1, e2)     -> build_global_stringptr "Hi" "" llbuilder
+  |   Binop(e1, op, e2)   -> build_global_stringptr "Hi" "" llbuilder
+  |   Assign(e1, e2)      -> build_global_stringptr "Hi" "" llbuilder
   |   Noexpr              -> build_global_stringptr "Hi" "" llbuilder
-  |   ArrayOp(e1, el)    -> build_global_stringptr "Hi" "" llbuilder
-  |   ObjAccess(e1, e2)  -> build_global_stringptr "Hi" "" llbuilder
+  |   ArrayCreate(d, el)  -> build_global_stringptr "Hi" "" llbuilder
+  |   ArrayAccess(e, el)  -> build_global_stringptr "Hi" "" llbuilder
+  |   ObjAccess(e1, e2)   -> build_global_stringptr "Hi" "" llbuilder
+  |   ObjectCreate(s, el) -> build_global_stringptr "Hi" "" llbuilder
   |   Call(fname, el)    -> (function
         "print" -> 
           let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
@@ -39,6 +41,7 @@ let rec codegen_expr llbuilder = function
           let s = build_in_bounds_gep s [| zero |] "" llbuilder in
           build_call printf [| s |] "" llbuilder
         | _       -> build_global_stringptr "Hi" "" llbuilder) fname
+
   |   ArrayPrimitive el   -> build_global_stringptr "Hi" "" llbuilder
   |   UMinus e            -> build_global_stringptr "Hi" "" llbuilder
   |   Null                -> build_global_stringptr "Hi" "" llbuilder
@@ -52,6 +55,7 @@ let codegen_stmt llbuilder = function
   |   While (e, s)    -> build_global_stringptr "Hi" "" llbuilder
   |   Break           -> build_global_stringptr "Hi" "" llbuilder    
   |   Continue        -> build_global_stringptr "Hi" "" llbuilder
+  |   Local(d, s, e)  -> build_global_stringptr "Hi" "" llbuilder
 
 let codegen_func fdecl = 
     let handle_func = function
