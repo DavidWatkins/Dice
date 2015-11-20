@@ -27,6 +27,59 @@ let process_includes filename (includes, classes) =
   in
   iterate_includes classes (StringMap.add filename 1 StringMap.empty) includes
 
+(*
+let add_fields m (scope, datatype, my_string) =
+    StringMap.add my_string (scope, datatype) m
+
+(* build_fields_map m cdecl.cbody.fields *)
+let rec build_fields_map m = function
+    
+      [] -> m
+    | field :: t -> build_fields_map (add_fields m field) m
+
+
+
+
+
+let rec build_func_map m = function
+
+      [] -> m
+    | func_decl :: t -> build_func_map (StringMap.add func_decl.fname (func_decl.scope, func_decl.datatype, construct_formals func_decl.formals) m 
+*)
+
+
+
+let build_fields_map map field = 
+    List.fold_left 
+      (fun map field -> 
+          (fun map (scope, datatype, name) (*field*)  -> 
+               StringMap.add name (scope, datatype) map)) 
+    (*StringMap.empty*)
+
+let get_name = function
+    FName x -> x
+  | _ -> "hi"
+
+let build_func_map map methods =
+    List.fold_left 
+      (fun map methods ->
+          (fun map methods ->
+              StringMap.add (get_name methods.fname) (methods.scope, methods.returnType, methods.formals) map))              
+    (*StringMap.empty*)
+
+
+
+(* build_global_map StringMap.empty cdecls *)
+let rec build_global_map m = function
+      [] -> m
+    | cdecl :: t -> build_global_map 
+        (StringMap.add cdecl.cname 
+            (build_fields_map StringMap.empty cdecl.cbody.fields, 
+                (build_func_map StringMap.empty cdecl.cbody.constructors)) 
+                    m) t
+
+
+
 
 (* let rec get_expr_type env = function
       Int_Lit i             -> Int_t
