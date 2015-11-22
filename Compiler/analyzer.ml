@@ -7,7 +7,7 @@ module Includes = Map.Make(String)
 module Env = Map.Make(String)
 module StringMap = Map.Make (String)
 
-type global_map = {
+type class_map = {
     field_map       : Ast.field StringMap.t;
     func_map        : Ast.func_decl StringMap.t;
     constructor_map : Ast.func_decl StringMap.t;
@@ -36,24 +36,23 @@ let process_includes filename (includes, classes) =
   iterate_includes classes (StringMap.add filename 1 StringMap.empty) includes
 
 let get_name fdecl = 
-  let params = List.fold_left (fun s -> (fun Formal(t, _) -> s ^ ", " ^ Utils.string_of_datatype t)) "" fdecl.formals in
+  let params = List.fold_left (fun s -> (function Formal(t, s) -> s ^ ", " ^ Utils.string_of_datatype t)) "" fdecl.formals in
   let name = (function FName x -> x | Constructor -> "constructor") fdecl.fname in
   name ^ " " ^ params
 
 
-let build_global_map cdecls =
+let build_global_class_map cdecls =
     (* helper global_obj cdecls *)
     let rec helper m = function
-        
         [] -> m
       | cdecl :: t -> helper   
-        (StringMap.add cdecl.cname 
-            { field_map = List.fold_left (fun m -> (function Field(s, d, n) -> (StringMap.add n (Field(s, d, n)) m))) StringMap.empty cdecl.cbody.fields; 
-              func_map = List.fold_left (fun m fdecl -> (StringMap.add (get_name fdecl) fdecl m)) StringMap.empty cdecl.cbody.methods;
-              constructor_map = List.fold_left (fun m fdecl -> (StringMap.add (get_name fdecl) fdecl m)) StringMap.empty cdecl.cbody.constructors } 
+      (if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName) else
+        StringMap.add cdecl.cname 
+            { field_map = List.fold_left (fun m -> (function Field(s, d, n) -> if (StringMap.mem (n) m) then raise(Exceptions.DuplicateField) else (StringMap.add n (Field(s, d, n)) m))) StringMap.empty cdecl.cbody.fields; 
+    func_map = List.fold_left (fun m fdecl -> if (StringMap.mem (get_name fdecl) m) then raise(Exceptions.DuplicateFunction) else (StringMap.add (get_name fdecl) fdecl m)) StringMap.empty cdecl.cbody.methods;
+              constructor_map = List.fold_left (fun m fdecl -> if (StringMap.mem (get_name fdecl) m) then raise(Exceptions.DuplicateConstructor) else  (StringMap.add (get_name fdecl) fdecl m)) StringMap.empty cdecl.cbody.constructors } 
                        m) t in
     helper StringMap.empty cdecls
-
 
 
 
