@@ -1,16 +1,16 @@
 open Sast
 open Ast
 open Processor
+open Utils
 
 module Includes = Map.Make(String)
 module Env = Map.Make(String)
 module StringMap = Map.Make (String)
 
 type global_map = {
-
-    field_map       : string StringMap.t;
-    func_map        : string StringMap.t;
-    constructor_map : string StringMap.t;
+    field_map       : Ast.field StringMap.t;
+    func_map        : Ast.func_decl StringMap.t;
+    constructor_map : Ast.func_decl StringMap.t;
 }
 
 
@@ -35,58 +35,10 @@ let process_includes filename (includes, classes) =
   in
   iterate_includes classes (StringMap.add filename 1 StringMap.empty) includes
 
-(*
-let add_fields m (scope, datatype, my_string) =
-    StringMap.add my_string (scope, datatype) m
-
-(* build_fields_map m cdecl.cbody.fields *)
-let rec build_fields_map m = function
-    
-      [] -> m
-    | field :: t -> build_fields_map (add_fields m field) m
-
-
-
-
-
-let rec build_func_map m = function
-
-      [] -> m
-    | func_decl :: t -> build_func_map (StringMap.add func_decl.fname (func_decl.scope, func_decl.datatype, construct_formals func_decl.formals) m 
-*)
-
-(*
-let build_fields_map = 
-    List.fold_left 
-          (fun map field (*field*)  -> 
-               StringMap.add (field_name field) (field_data field) map) StringMap.empty
-*)
-let get_name = function
-    FName x -> x
-  | Constructor -> "constructor"  
-
-
-let field_name (scope, datatype, name) = 
-        name
-
-let field_data (scope, datatype, name) =
-        (scope, datatype)
-
-
-let rec build_fields_map map = function
-    [] -> map
-  | Field(scope, datatype, name) :: t -> build_fields_map (StringMap.add name (scope, datatype) map) t
-
-let build_func_map map func_decl =
-    List.fold_left 
-      (fun map func_decl ->
-        StringMap.add (get_name func_decl.fname) func_decl map)              
-    (*StringMap.empty*)
-
-let build_constructor_map map constructors =
-    List.fold_left
-      (fun map constructors ->
-        StringMap.add (get_name constructors.fname) constructors map)
+let get_name fdecl = 
+  let params = List.fold_left (fun s -> (fun Formal(t, _) -> s ^ ", " ^ Utils.string_of_datatype t)) "" fdecl.formals in
+  let name = (function FName x -> x | Constructor -> "constructor") fdecl.fname in
+  name ^ " " ^ params
 
 
 let build_global_map cdecls =
@@ -96,10 +48,10 @@ let build_global_map cdecls =
         [] -> m
       | cdecl :: t -> helper   
         (StringMap.add cdecl.cname 
-            { field_map = build_fields_map StringMap.empty cdecl.cbody.fields; 
-                func_map = build_func_map StringMap.empty cdecl.cbody.methods;
-                    constructor_map = build_constructor_map StringMap.empty cdecl.cbody.constructors } 
-                        m) t in
+            { field_map = List.fold_left (fun m -> (function Field(s, d, n) -> (StringMap.add n (Field(s, d, n)) m))) StringMap.empty cdecl.cbody.fields; 
+              func_map = List.fold_left (fun m fdecl -> (StringMap.add (get_name fdecl) fdecl m)) StringMap.empty cdecl.cbody.methods;
+              constructor_map = List.fold_left (fun m fdecl -> (StringMap.add (get_name fdecl) fdecl m)) StringMap.empty cdecl.cbody.constructors } 
+                       m) t in
     helper StringMap.empty cdecls
 
 
