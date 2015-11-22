@@ -6,6 +6,14 @@ module Includes = Map.Make(String)
 module Env = Map.Make(String)
 module StringMap = Map.Make (String)
 
+type global_map = {
+
+    field_map       : string StringMap.t;
+    func_map        : string StringMap.t;
+    constructor_map : string StringMap.t;
+}
+
+
 let process_includes filename (includes, classes) =
   (* Bring in each include  *)
   let processInclude include_statement = 
@@ -47,36 +55,52 @@ let rec build_func_map m = function
     | func_decl :: t -> build_func_map (StringMap.add func_decl.fname (func_decl.scope, func_decl.datatype, construct_formals func_decl.formals) m 
 *)
 
-
-
-let build_fields_map map field = 
+(*
+let build_fields_map = 
     List.fold_left 
-      (fun map field -> 
-          (fun map (scope, datatype, name) (*field*)  -> 
-               StringMap.add name (scope, datatype) map)) 
-    (*StringMap.empty*)
-
+          (fun map field (*field*)  -> 
+               StringMap.add (field_name field) (field_data field) map) StringMap.empty
+*)
 let get_name = function
     FName x -> x
-  | _ -> "hi"
+  | Constructor -> "constructor"  
 
-let build_func_map map methods =
+
+let field_name (scope, datatype, name) = 
+        name
+
+let field_data (scope, datatype, name) =
+        (scope, datatype)
+
+
+let rec build_fields_map map = function
+    [] -> map
+  | Field(scope, datatype, name) :: t -> build_fields_map (StringMap.add name (scope, datatype) map) t
+
+let build_func_map map func_decl =
     List.fold_left 
-      (fun map methods ->
-          (fun map methods ->
-              StringMap.add (get_name methods.fname) (methods.scope, methods.returnType, methods.formals) map))              
+      (fun map func_decl ->
+        StringMap.add (get_name func_decl.fname) func_decl map)              
     (*StringMap.empty*)
 
+let build_constructor_map map constructors =
+    List.fold_left
+      (fun map constructors ->
+        StringMap.add (get_name constructors.fname) constructors map)
 
 
-(* build_global_map StringMap.empty cdecls *)
-let rec build_global_map m = function
-      [] -> m
-    | cdecl :: t -> build_global_map 
+let build_global_map cdecls =
+    (* helper global_obj cdecls *)
+    let rec helper m = function
+        
+        [] -> m
+      | cdecl :: t -> helper   
         (StringMap.add cdecl.cname 
-            (build_fields_map StringMap.empty cdecl.cbody.fields, 
-                (build_func_map StringMap.empty cdecl.cbody.constructors)) 
-                    m) t
+            { field_map = build_fields_map StringMap.empty cdecl.cbody.fields; 
+                func_map = build_func_map StringMap.empty cdecl.cbody.methods;
+                    constructor_map = build_constructor_map StringMap.empty cdecl.cbody.constructors } 
+                        m) t in
+    helper StringMap.empty cdecls
 
 
 
