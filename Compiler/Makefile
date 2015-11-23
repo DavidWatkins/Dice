@@ -1,6 +1,6 @@
 TARGET=dice
 LIBS=-I,/usr/lib/ocaml/
-FLAGS=-pkg llvm -lib str
+FLAGS= -j 0 -use-ocamlfind -pkgs llvm,llvm.analysis,llvm.bitwriter,llvm.target -lib str
 OCAMLBUILD=ocamlbuild
 OPAM=opam config env
 

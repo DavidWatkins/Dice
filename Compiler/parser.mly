@@ -233,11 +233,11 @@ expr:
 	| 	expr GT     expr 					{ Binop($1, Greater,  $3) }
 	| 	expr GEQ    expr 					{ Binop($1, Geq,   $3) }
 	| 	expr AND    expr 					{ Binop($1, And,   $3) }
-	| 	expr NOT    expr 					{ Binop($1, Not,   $3) }
+	| 	NOT  expr 							{ Unop (Not,   $2) }
 	| 	expr OR     expr 					{ Binop($1, Or,    $3) }
 	| 	expr DOT    expr 					{ ObjAccess($1, $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
-	|   MINUS expr 							{ UMinus($2) }
+	|   MINUS expr 							{ Unop (Sub, $2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
 	| 	NEW ID LPAREN actuals_opt RPAREN 	{ ObjectCreate($2, $4) }
 	|	NEW type_tag bracket_args RBRACKET 	{ ArrayCreate(Datatype($2), List.rev $3) }
