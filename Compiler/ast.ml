@@ -1,6 +1,6 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or
 type scope = Private | Public
-type primitive = Int_t | Float_t | Void_t | Bool_t | Char_t | Objecttype of string | ConstructorType
+type primitive = Int_t | Float_t | Void_t | Bool_t | Char_t | Objecttype of string | ConstructorType | Null_t
 type datatype = Arraytype of primitive * int | Datatype of primitive 
 
 type extends = NoParent | Parent of string
@@ -24,7 +24,7 @@ type expr =
 	| 	Call of string * expr list  
 	|   ObjectCreate of string * expr list
 	| 	ArrayPrimitive of expr list
-	|  	UMinus of expr
+	|  	Unop of op * expr
 	| 	Null
 
 type stmt =

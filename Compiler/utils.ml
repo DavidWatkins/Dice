@@ -25,6 +25,7 @@ let string_of_primitive = function
 	| 	Char_t 						-> "char"
 	| 	Objecttype(s)				-> "class " ^ s
 	| 	ConstructorType				-> ""
+	|  	Null_t 						-> ""
 
 let rec print_brackets = function
 		1 -> "[]"
@@ -72,7 +73,7 @@ and string_of_expr = function
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	ArrayPrimitive(el)		-> "|" ^ (string_of_array_primitive el) ^ "|"
-	|  	UMinus e1				-> "-" ^ string_of_expr e1
+	|  	Unop(op, e)				-> (string_of_op op) ^ string_of_expr e
 	|	Null					-> "null"
 	|   ArrayCreate(d, el)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_expr el
   	|   ArrayAccess(e, el)  	-> (string_of_expr e) ^ (string_of_bracket_expr el)
