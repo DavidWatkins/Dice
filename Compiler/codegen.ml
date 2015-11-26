@@ -95,10 +95,9 @@ let codegen_main main =
 	let _ = codegen_stmt 0 llbuilder (List.hd main.sbody) in
 	build_ret (const_int i32_t 0) llbuilder 
 
-let codegen_sprogram sprogram = match sprogram with 
-	SProgram(structs, functions, main) -> 
+let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions in
-	(* let _ = List.map (fun f -> codegen_func f) functions in *)
-	let _ = List.map (fun s -> codegen_struct s) structs in
-	let _ = codegen_main main in
+	(* let _ = List.map (fun f -> codegen_func f) sprogram.functions in *)
+	let _ = List.map (fun s -> codegen_struct s) sprogram.classes in
+	let _ = codegen_main sprogram.main in
 		the_module

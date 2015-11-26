@@ -30,11 +30,14 @@ type sstmt =
 	|   SContinue
 	|   SLocal of datatype * string * sexpr
 
+type func_type = User | Reserved
+
 type sfunc_decl = {
 	sfname : fname;
 	sreturnType : datatype;
 	sformals : formal list;
 	sbody : sstmt list;
+	func_type : func_type;
 }
 
 type sclass_decl = {
@@ -43,4 +46,9 @@ type sclass_decl = {
 }
 
 (* Class Declarations | All method declarations | Main entry method *)
-type sprogram = SProgram of sclass_decl list * sfunc_decl list * sfunc_decl
+type sprogram =  {
+	classes : sclass_decl list;
+	functions : sfunc_decl list;
+	main : sfunc_decl;
+	reserved : sfunc_decl list;
+}
