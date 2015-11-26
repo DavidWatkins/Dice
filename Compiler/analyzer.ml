@@ -90,16 +90,16 @@ and check_object_constructor env s el = SInt_Lit(0, Datatype(Int_t))
 
 and check_assign env e1 e2 = 
 	SInt_Lit(0, Datatype(Int_t))
-	
-and check_bool_unop = function
-		Not 	-> Datatype(Bool_t)
-	| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
-
-and check_num_unop t = function
-		Sub 	-> t
-	| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
 
 and check_unop env (op:Ast.op) e = 
+	check_num_unop t = function
+			Sub 	-> t
+		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
+	in 
+	let check_bool_unop = function
+			Not 	-> Datatype(Bool_t)
+		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
+	in
 	let se = expr_to_sexpr env e in
 	let t = get_type_from_sexpr se in
 	match t with 
