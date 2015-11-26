@@ -83,14 +83,14 @@ and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 and check_obj_access env e1 e2 = SInt_Lit(0, Datatype(Int_t))
 
 and check_call_type env s el = 
-	let sel = List.map (expr_to_sexpr env) el in
+	let sel, env = exprl_to_sexprl env el in
 	SCall(s, sel, Datatype(Void_t))
 
 and check_object_constructor env s el = SInt_Lit(0, Datatype(Int_t))
 
 and check_assign env e1 e2 = 
-	let se1 = expr_to_sexpr env e1 in
-	let se2 = expr_to_sexpr env e2 in
+	let se1, env = expr_to_sexpr env e1 in
+	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in 
 	if type1 = type2 
@@ -106,7 +106,7 @@ and check_unop env (op:Ast.op) e =
 			Not 	-> Datatype(Bool_t)
 		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
 	in
-	let se = expr_to_sexpr env e in
+	let se, env = expr_to_sexpr env e in
 	let t = get_type_from_sexpr se in
 	match t with 
 		Datatype(Int_t) 	
@@ -115,8 +115,8 @@ and check_unop env (op:Ast.op) e =
 	| 	_ -> raise(Exceptions.InvalidUnaryOperation)
 
 and check_binop env e1 op e2 =
-	let se1 = expr_to_sexpr env e1 in
-	let se2 = expr_to_sexpr env e2 in
+	let se1, env = expr_to_sexpr env e1 in
+	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in
 	match (type1, type2) with
@@ -124,27 +124,27 @@ and check_binop env e1 op e2 =
 	| 	_ -> raise Exceptions.InvalidBinopExpression
 
 and expr_to_sexpr (env:env) = function
-		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t))
-	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t))
-	|   Float_Lit f         -> SFloat_Lit(f, Datatype(Float_t))
-	|   String_Lit s        -> SString_Lit(s, Arraytype(Char_t, 1))
-	|   Char_Lit c          -> SChar_Lit(c, Datatype(Char_t))
-	|   This                -> SId("this", Datatype(Objecttype(env.env_name)))
-	|   Id s                -> SId(s, get_ID_type env s)
-	|   Null                -> SNull(Datatype(Null_t))
-	|   Noexpr              -> SNoexpr(Datatype(Void_t))
+		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
+	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t)), env
+	|   Float_Lit f         -> SFloat_Lit(f, Datatype(Float_t)), env
+	|   String_Lit s        -> SString_Lit(s, Arraytype(Char_t, 1)), env
+	|   Char_Lit c          -> SChar_Lit(c, Datatype(Char_t)), env
+	|   This                -> SId("this", Datatype(Objecttype(env.env_name))), env
+	|   Id s                -> SId(s, get_ID_type env s), env
+	|   Null                -> SNull(Datatype(Null_t)), env
+	|   Noexpr              -> SNoexpr(Datatype(Void_t)), env
 
-	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2
-	|   ObjectCreate(s, el) -> check_object_constructor env s el
-	|   Call(s, el)         -> check_call_type env s el
+	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2, env
+	|   ObjectCreate(s, el) -> check_object_constructor env s el, env
+	|   Call(s, el)         -> check_call_type env s el, env
 
-	|   ArrayCreate(d, el)  -> check_array_init env d el
-	|   ArrayAccess(e, el)  -> check_array_access e el
-	|   ArrayPrimitive el   -> check_array_primitive env el
+	|   ArrayCreate(d, el)  -> check_array_init env d el, env
+	|   ArrayAccess(e, el)  -> check_array_access e el, env
+	|   ArrayPrimitive el   -> check_array_primitive env el, env
 
-	|   Assign(e1, e2)      -> check_assign env e1 e2
-	|   Unop(op, e)         -> check_unop env op e
-	|   Binop(e1, op, e2)   -> check_binop env e1 op e2
+	|   Assign(e1, e2)      -> check_assign env e1 e2, env
+	|   Unop(op, e)         -> check_unop env op e, env
+	|   Binop(e1, op, e2)   -> check_binop env e1 op e2, env
 
 
 and get_type_from_sexpr = function
@@ -166,44 +166,74 @@ and get_type_from_sexpr = function
 	|  	SUnop(_, _, d) 			-> d
 	| 	SNull d 				-> d
 
+and exprl_to_sexprl env el =
+  let env_ref = ref(env) in
+  let rec helper = function
+      head::tail ->
+        let a_head, env = expr_to_sexpr !env_ref head in
+        env_ref := env;
+        a_head::(helper tail)
+    | [] -> []
+  in (helper el), !env_ref
+
 (* Update this function to return an env object *)
-let convert_stmt_list_to_sstmt_list (env:env) stmt_list = 
+let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list = 
 	let rec helper env = function 
-			Block sl 				-> SBlock(List.rev (List.fold_left (fun l s -> (helper env s) :: l) [] sl))
-		| 	Expr e 					-> 	let se = expr_to_sexpr env e in
+			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
+										SBlock(sl), env
+
+		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in 
-									   	SExpr(se, t)
-		| 	Return e 				-> 	let se = expr_to_sexpr env e in
+									   	SExpr(se, t), env
+
+		| 	Return e 				-> 	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
 										if t = env.env_returnType 
-											then SReturn(se, t) 
+											then SReturn(se, t), env
 											else raise Exceptions.ReturnTypeMismatch
-		| 	If(e, s1, s2) 			-> 	let se = expr_to_sexpr env e in
+
+		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
+										let ifbody, _ = helper env s1 in
+										let elsebody, _ = helper env s2 in
 										if t = Datatype(Bool_t) 
-											then SIf(se, helper env s1, helper env s2) 
+											then SIf(se, ifbody, elsebody), env
 											else raise Exceptions.InvalidIfStatementType
-		| 	For(e1, e2, e3, s)		-> 	let se1 = expr_to_sexpr env e1 in
-										let se2 = expr_to_sexpr env e2 in
-										let se3 = expr_to_sexpr env e3 in
+
+		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr env e1 in
+										let se2, _ = expr_to_sexpr env e2 in
+										let se3, _ = expr_to_sexpr env e3 in
+										let forbody, _ = helper env s in
 										let conditional = get_type_from_sexpr se2 in
 										if (conditional = Datatype(Bool_t) || conditional = Datatype(Void_t))
-											then SFor(se1, se2, se3, helper env s)
+											then SFor(se1, se2, se3, forbody), env
 											else raise Exceptions.InvalidForStatementType
-		| 	While(e, s)				->	let se = expr_to_sexpr env e in
+
+		| 	While(e, s)				->	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
+										let sstmt, _ = helper env s in 
 										if (t = Datatype(Bool_t) || t = Datatype(Void_t)) 
-											then SWhile(se, helper env s) 
+											then SWhile(se, sstmt), env
 											else raise Exceptions.InvalidWhileStatementType
-		|  	Break 					-> SBreak (* Need to check if in right context *)
-		|   Continue 				-> SContinue (* Need to check if in right context *)
-		|   Local(d, s, e) 			-> 	let se = expr_to_sexpr env e in
+
+		|  	Break 					-> SBreak, env (* Need to check if in right context *)
+		|   Continue 				-> SContinue, env (* Need to check if in right context *)
+
+		|   Local(d, s, e) 			-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
 										if t = d (* AND s not in env.locals *) 
-											then SLocal(d, s, se) 
+											then SLocal(d, s, se), env
 											else raise Exceptions.LocalTypeMismatch
 	in
-	List.map (helper env) stmt_list
+	let env_ref = ref(env) in
+	let rec iter = function
+	  head::tail ->
+	    let a_head, env = helper !env_ref head in
+	    env_ref := env;
+	    a_head::(iter tail)
+	| [] -> []
+	in (iter stmt_list), !env_ref
+
 
 let convert_constructor_to_sfdecl reserved class_map cname constructor = 
 	let env = {
@@ -219,7 +249,7 @@ let convert_constructor_to_sfdecl reserved class_map cname constructor =
 		sfname 			= Constructor;
 		sreturnType 	= Datatype(Objecttype(cname));
 		sformals 		= constructor.formals;
-		sbody 			= convert_stmt_list_to_sstmt_list env constructor.body;
+		sbody 			= fst (convert_stmt_list_to_sstmt_list env constructor.body);
 		func_type		= Sast.User;
 	}
 
@@ -238,7 +268,7 @@ let convert_fdecl_to_sfdecl reserved class_map cname fdecl =
 		sfname 			= fdecl.fname;
 		sreturnType 	= fdecl.returnType;
 		sformals 		= fdecl.formals;
-		sbody 			= convert_stmt_list_to_sstmt_list env fdecl.body;
+		sbody 			= fst (convert_stmt_list_to_sstmt_list env fdecl.body);
 		func_type		= Sast.User;
 	}
 
