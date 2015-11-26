@@ -20,3 +20,4 @@ exception MainNotDefined
 exception MultipleMainsDefined
 exception InvalidWhileStatementType
 exception LocalTypeMismatch
+exception InvalidUnaryOperation
