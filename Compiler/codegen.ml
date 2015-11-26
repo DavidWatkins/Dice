@@ -3,9 +3,10 @@
  *===----------------------------------------------------------------------===*)
 
 open Llvm
-(* Change to Sast *)
 open Ast
 open Sast
+open Analyzer
+open Exceptions
 
 exception Error of string
 
@@ -13,11 +14,10 @@ let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
 let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 10
-let double_type = double_type context
 
 let i32_t = i32_type context;;
 let i8_t = i8_type context;;
-let f_t = float_type context;;
+let f_t = double_type context;;
 
 (* Need to add logic for fmul and fdiv *)
 
@@ -39,6 +39,27 @@ let rec handle_binop e1 op e2 index llbuilder =
 	| 	Or 			-> build_or  e1 e2 (string_of_int index) llbuilder
 	| 	_ 			-> build_global_stringptr "Hi" "" llbuilder (* Will not happen *)
 
+and codegen_print index llbuilder el = 
+	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
+	let printf = declare_function "printf" printf_ty the_module in
+
+	let params = List.map (codegen_sexpr (index + 1) llbuilder) el in
+	let param_types = List.map (Analyzer.get_type_from_sexpr) el in 
+	let map_param_to_string = function 
+			Arraytype(Char_t, 1) 	-> "%s"
+		| 	Datatype(Int_t) 		-> "%d"
+		| 	Datatype(Float_t) 	-> "%f"
+		| 	Datatype(Bool_t) 		-> "%d"
+		| 	Datatype(Char_t) 		-> "%c"
+		| 	_ 									-> raise (Exceptions.InvalidTypePassedToPrintf)
+	in 
+	let const_str = List.fold_left (fun s t -> s ^ map_param_to_string t) "" param_types in
+	let s = codegen_sexpr index llbuilder (SString_Lit(const_str, Arraytype(Char_t, 1))) in
+	(* let s = codegen_sexpr (index+1) llbuilder (List.hd el) in *)
+	let zero = const_int i32_t 0 in 
+	let s = build_in_bounds_gep s [| zero |] "" llbuilder in
+	build_call printf (Array.of_list (s :: params)) "" llbuilder
+
 and codegen_sexpr index llbuilder = function
 			SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i32_t 1 else const_int i32_t 0
@@ -53,13 +74,7 @@ and codegen_sexpr index llbuilder = function
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> build_global_stringptr "Hi" "" llbuilder
 	|   SCall(fname, el, d)       ->  (function
-																				"print" -> 
-																					let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
-																					let printf = declare_function "printf" printf_ty the_module in
-																					let s = codegen_sexpr (index+1) llbuilder (List.hd el) in
-																					let zero = const_int i32_t 0 in
-																					let s = build_in_bounds_gep s [| zero |] "" llbuilder in
-																					build_call printf [| s |] "" llbuilder
+																				"print" -> codegen_print index llbuilder el
 																			| _ -> build_global_stringptr "Hi" "" llbuilder) fname
 	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
