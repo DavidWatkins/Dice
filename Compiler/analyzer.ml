@@ -89,10 +89,16 @@ and check_call_type env s el =
 and check_object_constructor env s el = SInt_Lit(0, Datatype(Int_t))
 
 and check_assign env e1 e2 = 
-	SInt_Lit(0, Datatype(Int_t))
+	let se1 = expr_to_sexpr env e1 in
+	let se2 = expr_to_sexpr env e2 in
+	let type1 = get_type_from_sexpr se1 in
+	let type2 = get_type_from_sexpr se2 in 
+	if type1 = type2 
+		then SAssign(se1, se2, type1)
+		else raise (Exceptions.AssignmentTypeMismatch)
 
 and check_unop env (op:Ast.op) e = 
-	check_num_unop t = function
+	let check_num_unop t = function
 			Sub 	-> t
 		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
 	in 

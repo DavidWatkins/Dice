@@ -21,6 +21,7 @@ exception MultipleMainsDefined
 exception InvalidWhileStatementType
 exception LocalTypeMismatch
 exception InvalidUnaryOperation
+exception AssignmentTypeMismatch
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
