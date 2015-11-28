@@ -1,227 +1,80 @@
 \begin{homeworkProblem}
 	\chapter{Expressions and Operators}
-	\section{Expressions}
+    The precedence of expression operators is the same as the order of the major subsections of this section (highest precedence first). Within each subsection, the operators have the same precedence. Left- or right-associativity is specified in each subsection for the operators discussed therein.
+	\section{Primary Expressions}
+	Primary expressions involving . , subscripting, and function calls group left to right.
 	
-	An expression is composed of one of the following:
-	\begin{itemize}
-		\item A literal value (See Literals section of chapter 2)
-		\item A reference to the current object via $this$ (See chapter 7)
-		\item An ID of a variable
-		\item An operand followed by an operator followed by an operand
-		\item The initialization of an object (See chapter 7)
-		\item The access of an array
-		\item an expression between ()
-	\end{itemize}
-	
-	An arithmetic expression consists of at least one operand and zero or more operators. Operands are typed objects such as constants, variables, and method calls that return values. Here are some examples of expressions: 
-	
-	\begin{minted}{java}
-42;        (* Expression evaluates to int 42 *)
-1 + 1;     (* Expression evaluates to int 2 *)
-3.0 - 2.0; (* Expression evaluates to float 1.0 *)
-	\end{minted}
+	\subsection{Identifier}
+    An identifier is a primary expression, provided it has been suitably declared as discussed below. Its type is specified by its declaration.
+    
+	\subsection{Literal}
+    Any of the literal types discussed in Chapter 3 is a primary expression, which evaluates to the type of the literal.
 
-	
-	Parentheses group subexpressions:
-	\begin{minted}{java}
-( 2 * ( 2 + 2 ) - ( 3 - 2) );  (* Evaluates to 7 *)
-	\end{minted} 
-	
-	\subsection{Method Calls as Expressions}
-	A call to any method which returns a value is an expression.
-	\begin{minted}{java}
-	print("Hello");  (* Evaluates to null *)
-	\end{minted} 
-	
-	\subsection{Object Initialization as Expressions}
-	A call to a constructor of an object will evaluate to an instance of that object.
-	\begin{minted}{java}
-	String("Hello");  (* Evaluates to String *)
-	\end{minted}
-	
-	\subsection{Array Access as Expressions}
-	Creating an array evaluates to a type \textless type\textgreater[] with dimensions of what is passed
-	\begin{minted}{java}
-	int[] a;
-	a = |1,2|;
-	a[0];  (* 1 *)
-	\end{minted}
-	
-	
-	\begin{minted}{java}
-Class.methodReturnsInt() + 3;  (* Assuming method returns value 4, the expressions evaluates to 7 *)
-	\end{minted}
-	
-	\section{Operators}
-		
-	An operator specifies an operation to be performed on its operands. Operators may have one or two operands depending on the operator. 
-	
-	\subsection{Member Acccess Operator}
-	The member access operator . is used to access the members of an object.
-	
-	To access a member in the context of an instance method definition (i.e. accessing a member of the class that is being defined), use the operand $this$ on the left side of the operator and the name of the member on the right side:
-	\begin{minted}{java}
-	this.memberToAccess = "new value";
-	\end{minted}
-	
-	To access a member of an instantiated object, use the name of the object variable as the lhs operand and the name of the member as the rhs operand:
-	\begin{minted}{java}
-	Car c1;
-	float cost;
-	c1 = Car();
-	cost = c1.price;
-	\end{minted}
+    \subsection{( expression )}
+    A parenthesized expression is a primary expression whose type and value are identical to those of the unadorned expression. The presence of parentheses does not affect whether the expression is an lvalue.
 
-	\subsection{Assignment Operators}
-		
-	Dice supports only the simple assignment operator "=", which stores the value of its right operand in the variable specified by its left operand. As with all assignment operators, the left operand cannot be a literal or constant value. Null assignments are valid as well.
-		
-	\begin{minted}{java}
-	int x;
-	float y;
-	int z;
+    \subsection{primary-expression [ expression ]}
+    A primary expression followed by an expression in square brackets is a primary expression. The intuitive meaning is that of a subscript. The primary expression has type ‘‘$array$ of . . .’’ and the type of the result is ‘‘. . . ’’. The type of the subscript expression must be a type that is convertible to an integral type, or a compile-time error occurs.
 
-	x = 10;
-	y = 4.0 + 2.0;
-	z = (2 * (3 + Class.methodReturnsInt() ));
-	x = null;   (* Valid *)
-	3 = 10; (* Invalid! *)
-	\end{minted}
-	
-	\subsection{Arithmetic Operators}
-	
-	Dice provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with negation.
-	
-	\begin{minted}{java}
-	int x;
-	float y;
+    \subsection{primary-expression ( expression-list-opt )}
+    A function call is a primary expression followed by parentheses containing a possibly empty, comma-separated
+    list of expressions which constitute the actual arguments to the function. The result of the function call is the function's return type. Recursive calls to any function are permissible.
 
-	(* Addition. *)
-	x = 5 + 3;   
-	y = 57.53 + 10.90;
-	
-	(* Subtraction. *)
-	x = 5 - 3;
-	y = 57.53 - 10.90;
-	
-	(* Multiplication. *)
-	x = 5 * 3;
-	y = 57.53 * 10.90;
-	
-	(* Division. *)
-	x = 5 / 3; (* Integer division of positive values truncates towards zero, so 5/3 is 1 *)
-	y = 57.53 / 10.90;
-	
-	\end{minted}
+    \subsection{primary-lvalue . member-of-structure}
+	An lvalue expression followed by a dot followed by the name of a class member is a primary expression. The object referred to by the lvalue is assumed to be an instance of the class defining the class member. The given lvalue can be an instance of any user-defined class.
 
-	Type designation for mixed types (ints and floats) occurs from left to right.
+    \section{Unary operators}
+    Expressions with unary operators group right-to-left.
 
-	\begin{minted}{java}
-	1.0 + 3;   (* Expression evaluates to float 4.0 *);
-	1 + 3.0;   (* Expression evaluates to int 4 *);
-	\end{minted}
-	
-	\subsection{Equality and Relational Operators}
-	
-	Equality and relational operators are used to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. When you use any of the relational operators, the result is either "true" or "false". The not-equal-to operator "!=" tests its two operands for inequality.
-	
-	The equal-to operator "==" tests its two operands for equality. The result is a "true" boolean if the operands are equal, and "false" if the operands are not equal.
-	\begin{minted}{java}
-	int x;
-	int y;
-	bool z;
+    \subsection{− expression}
+    The result is the negative of the expression, and has the same type. The type of the expression must be $char$, $int$, or $float$.
 
-	x = 5;
-	y = 5;
-	z = (x == y);  (* z evaluates to "true" *)
-	x = x + 1;
-	z = (x != y);       (* z evaluates to "true" *)
-	\end{minted}
+    \subsection{not expression}
+    The result of the logical negation operator $not$ is $true$ if the value of the expression is $false$, $false$ if the value of the expression is $true$. The type of the result is $bool$. This operator is applicable only to operands that evaluate to $bool$.
 
-	Comparing float values for exact equality or inequality can produce unexpected results. This is due to the underlying implementation of LLVM where floating point is approximated and not precise. 
-	
-	Beyond equality and inequality, there are operators you can use to test if one value is less than, greater than, less-than-or-equal-to, or greater-than-or-equal-to another value. Null relational comparisons are allowed as well. 
-	
-	\begin{minted}{java}
-	int x;
-	int y;
-	int w;
-	bool z;
-	String d;
+    \section{Multiplicative operators}
+    The multiplicative operators * and / group left-to-right.
 
-	w = 5;
-	x = 5;
-	y = 6;
-	z = false;
-	d = String("Hello");
-	
-	z = (x < y);     (* z evaluates to "true" *)
-	z = (w <= x);    (* z evaluates to "true" *)
-	z = (w > x);     (* z evaluates to "false" *)
-	z = (w >= x);    (* z evaluates to "true" *)
-	z = d == null;   (* z evaluates to "false" *)
-	z = d != null;   (* z evaluates to "true" *)
-	\end{minted}
-	
-	The ==, !=, \textgreater=, \textgreater, \textless, \textless= operators are all defined to operate between any two values both either being of int or float. The The ==, != are also designated to compare any two values in Dice, and if they are not both of type float, will only return true if the memory address is identical. The comparison of objects is recommended by defining an equals method within the class. 
+    \subsection{expression * expression}
+    The binary * operator indicates multiplication. Operands of $int$, $float$, and $char$ types are allowed. If both operands are of type ..., the result is type .... If the operands are of two different types of the ones listed above, the result is the type of the left-most operand.
 
-	\subsection{Logical Operators}
-	$and$ is a binary operator such that
-	\begin{minted}{java}
-	expr1 and expr2
-	\end{minted}
-	evaluates to $true$ if and only if both $expr1$ and $expr2$ evaluate to $true$. If either operand evaluates to $false$, then the entire expression above evaluates to $false$.\\
-	$or$ is a binary operator such that
-	\begin{minted}{java}
-	expr1 or expr2
-	\end{minted}
-	evaluates to $true$ if either or both $expr1$ and $expr2$ evaluate to $true$. If both operands evaluate to $false$, then the entire expression above evaluates to $false$.\\
-	$not$ is a unary operator such that
-	\begin{minted}{java}
-	not expr1
-	\end{minted}
-	and
-	\begin{minted}{java}
-	not (expr1)
-	\end{minted}
-	evaluate to $true$ if the operand $expr1$ evaluates to $false$ and $false$ if $expr1$ evaluates to $true$.\\
-	Expressions can be chained together using the logical operators, like so:
-	\begin{minted}{java}
-	w = 5;
-	x = 5;
-	y = 6;
-	z = ((x == w) and (true)) or (y > x); (* z evaluates to "true" *)
-	z = not ((x == w) and (true)) or (y > x)); (* false *)
-	\end{minted}
-	
-	Expressions with logical operations terminate once a condition has been met, therefore the $(y>x)$ expression will not be evaluated because the first half, $((x == w) and (true))$, evaluated to true.
-	
-	\subsection{Array Operators}
-	Creating an array evaluates to a type \textless type\textgreater[] with dimensions of what is passed
-	\begin{minted}{java}
-	int b[][][];
-	b = [[[1], [2]]];
-	b[0][0][0];  (* Evaluates to 1 *)
-	\end{minted}
-	
-	\subsection{Operator Precedence}
-	
-	When an expression contains multiple operators, such as x + y * Class.methodReturnsValue(), the operators are grouped based on rules of precedence. For instance, the meaning of that expression is to call the method with no arguments, multiply the result by y, then add that result to x. 
-	
-	The following is a list of types of expressions, presented in order of highest precedence first. Sometimes two or more operators have equal precedence; all those operators are applied from left to right unless stated otherwise.
-	
-	\begin{itemize}
-		\item Method calls, array subscripting, and membership access operator expressions.
-		\item Unary operators, including logical NOT.
-		\item When several unary operators are consecutive, the later ones are nested within the earlier ones: not-x means not(-x).
-		\item Multiplication, division.
-		\item Addition and subtraction expressions.
-		\item Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to
-		\item expressions.
-		\item Equal-to and not-equal-to expressions.
-		\item Logical AND expressions.
-		\item Logical OR expressions.
-		\item Simple assignment	\end{itemize}
+    \subsection{expression / expression}
+    The binary / operator indicates division. The same type considerations as for multiplication apply.
 
-	
-\end{homeworkProblem}
+    \section{Additive operators}
+    The additive operators + and − group left-to-right.
+
+    \subsection{expression + expression}
+    The value of the result is the sum of the expressions. The same type considerations as for multiplication apply. Overflow of a $char$ type during an addition operation results in wraparound.
+
+    \subsection{expression - expression}
+    The value of the result is the difference of the expressions. The same type considerations as for multiplication apply.
+
+    \section{Relational operators}
+    The relational operators group left-to-right.
+    
+    \subsection{expression $<$ expression}
+    \subsection{expression $>$ expression}
+    \subsection{expression $<=$ expression}
+    \subsection{expression $>=$ expression}
+    The operators $<$ (less than), $>$ (greater than), $<=$ (less than or equal to) and $>=$ (greater than or equal to) all yield $true$ is the specified relation is true and $false$ otherwise. The same type considerations as for multiplication apply.
+
+    \section{Equality operators}
+
+    \subsection{expression == expression}
+    \subsection{expression != expression}
+    The == (equal to) and the != (not equal to) operators are exactly analogous to the relational operators except for their lower precedence.
+
+    \section{Logical operators}
+
+    \subsection{expression and expression}
+    Both operands must evaluate to a value of type $bool$. The $and$ operator returns $true$ if both its operands evaluate to $true$, $false$ otherwise. The second expression is not evaluated if the first evaluates to $false$.
+
+    \subsection{expression or expression}
+    Both operands must evaluate to a value of type $bool$. The $or$ operator returns $true$ if either of its operands evaluate to $true$, and $false$ otherwise. The second operand is not evaluated if the value of the first operand evaluates to $true$.
+
+    \section{Assignment operators}
+
+    \subsection{lvalue = expression}
+    The value of the expression replaces that of the object referred to by the lvalue. Both operands must have the same type.
+    \end{homeworkProblem}
