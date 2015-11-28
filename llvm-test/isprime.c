@@ -10,5 +10,7 @@ int main() {
             break;
     }
 
+    printf("Hello %f", 12.0);
+
     return 0;
 }

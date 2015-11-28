@@ -34,6 +34,7 @@ let rec print_brackets = function
 let string_of_datatype = function 
 		Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)
 	| 	Datatype(p)		-> (string_of_primitive p)
+	|  	Any 			-> ""
 
 (* Print expressions *)
 
@@ -131,7 +132,8 @@ let string_of_fname = function
 	|	FName(s)	-> s
 
 let string_of_formal = function
-	Formal(d, s) -> (string_of_datatype d) ^ " " ^ s
+		Formal(d, s) -> (string_of_datatype d) ^ " " ^ s
+	|  	_ 			 -> ""
 
 let string_of_func_decl fdecl =
 	"\t" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
