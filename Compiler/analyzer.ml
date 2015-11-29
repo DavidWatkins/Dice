@@ -73,7 +73,7 @@ let build_class_maps reserved cdecls =
 		List.fold_left helper StringMap.empty cdecls
 
 let rec get_ID_type env s = Datatype(Int_t)
-
+(*
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
 
 and check_array_init env d el = SInt_Lit(0, Datatype(Int_t))
@@ -88,14 +88,15 @@ and check_call_type env s el =
 
 and check_object_constructor env s el = SInt_Lit(0, Datatype(Int_t))
 
-and check_assign env e1 e2 = 
-	let se1, env = expr_to_sexpr env e1 in
-	let se2, env = expr_to_sexpr env e2 in
+and check_assign env e1 e2 = 	
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in 
-	if type1 = type2 
-		then SAssign(se1, se2, type1)
-		else raise (Exceptions.AssignmentTypeMismatch)
+	if type1 = type2
+		then 
+        let se1, env = expr_to_sexpr env e1 in
+        let se2, env = expr_to_sexpr env e2 in
+        SAssign(se1, se2, type1)
+else raise (Exceptions.AssignmentTypeMismatch)
 
 and check_unop env (op:Ast.op) e = 
 	let check_num_unop t = function
@@ -123,7 +124,9 @@ and check_binop env e1 op e2 =
 		(Datatype(Int_t), Datatype(Int_t)) -> SBinop(se1, op, se2, Datatype(Int_t))
 	| 	_ -> raise Exceptions.InvalidBinopExpression
 
-and expr_to_sexpr (env:env) = function
+and 
+
+expr_to_sexpr (env:env) = function
 		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
 	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t)), env
 	|   Float_Lit f         -> SFloat_Lit(f, Datatype(Float_t)), env
@@ -145,27 +148,68 @@ and expr_to_sexpr (env:env) = function
 	|   Assign(e1, e2)      -> check_assign env e1 e2, env
 	|   Unop(op, e)         -> check_unop env op e, env
 	|   Binop(e1, op, e2)   -> check_binop env e1 op e2, env
+*)
+let rec expr_to_sexpr env t = function
+		Int_Lit(i)           -> SInt_Lit(i, t), env
+	|   Boolean_Lit(b)       -> SBoolean_Lit(b, t), env
+	|   Float_Lit(f)         -> SFloat_Lit(f, t, env
+	|   String_Lit(s)        -> SString_Lit(s, t), env
+	|   Char_Lit(c)          -> SChar_Lit(c, t), env
+	|   This                -> SId("this", t), env
+	|   Id(s)                -> SId(s, t), env
+	|   Null                -> SNull(t), env
+	|   Noexpr              -> SNoexpr(Datatype(Void_t)), env
 
+	|   ObjAccess(e1, e2)   -> let t1 = get_type_of_expr e1 in
+                               let t2 = get_type_of_expr e2 in 
+                               let se1 = expr_to_sexpr env t1 e1 in
+                               let se2 = expr_to_sexpr env t2 e2 in
+                               SObjAccess(se1, se2, t), env
+	|   ObjectCreate(s, el) -> let sexprl = [] in
+                               SObjectCreate(s, sexprl, t), env
+	|   Call(s, el)         -> let sexpr = [] in 
+                               SCall(s, sexprl, t), env
+	|   ArrayCreate(d, el)  -> let sexprl = [] in
+                               SArrayCreate(d, sexprl, t), env
+	|   ArrayAccess(e, el)  -> let sexprl = [] in 
+                               let t1 = get_type_of_expr e in 
+                               let sexpr = expr_to_sexpr env t1 e in 
+                               SArrayAccess(sexpr, sexprl, t), env
+	|   ArrayPrimitive(el)   -> let sexprl = [] in 
+                               SArrayPrimitive(sexprl, t), env
+	|   Assign(e1, e2)      -> let t1 = get_type_of_expr e1 in 
+                                let t2 = get_type_of_expr e2 in 
+                                let se1 = expr_to_sexpr env t1 e1 in 
+                                let se2 = expr_to_sexpr env t2 e2 in 
+                                SAssign(se1, se2, t), env
+	|   Unop(op, e)         -> let t1 = get_type_of_expr e in 
+                                let sexpr = expr_to_sexpr env t1 e in 
+                                SUnop(op, sexpr, t), env
+	|   Binop(e1, op, e2)   -> let t1 = get_type_of_expr e1 in 
+                                let t2 = get_type_of_expr e2 in 
+                                let se1 = expr_to_sexpr env t1 e1 in 
+                                let se2 = expr_to_sexpr env t2 e2 in 
+                                SBinop(se1, op, se2, t), env
 
-and get_type_from_sexpr = function
-		SInt_Lit(_, d)			-> d
-	| 	SBoolean_Lit(_, d)		-> d
-	| 	SFloat_Lit(_, d)		-> d
-	| 	SString_Lit(_, d) 		-> d
-	| 	SChar_Lit(_, d) 		-> d
-	| 	SId(_, d) 				-> d
-	| 	SBinop(_, _, _, d) 		-> d
-	| 	SAssign(_, _, d) 		-> d
-	| 	SNoexpr d 				-> d
-	| 	SArrayCreate(_, _, d)	-> d
-	| 	SArrayAccess(_, _, d) 	-> d
-	| 	SObjAccess(_, _, d)		-> d
-	| 	SCall(_, _, d) 			-> d
-	|   SObjectCreate(_, _, d) 	-> d
-	| 	SArrayPrimitive(_, d)	-> d
-	|  	SUnop(_, _, d) 			-> d
-	| 	SNull d 				-> d
-
+let rec get_type_of_expr env = function
+		Int_Lit(lit)			-> Datatype(Int_t)
+	| 	Boolean_Lit(lit)		-> Datatype(Bool_t)
+	| 	Float_Lit(lit)		-> Datatype(Float_t)
+	| 	String_Lit(str) 		-> Arraytype(Char_t, 1)
+	| 	Char_Lit(lit) 		-> Datatype(Char_t)
+	| 	Id(str) 				-> Datatype(Int_t)
+	| 	Binop(expr, op, expr) 		-> Datatype(Int_t)
+	| 	Assign(expr, expr) 		-> Datatype(Int_t)
+	| 	Noexpr			-> Datatype(Void_t)
+	| 	ArrayCreate(datatype, expr list)	-> Datatype(Int_t)
+	| 	ArrayAccess(expr, expr list) 	-> Datatype(Int_t)
+	| 	ObjAccess(expr, expr)		-> Datatype(Int_t)
+	| 	Call(string, expr list) 			-> Datatype(Int_t)
+	|   ObjectCreate(string, expr list) 	-> Datatype(Int_t)
+	| 	ArrayPrimitive(expr list)	-> Datatype(Int_t)
+	|  	Unop(op, expr) 			-> Datatype(Int_t)
+	| 	Null 				-> Datatype(Null_t)
+(*
 and exprl_to_sexprl env el =
   let env_ref = ref(env) in
   let rec helper = function
@@ -175,6 +219,7 @@ and exprl_to_sexprl env el =
         a_head::(helper tail)
     | [] -> []
   in (helper el), !env_ref
+*)
 
 (* Update this function to return an env object *)
 let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list = 
@@ -182,47 +227,50 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
 			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
 										SBlock(sl), env
 
-		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in 
-									   	SExpr(se, t), env
+		| 	Expr e 					-> 	let t = get_type_of_expr e in 
+									   	let se, env = expr_to_sexpr t e in
+                                        SExpr(se, t), env
 
-		| 	Return e 				-> 	let se, _ = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
+		| 	Return e 				->  let t = get_type_of_expr e in
 										if t = env.env_returnType 
-											then SReturn(se, t), env
+											then let se, _ = expr_to_sexpr t e in
+                                            SReturn(se, t), env
 											else raise Exceptions.ReturnTypeMismatch
 
-		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
+		| 	If(e, s1, s2) 			->  let t = get_type_of_expr e in
 										let ifbody, _ = helper env s1 in
 										let elsebody, _ = helper env s2 in
 										if t = Datatype(Bool_t) 
-											then SIf(se, ifbody, elsebody), env
+											then let se, _ = expr_to_sexpr t e in
+                                            SIf(se, ifbody, elsebody), env
 											else raise Exceptions.InvalidIfStatementType
 
-		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr env e1 in
-										let se2, _ = expr_to_sexpr env e2 in
-										let se3, _ = expr_to_sexpr env e3 in
-										let forbody, _ = helper env s in
-										let conditional = get_type_from_sexpr se2 in
+		| 	For(e1, e2, e3, s)		-> 	let forbody, _ = helper env s in
+                                        let t1 = get_type_of_expr e1 in
+                                        let t3 = get_type_of_expr e3 in 
+										let conditional = get_type_of_expr e2 in
 										if (conditional = Datatype(Bool_t) || conditional = Datatype(Void_t))
-											then SFor(se1, se2, se3, forbody), env
+											then 
+                                            let se1, _ = expr_to_sexpr t1 e1 in
+                                            let se2, _ = expr_to_sexpr conditional e2 in
+                                            let se3, _ = expr_to_sexpr t3 e3 in
+                                            SFor(se1, se2, se3, forbody), env
 											else raise Exceptions.InvalidForStatementType
 
-		| 	While(e, s)				->	let se, _ = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
+		| 	While(e, s)				->	let t = get_type_of_expr e in
 										let sstmt, _ = helper env s in 
 										if (t = Datatype(Bool_t) || t = Datatype(Void_t)) 
-											then SWhile(se, sstmt), env
+											then let se, _ = expr_to_sexpr t e in
+                                            SWhile(se, sstmt), env
 											else raise Exceptions.InvalidWhileStatementType
 
 		|  	Break 					-> SBreak, env (* Need to check if in right context *)
 		|   Continue 				-> SContinue, env (* Need to check if in right context *)
 
-		|   Local(d, s, e) 			-> 	let se, env = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
+		|   Local(d, s, e) 			-> 	let t = get_type_of_expr e in
 										if t = d (* AND s not in env.locals *) 
-											then SLocal(d, s, se), env
+											then let se, env = expr_to_sexpr t e in
+                                            SLocal(d, s, se), env
 											else raise Exceptions.LocalTypeMismatch
 	in
 	let env_ref = ref(env) in
