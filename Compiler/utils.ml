@@ -102,7 +102,7 @@ let rec string_of_stmt indent =
 		| 	Return(expr) 			-> 
 				indent_string ^ "return " ^ string_of_expr expr ^ ";\n";
 
-		| 	If(e, s, Block([])) 	-> 
+		| 	If(e, s, Block([Expr(Noexpr)])) 	-> 
 				indent_string ^ "if (" ^ string_of_expr e ^ ")\n" ^ 
 					(string_of_stmt (indent+1) s)
 
@@ -136,7 +136,7 @@ let string_of_formal = function
 	|  	_ 			 -> ""
 
 let string_of_func_decl fdecl =
-	"\t" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
+	"" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		(* body *)
