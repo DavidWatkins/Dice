@@ -129,13 +129,54 @@ let rec codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 
 	phi
 
+and codegen_for init_ cond_ inc_ body_ llbuilder = 
+
+	let the_function = block_parent (insertion_block llbuilder) in
+
+	(* Emit the start code first, without 'variable' in scope. *)
+	let _ = codegen_sexpr llbuilder init_ in
+
+	(* Make the new basic block for the loop header, inserting after current
+	* block. *)
+	let loop_bb = append_block context "loop" the_function in
+
+	(* Insert an explicit fall through from the current block to the
+	* loop_bb. *)
+	ignore (build_br loop_bb llbuilder);
+
+	(* Start insertion in loop_bb. *)
+	position_at_end loop_bb llbuilder;
+
+	(* Emit the body of the loop.  This, like any other expr, can change the
+	* current BB.  Note that we ignore the value computed by the body, but
+	* don't allow an error *)
+	ignore (codegen_stmt llbuilder body_);
+
+	(* Emit the step value. *)
+	let _ = codegen_sexpr llbuilder inc_ in
+
+	(* Compute the end condition. *)
+	let cond_val = codegen_sexpr llbuilder cond_ in
+
+	(* Create the "after loop" block and insert it. *)
+	let after_bb = append_block context "afterloop" the_function in
+
+	(* Insert the conditional branch into the end of loop_end_bb. *)
+	ignore (build_cond_br cond_val loop_bb after_bb llbuilder);
+
+	(* Any new code will be inserted in after_bb. *)
+	position_at_end after_bb llbuilder;
+
+	(* for expr always returns 0.0. *)
+	const_null f_t
+
 and codegen_stmt llbuilder = function
 			SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)
 
 	|   SExpr(e, d)          	-> codegen_sexpr llbuilder e
 	|   SReturn(e, d)    			-> build_ret (codegen_sexpr llbuilder e) llbuilder
 	|   SIf (e, s1, s2)       -> codegen_if_stmt e s1 s2 llbuilder
-	|   SFor (e1, e2, e3 ,s)  -> build_global_stringptr "Hi" "" llbuilder
+	|   SFor (e1, e2, e3, s)  -> codegen_for e1 e2 e3 s llbuilder
 	|   SWhile (e, s)    			-> build_global_stringptr "Hi" "" llbuilder
 	|   SBreak           			-> build_global_stringptr "Hi" "" llbuilder   
 	|   SContinue        			-> build_global_stringptr "Hi" "" llbuilder
