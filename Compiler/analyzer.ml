@@ -5,6 +5,18 @@ open Utils
 open Filepath
 
 module StringMap = Map.Make (String)
+module SS = Set.Make(
+    struct
+        let compare = Pervasives.compare
+        type t = datatype
+    end )
+
+module TM = Map.Make(
+    struct
+        let compare = Pervasives.compare
+        type t = op
+    end )
+
 
 type class_map = {
 		field_map       : Ast.field StringMap.t;
@@ -72,6 +84,38 @@ let build_class_maps reserved cdecls =
 											 m) in
 		List.fold_left helper StringMap.empty cdecls
 
+let get_equality_binop_type type1 type2 se1 se2 op = 
+        (* Equality op not supported for float operands. The correct way to test floats 
+           for equality is to check the difference between the operands in question *)
+	    if (type1 = Datatype(Float_t) || type2 = Datatype(Float_t)) then raise (Exceptions.InvalidBinopExpression "Equality operation is not supported for Float types")
+        else if (type1 = Datatype(Char_t) && type2 = Datatype(Int_t) || 
+                type1 = Datatype(Int_t) && type2 = Datatype(Char_t) || 
+                type1 = type2) then SBinop(se1, op, se2, Datatype(Bool_t))
+        else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
+
+
+let get_logical_binop_type se1 se2 op = function 
+        (Datatype(Bool_t), Datatype(Bool_t)) -> SBinop(se1, op, se2, Datatype(Bool_t))
+        | _ -> raise (Exceptions.InvalidBinopExpression "Logical operators only operate on Bool_t types")
+
+
+let get_comparison_binop_type type1 type2 se1 se2 op =  
+    let numerics = SS.of_list [Datatype(Int_t); Datatype(Char_t); Datatype(Float_t)]
+    in
+        if SS.mem type1 numerics && SS.mem type2 numerics
+            then SBinop(se1, op, se2, Datatype(Bool_t))
+        else raise (Exceptions.InvalidBinopExpression "Comparison operators operate on numeric types only")
+
+
+let get_arithmetic_binop_type se1 se2 op = function 
+        (Datatype(Int_t), Datatype(Float_t)) | (Datatype(Float_t), Datatype(Int_t)) | 
+        (Datatype(Float_t), Datatype(Float_t)) -> SBinop(se1, op, se2, Datatype(Float_t))
+        | (Datatype(Int_t), Datatype(Char_t)) | (Datatype(Char_t), Datatype(Int_t)) |
+        (Datatype(Char_t), Datatype(Char_t)) -> SBinop(se1, op, se2, Datatype(Char_t))
+        | (Datatype(Int_t), Datatype(Int_t)) -> SBinop(se1, op, se2, Datatype(Int_t))
+        | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
+
+
 let rec get_ID_type env s = Datatype(Int_t)
 
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
@@ -115,17 +159,17 @@ and check_unop env (op:Ast.op) e =
 	| 	_ -> raise(Exceptions.InvalidUnaryOperation)
 
 and check_binop env e1 op e2 =
-	let check_int_binop = function
-			Equal -> Datatype(Bool_t)
-		| 	_ -> Datatype(Int_t)
-	in
+    let ts = List.fold_left (fun map (key, value) -> TM.add key value map) TM.empty [(Equal, "Equal"); (Add, "Add"); (Sub, "Sub"); (Mult, "Mult"); (Div, "Div"); (And, "And"); (Or, "Or")] in   
 	let se1, env = expr_to_sexpr env e1 in
 	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in
-	match (type1, type2) with
-		(Datatype(Int_t), Datatype(Int_t)) -> SBinop(se1, op, se2, check_int_binop op)
-	| 	_ -> raise Exceptions.InvalidBinopExpression
+    match op with
+    Equal | Neq -> get_equality_binop_type type1 type2 se1 se2 op
+    | And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
+    | Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
+    | Add | Mult | Sub | Div -> let () = print_endline "arithmetic op" in get_arithmetic_binop_type se1 se2 op (type1, type2) 
+    | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
 
 and expr_to_sexpr (env:env) = function
 		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
