@@ -25,3 +25,4 @@ exception AssignmentTypeMismatch
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
+exception InvalidBinaryOperator
