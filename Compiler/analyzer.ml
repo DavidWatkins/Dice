@@ -115,12 +115,16 @@ and check_unop env (op:Ast.op) e =
 	| 	_ -> raise(Exceptions.InvalidUnaryOperation)
 
 and check_binop env e1 op e2 =
+	let check_int_binop = function
+			Equal -> Datatype(Bool_t)
+		| 	_ -> Datatype(Int_t)
+	in
 	let se1, env = expr_to_sexpr env e1 in
 	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in
 	match (type1, type2) with
-		(Datatype(Int_t), Datatype(Int_t)) -> SBinop(se1, op, se2, Datatype(Int_t))
+		(Datatype(Int_t), Datatype(Int_t)) -> SBinop(se1, op, se2, check_int_binop op)
 	| 	_ -> raise Exceptions.InvalidBinopExpression
 
 and expr_to_sexpr (env:env) = function

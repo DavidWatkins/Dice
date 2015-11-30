@@ -7,6 +7,7 @@ open Ast
 open Sast
 open Analyzer
 open Exceptions
+open Batteries
 
 exception Error of string
 
@@ -68,7 +69,7 @@ and codegen_sexpr llbuilder = function
 	|   SId(id, d)                -> build_global_stringptr "Hi" "" llbuilder
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 llbuilder
 	|   SAssign(e1, e2, d)        -> build_global_stringptr "Hi" "" llbuilder
-	|   SNoexpr d                 -> build_global_stringptr "Hi" "" llbuilder
+	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> build_global_stringptr "Hi" "" llbuilder
@@ -80,7 +81,7 @@ and codegen_sexpr llbuilder = function
 	|   SUnop(op, e, d)           -> build_global_stringptr "Hi" "" llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
-let rec codegen_if_stmt exp then_ else_ llbuilder =
+let rec codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	let cond_val = codegen_sexpr llbuilder exp in
 
 	(* Grab the first block so that we might later add the conditional branch
