@@ -1,0 +1,6 @@
+class test {
+	public void main(char[][] args) {
+		print("Hello, World!\n");
+		print("Professor Edwards favorite number is: 42!\n");
+	}
+}
