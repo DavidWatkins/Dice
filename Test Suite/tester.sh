@@ -9,6 +9,7 @@ pass=0
 fail=0
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 errorFile=errors.log
 
@@ -20,6 +21,7 @@ if [ $# -eq 0 ]; then
 	echo "";
 	echo "[test flag] = -s   Test Scanner";
 	echo "              -c   Test Compiler";
+	echo "              -d   Test Compiler and display Dice Compiler messages";
 	echo "[other]     = -v   Verbose (prints log results)";
 	exit 1;
 fi
@@ -65,17 +67,38 @@ test_function(){
 			#Test output differences use the diff command and neglect screen output
 			diff temp_Dice_Tester "$testPath"$filename$testExtension > /dev/null
 			confirmation #function
-		else #Only other option is -c
+		else #Only other option is -c or -d which perform the same function except where noted below
 			#extract filename without extension for exectuable
 			name=$(echo $filename | cut -f 1 -d '.')
-			#run the executable and port output to temp test file
-			$diceExecPath $diceOption "$testFile" 2> temp.ll
+			
+			if [[ "$testOption" == "-d" ]]; then
+				#run the executable and port output (stderr) to temp test file
+				#port stdout (compiler msgs) to screen with color
+				echo ""
+				echo -e -n "${CYAN}"
+				$diceExecPath $diceOption "$testFile" 2> temp.ll 
+				echo -e -n "${NC}"
+
+			else
+				#Create header for any messages coming from Dice compiler
+				echo "" >> session_file
+				echo -e "${CYAN}Dice Compiler Messages (if any):" >> session_file
+				
+				#run the executable and port output (stderr) to temp test file
+				#port stdout (compiler msgs) to log file
+				$diceExecPath $diceOption "$testFile" 2> temp.ll 1>> session_file
+				echo -e "${NC}">> session_file
+			fi
+
+			#Run the llvm executable and port output to temp test file
 			lli temp.ll > temp_Dice_Tester
-			#Send all error messages to file
+
+			#Send all error messages this script generates (if any) to error log file
 			exec 2> $errorFile
 			
+			#Perform comparison of outputs
 			diff temp_Dice_Tester "$testPath"$filename$testExtension > /dev/null
-			confirmation
+			confirmation #function
 		fi
 	done
 
@@ -101,22 +124,42 @@ test_function(){
 	rm session_file;
 }
 
+createDice(){
+	echo "Compiling dice executable"
+	cd ../Compiler
+	make clean 2>&1 > /dev/null
+	./build.sh
+	#cp dice ../Test\ Suite/Hello_World_Demo/dice
+	cd ../Test\ Suite
+	echo "Compilation of dice executable complete"
+}
+
+deleteDice(){
+	cd ../Compiler
+	make clean 2>&1 > /dev/null
+	cd ../Test\ Suite
+}
+
 if [ "$testOption" == "-s" ]; then
 	echo "Scanner Test Started"
+	createDice
 	logFile=scanner_tests.log
 	testPath=Scanner\ Test\ Suite/
 	diceOption=-tendl
 	testExtension=.ManualTokens
 	test_function
+	deleteDice
 fi
 
-if [ "$testOption" == "-c" ]; then
+if [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ]; then
 	echo "Compiler Test Started"
+	createDice
 	logFile=compiler_tests.log
 	testPath=Compiler_Test_Suite/
 	diceOption=-c
 	testExtension=.out
 	test_function
+	deleteDice
 	rm temp.ll;
 fi
 
