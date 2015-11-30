@@ -12,7 +12,7 @@ exception DuplicateClassName
 exception DuplicateField
 exception DuplicateFunction
 exception DuplicateConstructor
-exception InvalidBinopExpression
+exception InvalidBinopExpression of string
 exception InvalidIfStatementType
 exception InvalidForStatementType
 exception ReturnTypeMismatch

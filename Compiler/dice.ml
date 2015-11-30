@@ -63,7 +63,7 @@ let _ =
 		| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
 		| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
 		| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"
-		| 	Exceptions.InvalidBinopExpression		-> print_string "InvalidBinopExpression \n"
+		| 	Exceptions.InvalidBinopExpression(str)		-> print_string ("InvalidBinopExpression: " ^ str ^ "\n")
 		| 	Exceptions.InvalidIfStatementType		-> print_string "InvalidIfStatementType \n"
 		| 	Exceptions.InvalidForStatementType		-> print_string "InvalidForStatementType \n"
 		| 	Exceptions.ReturnTypeMismatch			-> print_string "ReturnTypeMismatch \n"
