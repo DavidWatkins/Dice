@@ -1,0 +1,7 @@
+class test {
+	public void main(char[][] args) {
+		int[] a = |0,1,2,3,4|;
+		print(a[0]);
+		print(a[4]);
+	}
+}
