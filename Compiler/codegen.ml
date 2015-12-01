@@ -38,7 +38,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 		|   _   				-> raise Exceptions.InvalidBinaryOperator
 	in
 
-	let bool_ops op =
+	let bool_ops op e1 e2 =
 	match op with
 	  	Equal 		-> build_icmp Icmp.Eq e1 e2 "bool_eqtmp" llbuilder
 	| 	Neq 		-> build_icmp Icmp.Ne e1 e2 "bool_neqtmp" llbuilder
@@ -47,7 +47,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
 	in
 
-	let float_ops op =
+	let float_ops op e1 e2 =
 	match op with
 		Add 		-> build_fadd e1 e2 "flt_addtmp" llbuilder
 	| 	Sub 		-> build_fsub e1 e2 "flt_subtmp" llbuilder
@@ -63,7 +63,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	in 
 
 	(* chars are considered ints, so they will use int_ops as well*)
-	let int_ops op = 
+	let int_ops op e1 e2 = 
 	match op with
 		Add 		-> build_add e1 e2 "addtmp" llbuilder
 	| 	Sub 		-> build_sub e1 e2 "subtmp" llbuilder
@@ -107,10 +107,10 @@ let rec handle_binop e1 op e2 d llbuilder =
 	let e2 = if type2 != d then cast type2 cast_type e2 else e2 in
 
 	let type_handler d = match d with
-			Datatype(Int_t)		-> int_ops op 
-		|	Datatype(Float_t)   -> float_ops op
-		|   Datatype(Bool_t) 	-> bool_ops op
-		| 	Datatype(Char_t) 	-> int_ops op
+			Datatype(Int_t)		-> int_ops op e1 e2
+		|	Datatype(Float_t)   -> float_ops op e1 e2
+		|   Datatype(Bool_t) 	-> bool_ops op e1 e2
+		| 	Datatype(Char_t) 	-> int_ops op e1 e2
 		|   _ -> raise Exceptions.InvalidBinaryOperator
 	in
 
@@ -155,7 +155,7 @@ and codegen_sexpr llbuilder = function
 																				| _ -> build_global_stringptr "Hi" "" llbuilder) fname
 	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SUnop(op, e, d)           -> build_global_stringptr "Hi" "" llbuilder
+	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
 let rec codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
