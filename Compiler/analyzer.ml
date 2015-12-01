@@ -164,9 +164,10 @@ else
     else
         *)
     (* print types of actuals *)
-    let _ = List.iter (fun x -> print_endline (get_type_string (get_type_from_sexpr x))) sel in 
+    let types_of_actuals_rev = List.fold_left (fun acc x -> (get_type_string (get_type_from_sexpr x))::acc) [] sel in 
+    let _ = List.iter (fun x -> print_endline x) types_of_actuals_rev in 
+    (* print types of formals *)
     let _ = (StringMap.iter (fun k v -> print_formals v.formals) cmap.constructor_map) in 
-    
     SObjectCreate(s, sel,Datatype(Objecttype(s)))
 
 and check_assign global_cmap env e1 e2 = 
