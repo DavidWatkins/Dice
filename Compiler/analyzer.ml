@@ -179,7 +179,7 @@ and check_binop env e1 op e2 =
     Equal | Neq -> get_equality_binop_type type1 type2 se1 se2 op
     | And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
     | Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
-    | Add | Mult | Sub | Div -> let () = print_endline "arithmetic op" in get_arithmetic_binop_type se1 se2 op (type1, type2) 
+    | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
     | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
 
 and expr_to_sexpr (env:env) = function
@@ -293,7 +293,6 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
                                                 env_callStack = env.env_callStack;
                                                 env_reserved = env.env_reserved;
                                             } in 
-                                            let () = print_map_bindings new_env.env_locals in  
                                             SLocal(d, s, se), new_env
                                         else raise Exceptions.LocalTypeMismatch
 	in
