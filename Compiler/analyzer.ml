@@ -132,6 +132,9 @@ let get_type_string = function
     | Datatype(Objecttype(s)) -> s
     | _ -> "some other type"
 
+let print_formals list_of_formals = 
+    List.iter (fun x -> (match x with Formal(d, s) -> print_endline ((get_type_string d) ^ " " ^ s) | Many(d) -> print_endline (get_type_string d))) list_of_formals
+
 let rec get_ID_type env s = StringMap.find s env.env_locals
 
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
@@ -151,6 +154,19 @@ and check_object_constructor global_cmap env s el =
 if not (StringMap.mem s global_cmap) then raise (Exceptions.UnknownIdentifier s)
 else
     let sel, env = exprl_to_sexprl global_cmap env el in
+    let cmap = StringMap.find s global_cmap in 
+    (* TODO
+    get a list of the types in el
+    print this list to debug
+    check if it matches any in 
+    (StringMap.values cmap.constructor_map.formals) and for each, get a list of the types of the formal list
+    if no match, raise Exceptions.ConstructorNotFound
+    else
+        *)
+    (* print types of actuals *)
+    let _ = List.iter (fun x -> print_endline (get_type_string (get_type_from_sexpr x))) sel in 
+    let _ = (StringMap.iter (fun k v -> print_formals v.formals) cmap.constructor_map) in 
+    
     SObjectCreate(s, sel,Datatype(Objecttype(s)))
 
 and check_assign global_cmap env e1 e2 = 
@@ -296,9 +312,6 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
                                         if class Goo extends Foo *)
 										if t = Datatype(Void_t) || t = d 
 										then
-                                        let () = StringMap.iter (fun k v -> print_endline k) global_cmap in
-                                            if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UnknownIdentifier (get_type_string d))
-                                            else
                                             let new_env = {
                                                 env_class_map = env.env_class_map;
                                                 env_name = env.env_name;
@@ -308,7 +321,9 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
                                                 env_callStack = env.env_callStack;
                                                 env_reserved = env.env_reserved;
                                             } in 
-                                            SLocal(d, s, se), new_env
+                                            (match d with
+                                            Datatype(Objecttype(x)) -> (if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UnknownIdentifier (get_type_string d)) else SLocal(d, s, se), new_env)
+                                            | _ -> SLocal(d, s, se), new_env) 
                                         else raise Exceptions.LocalTypeMismatch
 	in
 	let env_ref = ref(env) in
