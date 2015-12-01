@@ -1,7 +1,9 @@
 (* Pretty Printer *)
 open Ast
+open Sast
 open Parser
 open Processor
+open Yojson
 
 let save file string =
      let channel = open_out file in
@@ -174,40 +176,158 @@ let string_of_program = function
 		String.concat "" (List.map string_of_include includes) ^ "\n" ^
 		String.concat "\n" (List.map string_of_class_decl cdecls)
 
+(* Print AST tree representation *)
 
-(* Print tree representation *)
+let includes_tree includes = 
+	`List (List.map (function Include s -> `String s) includes)
 
-let cbody_tree cbody = 
-(* 	let indent_string = String.make 4 '\t' in
- *)	"\n" (* TODO: ^
-	String.concat indent_string (List.map fields_tree cbody.fields) ^
-	String.concat indent_string (List.map string_of_func_decl cbody.constructors) ^
-	String.concat indent_string (List.map string_of_func_decl cbody.methods) *)
+let map_fields_to_json fields = 
+	`List (List.map (function Field(scope, datatype, s) -> 
+		`Assoc [
+			("name", `String s);
+			("scope", `String (string_of_scope scope));
+			("datatype", `String (string_of_datatype datatype));
+		]) fields)
 
-let rec includes_tree = function 
-		[] -> ""
-	|  	[Include s] -> "\ninclude(" ^ s ^ "),\n\t"
-	|  	Include s :: tail -> "\ninclude(" ^ s ^ ")," ^ includes_tree tail
+let map_formals_to_json formals = 
+	`List (List.map (function Formal(d, s) -> `Assoc [
+													("name", `String s);
+													("datatype", `String (string_of_datatype d));
+												]
+							  | Many d -> `Assoc [("Many", `String (string_of_datatype d));]
+		) formals)
 
-let rec cdecls_tree = function 
-		[] -> ""
-	|  	[cdecl] -> 	"\n\t\tclass " ^ cdecl.cname ^ "\n" ^ 
-			"\t\t\textends: " ^ (string_of_extends cdecl.extends) ^ "\n" ^
-			"\t\t\tcbody:" ^ (cbody_tree cdecl.cbody) ^
-	"\n\t"
-	|  	cdecl::tail -> 
-		"\n\t\tclass " ^ cdecl.cname ^ "\n" ^ 
-			"\t\t\textends: " ^ (string_of_extends cdecl.extends) ^ "\n" ^
-			"\t\t\tcbody:" ^ (cbody_tree cdecl.cbody)
+let rec map_expr_to_json = function 
+		Int_Lit(i)				-> `Assoc [("int_lit", `Int i)]
+	|	Boolean_Lit(b)			-> `Assoc [("bool_lit", `Bool b)]
+	|	Float_Lit(f)			-> `Assoc [("float_lit", `Float f)]
+	|	String_Lit(s)			-> `Assoc [("string_lit", `String s)]
+	|	Char_Lit(c)				-> `Assoc [("char_lit", `String (Char.escaped c))]
+	|	This					-> `String "this"
+	|	Id(s)					-> `Assoc [("id", `String s)]
+	|	Binop(e1, o, e2)		-> `Assoc [("binop", `Assoc [("lhs", map_expr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_expr_to_json e2)])]
+	|	Assign(e1, e2)			-> `Assoc [("assign", `Assoc [("lhs", map_expr_to_json e1); ("op", `String "="); ("rhs", map_expr_to_json e2)])]
+	|	Noexpr					-> `String "noexpr"
+	|	ObjAccess(e1, e2)		-> `Assoc [("objaccess", `Assoc [("lhs", map_expr_to_json e1); ("op", `String "."); ("rhs", map_expr_to_json e2)])]
+	|	Call(f, el)				-> `Assoc [("call", `Assoc ([("name", `String f); ("params", `List (List.map map_expr_to_json el)); ]) )]
+	|	ArrayPrimitive(el)		-> `Assoc [("arrayprimitive", `List(List.map map_expr_to_json el))]
+	|  	Unop(op, e)				-> `Assoc [("Unop", `Assoc [("op", `String (string_of_op op)); ("operand", map_expr_to_json e)])]
+	|	Null					-> `String "null"
+	|   ArrayCreate(d, el)  	-> `Assoc [("arraycreate", `Assoc [("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_expr_to_json el))])]
+  	|   ArrayAccess(e, el)  	-> `Assoc [("arrayaccess", `Assoc [("array", map_expr_to_json e); ("args", `List (List.map map_expr_to_json el))])]
+  	|   ObjectCreate(s, el) 	-> `Assoc [("objectcreate", `Assoc [("type", `String s); ("args", `List (List.map map_expr_to_json el))])]
+
+let rec map_stmt_to_json = function
+		Block(stmts) 			-> `Assoc [("block", `List (List.map (map_stmt_to_json) stmts))]
+	| 	Expr(expr) 				-> `Assoc [("expr", map_expr_to_json expr)]
+	| 	Return(expr) 			-> `Assoc [("return", map_expr_to_json expr)]
+	| 	If(e, s1, s2) 			-> `Assoc [("if", `Assoc [("cond", map_expr_to_json e); ("ifbody", map_stmt_to_json s1)]); ("else", map_stmt_to_json s2)]
+	| 	For(e1, e2, e3, s) 		-> `Assoc [("for", `Assoc [("init", map_expr_to_json e1); ("cond", map_expr_to_json e2); ("inc", map_expr_to_json e3); ("body", map_stmt_to_json s)])]
+	| 	While(e, s) 			-> `Assoc [("while", `Assoc [("cond", map_expr_to_json e); ("body", map_stmt_to_json s)])]
+	|  	Break					-> `String "break"
+	|  	Continue				-> `String "continue"
+	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_expr_to_json e)])]
+
+let map_methods_to_json methods = 
+	`List (List.map (fun (fdecl:Ast.func_decl) -> 
+		`Assoc [
+			("name", `String (string_of_fname fdecl.fname));
+			("scope", `String (string_of_scope fdecl.scope));
+			("returnType", `String (string_of_datatype fdecl.returnType));
+			("formals", map_formals_to_json fdecl.formals);
+			("body", `List (List.map (map_stmt_to_json) fdecl.body));
+		]) methods)
 
 
+let cdecls_tree cdecls =
+	let map_cdecl_to_json cdecl = 
+		`Assoc [
+			("cname", `String cdecl.cname);
+			("extends", `String (string_of_extends cdecl.extends));
+			("fields", map_fields_to_json cdecl.cbody.fields);
+			("methods", map_methods_to_json cdecl.cbody.methods);
+			("constructors", map_methods_to_json cdecl.cbody.constructors)
+		]
+	in
+	`List (List.map (map_cdecl_to_json) cdecls)
 
 let print_tree = function
 	Program(includes, cdecls) -> 
-		"[program:\n" ^
-			"\t[includes:" ^ includes_tree includes ^ "]\n" ^
-			"\t[cdecls:" ^ cdecls_tree cdecls ^ "]\n" ^
-		"]\n"
+		`Assoc [("program", 
+			`Assoc([
+				("includes", includes_tree includes);
+				("classes", cdecls_tree cdecls)
+			])
+		)]
+
+(* Print SAST tree representation *)
+
+let rec map_sexpr_to_json = 
+	let datatype d = [("datatype", `String (string_of_datatype d))] in
+	function
+		SInt_Lit(i, d)            -> `Assoc [("int_lit", `Assoc ([("val", `Int i)] @ (datatype d)))]
+	|   SBoolean_Lit(b, d)        -> `Assoc [("bool_lit", `Assoc ([("val", `Bool b)] @ (datatype d)))]
+	|   SFloat_Lit(f, d)          -> `Assoc [("float_lit", `Assoc ([("val", `Float f)]  @ (datatype d)))]
+	|   SString_Lit(s, d)         -> `Assoc [("string_lit", `Assoc ([("val", `String s)] @ (datatype d)))]
+	|   SChar_Lit(c, d)           -> `Assoc [("char_lit", `Assoc ([("val", `String (Char.escaped c))] @ (datatype d)))]
+	|   SId(s, d)                -> `Assoc [("id", `Assoc ([("name", `String s)] @ (datatype d)))]
+	|   SBinop(e1, o, e2, d)     -> `Assoc [("binop", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
+	|   SAssign(e1, e2, d)        -> `Assoc [("assign", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "="); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
+	|   SNoexpr d                 -> `Assoc [("noexpr", `Assoc (datatype d))]
+	|   SArrayCreate(t, el, d)    -> `Assoc [("arraycreate", `Assoc ([("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SArrayAccess(e, el, d)    -> `Assoc [("arrayaccess", `Assoc ([("array", map_sexpr_to_json e); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SObjAccess(e1, e2, d)     -> `Assoc [("objaccess", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "."); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
+	|   SCall(fname, el, d)       -> `Assoc [("call", `Assoc ([("name", `String fname); ("params", `List (List.map map_sexpr_to_json el)); ] @ (datatype d)) )]
+	|   SObjectCreate(s, el, d)  -> `Assoc [("objectcreate", `Assoc ([("type", `String s); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SArrayPrimitive(el, d)    -> `Assoc [("arrayprimitive", `Assoc ([("expressions", `List(List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SUnop(op, e, d)           -> `Assoc [("Unop", `Assoc ([("op", `String (string_of_op op)); ("operand", map_sexpr_to_json e)] @ (datatype d)))]
+	|   SNull d                   -> `Assoc [("null", `Assoc (datatype d))] 
+
+let rec map_sstmt_to_json = 
+	let datatype d = [("datatype", `String (string_of_datatype d))] in
+	function
+		SBlock sl        			-> `Assoc [("sblock", `List (List.map (map_sstmt_to_json) sl))]
+	|   SExpr(e, d)          		-> `Assoc [("sexpr", `Assoc ([("expr", map_sexpr_to_json e)] @ (datatype d)))]
+	|   SReturn(e, d)    			-> `Assoc [("sreturn", `Assoc ([("return", map_sexpr_to_json e)] @ (datatype d)))]
+	|   SIf (e, s1, s2)       		-> `Assoc [("sif", `Assoc [("cond", map_sexpr_to_json e); ("ifbody", map_sstmt_to_json s1)]); ("selse", map_sstmt_to_json s2)]
+	|   SFor (e1, e2, e3, s)  		-> `Assoc [("sfor", `Assoc [("init", map_sexpr_to_json e1); ("cond", map_sexpr_to_json e2); ("inc", map_sexpr_to_json e3); ("body", map_sstmt_to_json s)])]
+	|   SWhile (e, s)    			-> `Assoc [("swhile", `Assoc [("cond", map_sexpr_to_json e); ("body", map_sstmt_to_json s)])]
+	|   SBreak           			-> `String "sbreak"
+	|   SContinue        			-> `String "scontinue"
+	|   SLocal(d, s, e)  			-> `Assoc [("slocal", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_sexpr_to_json e)])]
+
+let string_of_func_type = function
+	User -> "user" | Reserved -> "reserved"
+
+let map_sfdecl_to_json sfdecl =
+	`Assoc[("sfdecl", `Assoc[
+		("sfname", `String (string_of_fname sfdecl.sfname));
+		("sreturnType", `String (string_of_datatype sfdecl.sreturnType));
+		("sformals", map_formals_to_json sfdecl.sformals);
+		("sbody", `List (List.map (map_sstmt_to_json) sfdecl.sbody));
+		("func_type", `String(string_of_func_type sfdecl.func_type));
+	])] 
+
+let map_sfdecls_to_json sfdecls =
+	`List(List.map map_sfdecl_to_json sfdecls)
+
+let map_scdecls_to_json scdecls = 		
+	`List(List.map (fun scdecl -> 
+						`Assoc [("scdecl", 
+							`Assoc[
+								("scname", `String scdecl.scname); 
+								("sfields", map_fields_to_json scdecl.sfields);
+							])
+						]) 
+		scdecls)
+
+let map_sprogram_to_json sprogram = 
+	`Assoc [("sprogram", `Assoc [
+		("classes", map_scdecls_to_json sprogram.classes);
+		("functions", map_sfdecls_to_json sprogram.functions);
+		("main", map_sfdecl_to_json sprogram.main);
+		("reserved", map_sfdecls_to_json sprogram.reserved);
+	])]
 
 (* Print tokens *)
 
