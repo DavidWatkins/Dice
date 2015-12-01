@@ -142,24 +142,27 @@ and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 
 and check_obj_access env e1 e2 = SInt_Lit(0, Datatype(Int_t))
 
-and check_call_type env s el = 
-	let sel, env = exprl_to_sexprl env el in
+and check_call_type global_cmap env s el = 
+	let sel, env = exprl_to_sexprl global_cmap env el in
 	SCall(s, sel, Datatype(Void_t))
 
-and check_object_constructor env s el = 
+and check_object_constructor global_cmap env s el = 
 (* check that `s` is in the list of class names *)
-SInt_Lit(0, Datatype(Int_t))
+if not (StringMap.mem s global_cmap) then raise (Exceptions.UnknownIdentifier s)
+else
+    let sel, env = exprl_to_sexprl global_cmap env el in
+    SObjectCreate(s, sel,Datatype(Objecttype(s)))
 
-and check_assign env e1 e2 = 
-	let se1, env = expr_to_sexpr env e1 in
-	let se2, env = expr_to_sexpr env e2 in
+and check_assign global_cmap env e1 e2 = 
+	let se1, env = expr_to_sexpr global_cmap env e1 in
+	let se2, env = expr_to_sexpr global_cmap env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in 
 	if type1 = type2 
 		then SAssign(se1, se2, type1)
 		else raise (Exceptions.AssignmentTypeMismatch)
 
-and check_unop env (op:Ast.op) e = 
+and check_unop global_cmap env op e = 
 	let check_num_unop t = function
 			Sub 	-> t
 		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
@@ -168,7 +171,7 @@ and check_unop env (op:Ast.op) e =
 			Not 	-> Datatype(Bool_t)
 		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
 	in
-	let se, env = expr_to_sexpr env e in
+	let se, env = expr_to_sexpr global_cmap env e in
 	let t = get_type_from_sexpr se in
 	match t with 
 		Datatype(Int_t) 	
@@ -176,10 +179,10 @@ and check_unop env (op:Ast.op) e =
 	|  	Datatype(Bool_t) 	-> SUnop(op, se, check_bool_unop op)
 	| 	_ -> raise(Exceptions.InvalidUnaryOperation)
 
-and check_binop env e1 op e2 =
+and check_binop global_cmap env e1 op e2 =
     let ts = List.fold_left (fun map (key, value) -> TM.add key value map) TM.empty [(Equal, "Equal"); (Add, "Add"); (Sub, "Sub"); (Mult, "Mult"); (Div, "Div"); (And, "And"); (Or, "Or")] in   
-	let se1, env = expr_to_sexpr env e1 in
-	let se2, env = expr_to_sexpr env e2 in
+	let se1, env = expr_to_sexpr global_cmap env e1 in
+	let se2, env = expr_to_sexpr global_cmap env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in
     match op with
@@ -189,7 +192,7 @@ and check_binop env e1 op e2 =
     | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
     | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
 
-and expr_to_sexpr (env:env) = function
+and expr_to_sexpr global_cmap env = function
 		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
 	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t)), env
 	|   Float_Lit f         -> SFloat_Lit(f, Datatype(Float_t)), env
@@ -201,16 +204,16 @@ and expr_to_sexpr (env:env) = function
 	|   Noexpr              -> SNoexpr(Datatype(Void_t)), env
 
 	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2, env
-	|   ObjectCreate(s, el) -> check_object_constructor env s el, env
-	|   Call(s, el)         -> check_call_type env s el, env
+	|   ObjectCreate(s, el) -> check_object_constructor global_cmap env s el, env
+	|   Call(s, el)         -> check_call_type global_cmap env s el, env
 
 	|   ArrayCreate(d, el)  -> check_array_init env d el, env
 	|   ArrayAccess(e, el)  -> check_array_access e el, env
 	|   ArrayPrimitive el   -> check_array_primitive env el, env
 
-	|   Assign(e1, e2)      -> check_assign env e1 e2, env
-	|   Unop(op, e)         -> check_unop env op e, env
-	|   Binop(e1, op, e2)   -> check_binop env e1 op e2, env
+	|   Assign(e1, e2)      -> check_assign global_cmap env e1 e2, env
+	|   Unop(op, e)         -> check_unop global_cmap env op e, env
+	|   Binop(e1, op, e2)   -> check_binop global_cmap env e1 op e2, env
 
 
 and get_type_from_sexpr = function
@@ -232,11 +235,11 @@ and get_type_from_sexpr = function
 	|  	SUnop(_, _, d) 			-> d
 	| 	SNull d 				-> d
 
-and exprl_to_sexprl env el =
+and exprl_to_sexprl global_cmap env el =
   let env_ref = ref(env) in
   let rec helper = function
       head::tail ->
-        let a_head, env = expr_to_sexpr !env_ref head in
+        let a_head, env = expr_to_sexpr global_cmap !env_ref head in
         env_ref := env;
         a_head::(helper tail)
     | [] -> []
@@ -248,17 +251,17 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
 			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list global_cmap env sl in
 										SBlock(sl), env
 
-		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
+		| 	Expr e 					-> 	let se, env = expr_to_sexpr global_cmap env e in
 										let t = get_type_from_sexpr se in 
 									   	SExpr(se, t), env
 
-		| 	Return e 				-> 	let se, _ = expr_to_sexpr env e in
+		| 	Return e 				-> 	let se, _ = expr_to_sexpr global_cmap env e in
 										let t = get_type_from_sexpr se in
 										if t = env.env_returnType 
 											then SReturn(se, t), env
 											else raise Exceptions.ReturnTypeMismatch
 
-		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr env e in
+		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr global_cmap env e in
 										let t = get_type_from_sexpr se in
 										let ifbody, _ = helper env s1 in
 										let elsebody, _ = helper env s2 in
@@ -266,16 +269,16 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
 											then SIf(se, ifbody, elsebody), env
 											else raise Exceptions.InvalidIfStatementType
 
-		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr env e1 in
-										let se2, _ = expr_to_sexpr env e2 in
-										let se3, _ = expr_to_sexpr env e3 in
+		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr global_cmap env e1 in
+										let se2, _ = expr_to_sexpr global_cmap env e2 in
+										let se3, _ = expr_to_sexpr global_cmap env e3 in
 										let forbody, _ = helper env s in
 										let conditional = get_type_from_sexpr se2 in
 										if (conditional = Datatype(Bool_t) || conditional = Datatype(Void_t))
 											then SFor(se1, se2, se3, forbody), env
 											else raise Exceptions.InvalidForStatementType
 
-		| 	While(e, s)				->	let se, _ = expr_to_sexpr env e in
+		| 	While(e, s)				->	let se, _ = expr_to_sexpr global_cmap env e in
 										let t = get_type_from_sexpr se in
 										let sstmt, _ = helper env s in 
 										if (t = Datatype(Bool_t) || t = Datatype(Void_t)) 
@@ -287,11 +290,12 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
 
 		|   Local(d, s, e) 			-> 	if StringMap.mem s env.env_locals then raise (Exceptions.DuplicateLocal s)
                                         else
-                                        let se, env = expr_to_sexpr env e in
+                                        let se, env = expr_to_sexpr global_cmap env e in
 										let t = get_type_from_sexpr se in
+                                        (* TODO allow class Foo someObj = new Goo()
+                                        if class Goo extends Foo *)
 										if t = Datatype(Void_t) || t = d 
 										then
-                                        (*let () = print_endline (get_type_string d) in*)
                                         let () = StringMap.iter (fun k v -> print_endline k) global_cmap in
                                             if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UnknownIdentifier (get_type_string d))
                                             else
