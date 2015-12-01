@@ -12,6 +12,7 @@ exception DuplicateClassName
 exception DuplicateField
 exception DuplicateFunction
 exception DuplicateConstructor
+exception DuplicateLocal of string
 exception InvalidBinopExpression of string
 exception InvalidIfStatementType
 exception InvalidForStatementType
@@ -26,3 +27,5 @@ exception AssignmentTypeMismatch
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
+exception UnknownVariable
+exception AssignLHSMustBeAssignable

@@ -28,7 +28,7 @@ type class_map = {
 type env = {
 		env_class_map : class_map;
 		env_name      : string;
-		env_locals    : string StringMap.t;
+		env_locals    : Ast.datatype StringMap.t;
 		env_parameters: Ast.formal StringMap.t;
 		env_returnType: datatype;
 		env_callStack : stmt list;
@@ -168,7 +168,7 @@ and check_binop env e1 op e2 =
     Equal | Neq -> get_equality_binop_type type1 type2 se1 se2 op
     | And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
     | Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
-    | Add | Mult | Sub | Div -> let () = print_endline "arithmetic op" in get_arithmetic_binop_type se1 se2 op (type1, type2) 
+    | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
     | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
 
 and expr_to_sexpr (env:env) = function
@@ -269,9 +269,19 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
 
 		|   Local(d, s, e) 			-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
-										if t = d (* AND s not in env.locals *) 
-											then SLocal(d, s, se), env
-											else raise Exceptions.LocalTypeMismatch
+										if t = Datatype(Void_t) || t = d (* AND s not in env.locals *) 
+										then 
+                                            let new_env = {
+                                                env_class_map = env.env_class_map;
+                                                env_name = env.env_name;
+                                                env_locals = StringMap.add s d env.env_locals;
+                                                env_parameters = env.env_parameters;
+                                                env_returnType = env.env_returnType;
+                                                env_callStack = env.env_callStack;
+                                                env_reserved = env.env_reserved;
+                                            } in 
+                                            SLocal(d, s, se), new_env
+                                        else raise Exceptions.LocalTypeMismatch
 	in
 	let env_ref = ref(env) in
 	let rec iter = function
@@ -336,13 +346,14 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 	in 
 		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
 (* 		let _ = List.iter (fun f -> match f.sfname with FName n -> print_string (n ^ "\n") | _ -> ()) (snd overall_list) in
- *)		let mains = (List.find_all (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) (snd overall_list)) in
+ *)	let mains = (List.find_all (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) (snd overall_list)) in
 		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
+		let funcs = (List.filter (fun f -> match f.sfname with FName n -> n <> "main" | _ -> true) (snd overall_list)) in
 		{
-			classes 	= fst overall_list;
-			functions 	= snd overall_list;
-			main 		= main;
-			reserved 	= reserved;
+			classes 		= fst overall_list;
+			functions 	= funcs;
+			main 				= main;
+			reserved 		= reserved;
 		}
 
 let add_reserved_functions = 
