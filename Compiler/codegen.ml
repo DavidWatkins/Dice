@@ -27,26 +27,28 @@ let rec handle_binop e1 op e2 d llbuilder =
 	let type2 = Analyzer.get_type_from_sexpr e2 in
 
 	(* Generate llvalues from e1 and e2 *)
-	let ce1 = codegen_sexpr llbuilder e1 in
-	let ce2 = codegen_sexpr llbuilder e2 in
+	let e1 = codegen_sexpr llbuilder e1 in
+	let e2 = codegen_sexpr llbuilder e2 in
 	
 	let type_matcher d = match d with
 			Datatype(Int_t) 	-> i32_t
 		|	Datatype(Float_t)   -> f_t
 		|   Datatype(Bool_t) 	-> i1_t
 		| 	Datatype(Char_t) 	-> i8_t
+		|   _   				-> raise Exceptions.InvalidBinaryOperator
 	in
 
-	let bool_ops boolop =
-	match boolop with
+	let bool_ops op =
+	match op with
 	  	Equal 		-> build_icmp Icmp.Eq e1 e2 "bool_eqtmp" llbuilder
 	| 	Neq 		-> build_icmp Icmp.Ne e1 e2 "bool_neqtmp" llbuilder
 	| 	And 		-> build_and e1 e2 "bool_andtmp" llbuilder
 	| 	Or 			-> build_or  e1 e2 "bool_ortmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator in
+	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
+	in
 
-	let float_ops fop =
-	match fop with
+	let float_ops op =
+	match op with
 		Add 		-> build_fadd e1 e2 "flt_addtmp" llbuilder
 	| 	Sub 		-> build_fsub e1 e2 "flt_subtmp" llbuilder
 	| 	Mult 		-> build_fmul e1 e2 "flt_multmp" llbuilder
@@ -57,11 +59,12 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Leq 		-> build_fcmp Fcmp.Ole e1 e2 "flt_leqtmp" llbuilder
 	| 	Greater		-> build_fcmp Fcmp.Ogt e1 e2 "flt_sgttmp" llbuilder
 	| 	Geq 		-> build_fcmp Fcmp.Oge e1 e2 "flt_sgetmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator in 
+	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
+	in 
 
 	(* chars are considered ints, so they will use int_ops as well*)
-	let int_ops iop = 
-	match iop with
+	let int_ops op = 
+	match op with
 		Add 		-> build_add e1 e2 "addtmp" llbuilder
 	| 	Sub 		-> build_sub e1 e2 "subtmp" llbuilder
 	| 	Mult 		-> build_mul e1 e2 "multmp" llbuilder
@@ -74,13 +77,14 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Geq 		-> build_icmp Icmp.Sge e1 e2 "sgetmp" llbuilder
 	| 	And 		-> build_and e1 e2 "andtmp" llbuilder
 	| 	Or 			-> build_or  e1 e2 "ortmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator in 
+	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
+	in 
 
 	(* cast will return an llvalue of the desired type *)
 	let cast inputType castDesired value = match (inputType,castDesired) with
 			(* int to,__ ) ( using const_sitofp for signed ints *)
 			(i32_t, f_t) 	-> const_sitofp value f_t 
-		| 	(i32_t, i8_t)	-> const_bitcast value i_8t
+		| 	(i32_t, i8_t)	-> const_bitcast value i8_t
 		|   (i32_t, i1_t)	-> const_bitcast value i1_t
 			(* float to,__) ( using fptosi for signed ints *)
 		|   (f_t, i32_t) 	-> const_fptosi value i32_t
@@ -94,7 +98,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 		|   (i1_t, i32_t) 	-> const_zext value i32_t
 		| 	(i1_t, i8_t)	-> const_zext value i8_t
 		|   (i1_t, f_t)		-> const_uitofp value f_t
-		| 	_ 			-> (* TODO: figure out which exception to throw *) 
+		| 	_ 			->  raise Exceptions.InvalidBinaryOperator(* TODO: figure out which exception to throw *) 
 	in 
 		
 	let cast_type = type_matcher d in
@@ -103,13 +107,14 @@ let rec handle_binop e1 op e2 d llbuilder =
 	let e2 = if type2 != d then cast type2 cast_type e2 else e2 in
 
 	let type_handler d = match d with
-			Datatype(Int_t)		-> int_ops e1 e2 llbuilder
-		|	Datatype(Float_t)   -> float_ops e1 e2 llbuilder
-		|   Datatype(Bool_t) 	-> bool_ops e1 e2 llbuilder
-		| 	Datatype(Char_t) 	-> int_ops e1 e2 llbuilder
+			Datatype(Int_t)		-> int_ops 
+		|	Datatype(Float_t)   -> float_ops 
+		|   Datatype(Bool_t) 	-> bool_ops 
+		| 	Datatype(Char_t) 	-> int_ops
+		|   _ -> raise Exceptions.InvalidBinaryOperator
 	in
 
-	type_handler d;; 
+	type_handler d 
 
 
 and codegen_print llbuilder el = 
