@@ -38,7 +38,7 @@ lli test.ll
 - cd into Test Suite and run tester.sh after having compiled the compiler
 ```bash
 cd Dice/'Test Suite'
-./tester.sh
+./tester.sh -c
 ```
 
 ###If you get an error: "error: expected value token" from lli
