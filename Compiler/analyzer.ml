@@ -280,12 +280,12 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
 
 		|   Local(d, s, e) 			-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
-										if t = d (* AND s not in env.locals *) 
+										if t = Datatype(Void_t) || t = d (* AND s not in env.locals *) 
 										then 
                                             let new_env = {
                                                 env_class_map = env.env_class_map;
                                                 env_name = env.env_name;
-                                                env_locals = StringMap.add s t env.env_locals;
+                                                env_locals = StringMap.add s d env.env_locals;
                                                 env_parameters = env.env_parameters;
                                                 env_returnType = env.env_returnType;
                                                 env_callStack = env.env_callStack;
