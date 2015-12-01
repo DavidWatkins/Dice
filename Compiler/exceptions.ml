@@ -27,3 +27,5 @@ exception AssignmentTypeMismatch
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
+exception UnknownVariable
+exception AssignLHSMustBeAssignable

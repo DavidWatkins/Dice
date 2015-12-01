@@ -42,9 +42,11 @@ let _ =
         | Sast -> print_string (pretty_to_string (Utils.map_sprogram_to_json sprogram))
         | PrettyPrint ->
             print_string (Utils.string_of_program program)
-        | Compile -> dump_module llm
-(*               let _ = Llvm_analysis.assert_valid_module llm in
- *)              
+        | Compile -> 
+        	(* let _ = Llvm_analysis.assert_valid_module llm in *)
+        	dump_module llm
+       
+ 		(* | _ -> print_string "HELLO"       *)
 
     with
         Exceptions.IllegalCharacter(c, ln) ->
@@ -67,7 +69,6 @@ let _ =
 		| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
 		| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
 		| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"
-        |   Exceptions.DuplicateLocal(str)          -> print_string ("DuplicateLocal: " ^ str ^ "\n")
 		| 	Exceptions.InvalidBinopExpression(str)		-> print_string ("InvalidBinopExpression: " ^ str ^ "\n")
 		| 	Exceptions.InvalidIfStatementType		-> print_string "InvalidIfStatementType \n"
 		| 	Exceptions.InvalidForStatementType		-> print_string "InvalidForStatementType \n"

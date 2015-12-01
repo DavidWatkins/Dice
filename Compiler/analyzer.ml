@@ -5,7 +5,6 @@ open Utils
 open Filepath
 
 module StringMap = Map.Make (String)
-
 module SS = Set.Make(
     struct
         let compare = Pervasives.compare
@@ -18,11 +17,6 @@ module TM = Map.Make(
         type t = op
     end )
 
-module Type_to_String = Map.Make(
-    struct
-        let compare = Pervasives.compare
-        type t = datatype
-    end )
 
 type class_map = {
 		field_map       : Ast.field StringMap.t;
@@ -34,7 +28,7 @@ type class_map = {
 type env = {
 		env_class_map : class_map;
 		env_name      : string;
-		env_locals    : datatype StringMap.t;
+		env_locals    : Ast.datatype StringMap.t;
 		env_parameters: Ast.formal StringMap.t;
 		env_returnType: datatype;
 		env_callStack : stmt list;
@@ -122,12 +116,7 @@ let get_arithmetic_binop_type se1 se2 op = function
         | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
 
 
-let print_map_bindings map = 
-let ts = List.fold_left (fun map (key, value) -> Type_to_String.add key value map) Type_to_String.empty [(Datatype(Int_t), "INT"); (Datatype(Float_t), "FLOAT"); (Datatype(Char_t), "CHAR"); (Datatype(Bool_t), "BOOL"); (Datatype(Void_t), "VOID"); (Datatype(Null_t), "NULL")] in 
-StringMap.iter (fun k v -> print_endline (k ^ " " ^ (Type_to_String.find v ts))) map
-
-
-let rec get_ID_type env s = StringMap.find s env.env_locals
+let rec get_ID_type env s = Datatype(Int_t)
 
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
 
@@ -278,9 +267,7 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
 		|  	Break 					-> SBreak, env (* Need to check if in right context *)
 		|   Continue 				-> SContinue, env (* Need to check if in right context *)
 
-		|   Local(d, s, e) 			-> 	if StringMap.mem s env.env_locals then raise (Exceptions.DuplicateLocal s)
-                                        else
-                                        let se, env = expr_to_sexpr env e in
+		|   Local(d, s, e) 			-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
 										if t = Datatype(Void_t) || t = d (* AND s not in env.locals *) 
 										then 
@@ -359,13 +346,14 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 	in 
 		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
 (* 		let _ = List.iter (fun f -> match f.sfname with FName n -> print_string (n ^ "\n") | _ -> ()) (snd overall_list) in
- *)		let mains = (List.find_all (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) (snd overall_list)) in
+ *)	let mains = (List.find_all (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) (snd overall_list)) in
 		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
+		let funcs = (List.filter (fun f -> match f.sfname with FName n -> n <> "main" | _ -> true) (snd overall_list)) in
 		{
-			classes 	= fst overall_list;
-			functions 	= snd overall_list;
-			main 		= main;
-			reserved 	= reserved;
+			classes 		= fst overall_list;
+			functions 	= funcs;
+			main 				= main;
+			reserved 		= reserved;
 		}
 
 let add_reserved_functions = 
