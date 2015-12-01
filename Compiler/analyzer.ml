@@ -122,10 +122,15 @@ let get_arithmetic_binop_type se1 se2 op = function
         | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
 
 
-let print_map_bindings map = 
-let ts = List.fold_left (fun map (key, value) -> Type_to_String.add key value map) Type_to_String.empty [(Datatype(Int_t), "INT"); (Datatype(Float_t), "FLOAT"); (Datatype(Char_t), "CHAR"); (Datatype(Bool_t), "BOOL"); (Datatype(Void_t), "VOID"); (Datatype(Null_t), "NULL")] in 
-StringMap.iter (fun k v -> print_endline (k ^ " " ^ (Type_to_String.find v ts))) map
-
+let get_type_string = function
+    Datatype(Int_t) -> "INT"
+    | Datatype(Float_t) -> "FLOAT" 
+    | Datatype(Char_t) -> "CHAR"
+    | Datatype(Bool_t) -> "BOOL"
+    | Datatype(Void_t) -> "VOID"
+    | Datatype(Null_t) -> "NULL"
+    | Datatype(Objecttype(s)) -> s
+    | _ -> "some other type"
 
 let rec get_ID_type env s = StringMap.find s env.env_locals
 
@@ -141,7 +146,9 @@ and check_call_type env s el =
 	let sel, env = exprl_to_sexprl env el in
 	SCall(s, sel, Datatype(Void_t))
 
-and check_object_constructor env s el = SInt_Lit(0, Datatype(Int_t))
+and check_object_constructor env s el = 
+(* check that `s` is in the list of class names *)
+SInt_Lit(0, Datatype(Int_t))
 
 and check_assign env e1 e2 = 
 	let se1, env = expr_to_sexpr env e1 in
@@ -236,9 +243,9 @@ and exprl_to_sexprl env el =
   in (helper el), !env_ref
 
 (* Update this function to return an env object *)
-let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list = 
+let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list = 
 	let rec helper env = function 
-			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
+			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list global_cmap env sl in
 										SBlock(sl), env
 
 		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
@@ -282,8 +289,12 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
                                         else
                                         let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
-										if t = Datatype(Void_t) || t = d (* AND s not in env.locals *) 
-										then 
+										if t = Datatype(Void_t) || t = d 
+										then
+                                        (*let () = print_endline (get_type_string d) in*)
+                                        let () = StringMap.iter (fun k v -> print_endline k) global_cmap in
+                                            if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UnknownIdentifier (get_type_string d))
+                                            else
                                             let new_env = {
                                                 env_class_map = env.env_class_map;
                                                 env_name = env.env_name;
@@ -306,7 +317,7 @@ let rec convert_stmt_list_to_sstmt_list (env:env) stmt_list =
 	in (iter stmt_list), !env_ref
 
 
-let convert_constructor_to_sfdecl reserved class_map cname constructor = 
+let convert_constructor_to_sfdecl global_cmap reserved class_map cname constructor = 
 	let env = {
 		env_class_map 	= class_map;
 		env_name     	= cname;
@@ -320,11 +331,11 @@ let convert_constructor_to_sfdecl reserved class_map cname constructor =
 		sfname 			= Constructor;
 		sreturnType 	= Datatype(Objecttype(cname));
 		sformals 		= constructor.formals;
-		sbody 			= fst (convert_stmt_list_to_sstmt_list env constructor.body);
+		sbody 			= fst (convert_stmt_list_to_sstmt_list global_cmap env constructor.body);
 		func_type		= Sast.User;
 	}
 
-let convert_fdecl_to_sfdecl reserved class_map cname fdecl = 
+let convert_fdecl_to_sfdecl global_cmap reserved class_map cname fdecl = 
 	let env = {
 		env_class_map 	= class_map;
 		env_name     	= cname;
@@ -339,7 +350,7 @@ let convert_fdecl_to_sfdecl reserved class_map cname fdecl =
 		sfname 			= fdecl.fname;
 		sreturnType 	= fdecl.returnType;
 		sformals 		= fdecl.formals;
-		sbody 			= fst (convert_stmt_list_to_sstmt_list env fdecl.body);
+		sbody 			= fst (convert_stmt_list_to_sstmt_list global_cmap env fdecl.body);
 		func_type		= Sast.User;
 	}
 
@@ -353,8 +364,8 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 	let handle_cdecl cdecl = 
 		let class_map = StringMap.find cdecl.cname class_maps in 
 		let scdecl = convert_cdecl_to_sast cdecl in
-		let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
-		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
+		let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
+		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl class_maps reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
 		(scdecl, func_list @ sconstructor_list)
 	in 
 		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
