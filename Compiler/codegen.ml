@@ -107,10 +107,10 @@ let rec handle_binop e1 op e2 d llbuilder =
 	let e2 = if type2 != d then cast type2 cast_type e2 else e2 in
 
 	let type_handler d = match d with
-			Datatype(Int_t)		-> int_ops 
-		|	Datatype(Float_t)   -> float_ops 
-		|   Datatype(Bool_t) 	-> bool_ops 
-		| 	Datatype(Char_t) 	-> int_ops
+			Datatype(Int_t)		-> int_ops op 
+		|	Datatype(Float_t)   -> float_ops op
+		|   Datatype(Bool_t) 	-> bool_ops op
+		| 	Datatype(Char_t) 	-> int_ops op
 		|   _ -> raise Exceptions.InvalidBinaryOperator
 	in
 
