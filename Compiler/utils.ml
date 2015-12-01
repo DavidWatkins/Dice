@@ -115,12 +115,12 @@ let rec string_of_stmt indent =
 					string_of_stmt (indent+1) s2
 
 		| 	For(e1, e2, e3, s) 		-> 
-				indent_string ^ "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^ string_of_expr e3  ^ ") " ^ 
-					string_of_stmt (indent+1) s
+				indent_string ^ "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^ string_of_expr e3  ^ ")\n" ^ 
+					string_of_stmt (indent) s
 
 		| 	While(e, s) 			-> 
-				indent_string ^ "while (" ^ string_of_expr e ^ ") " ^ 
-					string_of_stmt (indent+1) s
+				indent_string ^ "while (" ^ string_of_expr e ^ ")\n" ^ 
+					string_of_stmt (indent) s
 
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
