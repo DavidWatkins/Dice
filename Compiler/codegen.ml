@@ -38,14 +38,14 @@ let get_type datatype = match datatype with
 (* The commented out casts are unsupported actions in Dice *)
 let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
 		(* int to,__ ) ( using const_sitofp for signed ints *)
-		(Datatype(Int_t), Datatype(Int_t))				-> (lhs, rhs)
-	| 	(Datatype(Int_t), Datatype(Char_t))				-> (const_uitofp lhs i8_t, rhs)
+		(Datatype(Int_t), Datatype(Int_t))				-> (lhs, rhs), Datatype(Int_t)
+	| 	(Datatype(Int_t), Datatype(Char_t))				-> (const_uitofp lhs i8_t, rhs), Datatype(Char_t)
 	(* |   	(Datatype(Int_t), Datatype(Bool_t))				-> (lhs, const_zext rhs i32_t) *)
-	|   (Datatype(Int_t), Datatype(Float_t)) 			-> (const_sitofp lhs f_t, rhs)
+	|   (Datatype(Int_t), Datatype(Float_t)) 			-> (const_sitofp lhs f_t, rhs), Datatype(Float_t)
 
 		(* char to,__)  ( using uitofp since char isn't signed *)
-	|   (Datatype(Char_t), Datatype(Int_t)) 			-> (lhs, const_uitofp rhs i8_t)
-	|   (Datatype(Char_t), Datatype(Char_t)) 			-> (lhs, rhs)
+	|   (Datatype(Char_t), Datatype(Int_t)) 			-> (lhs, const_uitofp rhs i8_t), Datatype(Char_t)
+	|   (Datatype(Char_t), Datatype(Char_t)) 			-> (lhs, rhs), Datatype(Char_t)
 	(* | 	(Datatype(Char_t), Datatype(Bool_t))			-> (lhs, const_zext rhs i8_t) *)
 	(* | 	(Datatype(Char_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
 
@@ -56,10 +56,10 @@ let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
 	(* |   	(Datatype(Bool_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
 
 		(* float to,__) ( using fptosi for signed ints *)
-	|   (Datatype(Float_t), Datatype(Int_t)) 			-> (lhs, const_sitofp rhs f_t)
+	|   (Datatype(Float_t), Datatype(Int_t)) 			-> (lhs, const_sitofp rhs f_t), Datatype(Float_t)
 	(* | 	(Datatype(Float_t), Datatype(Char_t))			-> (lhs, const_uitofp rhs f_t) *)
 	(* |   	(Datatype(Float_t), Datatype(Bool_t))			-> (lhs, const_uitofp rhs f_t) *)
-	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs)
+	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs), Datatype(Float_t)
 
 	| 	_ 												-> raise Exceptions.CannotCastTypeException
 
@@ -81,7 +81,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Div 		-> build_fdiv e1 e2 "flt_divtmp" llbuilder
 	| 	Equal 		-> build_fcmp Fcmp.Oeq e1 e2 "flt_eqtmp" llbuilder
 	| 	Neq 		-> build_fcmp Fcmp.One e1 e2 "flt_neqtmp" llbuilder
-	| 	Less 		-> build_fcmp Fcmp.Olt e1 e2 "flt_lesstmp" llbuilder
+	| 	Less 		-> build_fcmp Fcmp.Ult e1 e2 "flt_lesstmp" llbuilder
 	| 	Leq 		-> build_fcmp Fcmp.Ole e1 e2 "flt_leqtmp" llbuilder
 	| 	Greater		-> build_fcmp Fcmp.Ogt e1 e2 "flt_sgttmp" llbuilder
 	| 	Geq 		-> build_fcmp Fcmp.Oge e1 e2 "flt_sgetmp" llbuilder
@@ -107,33 +107,34 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	_ 			-> raise Exceptions.IntOpNotSupported 
 	in 
 	
-	let (e1, e2) = if type1 <> type2 then cast e1 e2 type1 type2 else (e1, e2) in
+	let (e1, e2), d = cast e1 e2 type1 type2 in
 
 	let type_handler d = match d with
-			Datatype(Int_t)		-> int_ops op e1 e2
-		|	Datatype(Float_t)   -> float_ops op e1 e2
-		|   Datatype(Bool_t) 	-> int_ops op e1 e2
+			Datatype(Float_t)   -> float_ops op e1 e2
+		|	Datatype(Int_t)	
+		|   Datatype(Bool_t)
 		| 	Datatype(Char_t) 	-> int_ops op e1 e2
 		|   _ -> raise Exceptions.InvalidBinopEvaluationType
 	in
 
-	type_handler d 
+	type_handler d
 
 
 and codegen_print llbuilder el = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let printf = declare_function "printf" printf_ty the_module in
 	let tmp_count = ref 0 in
+	let incr_tmp = fun x -> incr tmp_count in
 
 	let map_expr_to_printfexpr expr = 
 		let exprType = Analyzer.get_type_from_sexpr expr in
 		match exprType with 
 		Datatype(Bool_t) ->
+			incr_tmp ();
 			let tmp_var = "tmp" ^ (string_of_int !tmp_count) in
 			let trueStr = SString_Lit("true", str_type) in
 			let falseStr = SString_Lit("false", str_type) in
-			let id = SId(tmp_var, str_type) in
-			tmp_count := !tmp_count + 1; 
+			let id = SId(tmp_var, str_type) in 
 			ignore(codegen_stmt llbuilder (SLocal(str_type, tmp_var, noop)));
 			ignore(codegen_stmt llbuilder (SIf(expr, 
 											SExpr(SAssign(id, trueStr, str_type), str_type), 
