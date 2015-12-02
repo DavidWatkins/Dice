@@ -8,18 +8,56 @@ open Sast
 open Analyzer
 open Exceptions
 open Batteries
+open Hashtbl
 
 exception Error of string
 
 let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
-let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 10
+let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 50
 
 let i32_t = i32_type context;;
 let i8_t = i8_type context;;
 let f_t = double_type context;;
 let i1_t = i1_type context;;
+
+
+let get_type datatype = match datatype with 
+		Datatype(Int_t) -> i32_t
+	| 	Datatype(Float_t) -> f_t
+	| 	Datatype(Bool_t) -> i1_t
+	| 	Datatype(Char_t) -> i8_t
+	| 	_ -> i32_t (* WRONG *)
+
+(* cast will return an llvalue of the desired type *)
+(* The commented out casts are unsupported actions in Dice *)
+let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
+		(* int to,__ ) ( using const_sitofp for signed ints *)
+		(Datatype(Int_t), Datatype(Int_t))				-> (lhs, rhs)
+	| 	(Datatype(Int_t), Datatype(Char_t))				-> (const_uitofp lhs i8_t, rhs)
+	(* |   	(Datatype(Int_t), Datatype(Bool_t))				-> (lhs, const_zext rhs i32_t) *)
+	|   (Datatype(Int_t), Datatype(Float_t)) 			-> (const_sitofp lhs f_t, rhs)
+
+		(* char to,__)  ( using uitofp since char isn't signed *)
+	|   (Datatype(Char_t), Datatype(Int_t)) 			-> (lhs, const_uitofp rhs i8_t)
+	|   (Datatype(Char_t), Datatype(Char_t)) 			-> (lhs, rhs)
+	(* | 	(Datatype(Char_t), Datatype(Bool_t))			-> (lhs, const_zext rhs i8_t) *)
+	(* | 	(Datatype(Char_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
+
+		(* bool to,__)  ( zext fills the empty bits with zeros, zero extension *)
+	(* |   	(Datatype(Bool_t), Datatype(Int_t)) 				-> (const_zext lhs i32_t, rhs) *)
+	(* | 	(Datatype(Bool_t), Datatype(Char_t))			-> (const_zext lhs i8_t, rhs) *)
+	(* |   	(Datatype(Bool_t), Datatype(Bool_t))				-> (lhs, rhs) *)
+	(* |   	(Datatype(Bool_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
+
+		(* float to,__) ( using fptosi for signed ints *)
+	|   (Datatype(Float_t), Datatype(Int_t)) 			-> (lhs, const_sitofp rhs f_t)
+	(* | 	(Datatype(Float_t), Datatype(Char_t))			-> (lhs, const_uitofp rhs f_t) *)
+	(* |   	(Datatype(Float_t), Datatype(Bool_t))			-> (lhs, const_uitofp rhs f_t) *)
+	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs)
+
+	| 	_ 												-> raise Exceptions.CannotCastTypeException
 
 let rec handle_binop e1 op e2 d llbuilder =
 	(* Get the types of e1 and e2 *) 
@@ -27,17 +65,9 @@ let rec handle_binop e1 op e2 d llbuilder =
 	let type2 = Analyzer.get_type_from_sexpr e2 in
 
 	(* Generate llvalues from e1 and e2 *)
+
 	let e1 = codegen_sexpr llbuilder e1 in
 	let e2 = codegen_sexpr llbuilder e2 in
-	
-	let bool_ops op e1 e2 =
-	match op with
-	  	Equal 		-> build_icmp Icmp.Eq e1 e2 "bool_eqtmp" llbuilder
-	| 	Neq 		-> build_icmp Icmp.Ne e1 e2 "bool_neqtmp" llbuilder
-	| 	And 		-> build_and e1 e2 "bool_andtmp" llbuilder
-	| 	Or 			-> build_or  e1 e2 "bool_ortmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
-	in
 
 	let float_ops op e1 e2 =
 	match op with
@@ -51,7 +81,8 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Leq 		-> build_fcmp Fcmp.Ole e1 e2 "flt_leqtmp" llbuilder
 	| 	Greater		-> build_fcmp Fcmp.Ogt e1 e2 "flt_sgttmp" llbuilder
 	| 	Geq 		-> build_fcmp Fcmp.Oge e1 e2 "flt_sgetmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
+	| 	_ 			-> raise Exceptions.FloatOpNotSupported 
+
 	in 
 
 	(* chars are considered ints, so they will use int_ops as well*)
@@ -71,37 +102,15 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Or 			-> build_or  e1 e2 "ortmp" llbuilder
 	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
 	in 
-
-	(* cast will return an llvalue of the desired type *)
-	let cast inputType castDesired value = match (inputType,castDesired) with
-			(* int to,__ ) ( using const_sitofp for signed ints *)
-			(Datatype(Int_t), Datatype(Float_t)) 	-> const_sitofp value f_t 
-		| 	(Datatype(Int_t), Datatype(Char_t))	-> const_bitcast value i8_t
-		|   (Datatype(Int_t), Datatype(Bool_t))	-> const_bitcast value i1_t
-			(* float to,__) ( using fptosi for signed ints *)
-		|   (Datatype(Float_t), Datatype(Int_t)) 	-> const_fptosi value i32_t
-		| 	(Datatype(Float_t), Datatype(Char_t))		-> const_bitcast value i8_t
-		|   (Datatype(Float_t), Datatype(Bool_t))		-> const_bitcast value i1_t
-			(* char to,__)  ( using uitofp since char isn't signed *)
-		|   (Datatype(Char_t), Datatype(Int_t)) 	-> const_zext value i32_t
-		| 	(Datatype(Char_t), Datatype(Float_t))		-> const_uitofp value f_t
-		|   (Datatype(Char_t), Datatype(Bool_t))	-> const_bitcast value i1_t
-			(* bool to,__)  ( zext fills the empty bits with zeros, zero extension *)
-		|   (Datatype(Bool_t), Datatype(Int_t)) 	-> const_zext value i32_t
-		| 	(Datatype(Bool_t), Datatype(Char_t))	-> const_zext value i8_t
-		|   (Datatype(Bool_t), Datatype(Float_t))		-> const_uitofp value f_t
-		| 	_ 			->  raise Exceptions.InvalidBinaryOperator(* TODO: figure out which exception to throw *) 
-	in 
 	
-	let e1 = if type1 != d then cast type1 d e1 else e1 in
-	let e2 = if type2 != d then cast type2 d e2 else e2 in
+	let (e1, e2) = if type1 <> type2 then cast e1 e2 type1 type2 else (e1, e2) in
 
 	let type_handler d = match d with
 			Datatype(Int_t)		-> int_ops op e1 e2
 		|	Datatype(Float_t)   -> float_ops op e1 e2
-		|   Datatype(Bool_t) 	-> bool_ops op e1 e2
+		|   Datatype(Bool_t) 	-> int_ops op e1 e2
 		| 	Datatype(Char_t) 	-> int_ops op e1 e2
-		|   _ -> raise Exceptions.InvalidBinaryOperator
+		|   _ -> raise Exceptions.InvalidBinopEvaluationType
 	in
 
 	type_handler d 
@@ -127,22 +136,50 @@ and codegen_print llbuilder el =
 	let s = build_in_bounds_gep s [| zero |] "" llbuilder in
 	build_call printf (Array.of_list (s :: params)) "" llbuilder
 
+and codegen_func_call llbuilder el = function
+		"print" -> codegen_print llbuilder el
+	| 	_ -> build_global_stringptr "Hi" "" llbuilder
+
+and codegen_id id llbuilder = 
+	let v = try Hashtbl.find named_values id with
+		| Not_found -> raise Exceptions.UnknownVariable
+	in
+	(* Load the value. *)
+	build_load v id llbuilder
+
+and codegen_assign lhs rhs llbuilder = 
+	(* Special case '=' because we don't want to emit the LHS as an
+	* expression. *)
+	let name =
+		match lhs with
+		| Sast.SId(id, d) -> id
+		| _ -> raise Exceptions.AssignLHSMustBeAssignable
+	in
+
+	(* Codegen the rhs. *)
+	let val_ = codegen_sexpr llbuilder rhs in
+
+	(* Lookup the name. *)
+	let variable = try Hashtbl.find named_values name with
+	| Not_found -> raise (Error "unknown variable name")
+	in
+	ignore(build_store val_ variable llbuilder);
+	val_
+
 and codegen_sexpr llbuilder = function
-			SInt_Lit(i, d)            -> const_int i32_t i
+		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
 	|   SFloat_Lit(f, d)          -> const_float f_t f 
 	|   SString_Lit(s, d)         -> build_global_stringptr s "" llbuilder
 	|   SChar_Lit(c, d)           -> const_int i32_t (Char.code c)
-	|   SId(id, d)                -> build_global_stringptr "Hi" "" llbuilder
+	|   SId(id, d)                -> codegen_id id llbuilder
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
-	|   SAssign(e1, e2, d)        -> build_global_stringptr "Hi" "" llbuilder
+	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> build_global_stringptr "Hi" "" llbuilder
-	|   SCall(fname, el, d)       ->  (function
-																				"print" -> codegen_print llbuilder el
-																				| _ -> build_global_stringptr "Hi" "" llbuilder) fname
+	|   SCall(fname, el, d)       -> codegen_func_call llbuilder el fname		
 	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
@@ -237,23 +274,37 @@ and codegen_for init_ cond_ inc_ body_ llbuilder =
 	(* for expr always returns 0.0. *)
 	const_null f_t
 
-and codegen_stmt llbuilder = function
-			SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)
+and codegen_alloca datatype var_name expr llbuilder = 
+	match expr with 
+	SNoexpr(_) -> 
+		let alloca = build_alloca (get_type datatype) var_name llbuilder in
+		Hashtbl.add named_values var_name alloca;
+		alloca
+	| _ -> 
+		let init_val = codegen_sexpr llbuilder expr in
+		let alloca = build_alloca (get_type datatype) var_name llbuilder in
+		ignore(build_store init_val alloca llbuilder);
+		Hashtbl.add named_values var_name alloca;
+		init_val
 
-	|   SExpr(e, d)          	-> codegen_sexpr llbuilder e
+and codegen_stmt llbuilder = function
+		SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)	
+	|   SExpr(e, d)          		-> codegen_sexpr llbuilder e
 	|   SReturn(e, d)    			-> build_ret (codegen_sexpr llbuilder e) llbuilder
-	|   SIf (e, s1, s2)       -> codegen_if_stmt e s1 s2 llbuilder
-	|   SFor (e1, e2, e3, s)  -> codegen_for e1 e2 e3 s llbuilder
+	|   SIf (e, s1, s2)       		-> codegen_if_stmt e s1 s2 llbuilder
+	|   SFor (e1, e2, e3, s)  		-> codegen_for e1 e2 e3 s llbuilder
 	|   SWhile (e, s)    			-> build_global_stringptr "Hi" "" llbuilder
 	|   SBreak           			-> build_global_stringptr "Hi" "" llbuilder   
 	|   SContinue        			-> build_global_stringptr "Hi" "" llbuilder
-	|   SLocal(d, s, e)  			-> build_global_stringptr "Hi" "" llbuilder
+	|   SLocal(d, s, e)  			-> codegen_alloca d s e llbuilder
 
-let codegen_func fdecl = 
-		let handle_func = function
-			_ -> build_global_stringptr "Hi" "" builder 
-		in 
-		handle_func fdecl.sfname
+let codegen_func sfdecl = 
+	Hashtbl.clear named_values;
+	let fty = function_type (get_type sfdecl.sreturnType) [| |] in
+	let f = define_function (Utils.string_of_fname sfdecl.sfname) fty the_module in
+	let llbuilder = builder_at_end context (entry_block f) in
+	let _ = codegen_stmt llbuilder (SBlock (sfdecl.sbody)) in
+	build_ret_void llbuilder 
 
 let codegen_library_functions = ()
 
@@ -261,6 +312,7 @@ let codegen_struct s =
 	named_struct_type context s.scname
 
 let codegen_main main = 
+	Hashtbl.clear named_values;
 	let fty = function_type i32_t [| |] in
 	let f = define_function "main" fty the_module in
 	let llbuilder = builder_at_end context (entry_block f) in
@@ -269,7 +321,7 @@ let codegen_main main =
 
 let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions in
-	(* let _ = List.map (fun f -> codegen_func f) sprogram.functions in *)
+	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = List.map (fun s -> codegen_struct s) sprogram.classes in
 	let _ = codegen_main sprogram.main in
-		the_module
+	the_module

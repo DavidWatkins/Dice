@@ -3,8 +3,9 @@ open Llvm_analysis
 open Analyzer
 open Utils
 open Ast
+open Yojson
 
-type action = Tokens | TokenEndl | PrettyPrint | Ast | Compile
+type action = Tokens | TokenEndl | PrettyPrint | Ast | Sast | Compile
 
 let _ =
   if Array.length Sys.argv < 2 then
@@ -14,14 +15,16 @@ let _ =
         "\t-tendl: Prints tokens with newlines intact\n" ^ 
         "\t-t: Prints token stream\n" ^
         "\t-p: Pretty prints Ast as a program\n" ^
-        "\t-a: Prints abstract syntax tree\n" ^
+        "\t-ast: Prints abstract syntax tree as json\n" ^
+        "\t-sast: Prints semantically checked syntax tree as json\n" ^
         "\t-c: Compiles source\n"
     )
   else
     let action = List.assoc Sys.argv.(1) [ ("-tendl", TokenEndl);
                                            ("-t", Tokens);
                                            ("-p", PrettyPrint);
-                                           ("-a", Ast);
+                                           ("-ast", Ast);
+                                           ("-sast", Sast);
                                            ("-c", Compile) ] and
     filename = Sys.argv.(2) in
     let file_in = open_in filename in
@@ -35,12 +38,15 @@ let _ =
           Tokens -> print_string (Utils.token_list_to_string token_list)
         | TokenEndl -> print_string (Utils.token_list_to_string_endl token_list)
         | Ast ->
-            print_string (Utils.print_tree program)
+            print_string (pretty_to_string  (Utils.print_tree program))
+        | Sast -> print_string (pretty_to_string (Utils.map_sprogram_to_json sprogram))
         | PrettyPrint ->
             print_string (Utils.string_of_program program)
-        | Compile -> dump_module llm
-(*               let _ = Llvm_analysis.assert_valid_module llm in
- *)              
+        | Compile -> 
+        	(* let _ = Llvm_analysis.assert_valid_module llm in *)
+        	dump_module llm
+       
+ 		(* | _ -> print_string "HELLO"       *)
 
     with
         Exceptions.IllegalCharacter(c, ln) ->
@@ -59,10 +65,15 @@ let _ =
             "character " ^ string_of_int !Processor.char_num ^ ", " ^
             "Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
           )
+        |   Exceptions.ConstructorNotFound          -> print_string "ConstructorNotFound\n"
 		| 	Exceptions.DuplicateClassName			-> print_string "DuplicateClassName \n"
 		| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
 		| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
 		| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"
+        |   Exceptions.DuplicateLocal(str)          -> print_string ("DuplicateLocal: " ^ str ^ "\n")
+        |   Exceptions.UndefinedClass(str)        -> print_string("UndefinedClass: " ^ str ^ "\n")
+
+        |   Exceptions.UnknownIdentifier(str)        -> print_string("UnknownIdentifier: " ^ str ^ "\n")
 		| 	Exceptions.InvalidBinopExpression(str)		-> print_string ("InvalidBinopExpression: " ^ str ^ "\n")
 		| 	Exceptions.InvalidIfStatementType		-> print_string "InvalidIfStatementType \n"
 		| 	Exceptions.InvalidForStatementType		-> print_string "InvalidForStatementType \n"
