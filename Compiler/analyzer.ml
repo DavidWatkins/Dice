@@ -132,8 +132,14 @@ let get_type_string = function
     | Datatype(Objecttype(s)) -> s
     | _ -> "some other type"
 
-let print_formals list_of_formals = 
-    List.iter (fun x -> (match x with Formal(d, s) -> print_endline ((get_type_string d) ^ " " ^ s) | Many(d) -> print_endline (get_type_string d))) list_of_formals
+let get_formal_typestr = function 
+    Formal(d, s) -> get_type_string d
+    | Many(d) -> get_type_string d
+
+(* given a list of formals, returns a list of types only *)
+let get_formal_types fmls = 
+List.fold_left (fun tstrings fml -> (get_formal_typestr fml)::tstrings) [] fmls
+(*["CHAR";"BOOL"]*)
 
 let rec get_ID_type env s = StringMap.find s env.env_locals
 
@@ -155,20 +161,13 @@ if not (StringMap.mem s global_cmap) then raise (Exceptions.UnknownIdentifier s)
 else
     let sel, env = exprl_to_sexprl global_cmap env el in
     let cmap = StringMap.find s global_cmap in 
-    (* TODO
-    get a list of the types in el
-    print this list to debug
-    check if it matches any in 
-    (StringMap.values cmap.constructor_map.formals) and for each, get a list of the types of the formal list
-    if no match, raise Exceptions.ConstructorNotFound
-    else
-        *)
-    (* print types of actuals *)
-    let types_of_actuals_rev = List.fold_left (fun acc x -> (get_type_string (get_type_from_sexpr x))::acc) [] sel in 
-    let _ = List.iter (fun x -> print_endline x) types_of_actuals_rev in 
-    (* print types of formals *)
-    let _ = (StringMap.iter (fun k v -> print_formals v.formals) cmap.constructor_map) in 
-    SObjectCreate(s, sel,Datatype(Objecttype(s)))
+    let types_of_actuals = List.fold_left (fun acc x -> acc @ [get_type_string (get_type_from_sexpr x)]) [] sel in 
+    let constructor_decls = List.fold_left (fun acc (k,v) -> v::acc) [] (StringMap.bindings cmap.constructor_map) in 
+    
+    let constructor_formal_lists = List.fold_left (fun acc x -> (get_formal_types x.formals)::acc) [] constructor_decls in  
+    let matched = List.exists (fun l -> l = types_of_actuals) constructor_formal_lists in 
+    if matched then SObjectCreate(s, sel,Datatype(Objecttype(s))) 
+    else raise Exceptions.ConstructorNotFound
 
 and check_assign global_cmap env e1 e2 = 
 	let se1, env = expr_to_sexpr global_cmap env e1 in

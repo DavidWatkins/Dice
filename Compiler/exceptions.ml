@@ -8,6 +8,7 @@ exception IllegalToken of string
 
 (* Analyzer Exceptions *)
 exception IncorrectNumberOfArgumentsException
+exception ConstructorNotFound
 exception DuplicateClassName
 exception DuplicateField
 exception DuplicateFunction

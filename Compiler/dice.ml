@@ -65,6 +65,7 @@ let _ =
             "character " ^ string_of_int !Processor.char_num ^ ", " ^
             "Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
           )
+        |   Exceptions.ConstructorNotFound          -> print_string "ConstructorNotFound\n"
 		| 	Exceptions.DuplicateClassName			-> print_string "DuplicateClassName \n"
 		| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
 		| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
