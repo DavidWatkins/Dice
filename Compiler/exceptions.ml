@@ -8,11 +8,14 @@ exception IllegalToken of string
 
 (* Analyzer Exceptions *)
 exception IncorrectNumberOfArgumentsException
+exception ConstructorNotFound
 exception DuplicateClassName
 exception DuplicateField
 exception DuplicateFunction
 exception DuplicateConstructor
 exception DuplicateLocal of string
+exception UndefinedClass of string
+exception UnknownIdentifier of string
 exception InvalidBinopExpression of string
 exception InvalidIfStatementType
 exception InvalidForStatementType
