@@ -30,8 +30,8 @@ opam install core batteries llvm yojson
 ```bash
 cd Dice/Compiler
 ./build.sh
-./dice -c input.dice > test.ll
-lli test.ll
+./dice input.dice
+lli input.ll
 ```
 
 ##To test the compiler
