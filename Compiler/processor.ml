@@ -11,6 +11,7 @@ let char_num = ref 1
 let filename = ref ""
 
 let build_token_list lexbuf =
+	Scanner.filename := !filename;
   let rec helper prev_cnum prev_lineno lexbuf token_list =
     let token = Scanner.token lexbuf in
     let lineno = !Scanner.lineno in

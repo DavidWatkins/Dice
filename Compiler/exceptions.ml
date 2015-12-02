@@ -1,8 +1,12 @@
+(* Dice Exceptions *)
+exception InvalidNumberCompilerArguments of int
+exception InvalidCompilerArgument of string
+
 (* Processor Exceptions *)
 exception MissingEOF
 
 (* Scanner Exceptions *)
-exception IllegalCharacter of char * int
+exception IllegalCharacter of string * char * int
 exception UnmatchedQuotation of int
 exception IllegalToken of string
 

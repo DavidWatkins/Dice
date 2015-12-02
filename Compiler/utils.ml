@@ -12,7 +12,7 @@ let save file string =
 
 let replace input output =
     Str.global_replace (Str.regexp_string input) output
-
+    
 (* Print data types *)
 
 let string_of_scope = function 
