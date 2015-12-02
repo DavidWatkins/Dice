@@ -63,10 +63,13 @@ let process_includes filename includes classes =
 	in
 	iterate_includes classes (StringMap.add (Filepath.realpath filename) 1 StringMap.empty) includes
 
-let get_name fdecl = 
-	let params = List.fold_left (fun s -> (function Formal(t, s) -> s ^ "," ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
+let get_name cname fdecl = 
+	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
+	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
 	let name = Utils.string_of_fname fdecl.fname in
-	name ^ " " ^ params
+	if name = "main" 
+		then name
+		else cname ^ "." ^ name ^ params
 
 (* Generate list of all classes to be used for semantic checking *)
 let build_class_maps reserved cdecls =
@@ -74,13 +77,19 @@ let build_class_maps reserved cdecls =
 		(* helper global_obj cdecls *)
 		let helper m (cdecl:Ast.class_decl) =  
 			let fieldfun = (fun m -> (function Field(s, d, n) -> if (StringMap.mem (n) m) then raise(Exceptions.DuplicateField) else (StringMap.add n (Field(s, d, n)) m))) in
+			let funcname = get_name cdecl.cname in
 			let funcfun = 
 				(fun m fdecl -> 
-					if (StringMap.mem (get_name fdecl) m) || (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
+					if (StringMap.mem (funcname fdecl) m) || (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
 						then raise(Exceptions.DuplicateFunction) 
-						else (StringMap.add (get_name fdecl) fdecl m)) 
+						else (StringMap.add (funcname fdecl) fdecl m)) 
 			in
-			let constructorfun = (fun m fdecl -> if (StringMap.mem (get_name fdecl) m) then raise(Exceptions.DuplicateConstructor) else  (StringMap.add (get_name fdecl) fdecl m)) in
+			let constructor_name = get_name cdecl.cname in
+			let constructorfun = (fun m fdecl -> 
+									if StringMap.mem (constructor_name fdecl) m 
+										then raise(Exceptions.DuplicateConstructor) 
+										else (StringMap.add (constructor_name fdecl) fdecl m)) 
+			in
 			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName) else
 				StringMap.add cdecl.cname 
 						{ field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
@@ -356,7 +365,7 @@ let convert_constructor_to_sfdecl global_cmap reserved class_map cname construct
 		env_reserved 	= reserved;
 	} in 
 	{
-		sfname 			= Constructor;
+		sfname 			= Ast.FName (get_name cname constructor);
 		sreturnType 	= Datatype(Objecttype(cname));
 		sformals 		= constructor.formals;
 		sbody 			= fst (convert_stmt_list_to_sstmt_list global_cmap env constructor.body);
@@ -375,7 +384,7 @@ let convert_fdecl_to_sfdecl global_cmap reserved class_map cname fdecl =
 	} in 
 	(* We add the class as the first parameter to the function for codegen *)
 	{
-		sfname 			= fdecl.fname;
+		sfname 			= Ast.FName (get_name cname fdecl);
 		sreturnType 	= fdecl.returnType;
 		sformals 		= fdecl.formals;
 		sbody 			= fst (convert_stmt_list_to_sstmt_list global_cmap env fdecl.body);
@@ -397,10 +406,10 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 		(scdecl, func_list @ sconstructor_list)
 	in 
 		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
-(* 		let _ = List.iter (fun f -> match f.sfname with FName n -> print_string (n ^ "\n") | _ -> ()) (snd overall_list) in
- *)	let mains = (List.find_all (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) (snd overall_list)) in
+		let find_main = (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) in
+		let mains = (List.find_all find_main (snd overall_list)) in
 		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
-		let funcs = (List.filter (fun f -> match f.sfname with FName n -> n <> "main" | _ -> true) (snd overall_list)) in
+		let funcs = (List.filter (fun f -> not (find_main f)) (snd overall_list)) in
 		{
 			classes 		= fst overall_list;
 			functions 	= funcs;

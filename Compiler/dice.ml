@@ -48,21 +48,22 @@ let _ =
 	in 
 	let file_in = open_in filename in
 	try 
-	  let lexbuf = Lexing.from_channel file_in in
-	  let token_list = Processor.build_token_list lexbuf in
-	  let program = Processor.parser filename token_list in
-	  let sprogram = Analyzer.analyze filename program in
-	  let llm = Codegen.codegen_sprogram sprogram in
+		(* Added fun () -> <x> so that each is evaluated only when requested *)
+	  let lexbuf 		= 			Lexing.from_channel file_in in
+	  let token_list 	= fun () -> Processor.build_token_list lexbuf in
+	  let program 		= fun () -> Processor.parser filename (token_list ()) in
+	  let sprogram 		= fun () -> Analyzer.analyze filename (program ()) in
+	  let llm 			= fun () -> Codegen.codegen_sprogram (sprogram ()) in
 	  (* let _ = Llvm_analysis.assert_valid_module llm in *)
 	  match action with
 	  		Help 			-> print_string help_string
-		| 	Tokens 			-> print_string (Utils.token_list_to_string token_list)
-		| 	TokenEndl 		-> print_string (Utils.token_list_to_string_endl token_list)
-		| 	Ast 			-> print_string (pretty_to_string  (Utils.print_tree program))
-		| 	Sast 			-> print_string (pretty_to_string (Utils.map_sprogram_to_json sprogram))
-		| 	PrettyPrint 	-> print_string (Utils.string_of_program program)
-		| 	Compile 		-> dump_module llm
-		| 	CompileToFile 	-> print_module (dice_name filename) llm
+		| 	Tokens 			-> print_string (Utils.token_list_to_string (token_list ()))
+		| 	TokenEndl 		-> print_string (Utils.token_list_to_string_endl (token_list ()))
+		| 	Ast 			-> print_string (pretty_to_string  (Utils.print_tree (program ())))
+		| 	Sast 			-> print_string (pretty_to_string (Utils.map_sprogram_to_json (sprogram ())))
+		| 	PrettyPrint 	-> print_string (Utils.string_of_program (program ()))
+		| 	Compile 		-> dump_module (llm ())
+		| 	CompileToFile 	-> print_module (dice_name filename) (llm ())
 	with 
 		Exceptions.IllegalCharacter(filename, c, ln) ->
 			print_string
