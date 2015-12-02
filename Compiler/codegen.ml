@@ -46,9 +46,9 @@ let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
 	(* | 	(Datatype(Char_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
 
 		(* bool to,__)  ( zext fills the empty bits with zeros, zero extension *)
-	(* |   	(Datatype(Bool_t), Datatype(Int_t)) 				-> (const_zext lhs i32_t, rhs) *)
+	(* |   	(Datatype(Bool_t), Datatype(Int_t)) 			-> (const_zext lhs i32_t, rhs) *)
 	(* | 	(Datatype(Bool_t), Datatype(Char_t))			-> (const_zext lhs i8_t, rhs) *)
-	(* |   	(Datatype(Bool_t), Datatype(Bool_t))				-> (lhs, rhs) *)
+	(* |   	(Datatype(Bool_t), Datatype(Bool_t))			-> (lhs, rhs) *)
 	(* |   	(Datatype(Bool_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
 
 		(* float to,__) ( using fptosi for signed ints *)
@@ -100,7 +100,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Geq 		-> build_icmp Icmp.Sge e1 e2 "sgetmp" llbuilder
 	| 	And 		-> build_and e1 e2 "andtmp" llbuilder
 	| 	Or 			-> build_or  e1 e2 "ortmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
+	| 	_ 			-> raise Exceptions.IntOpNotSupported 
 	in 
 	
 	let (e1, e2) = if type1 <> type2 then cast e1 e2 type1 type2 else (e1, e2) in
@@ -125,7 +125,7 @@ and codegen_print llbuilder el =
 	let map_param_to_string = function 
 			Arraytype(Char_t, 1) 	-> "%s"
 		| 	Datatype(Int_t) 		-> "%d"
-		| 	Datatype(Float_t) 		-> "%f"
+		| 	Datatype(Float_t) 		-> "%a"
 		| 	Datatype(Bool_t) 		-> "%d"
 		| 	Datatype(Char_t) 		-> "%c"
 		| 	_ 									-> raise (Exceptions.InvalidTypePassedToPrintf)

@@ -35,3 +35,4 @@ exception AssignLHSMustBeAssignable
 exception CannotCastTypeException
 exception InvalidBinopEvaluationType
 exception FloatOpNotSupported
+exception IntOpNotSupported
