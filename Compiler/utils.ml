@@ -26,8 +26,12 @@ let string_of_primitive = function
 	| 	Bool_t 						-> "bool"
 	| 	Char_t 						-> "char"
 	| 	Objecttype(s)				-> "class " ^ s
-	| 	ConstructorType				-> ""
-	|  	Null_t 						-> ""
+	| 	ConstructorType				-> "constructor"
+	|  	Null_t 						-> "null"
+
+let string_of_object = function
+		Datatype(Objecttype(s))	-> s
+	| 	_ -> ""
 
 let rec print_brackets = function
 		1 -> "[]"
@@ -36,7 +40,7 @@ let rec print_brackets = function
 let string_of_datatype = function 
 		Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)
 	| 	Datatype(p)		-> (string_of_primitive p)
-	|  	Any 			-> ""
+	|  	Any 			-> "Any"
 
 (* Print expressions *)
 
@@ -147,7 +151,7 @@ let string_of_func_decl fdecl =
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		(* body *)
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
-	"\t}\n"
+	"\t}\n\n"
 
 (* Class Printing *)
 
@@ -159,9 +163,9 @@ let string_of_field = function
 
 let string_of_cbody cbody = 
 	"\t" ^
-	String.concat "\t" (List.map string_of_field cbody.fields) ^
-	String.concat "\t" (List.map string_of_func_decl cbody.constructors) ^
-	String.concat "\t" (List.map string_of_func_decl cbody.methods)
+	"" ^ String.concat "\t" (List.map string_of_field cbody.fields) ^
+	"\t" ^ String.concat "\t" (List.map string_of_func_decl cbody.constructors) ^
+	"\t" ^ String.concat "\t" (List.map string_of_func_decl cbody.methods)
 
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^

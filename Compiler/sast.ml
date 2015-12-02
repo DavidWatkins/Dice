@@ -13,7 +13,7 @@ type sexpr =
 	| 	SArrayCreate of datatype * sexpr list * datatype
 	| 	SArrayAccess of sexpr * sexpr list * datatype
 	| 	SObjAccess of sexpr * sexpr * datatype
-	| 	SCall of string * sexpr list   * datatype
+	| 	SCall of string * sexpr list * datatype
 	|   SObjectCreate of string * sexpr list * datatype
 	| 	SArrayPrimitive of sexpr list * datatype
 	|  	SUnop of op * sexpr * datatype

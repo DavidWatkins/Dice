@@ -10,13 +10,13 @@ open Exceptions
 open Batteries
 open Hashtbl
 
-exception Error of string
-
 let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
 let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 50
 let named_params:(string, llvalue) Hashtbl.t = Hashtbl.create 50
+let struct_types:(string, lltype) Hashtbl.t = Hashtbl.create 10
+let struct_field_indexes:(string, int) Hashtbl.t = Hashtbl.create 50
 
 let i32_t = i32_type context;;
 let i8_t = i8_type context;;
@@ -28,26 +28,41 @@ let void_t = void_type context;;
 let str_type = Arraytype(Char_t, 1)
 let noop = SNoexpr(Datatype(Int_t))
 
-let get_type datatype = match datatype with 
+let debug = fun s ->  
+	(* print_endline ("`````````````````````````````````````"^s);
+	dump_module the_module;
+	print_endline ("`````````````````````````````````````"^s); *)
+	()
+
+let rec get_ptr_type datatype = match datatype with
+		Arraytype(t, 0) -> get_type (Datatype(t))
+	|	Arraytype(t, 1) -> pointer_type (get_type (Datatype(t)))
+	|	Arraytype(t, i) -> pointer_type (get_ptr_type (Arraytype(t, (i-1))))
+	| 	_ -> raise(Exceptions.InvalidStructType "Array Pointer Type")
+
+and get_type (datatype:Ast.datatype) = match datatype with 
 		Datatype(Int_t) -> i32_t
 	| 	Datatype(Float_t) -> f_t
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
-	|  	Arraytype(Char_t, 1) -> str_t
 	| 	Datatype(Void_t) -> void_t
-	| 	_ -> i32_t (* WRONG *)
+	| 	Datatype(Objecttype(name)) -> 
+			(	try Hashtbl.find struct_types name 
+				with | Not_found -> raise(Exceptions.InvalidStructType name))
+	| 	Arraytype(t, i) -> get_ptr_type (Arraytype(t, (i)))
+	| 	_ -> raise(Exceptions.InvalidStructType "Low level type") 
 
 (* cast will return an llvalue of the desired type *)
 (* The commented out casts are unsupported actions in Dice *)
-let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
+let cast lhs rhs lhsType rhsType llbuilder = match (lhsType, rhsType) with
 		(* int to,__ ) ( using const_sitofp for signed ints *)
 		(Datatype(Int_t), Datatype(Int_t))				-> (lhs, rhs), Datatype(Int_t)
-	| 	(Datatype(Int_t), Datatype(Char_t))				-> (const_uitofp lhs i8_t, rhs), Datatype(Char_t)
+	| 	(Datatype(Int_t), Datatype(Char_t))				-> (build_uitofp lhs i8_t "" llbuilder, rhs), Datatype(Char_t)
 	(* |   	(Datatype(Int_t), Datatype(Bool_t))				-> (lhs, const_zext rhs i32_t) *)
-	|   (Datatype(Int_t), Datatype(Float_t)) 			-> (const_sitofp lhs f_t, rhs), Datatype(Float_t)
+	|   (Datatype(Int_t), Datatype(Float_t)) 			-> (build_sitofp lhs f_t "" llbuilder, rhs), Datatype(Float_t)
 
 		(* char to,__)  ( using uitofp since char isn't signed *)
-	|   (Datatype(Char_t), Datatype(Int_t)) 			-> (lhs, const_uitofp rhs i8_t), Datatype(Char_t)
+	|   (Datatype(Char_t), Datatype(Int_t)) 			-> (lhs, build_uitofp rhs i8_t "" llbuilder), Datatype(Char_t)
 	|   (Datatype(Char_t), Datatype(Char_t)) 			-> (lhs, rhs), Datatype(Char_t)
 	(* | 	(Datatype(Char_t), Datatype(Bool_t))			-> (lhs, const_zext rhs i8_t) *)
 	(* | 	(Datatype(Char_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
@@ -59,7 +74,7 @@ let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
 	(* |   	(Datatype(Bool_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
 
 		(* float to,__) ( using fptosi for signed ints *)
-	|   (Datatype(Float_t), Datatype(Int_t)) 			-> (lhs, const_sitofp rhs f_t), Datatype(Float_t)
+	|   (Datatype(Float_t), Datatype(Int_t)) 			-> (lhs, build_sitofp rhs f_t "" llbuilder), Datatype(Float_t)
 	(* | 	(Datatype(Float_t), Datatype(Char_t))			-> (lhs, const_uitofp rhs f_t) *)
 	(* |   	(Datatype(Float_t), Datatype(Bool_t))			-> (lhs, const_uitofp rhs f_t) *)
 	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs), Datatype(Float_t)
@@ -110,7 +125,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	_ 			-> raise Exceptions.IntOpNotSupported 
 	in 
 	
-	let (e1, e2), d = cast e1 e2 type1 type2 in
+	let (e1, e2), d = cast e1 e2 type1 type2 llbuilder in
 
 	let type_handler d = match d with
 			Datatype(Float_t)   -> float_ops op e1 e2
@@ -172,34 +187,96 @@ and codegen_func_call fname el llbuilder =
 	let params = List.map (codegen_sexpr llbuilder) el in
 	build_call f (Array.of_list params) "" llbuilder
 
+and codegen_sizeof el llbuilder =
+	let type_of = Analyzer.get_type_from_sexpr (List.hd el) in
+	size_of (get_type type_of)
+
+and codegen_cast el llbuilder =
+	let cast_malloc_to_objtype lhs lhsType llbuilder = match lhsType with
+		Arraytype(Objecttype(x), 1) -> 
+			let obj_type = get_type (Arraytype(Objecttype(x), 1)) in
+			build_pointercast lhs obj_type "" llbuilder
+		| 	_  -> raise Exceptions.CannotCastTypeException
+	in
+	let expr = List.hd el in
+	let t = Analyzer.get_type_from_sexpr expr in
+	let expr = codegen_sexpr llbuilder expr in
+	cast_malloc_to_objtype expr t llbuilder
+
+
 and codegen_call llbuilder el = function
 		"print" 	-> codegen_print el llbuilder
+	(* |  	"malloc" 	-> codegen_malloc el llbuilder *)
+	| 	"sizeof"	-> codegen_sizeof el llbuilder
+	| 	"cast" 		-> codegen_cast el llbuilder
 	| 	_ as fname 	-> codegen_func_call fname el llbuilder
 
-and codegen_id id llbuilder = 
-	try build_load (Hashtbl.find named_values id) id llbuilder 
-	with | Not_found -> 
-	try Hashtbl.find named_params id
-	with | Not_found -> raise (Exceptions.UnknownVariable id)
+and codegen_id id d llbuilder = 
+	let _val = 
+		(	try build_load (Hashtbl.find named_values id) id llbuilder; 
+			with | Not_found -> 
+			try Hashtbl.find named_params id;
+			with | Not_found -> raise (Exceptions.UnknownVariable id))
+	in
+	match d with 
+		Datatype(Objecttype(x)) -> deref _val d llbuilder
+	|  	_ -> _val
 
 and codegen_assign lhs rhs llbuilder = 
 	(* Special case '=' because we don't want to emit the LHS as an
 	* expression. *)
-	let name =
-		match lhs with
-		| Sast.SId(id, d) -> id
-		| _ -> raise Exceptions.AssignLHSMustBeAssignable
+	let lhs = match lhs with
+	| 	Sast.SId(id, d) -> codegen_id id d llbuilder
+	|  	SObjAccess(e1, e2, d) -> codegen_obj_access e1 e2 d llbuilder
+	| _ -> raise Exceptions.AssignLHSMustBeAssignable
 	in
-
 	(* Codegen the rhs. *)
-	let val_ = codegen_sexpr llbuilder rhs in
+	let rhs = codegen_sexpr llbuilder rhs in
 
 	(* Lookup the name. *)
-	let variable = try Hashtbl.find named_values name with
-	| Not_found -> raise (Error "unknown variable name")
+	ignore(build_store rhs lhs llbuilder);
+	rhs
+
+and deref ptr t llbuilder = 
+	build_gep ptr (Array.of_list [ptr]) "" llbuilder
+
+and codegen_obj_access lhs rhs d llbuilder = 
+	let codegen_func_call fname parent_expr el llbuilder = 
+		let f = func_lookup fname in
+		let params = List.map (codegen_sexpr llbuilder) el in
+		build_call f (Array.of_list (parent_expr :: params)) "" llbuilder
 	in
-	ignore(build_store val_ variable llbuilder);
-	val_
+	let check_lhs = function
+		SId(s, d)			-> codegen_id s d llbuilder
+	| 	SCall(fname, el, d) -> codegen_func_call fname (codegen_id "this" d llbuilder) el llbuilder
+	| 	_  	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc ("Need to print sexpr"))
+	in
+	let rec check_rhs parent_expr parent_type = 
+		let parent_str = Utils.string_of_object parent_type in
+		function
+			(* Check fields in parent *)
+			SId(field, d) -> 
+				let field_index = Hashtbl.find struct_field_indexes (parent_str ^ "." ^ field) in
+				build_struct_gep parent_expr field_index "" llbuilder
+			(* Check functions in parent *)
+		| 	SCall(fname, el, d) 	-> codegen_func_call fname parent_expr el llbuilder
+			(* Set parent, check if base is field *)
+		| 	SObjAccess(e1, e2, d) 	-> 
+				let e1_type = Analyzer.get_type_from_sexpr e1 in
+				let e1 = check_rhs parent_expr parent_type e1 in
+				let e2 = check_rhs e1 e1_type e2 in
+				e2
+		| 	_ 				-> raise (Exceptions.InvalidAccessLHS ("Need to print sexpr"))
+	in 
+	let lhs_type = Analyzer.get_type_from_sexpr lhs in 
+	let lhs = check_lhs lhs in
+	let rhs = check_rhs lhs lhs_type rhs in
+	rhs
+
+and codegen_obj_create fname el d llbuilder = 
+	let f = func_lookup fname in
+	let params = List.map (codegen_sexpr llbuilder) el in
+	build_call f (Array.of_list params) "" llbuilder
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
@@ -207,15 +284,15 @@ and codegen_sexpr llbuilder = function
 	|   SFloat_Lit(f, d)          -> const_float f_t f 
 	|   SString_Lit(s, d)         -> build_global_stringptr s "" llbuilder
 	|   SChar_Lit(c, d)           -> const_int i32_t (Char.code c)
-	|   SId(id, d)                -> codegen_id id llbuilder
+	|   SId(id, d)                -> codegen_id id d llbuilder
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SObjAccess(e1, e2, d)     -> build_global_stringptr "Hi" "" llbuilder
+	|   SObjAccess(e1, e2, d)     -> codegen_obj_access e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder el fname		
-	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
+	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
@@ -354,6 +431,7 @@ let init_params f formals =
 
 let codegen_func sfdecl = 
 	Hashtbl.clear named_values;
+	Hashtbl.clear named_params;
 	let fname = (Utils.string_of_fname sfdecl.sfname) in
 	let f = func_lookup fname in
 	let llbuilder = builder_at_end context (entry_block f) in
@@ -363,14 +441,27 @@ let codegen_func sfdecl =
 		then ignore(build_ret_void llbuilder);
 	()
 	
-
 let codegen_library_functions = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let _ = declare_function "printf" printf_ty the_module in
+	let malloc_ty = function_type (str_t) [| i32_t |] in
+	let _ = declare_function "malloc" malloc_ty the_module in
 	()
 
-let codegen_struct s =
-	named_struct_type context s.scname
+let codegen_struct_stub s =
+	let struct_t = named_struct_type context s.scname in
+	Hashtbl.add struct_types s.scname struct_t
+
+let codegen_struct s = 
+	let struct_t = Hashtbl.find struct_types s.scname in
+	let type_list = List.map (function Field(_, d, _) -> get_type d) s.sfields in
+	let name_list = List.map (function Field(_, _, s) -> s) s.sfields in
+	let type_array = (Array.of_list type_list) in
+	List.iteri (fun i f ->
+        let n = s.scname ^ "." ^ f in
+        Hashtbl.add struct_field_indexes n i;
+    ) name_list;
+	struct_set_body struct_t type_array true
 
 let codegen_main main = 
 	Hashtbl.clear named_values;
@@ -382,6 +473,7 @@ let codegen_main main =
 
 let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions in
+	let _ = List.map (fun s -> codegen_struct_stub s) sprogram.classes in
 	let _ = List.map (fun s -> codegen_struct s) sprogram.classes in
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
 	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
