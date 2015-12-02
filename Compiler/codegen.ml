@@ -30,14 +30,6 @@ let rec handle_binop e1 op e2 d llbuilder =
 	let e1 = codegen_sexpr llbuilder e1 in
 	let e2 = codegen_sexpr llbuilder e2 in
 	
-	let type_matcher d = match d with
-			Datatype(Int_t) 	-> i32_t
-		|	Datatype(Float_t)   -> f_t
-		|   Datatype(Bool_t) 	-> i1_t
-		| 	Datatype(Char_t) 	-> i8_t
-		|   _   				-> raise Exceptions.InvalidBinaryOperator
-	in
-
 	let bool_ops op e1 e2 =
 	match op with
 	  	Equal 		-> build_icmp Icmp.Eq e1 e2 "bool_eqtmp" llbuilder
@@ -83,28 +75,26 @@ let rec handle_binop e1 op e2 d llbuilder =
 	(* cast will return an llvalue of the desired type *)
 	let cast inputType castDesired value = match (inputType,castDesired) with
 			(* int to,__ ) ( using const_sitofp for signed ints *)
-			(i32_t, f_t) 	-> const_sitofp value f_t 
-		| 	(i32_t, i8_t)	-> const_bitcast value i8_t
-		|   (i32_t, i1_t)	-> const_bitcast value i1_t
+			(Datatype(Int_t), Datatype(Float_t)) 	-> const_sitofp value f_t 
+		| 	(Datatype(Int_t), Datatype(Char_t))	-> const_bitcast value i8_t
+		|   (Datatype(Int_t), Datatype(Bool_t))	-> const_bitcast value i1_t
 			(* float to,__) ( using fptosi for signed ints *)
-		|   (f_t, i32_t) 	-> const_fptosi value i32_t
-		| 	(f_t, i8_t)		-> const_bitcast value i8_t
-		|   (f_t, i1_t)		-> const_bitcast value i1_t
+		|   (Datatype(Float_t), Datatype(Int_t)) 	-> const_fptosi value i32_t
+		| 	(Datatype(Float_t), Datatype(Char_t))		-> const_bitcast value i8_t
+		|   (Datatype(Float_t), Datatype(Bool_t))		-> const_bitcast value i1_t
 			(* char to,__)  ( using uitofp since char isn't signed *)
-		|   (i8_t, i32_t) 	-> const_zext value i32_t
-		| 	(i8_t, f_t)		-> const_uitofp value f_t
-		|   (i8_t, i1_t)	-> const_bitcast value i1_t
+		|   (Datatype(Char_t), Datatype(Int_t)) 	-> const_zext value i32_t
+		| 	(Datatype(Char_t), Datatype(Float_t))		-> const_uitofp value f_t
+		|   (Datatype(Char_t), Datatype(Bool_t))	-> const_bitcast value i1_t
 			(* bool to,__)  ( zext fills the empty bits with zeros, zero extension *)
-		|   (i1_t, i32_t) 	-> const_zext value i32_t
-		| 	(i1_t, i8_t)	-> const_zext value i8_t
-		|   (i1_t, f_t)		-> const_uitofp value f_t
+		|   (Datatype(Bool_t), Datatype(Int_t)) 	-> const_zext value i32_t
+		| 	(Datatype(Bool_t), Datatype(Char_t))	-> const_zext value i8_t
+		|   (Datatype(Bool_t), Datatype(Float_t))		-> const_uitofp value f_t
 		| 	_ 			->  raise Exceptions.InvalidBinaryOperator(* TODO: figure out which exception to throw *) 
 	in 
-		
-	let cast_type = type_matcher d in
-
-	let e1 = if type1 != d then cast type1 cast_type e1 else e1 in
-	let e2 = if type2 != d then cast type2 cast_type e2 else e2 in
+	
+	let e1 = if type1 != d then cast type1 d e1 else e1 in
+	let e2 = if type2 != d then cast type2 d e2 else e2 in
 
 	let type_handler d = match d with
 			Datatype(Int_t)		-> int_ops op e1 e2
@@ -126,7 +116,7 @@ and codegen_print llbuilder el =
 	let map_param_to_string = function 
 			Arraytype(Char_t, 1) 	-> "%s"
 		| 	Datatype(Int_t) 		-> "%d"
-		| 	Datatype(Float_t) 	-> "%f"
+		| 	Datatype(Float_t) 		-> "%f"
 		| 	Datatype(Bool_t) 		-> "%d"
 		| 	Datatype(Char_t) 		-> "%c"
 		| 	_ 									-> raise (Exceptions.InvalidTypePassedToPrintf)
