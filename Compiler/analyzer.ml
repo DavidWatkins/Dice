@@ -157,7 +157,7 @@ and check_call_type global_cmap env s el =
 
 and check_object_constructor global_cmap env s el = 
 (* check that `s` is in the list of defined classes *)
-if not (StringMap.mem s global_cmap) then raise (Exceptions.UnknownIdentifier s)
+if not (StringMap.mem s global_cmap) then raise (Exceptions.UndefinedClass s)
 else
     let sel, env = exprl_to_sexprl global_cmap env el in
     let cmap = StringMap.find s global_cmap in 
