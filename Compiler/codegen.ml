@@ -21,13 +21,17 @@ let i32_t = i32_type context;;
 let i8_t = i8_type context;;
 let f_t = double_type context;;
 let i1_t = i1_type context;;
+let str_t = pointer_type i8_t;;
 
+let str_type = Arraytype(Char_t, 1)
+let noop = SNoexpr(Datatype(Int_t))
 
 let get_type datatype = match datatype with 
 		Datatype(Int_t) -> i32_t
 	| 	Datatype(Float_t) -> f_t
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
+	|  	Arraytype(Char_t, 1) -> str_t
 	| 	_ -> i32_t (* WRONG *)
 
 (* cast will return an llvalue of the desired type *)
@@ -119,16 +123,36 @@ let rec handle_binop e1 op e2 d llbuilder =
 and codegen_print llbuilder el = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let printf = declare_function "printf" printf_ty the_module in
+	let tmp_count = ref 0 in
 
-	let params = List.map (codegen_sexpr llbuilder) el in
+	let map_expr_to_printfexpr expr = 
+		let exprType = Analyzer.get_type_from_sexpr expr in
+		match exprType with 
+		Datatype(Bool_t) ->
+			let tmp_var = "tmp" ^ (string_of_int !tmp_count) in
+			let trueStr = SString_Lit("true", str_type) in
+			let falseStr = SString_Lit("false", str_type) in
+			let id = SId(tmp_var, str_type) in
+			tmp_count := !tmp_count + 1; 
+			ignore(codegen_stmt llbuilder (SLocal(str_type, tmp_var, noop)));
+			ignore(codegen_stmt llbuilder (SIf(expr, 
+											SExpr(SAssign(id, trueStr, str_type), str_type), 
+											SExpr(SAssign(id, falseStr, str_type), str_type)
+										)));
+			codegen_sexpr llbuilder id
+		| _ -> codegen_sexpr llbuilder expr
+	in
+
+	let params = List.map map_expr_to_printfexpr el in
 	let param_types = List.map (Analyzer.get_type_from_sexpr) el in 
+
 	let map_param_to_string = function 
 			Arraytype(Char_t, 1) 	-> "%s"
 		| 	Datatype(Int_t) 		-> "%d"
 		| 	Datatype(Float_t) 		-> "%f"
-		| 	Datatype(Bool_t) 		-> "%d"
+		| 	Datatype(Bool_t) 		-> "%s"
 		| 	Datatype(Char_t) 		-> "%c"
-		| 	_ 									-> raise (Exceptions.InvalidTypePassedToPrintf)
+		| 	_ 						-> raise (Exceptions.InvalidTypePassedToPrintf)
 	in 
 	let const_str = List.fold_left (fun s t -> s ^ map_param_to_string t) "" param_types in
 	let s = codegen_sexpr llbuilder (SString_Lit(const_str, Arraytype(Char_t, 1))) in
@@ -185,7 +209,7 @@ and codegen_sexpr llbuilder = function
 	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
-let rec codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
+and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	let cond_val = codegen_sexpr llbuilder exp in
 
 	(* Grab the first block so that we might later add the conditional branch

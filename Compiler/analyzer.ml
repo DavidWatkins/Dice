@@ -83,7 +83,7 @@ let build_class_maps reserved cdecls =
 			let constructorfun = (fun m fdecl -> if (StringMap.mem (get_name fdecl) m) then raise(Exceptions.DuplicateConstructor) else  (StringMap.add (get_name fdecl) fdecl m)) in
 			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName) else
 				StringMap.add cdecl.cname 
-						{ 	field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
+						{ field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
 							func_map = List.fold_left funcfun StringMap.empty cdecl.cbody.methods;
 							constructor_map = List.fold_left constructorfun StringMap.empty cdecl.cbody.constructors; 
 							reserved_map = reserved_map; } 
@@ -114,11 +114,16 @@ let get_comparison_binop_type type1 type2 se1 se2 op =
 
 
 let get_arithmetic_binop_type se1 se2 op = function 
-        (Datatype(Int_t), Datatype(Float_t)) | (Datatype(Float_t), Datatype(Int_t)) | 
-        (Datatype(Float_t), Datatype(Float_t)) -> SBinop(se1, op, se2, Datatype(Float_t))
-        | (Datatype(Int_t), Datatype(Char_t)) | (Datatype(Char_t), Datatype(Int_t)) |
-        (Datatype(Char_t), Datatype(Char_t)) -> SBinop(se1, op, se2, Datatype(Char_t))
-        | (Datatype(Int_t), Datatype(Int_t)) -> SBinop(se1, op, se2, Datatype(Int_t))
+        	(Datatype(Int_t), Datatype(Float_t)) 
+        | 	(Datatype(Float_t), Datatype(Int_t)) 
+        | 	(Datatype(Float_t), Datatype(Float_t)) 	-> SBinop(se1, op, se2, Datatype(Float_t))
+
+        | 	(Datatype(Int_t), Datatype(Char_t)) 
+        | 	(Datatype(Char_t), Datatype(Int_t)) 
+        | 	(Datatype(Char_t), Datatype(Char_t)) 	-> SBinop(se1, op, se2, Datatype(Char_t))
+
+        | 	(Datatype(Int_t), Datatype(Int_t)) 		-> SBinop(se1, op, se2, Datatype(Int_t))
+
         | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
 
 
