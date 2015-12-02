@@ -36,3 +36,5 @@ exception CannotCastTypeException
 exception InvalidBinopEvaluationType
 exception FloatOpNotSupported
 exception IntOpNotSupported
+exception InvalidUnopEvaluationType
+exception UnopNotSupported

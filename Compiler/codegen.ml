@@ -34,6 +34,8 @@ let get_type datatype = match datatype with
 	|  	Arraytype(Char_t, 1) -> str_t
 	| 	_ -> i32_t (* WRONG *)
 
+
+
 (* cast will return an llvalue of the desired type *)
 (* The commented out casts are unsupported actions in Dice *)
 let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
@@ -119,6 +121,25 @@ let rec handle_binop e1 op e2 d llbuilder =
 
 	type_handler d
 
+and handle_unop op e d llbuilder =
+	(* Get the type of e *) 
+	let eType = Analyzer.get_type_from_sexpr e in
+	(* Get llvalue  *)
+	let e = codegen_sexpr llbuilder e in
+
+	let unops op eType e = match (op, eType) with
+		(Sub, Datatype(Int_t)) 		->  build_neg e "int_unoptmp" llbuilder
+	|   (Sub, Datatype(Float_t)) 	-> 	build_fneg e "flt_unoptmp" llbuilder
+	|   (Not, Datatype(Bool_t)) 	->  build_not e "bool_unoptmp" llbuilder
+	|    _ 	 -> raise Exceptions.UnopNotSupported	
+
+	let unop_type_handler d = match d with
+				Datatype(Float_t)   -> unops op eType e
+			|	Datatype(Int_t)		
+			|   Datatype(Bool_t)	
+			|   _ -> raise Exceptions.InvalidUnopEvaluationType
+		in
+		unop_type_handler d 
 
 and codegen_print llbuilder el = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
@@ -207,7 +228,7 @@ and codegen_sexpr llbuilder = function
 	|   SCall(fname, el, d)       -> codegen_func_call llbuilder el fname		
 	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
+	|   SUnop(op, e, d)           -> handle_unop op e d llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
 and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
