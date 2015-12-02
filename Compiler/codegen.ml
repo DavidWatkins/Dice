@@ -16,12 +16,14 @@ let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
 let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 50
+let named_params:(string, llvalue) Hashtbl.t = Hashtbl.create 50
 
 let i32_t = i32_type context;;
 let i8_t = i8_type context;;
 let f_t = double_type context;;
 let i1_t = i1_type context;;
 let str_t = pointer_type i8_t;;
+let void_t = void_type context;;
 
 let str_type = Arraytype(Char_t, 1)
 let noop = SNoexpr(Datatype(Int_t))
@@ -32,6 +34,7 @@ let get_type datatype = match datatype with
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
 	|  	Arraytype(Char_t, 1) -> str_t
+	| 	Datatype(Void_t) -> void_t
 	| 	_ -> i32_t (* WRONG *)
 
 (* cast will return an llvalue of the desired type *)
@@ -174,11 +177,10 @@ and codegen_call llbuilder el = function
 	| 	_ as fname 	-> codegen_func_call fname el llbuilder
 
 and codegen_id id llbuilder = 
-	let v = try Hashtbl.find named_values id with
-		| Not_found -> raise Exceptions.UnknownVariable
-	in
-	(* Load the value. *)
-	build_load v id llbuilder
+	try build_load (Hashtbl.find named_values id) id llbuilder 
+	with | Not_found -> 
+	try Hashtbl.find named_params id
+	with | Not_found -> raise (Exceptions.UnknownVariable id)
 
 and codegen_assign lhs rhs llbuilder = 
 	(* Special case '=' because we don't want to emit the LHS as an
@@ -341,11 +343,21 @@ let codegen_funcstub sfdecl =
 	in
 	define_function fname fty the_module
 
+let init_params f formals =
+	let formals = Array.of_list formals in
+	Array.iteri (fun i a ->
+        let n = formals.(i) in
+        let n = Utils.string_of_formal_name n in
+        set_value_name n a;
+        Hashtbl.add named_params n a;
+    ) (params f)
+
 let codegen_func sfdecl = 
 	Hashtbl.clear named_values;
 	let fname = (Utils.string_of_fname sfdecl.sfname) in
 	let f = func_lookup fname in
 	let llbuilder = builder_at_end context (entry_block f) in
+	let _ = init_params f sfdecl.sformals in 
 	let _ = codegen_stmt llbuilder (SBlock (sfdecl.sbody)) in
 	if sfdecl.sreturnType = Datatype(Void_t) 
 		then ignore(build_ret_void llbuilder);

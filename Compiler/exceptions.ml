@@ -31,11 +31,12 @@ exception LocalTypeMismatch
 exception InvalidUnaryOperation
 exception AssignmentTypeMismatch
 exception FunctionNotFound of string
+exception UndefinedID of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
-exception UnknownVariable
+exception UnknownVariable of string
 exception AssignLHSMustBeAssignable
 exception CannotCastTypeException
 exception InvalidBinopEvaluationType

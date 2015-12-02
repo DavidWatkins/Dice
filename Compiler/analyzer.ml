@@ -136,7 +136,12 @@ let get_arithmetic_binop_type se1 se2 op = function
 
         | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
 
-let rec get_ID_type env s = StringMap.find s env.env_locals
+let rec get_ID_type env s = 
+	try StringMap.find s env.env_locals
+	with | Not_found -> 
+	try let formal = StringMap.find s env.env_parameters in
+		(function Formal(t, _) -> t | Many t -> t ) formal
+	with | Not_found -> raise (Exceptions.UndefinedID s)
 
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
 
@@ -357,7 +362,6 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	| [] -> []
 	in (iter stmt_list), !env_ref
 
-
 let convert_constructor_to_sfdecl class_maps reserved class_map cname constructor = 
 	let env = {
 		env_class_maps 	= class_maps;
@@ -378,17 +382,17 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	}
 
 let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
+	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
 	let env = {
 		env_class_maps 	= class_maps;
 		env_name     	= cname;
 		env_cmap 		= class_map;
 		env_locals    	= StringMap.empty;
-		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty fdecl.formals;
+		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty (class_formal :: fdecl.formals);
 		env_returnType	= fdecl.returnType;
 		env_callStack 	= [];
 		env_reserved 	= reserved;
 	} in 
-	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
 	(* We add the class as the first parameter to the function for codegen *)
 	{
 		sfname 			= Ast.FName (get_name cname fdecl);
