@@ -125,7 +125,7 @@ and codegen_print llbuilder el =
 	let map_param_to_string = function 
 			Arraytype(Char_t, 1) 	-> "%s"
 		| 	Datatype(Int_t) 		-> "%d"
-		| 	Datatype(Float_t) 		-> "%a"
+		| 	Datatype(Float_t) 		-> "%f"
 		| 	Datatype(Bool_t) 		-> "%d"
 		| 	Datatype(Char_t) 		-> "%c"
 		| 	_ 									-> raise (Exceptions.InvalidTypePassedToPrintf)
