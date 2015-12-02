@@ -12,7 +12,7 @@ exception IllegalToken of string
 
 (* Analyzer Exceptions *)
 exception IncorrectNumberOfArgumentsException
-exception ConstructorNotFound
+exception ConstructorNotFound of string
 exception DuplicateClassName
 exception DuplicateField
 exception DuplicateFunction
@@ -30,6 +30,7 @@ exception InvalidWhileStatementType
 exception LocalTypeMismatch
 exception InvalidUnaryOperation
 exception AssignmentTypeMismatch
+exception FunctionNotFound of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
@@ -40,3 +41,4 @@ exception CannotCastTypeException
 exception InvalidBinopEvaluationType
 exception FloatOpNotSupported
 exception IntOpNotSupported
+exception LLVMFunctionNotFound of string

@@ -81,7 +81,7 @@ let _ =
 				"Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
 			)
 
-	|   Exceptions.ConstructorNotFound          -> print_string "ConstructorNotFound\n"
+	|   Exceptions.ConstructorNotFound(str)     -> print_string ("ConstructorNotFound: " ^ str ^ "\n")
 	| 	Exceptions.DuplicateClassName			-> print_string "DuplicateClassName \n"
 	| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
 	| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
@@ -106,4 +106,4 @@ let _ =
 	|  	Exceptions.InvalidNumberCompilerArguments i -> print_endline ("Invalid argument passed " ^ (string_of_int i)); print_string help_string
 	| 	Exceptions.InvalidCompilerArgument s 		-> print_endline ("Invalid argument passed " ^ s); print_string help_string
 
-	| 	_ -> Printexc.print_backtrace stdout
+	(* | 	_ -> Printexc.print_backtrace stdout; print_string "Something went horribly wrong\n" *)
