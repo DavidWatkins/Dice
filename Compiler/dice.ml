@@ -26,7 +26,7 @@ let dice_name filename =
 
 let help_string = (
 	  "Usage: dice [optional-option] <source file>\n" ^
-		"required-option:\n" ^
+		"optional-option:\n" ^
 		"\t-h: Print help text\n" ^
 		"\t-tendl: Prints tokens with newlines intact\n" ^ 
 		"\t-t: Prints token stream\n" ^
