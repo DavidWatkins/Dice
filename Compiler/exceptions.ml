@@ -32,3 +32,6 @@ exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
 exception UnknownVariable
 exception AssignLHSMustBeAssignable
+exception CannotCastTypeException
+exception InvalidBinopEvaluationType
+exception FloatOpNotSupported

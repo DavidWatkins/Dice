@@ -1,0 +1,8 @@
+class test {
+	public void main(char[][] args) {
+		print(-15/3);
+		print(15/-3);
+		print(-15.0/3.0);
+		print(15.0/-3.0);
+	}
+}

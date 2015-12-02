@@ -22,6 +22,7 @@ let i8_t = i8_type context;;
 let f_t = double_type context;;
 let i1_t = i1_type context;;
 
+
 let get_type datatype = match datatype with 
 		Datatype(Int_t) -> i32_t
 	| 	Datatype(Float_t) -> f_t
@@ -29,24 +30,91 @@ let get_type datatype = match datatype with
 	| 	Datatype(Char_t) -> i8_t
 	| 	_ -> i32_t (* WRONG *)
 
-(* Need to add logic for fmul and fdiv *)
-let rec handle_binop e1 op e2 llbuilder = 
+(* cast will return an llvalue of the desired type *)
+(* The commented out casts are unsupported actions in Dice *)
+let cast lhs rhs lhsType rhsType = match (lhsType, rhsType) with
+		(* int to,__ ) ( using const_sitofp for signed ints *)
+		(Datatype(Int_t), Datatype(Int_t))				-> (lhs, rhs)
+	| 	(Datatype(Int_t), Datatype(Char_t))				-> (const_uitofp lhs i8_t, rhs)
+	(* |   	(Datatype(Int_t), Datatype(Bool_t))				-> (lhs, const_zext rhs i32_t) *)
+	|   (Datatype(Int_t), Datatype(Float_t)) 			-> (const_sitofp lhs f_t, rhs)
+
+		(* char to,__)  ( using uitofp since char isn't signed *)
+	|   (Datatype(Char_t), Datatype(Int_t)) 			-> (lhs, const_uitofp rhs i8_t)
+	|   (Datatype(Char_t), Datatype(Char_t)) 			-> (lhs, rhs)
+	(* | 	(Datatype(Char_t), Datatype(Bool_t))			-> (lhs, const_zext rhs i8_t) *)
+	(* | 	(Datatype(Char_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
+
+		(* bool to,__)  ( zext fills the empty bits with zeros, zero extension *)
+	(* |   	(Datatype(Bool_t), Datatype(Int_t)) 				-> (const_zext lhs i32_t, rhs) *)
+	(* | 	(Datatype(Bool_t), Datatype(Char_t))			-> (const_zext lhs i8_t, rhs) *)
+	(* |   	(Datatype(Bool_t), Datatype(Bool_t))				-> (lhs, rhs) *)
+	(* |   	(Datatype(Bool_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
+
+		(* float to,__) ( using fptosi for signed ints *)
+	|   (Datatype(Float_t), Datatype(Int_t)) 			-> (lhs, const_sitofp rhs f_t)
+	(* | 	(Datatype(Float_t), Datatype(Char_t))			-> (lhs, const_uitofp rhs f_t) *)
+	(* |   	(Datatype(Float_t), Datatype(Bool_t))			-> (lhs, const_uitofp rhs f_t) *)
+	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs)
+
+	| 	_ 												-> raise Exceptions.CannotCastTypeException
+
+let rec handle_binop e1 op e2 d llbuilder =
+	(* Get the types of e1 and e2 *) 
+	let type1 = Analyzer.get_type_from_sexpr e1 in
+	let type2 = Analyzer.get_type_from_sexpr e2 in
+
+	(* Generate llvalues from e1 and e2 *)
+
 	let e1 = codegen_sexpr llbuilder e1 in
 	let e2 = codegen_sexpr llbuilder e2 in
+
+	let float_ops op e1 e2 =
 	match op with
-			Add 		-> build_add e1 e2 "addtmp" llbuilder
+		Add 		-> build_fadd e1 e2 "flt_addtmp" llbuilder
+	| 	Sub 		-> build_fsub e1 e2 "flt_subtmp" llbuilder
+	| 	Mult 		-> build_fmul e1 e2 "flt_multmp" llbuilder
+	| 	Div 		-> build_fdiv e1 e2 "flt_divtmp" llbuilder
+	| 	Equal 		-> build_fcmp Fcmp.Oeq e1 e2 "flt_eqtmp" llbuilder
+	| 	Neq 		-> build_fcmp Fcmp.One e1 e2 "flt_neqtmp" llbuilder
+	| 	Less 		-> build_fcmp Fcmp.Olt e1 e2 "flt_lesstmp" llbuilder
+	| 	Leq 		-> build_fcmp Fcmp.Ole e1 e2 "flt_leqtmp" llbuilder
+	| 	Greater		-> build_fcmp Fcmp.Ogt e1 e2 "flt_sgttmp" llbuilder
+	| 	Geq 		-> build_fcmp Fcmp.Oge e1 e2 "flt_sgetmp" llbuilder
+	| 	_ 			-> raise Exceptions.FloatOpNotSupported 
+
+	in 
+
+	(* chars are considered ints, so they will use int_ops as well*)
+	let int_ops op e1 e2 = 
+	match op with
+		Add 		-> build_add e1 e2 "addtmp" llbuilder
 	| 	Sub 		-> build_sub e1 e2 "subtmp" llbuilder
 	| 	Mult 		-> build_mul e1 e2 "multmp" llbuilder
-	| 	Div 		-> build_fdiv e1 e2 "divtmp" llbuilder
-	| 	Equal 	-> build_icmp Icmp.Eq e1 e2 "eqtmp" llbuilder
+	| 	Div 		-> build_sdiv e1 e2 "divtmp" llbuilder
+	| 	Equal 		-> build_icmp Icmp.Eq e1 e2 "eqtmp" llbuilder
 	| 	Neq 		-> build_icmp Icmp.Ne e1 e2 "neqtmp" llbuilder
 	| 	Less 		-> build_icmp Icmp.Slt e1 e2 "lesstmp" llbuilder
 	| 	Leq 		-> build_icmp Icmp.Sle e1 e2 "leqtmp" llbuilder
-	| 	Greater -> build_icmp Icmp.Sgt e1 e2 "sgttmp" llbuilder
+	| 	Greater		-> build_icmp Icmp.Sgt e1 e2 "sgttmp" llbuilder
 	| 	Geq 		-> build_icmp Icmp.Sge e1 e2 "sgetmp" llbuilder
 	| 	And 		-> build_and e1 e2 "andtmp" llbuilder
 	| 	Or 			-> build_or  e1 e2 "ortmp" llbuilder
-	| 	_ 			-> raise Exceptions.InvalidBinaryOperator
+	| 	_ 			-> raise Exceptions.InvalidBinaryOperator 
+	in 
+	
+	let (e1, e2) = if type1 <> type2 then cast e1 e2 type1 type2 else (e1, e2) in
+
+	let type_handler d = match d with
+			Datatype(Int_t)		-> int_ops op e1 e2
+		|	Datatype(Float_t)   -> float_ops op e1 e2
+		|   Datatype(Bool_t) 	-> int_ops op e1 e2
+		| 	Datatype(Char_t) 	-> int_ops op e1 e2
+		|   _ -> raise Exceptions.InvalidBinopEvaluationType
+	in
+
+	type_handler d 
+
 
 and codegen_print llbuilder el = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
@@ -57,7 +125,7 @@ and codegen_print llbuilder el =
 	let map_param_to_string = function 
 			Arraytype(Char_t, 1) 	-> "%s"
 		| 	Datatype(Int_t) 		-> "%d"
-		| 	Datatype(Float_t) 	-> "%f"
+		| 	Datatype(Float_t) 		-> "%f"
 		| 	Datatype(Bool_t) 		-> "%d"
 		| 	Datatype(Char_t) 		-> "%c"
 		| 	_ 									-> raise (Exceptions.InvalidTypePassedToPrintf)
@@ -105,7 +173,7 @@ and codegen_sexpr llbuilder = function
 	|   SString_Lit(s, d)         -> build_global_stringptr s "" llbuilder
 	|   SChar_Lit(c, d)           -> const_int i32_t (Char.code c)
 	|   SId(id, d)                -> codegen_id id llbuilder
-	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 llbuilder
+	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
@@ -114,7 +182,7 @@ and codegen_sexpr llbuilder = function
 	|   SCall(fname, el, d)       -> codegen_func_call llbuilder el fname		
 	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SUnop(op, e, d)           -> build_global_stringptr "Hi" "" llbuilder
+	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
 let rec codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
