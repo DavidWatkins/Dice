@@ -1,0 +1,19 @@
+class test {
+	public void main(char[][] args) {
+	  if (true)
+	  	if(true) 
+	  		print(42); 
+	  print(27);
+	  else 
+	  	print(8);
+
+	  if (false)
+	  	if(true) 
+	  		print(42); 
+	  print(27);
+	  else 
+	  	print(8);
+
+
+	}
+}

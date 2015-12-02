@@ -1,0 +1,9 @@
+class test {
+	public void main(char[][] args) {
+		print(not true);
+		print(not false);
+		print("\n");
+		print(not true and true);
+		print(not (true and true));
+	}
+}
