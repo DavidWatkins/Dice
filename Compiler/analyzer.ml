@@ -156,14 +156,16 @@ and check_call_type global_cmap env s el =
 	SCall(s, sel, Datatype(Void_t))
 
 and check_object_constructor global_cmap env s el = 
-(* check that `s` is in the list of class names *)
+(* check that `s` is in the list of defined classes *)
 if not (StringMap.mem s global_cmap) then raise (Exceptions.UnknownIdentifier s)
 else
     let sel, env = exprl_to_sexprl global_cmap env el in
     let cmap = StringMap.find s global_cmap in 
+    (* get a list of the types of the actuals to match against defined constructor formals *)
     let types_of_actuals = List.fold_left (fun acc x -> acc @ [get_type_string (get_type_from_sexpr x)]) [] sel in 
+    (* get constructors for the class being instantiated *)
     let constructor_decls = List.fold_left (fun acc (k,v) -> v::acc) [] (StringMap.bindings cmap.constructor_map) in 
-    
+    (* match list of the types of actuals against the types in all known formals *) 
     let constructor_formal_lists = List.fold_left (fun acc x -> (get_formal_types x.formals)::acc) [] constructor_decls in  
     let matched = List.exists (fun l -> l = types_of_actuals) constructor_formal_lists in 
     if matched then SObjectCreate(s, sel,Datatype(Objecttype(s))) 
@@ -321,8 +323,10 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
                                                 env_callStack = env.env_callStack;
                                                 env_reserved = env.env_reserved;
                                             } in 
+                                            (* if the user-defined type being declared is not 
+                                            in global classes map, it is an undefined class *)
                                             (match d with
-                                            Datatype(Objecttype(x)) -> (if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UnknownIdentifier (get_type_string d)) else SLocal(d, s, se), new_env)
+                                            Datatype(Objecttype(x)) -> (if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UndefinedClass (get_type_string d)) else SLocal(d, s, se), new_env)
                                             | _ -> SLocal(d, s, se), new_env) 
                                         else raise Exceptions.LocalTypeMismatch
 	in

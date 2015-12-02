@@ -71,6 +71,8 @@ let _ =
 		| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
 		| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"
         |   Exceptions.DuplicateLocal(str)          -> print_string ("DuplicateLocal: " ^ str ^ "\n")
+        |   Exceptions.UndefinedClass(str)        -> print_string("UndefinedClass: " ^ str ^ "\n")
+
         |   Exceptions.UnknownIdentifier(str)        -> print_string("UnknownIdentifier: " ^ str ^ "\n")
 		| 	Exceptions.InvalidBinopExpression(str)		-> print_string ("InvalidBinopExpression: " ^ str ^ "\n")
 		| 	Exceptions.InvalidIfStatementType		-> print_string "InvalidIfStatementType \n"

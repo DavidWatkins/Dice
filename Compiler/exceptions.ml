@@ -14,6 +14,7 @@ exception DuplicateField
 exception DuplicateFunction
 exception DuplicateConstructor
 exception DuplicateLocal of string
+exception UndefinedClass of string
 exception UnknownIdentifier of string
 exception InvalidBinopExpression of string
 exception InvalidIfStatementType
