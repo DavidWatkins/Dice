@@ -29,9 +29,9 @@ let str_type = Arraytype(Char_t, 1)
 let noop = SNoexpr(Datatype(Int_t))
 
 let debug = fun s ->  
-	(* print_endline ("`````````````````````````````````````"^s);
+	print_endline ("`````````````````````````````````````"^s);
 	dump_module the_module;
-	print_endline ("`````````````````````````````````````"^s); *)
+	print_endline ("`````````````````````````````````````"^s);
 	()
 
 let rec get_ptr_type datatype = match datatype with
@@ -54,7 +54,8 @@ and get_type (datatype:Ast.datatype) = match datatype with
 
 (* cast will return an llvalue of the desired type *)
 (* The commented out casts are unsupported actions in Dice *)
-let cast lhs rhs lhsType rhsType llbuilder = match (lhsType, rhsType) with
+let cast lhs rhs lhsType rhsType llbuilder = 
+	match (lhsType, rhsType) with
 		(* int to,__ ) ( using const_sitofp for signed ints *)
 		(Datatype(Int_t), Datatype(Int_t))				-> (lhs, rhs), Datatype(Int_t)
 	| 	(Datatype(Int_t), Datatype(Char_t))				-> (build_uitofp lhs i8_t "" llbuilder, rhs), Datatype(Char_t)
@@ -79,7 +80,7 @@ let cast lhs rhs lhsType rhsType llbuilder = match (lhsType, rhsType) with
 	(* |   	(Datatype(Float_t), Datatype(Bool_t))			-> (lhs, const_uitofp rhs f_t) *)
 	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs), Datatype(Float_t)
 
-	| 	_ 												-> raise Exceptions.CannotCastTypeException
+	| 	_ 												-> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype lhsType, Utils.string_of_datatype rhsType))
 
 let rec handle_binop e1 op e2 d llbuilder =
 	(* Get the types of e1 and e2 *) 
@@ -191,24 +192,25 @@ and codegen_sizeof el llbuilder =
 	let type_of = Analyzer.get_type_from_sexpr (List.hd el) in
 	size_of (get_type type_of)
 
-and codegen_cast el llbuilder =
-	let cast_malloc_to_objtype lhs lhsType llbuilder = match lhsType with
-		Arraytype(Objecttype(x), 1) -> 
+and codegen_cast el d llbuilder =
+	let cast_malloc_to_objtype lhs currType newType llbuilder = match newType with
+		Datatype(Objecttype(x)) -> 
 			let obj_type = get_type (Arraytype(Objecttype(x), 1)) in
+			debug "Casting";
 			build_pointercast lhs obj_type "" llbuilder
-		| 	_  -> raise Exceptions.CannotCastTypeException
+		| 	_ as t -> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype currType, Utils.string_of_datatype t))
 	in
 	let expr = List.hd el in
 	let t = Analyzer.get_type_from_sexpr expr in
 	let expr = codegen_sexpr llbuilder expr in
-	cast_malloc_to_objtype expr t llbuilder
+	cast_malloc_to_objtype expr t d llbuilder
 
 
-and codegen_call llbuilder el = function
+and codegen_call llbuilder d el = function
 		"print" 	-> codegen_print el llbuilder
 	(* |  	"malloc" 	-> codegen_malloc el llbuilder *)
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
-	| 	"cast" 		-> codegen_cast el llbuilder
+	| 	"cast" 		-> codegen_cast el d llbuilder
 	| 	_ as fname 	-> codegen_func_call fname el llbuilder
 
 and codegen_id id d llbuilder = 
@@ -291,7 +293,7 @@ and codegen_sexpr llbuilder = function
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access e1 e2 d llbuilder
-	|   SCall(fname, el, d)       -> codegen_call llbuilder el fname		
+	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder

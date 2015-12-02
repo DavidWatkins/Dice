@@ -163,7 +163,7 @@ and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 
 and check_obj_access env lhs rhs = 
 	let check_lhs = function
-		This 			-> SId("this", Arraytype(Objecttype(env.env_name), 1))
+		This 			-> SId("this", Datatype(Objecttype(env.env_name)))
 	|	Id s 			-> SId(s, get_ID_type env s)
 	| 	Call(fname, el) -> check_call_type env fname el
 	| 	_ as e 	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc (Utils.string_of_expr e))
@@ -492,7 +492,7 @@ let add_default_constructors cdecls class_maps =
 		]
 		in
 		{
-			sfname 			= FName(cdecl.cname ^ "constructor");
+			sfname 			= FName(cdecl.cname ^ "." ^ "constructor");
 			sreturnType 	= Datatype(Objecttype(cdecl.cname));
 			sformals 		= [];
 			sbody 			= fbody;

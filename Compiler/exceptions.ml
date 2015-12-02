@@ -42,7 +42,7 @@ exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
 exception UnknownVariable of string
 exception AssignLHSMustBeAssignable
-exception CannotCastTypeException
+exception CannotCastTypeException of string * string
 exception InvalidBinopEvaluationType
 exception FloatOpNotSupported
 exception IntOpNotSupported
