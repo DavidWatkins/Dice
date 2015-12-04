@@ -1,14 +1,18 @@
+(* Dice Exceptions *)
+exception InvalidNumberCompilerArguments of int
+exception InvalidCompilerArgument of string
+
 (* Processor Exceptions *)
 exception MissingEOF
 
 (* Scanner Exceptions *)
-exception IllegalCharacter of char * int
+exception IllegalCharacter of string * char * int
 exception UnmatchedQuotation of int
 exception IllegalToken of string
 
 (* Analyzer Exceptions *)
 exception IncorrectNumberOfArgumentsException
-exception ConstructorNotFound
+exception ConstructorNotFound of string
 exception DuplicateClassName
 exception DuplicateField
 exception DuplicateFunction
@@ -26,13 +30,16 @@ exception InvalidWhileStatementType
 exception LocalTypeMismatch
 exception InvalidUnaryOperation
 exception AssignmentTypeMismatch
+exception FunctionNotFound of string
+exception UndefinedID of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
-exception UnknownVariable
+exception UnknownVariable of string
 exception AssignLHSMustBeAssignable
 exception CannotCastTypeException
 exception InvalidBinopEvaluationType
 exception FloatOpNotSupported
 exception IntOpNotSupported
+exception LLVMFunctionNotFound of string

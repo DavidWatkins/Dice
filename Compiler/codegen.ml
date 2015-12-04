@@ -16,12 +16,14 @@ let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
 let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 50
+let named_params:(string, llvalue) Hashtbl.t = Hashtbl.create 50
 
 let i32_t = i32_type context;;
 let i8_t = i8_type context;;
 let f_t = double_type context;;
 let i1_t = i1_type context;;
 let str_t = pointer_type i8_t;;
+let void_t = void_type context;;
 
 let str_type = Arraytype(Char_t, 1)
 let noop = SNoexpr(Datatype(Int_t))
@@ -32,6 +34,7 @@ let get_type datatype = match datatype with
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
 	|  	Arraytype(Char_t, 1) -> str_t
+	| 	Datatype(Void_t) -> void_t
 	| 	_ -> i32_t (* WRONG *)
 
 (* cast will return an llvalue of the desired type *)
@@ -119,10 +122,13 @@ let rec handle_binop e1 op e2 d llbuilder =
 
 	type_handler d
 
+and func_lookup fname = 
+	match (lookup_function fname the_module) with
+			None 	-> raise (Exceptions.LLVMFunctionNotFound fname)
+		|  	Some f 	-> f
 
-and codegen_print llbuilder el = 
-	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
-	let printf = declare_function "printf" printf_ty the_module in
+and codegen_print el llbuilder= 
+	let printf = func_lookup "printf" in
 	let tmp_count = ref 0 in
 	let incr_tmp = fun x -> incr tmp_count in
 
@@ -161,16 +167,20 @@ and codegen_print llbuilder el =
 	let s = build_in_bounds_gep s [| zero |] "" llbuilder in
 	build_call printf (Array.of_list (s :: params)) "" llbuilder
 
-and codegen_func_call llbuilder el = function
-		"print" -> codegen_print llbuilder el
-	| 	_ -> build_global_stringptr "Hi" "" llbuilder
+and codegen_func_call fname el llbuilder = 
+	let f = func_lookup fname in
+	let params = List.map (codegen_sexpr llbuilder) el in
+	build_call f (Array.of_list params) "" llbuilder
+
+and codegen_call llbuilder el = function
+		"print" 	-> codegen_print el llbuilder
+	| 	_ as fname 	-> codegen_func_call fname el llbuilder
 
 and codegen_id id llbuilder = 
-	let v = try Hashtbl.find named_values id with
-		| Not_found -> raise Exceptions.UnknownVariable
-	in
-	(* Load the value. *)
-	build_load v id llbuilder
+	try build_load (Hashtbl.find named_values id) id llbuilder 
+	with | Not_found -> 
+	try Hashtbl.find named_params id
+	with | Not_found -> raise (Exceptions.UnknownVariable id)
 
 and codegen_assign lhs rhs llbuilder = 
 	(* Special case '=' because we don't want to emit the LHS as an
@@ -204,7 +214,7 @@ and codegen_sexpr llbuilder = function
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> build_global_stringptr "Hi" "" llbuilder
-	|   SCall(fname, el, d)       -> codegen_func_call llbuilder el fname		
+	|   SCall(fname, el, d)       -> codegen_call llbuilder el fname		
 	|   SObjectCreate(id, el, d)  -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
@@ -323,15 +333,41 @@ and codegen_stmt llbuilder = function
 	|   SContinue        			-> build_global_stringptr "Hi" "" llbuilder
 	|   SLocal(d, s, e)  			-> codegen_alloca d s e llbuilder
 
+let codegen_funcstub sfdecl = 
+	let fname = (Utils.string_of_fname sfdecl.sfname) in
+	let is_var_arg = ref false in
+	let params = List.rev (List.fold_left (fun l -> (function Formal(t, _) -> get_type t :: l | _ -> is_var_arg := true; l )) [] sfdecl.sformals) in
+	let fty = if !is_var_arg 
+			then var_arg_function_type (get_type sfdecl.sreturnType) (Array.of_list params)
+			else function_type (get_type sfdecl.sreturnType) (Array.of_list params) 
+	in
+	define_function fname fty the_module
+
+let init_params f formals =
+	let formals = Array.of_list formals in
+	Array.iteri (fun i a ->
+        let n = formals.(i) in
+        let n = Utils.string_of_formal_name n in
+        set_value_name n a;
+        Hashtbl.add named_params n a;
+    ) (params f)
+
 let codegen_func sfdecl = 
 	Hashtbl.clear named_values;
-	let fty = function_type (get_type sfdecl.sreturnType) [| |] in
-	let f = define_function (Utils.string_of_fname sfdecl.sfname) fty the_module in
+	let fname = (Utils.string_of_fname sfdecl.sfname) in
+	let f = func_lookup fname in
 	let llbuilder = builder_at_end context (entry_block f) in
+	let _ = init_params f sfdecl.sformals in 
 	let _ = codegen_stmt llbuilder (SBlock (sfdecl.sbody)) in
-	build_ret_void llbuilder 
+	if sfdecl.sreturnType = Datatype(Void_t) 
+		then ignore(build_ret_void llbuilder);
+	()
+	
 
-let codegen_library_functions = ()
+let codegen_library_functions = 
+	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
+	let _ = declare_function "printf" printf_ty the_module in
+	()
 
 let codegen_struct s =
 	named_struct_type context s.scname
@@ -346,7 +382,8 @@ let codegen_main main =
 
 let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions in
-	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = List.map (fun s -> codegen_struct s) sprogram.classes in
+	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
+	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = codegen_main sprogram.main in
 	the_module

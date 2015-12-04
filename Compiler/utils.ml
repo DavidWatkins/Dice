@@ -12,7 +12,7 @@ let save file string =
 
 let replace input output =
     Str.global_replace (Str.regexp_string input) output
-
+    
 (* Print data types *)
 
 let string_of_scope = function 
@@ -136,6 +136,10 @@ let string_of_fname = function
 let string_of_formal = function
 		Formal(d, s) -> (string_of_datatype d) ^ " " ^ s
 	|  	_ 			 -> ""
+
+let string_of_formal_name = function
+		Formal(_, s) -> s
+	| 	_ -> ""
 
 let string_of_func_decl fdecl =
 	"" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 

@@ -1,6 +1,7 @@
 { 
 	open Parser 
     let lineno = ref 1
+    let filename = ref ""
 
     let unescape s =
     	Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
@@ -89,7 +90,7 @@ rule token = parse
 | eof          		{ EOF }
 
 | '"' 			{ raise (Exceptions.UnmatchedQuotation(!lineno)) }
-| _ as illegal  { raise (Exceptions.IllegalCharacter(illegal, !lineno)) }
+| _ as illegal  { raise (Exceptions.IllegalCharacter(!filename, illegal, !lineno)) }
 
 and comment = parse
     	return 	{ incr lineno; comment lexbuf }

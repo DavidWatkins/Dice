@@ -32,8 +32,9 @@ type class_map = {
 }
 
 type env = {
-		env_class_map : class_map;
+		env_class_maps: class_map StringMap.t;
 		env_name      : string;
+		env_cmap 	  : class_map;
 		env_locals    : datatype StringMap.t;
 		env_parameters: Ast.formal StringMap.t;
 		env_returnType: datatype;
@@ -63,10 +64,13 @@ let process_includes filename includes classes =
 	in
 	iterate_includes classes (StringMap.add (Filepath.realpath filename) 1 StringMap.empty) includes
 
-let get_name fdecl = 
-	let params = List.fold_left (fun s -> (function Formal(t, s) -> s ^ "," ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
+let get_name cname fdecl = 
+	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
+	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
 	let name = Utils.string_of_fname fdecl.fname in
-	name ^ " " ^ params
+	if name = "main" 
+		then name
+		else cname ^ "." ^ name ^ params
 
 (* Generate list of all classes to be used for semantic checking *)
 let build_class_maps reserved cdecls =
@@ -74,13 +78,19 @@ let build_class_maps reserved cdecls =
 		(* helper global_obj cdecls *)
 		let helper m (cdecl:Ast.class_decl) =  
 			let fieldfun = (fun m -> (function Field(s, d, n) -> if (StringMap.mem (n) m) then raise(Exceptions.DuplicateField) else (StringMap.add n (Field(s, d, n)) m))) in
+			let funcname = get_name cdecl.cname in
 			let funcfun = 
 				(fun m fdecl -> 
-					if (StringMap.mem (get_name fdecl) m) || (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
+					if (StringMap.mem (funcname fdecl) m) || (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
 						then raise(Exceptions.DuplicateFunction) 
-						else (StringMap.add (get_name fdecl) fdecl m)) 
+						else (StringMap.add (funcname fdecl) fdecl m)) 
 			in
-			let constructorfun = (fun m fdecl -> if (StringMap.mem (get_name fdecl) m) then raise(Exceptions.DuplicateConstructor) else  (StringMap.add (get_name fdecl) fdecl m)) in
+			let constructor_name = get_name cdecl.cname in
+			let constructorfun = (fun m fdecl -> 
+									if StringMap.mem (constructor_name fdecl) m 
+										then raise(Exceptions.DuplicateConstructor) 
+										else (StringMap.add (constructor_name fdecl) fdecl m)) 
+			in
 			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName) else
 				StringMap.add cdecl.cname 
 						{ field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
@@ -126,27 +136,12 @@ let get_arithmetic_binop_type se1 se2 op = function
 
         | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
 
-
-let get_type_string = function
-    Datatype(Int_t) -> "INT"
-    | Datatype(Float_t) -> "FLOAT" 
-    | Datatype(Char_t) -> "CHAR"
-    | Datatype(Bool_t) -> "BOOL"
-    | Datatype(Void_t) -> "VOID"
-    | Datatype(Null_t) -> "NULL"
-    | Datatype(Objecttype(s)) -> s
-    | _ -> "some other type"
-
-let get_formal_typestr = function 
-    Formal(d, s) -> get_type_string d
-    | Many(d) -> get_type_string d
-
-(* given a list of formals, returns a list of types only *)
-let get_formal_types fmls = 
-List.fold_left (fun tstrings fml -> (get_formal_typestr fml)::tstrings) [] fmls
-(*["CHAR";"BOOL"]*)
-
-let rec get_ID_type env s = StringMap.find s env.env_locals
+let rec get_ID_type env s = 
+	try StringMap.find s env.env_locals
+	with | Not_found -> 
+	try let formal = StringMap.find s env.env_parameters in
+		(function Formal(t, _) -> t | Many t -> t ) formal
+	with | Not_found -> raise (Exceptions.UndefinedID s)
 
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
 
@@ -156,36 +151,56 @@ and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 
 and check_obj_access env e1 e2 = SInt_Lit(0, Datatype(Int_t))
 
-and check_call_type global_cmap env s el = 
-	let sel, env = exprl_to_sexprl global_cmap env el in
-	SCall(s, sel, Datatype(Void_t))
+and check_call_type env fname el = 
+	let sel, env = exprl_to_sexprl env el in
+	(* check that 'env.env_name' is in the list of defined classes *)
+	let cmap = 
+		try StringMap.find env.env_name env.env_class_maps
+		with | Not_found -> raise (Exceptions.UndefinedClass env.env_name)
+	in
+	(* get a list of the types of the actuals to match against defined function formals *)
+	let params = List.fold_left (fun s e -> s ^ "." ^ (Utils.string_of_datatype (get_type_from_sexpr e))) "" sel in
+	let sfname = env.env_name ^ "." ^ fname ^ params in
+	let (fname, ftype, func_type) = 
+		try (sfname, (StringMap.find sfname cmap.func_map).returnType, User)
+		with | Not_found -> 
+		try (fname, (StringMap.find fname cmap.reserved_map).sreturnType, Reserved)
+		with | Not_found -> raise (Exceptions.FunctionNotFound fname)
+	in
+	(* Add a reference to the class in front of the function call *)
+	(* Must properly handle the case where this is a reserved function *)
+	let sel = if func_type = Sast.User then SNoexpr(Datatype(Void_t)) :: sel else sel in
+	SCall(fname, sel, ftype)
 
-and check_object_constructor global_cmap env s el = 
-(* check that `s` is in the list of defined classes *)
-if not (StringMap.mem s global_cmap) then raise (Exceptions.UndefinedClass s)
-else
-    let sel, env = exprl_to_sexprl global_cmap env el in
-    let cmap = StringMap.find s global_cmap in 
-    (* get a list of the types of the actuals to match against defined constructor formals *)
-    let types_of_actuals = List.fold_left (fun acc x -> acc @ [get_type_string (get_type_from_sexpr x)]) [] sel in 
-    (* get constructors for the class being instantiated *)
-    let constructor_decls = List.fold_left (fun acc (k,v) -> v::acc) [] (StringMap.bindings cmap.constructor_map) in 
-    (* match list of the types of actuals against the types in all known formals *) 
-    let constructor_formal_lists = List.fold_left (fun acc x -> (get_formal_types x.formals)::acc) [] constructor_decls in  
-    let matched = List.exists (fun l -> l = types_of_actuals) constructor_formal_lists in 
-    if matched then SObjectCreate(s, sel,Datatype(Objecttype(s))) 
-    else raise Exceptions.ConstructorNotFound
+and check_object_constructor env s el = 
+	let sel, env = exprl_to_sexprl env el in
+	(* check that 'env.env_name' is in the list of defined classes *)
+	let cmap = 
+		try StringMap.find env.env_name env.env_class_maps
+		with | Not_found -> raise (Exceptions.UndefinedClass env.env_name)
+	in
+	(* get a list of the types of the actuals to match against defined function formals *)
+	let params = List.fold_left (fun s e -> s ^ "." ^ (Utils.string_of_datatype (get_type_from_sexpr e))) "" sel in
+	let constructor_name = env.env_name ^ "." ^ "constructor" ^ params in
+	let fdecl = 
+		try StringMap.find constructor_name cmap.constructor_map
+		with | Not_found -> raise (Exceptions.ConstructorNotFound constructor_name)
+	in
+	let ftype = fdecl.returnType in
+	(* Add a reference to the class in front of the function call *)
+	(* Must properly handle the case where this is a reserved function *)
+	SObjectCreate(constructor_name, sel, ftype)
 
-and check_assign global_cmap env e1 e2 = 
-	let se1, env = expr_to_sexpr global_cmap env e1 in
-	let se2, env = expr_to_sexpr global_cmap env e2 in
+and check_assign env e1 e2 = 
+	let se1, env = expr_to_sexpr env e1 in
+	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in 
 	if type1 = type2 
 		then SAssign(se1, se2, type1)
 		else raise (Exceptions.AssignmentTypeMismatch)
 
-and check_unop global_cmap env op e = 
+and check_unop env op e = 
 	let check_num_unop t = function
 			Sub 	-> t
 		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
@@ -194,7 +209,7 @@ and check_unop global_cmap env op e =
 			Not 	-> Datatype(Bool_t)
 		| 	_ 		-> raise(Exceptions.InvalidUnaryOperation)
 	in
-	let se, env = expr_to_sexpr global_cmap env e in
+	let se, env = expr_to_sexpr env e in
 	let t = get_type_from_sexpr se in
 	match t with 
 		Datatype(Int_t) 	
@@ -202,10 +217,10 @@ and check_unop global_cmap env op e =
 	|  	Datatype(Bool_t) 	-> SUnop(op, se, check_bool_unop op)
 	| 	_ -> raise(Exceptions.InvalidUnaryOperation)
 
-and check_binop global_cmap env e1 op e2 =
+and check_binop env e1 op e2 =
     let ts = List.fold_left (fun map (key, value) -> TM.add key value map) TM.empty [(Equal, "Equal"); (Add, "Add"); (Sub, "Sub"); (Mult, "Mult"); (Div, "Div"); (And, "And"); (Or, "Or")] in   
-	let se1, env = expr_to_sexpr global_cmap env e1 in
-	let se2, env = expr_to_sexpr global_cmap env e2 in
+	let se1, env = expr_to_sexpr env e1 in
+	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in
     match op with
@@ -215,7 +230,7 @@ and check_binop global_cmap env e1 op e2 =
     | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
     | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
 
-and expr_to_sexpr global_cmap env = function
+and expr_to_sexpr env = function
 		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
 	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t)), env
 	|   Float_Lit f         -> SFloat_Lit(f, Datatype(Float_t)), env
@@ -227,16 +242,16 @@ and expr_to_sexpr global_cmap env = function
 	|   Noexpr              -> SNoexpr(Datatype(Void_t)), env
 
 	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2, env
-	|   ObjectCreate(s, el) -> check_object_constructor global_cmap env s el, env
-	|   Call(s, el)         -> check_call_type global_cmap env s el, env
+	|   ObjectCreate(s, el) -> check_object_constructor env s el, env
+	|   Call(s, el)         -> check_call_type env s el, env
 
 	|   ArrayCreate(d, el)  -> check_array_init env d el, env
 	|   ArrayAccess(e, el)  -> check_array_access e el, env
 	|   ArrayPrimitive el   -> check_array_primitive env el, env
 
-	|   Assign(e1, e2)      -> check_assign global_cmap env e1 e2, env
-	|   Unop(op, e)         -> check_unop global_cmap env op e, env
-	|   Binop(e1, op, e2)   -> check_binop global_cmap env e1 op e2, env
+	|   Assign(e1, e2)      -> check_assign env e1 e2, env
+	|   Unop(op, e)         -> check_unop env op e, env
+	|   Binop(e1, op, e2)   -> check_binop env e1 op e2, env
 
 
 and get_type_from_sexpr = function
@@ -258,33 +273,33 @@ and get_type_from_sexpr = function
 	|  	SUnop(_, _, d) 			-> d
 	| 	SNull d 				-> d
 
-and exprl_to_sexprl global_cmap env el =
+and exprl_to_sexprl env el =
   let env_ref = ref(env) in
   let rec helper = function
       head::tail ->
-        let a_head, env = expr_to_sexpr global_cmap !env_ref head in
+        let a_head, env = expr_to_sexpr !env_ref head in
         env_ref := env;
         a_head::(helper tail)
     | [] -> []
   in (helper el), !env_ref
 
 (* Update this function to return an env object *)
-let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list = 
+let rec convert_stmt_list_to_sstmt_list env stmt_list = 
 	let rec helper env = function 
-			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list global_cmap env sl in
+			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
 										SBlock(sl), env
 
-		| 	Expr e 					-> 	let se, env = expr_to_sexpr global_cmap env e in
+		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in 
 									   	SExpr(se, t), env
 
-		| 	Return e 				-> 	let se, _ = expr_to_sexpr global_cmap env e in
+		| 	Return e 				-> 	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
 										if t = env.env_returnType 
 											then SReturn(se, t), env
 											else raise Exceptions.ReturnTypeMismatch
 
-		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr global_cmap env e in
+		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
 										let ifbody, _ = helper env s1 in
 										let elsebody, _ = helper env s2 in
@@ -292,16 +307,16 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
 											then SIf(se, ifbody, elsebody), env
 											else raise Exceptions.InvalidIfStatementType
 
-		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr global_cmap env e1 in
-										let se2, _ = expr_to_sexpr global_cmap env e2 in
-										let se3, _ = expr_to_sexpr global_cmap env e3 in
+		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr env e1 in
+										let se2, _ = expr_to_sexpr env e2 in
+										let se3, _ = expr_to_sexpr env e3 in
 										let forbody, _ = helper env s in
 										let conditional = get_type_from_sexpr se2 in
 										if (conditional = Datatype(Bool_t) || conditional = Datatype(Void_t))
 											then SFor(se1, se2, se3, forbody), env
 											else raise Exceptions.InvalidForStatementType
 
-		| 	While(e, s)				->	let se, _ = expr_to_sexpr global_cmap env e in
+		| 	While(e, s)				->	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
 										let sstmt, _ = helper env s in 
 										if (t = Datatype(Bool_t) || t = Datatype(Void_t)) 
@@ -313,15 +328,16 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
 
 		|   Local(d, s, e) 			-> 	if StringMap.mem s env.env_locals then raise (Exceptions.DuplicateLocal s)
                                         else
-                                        let se, env = expr_to_sexpr global_cmap env e in
+                                        let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
                                         (* TODO allow class Foo someObj = new Goo()
                                         if class Goo extends Foo *)
 										if t = Datatype(Void_t) || t = d 
 										then
                                             let new_env = {
-                                                env_class_map = env.env_class_map;
+                                                env_class_maps = env.env_class_maps;
                                                 env_name = env.env_name;
+                                                env_cmap = env.env_cmap;
                                                 env_locals = StringMap.add s d env.env_locals;
                                                 env_parameters = env.env_parameters;
                                                 env_returnType = env.env_returnType;
@@ -331,7 +347,9 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
                                             (* if the user-defined type being declared is not 
                                             in global classes map, it is an undefined class *)
                                             (match d with
-                                            Datatype(Objecttype(x)) -> (if not (StringMap.mem (get_type_string d) global_cmap) then raise (Exceptions.UndefinedClass (get_type_string d)) else SLocal(d, s, se), new_env)
+                                            Datatype(Objecttype(x)) -> (if not (StringMap.mem (Utils.string_of_datatype d) env.env_class_maps) 
+                                            								then raise (Exceptions.UndefinedClass (Utils.string_of_datatype d)) 
+                                            								else SLocal(d, s, se), new_env)
                                             | _ -> SLocal(d, s, se), new_env) 
                                         else raise Exceptions.LocalTypeMismatch
 	in
@@ -344,11 +362,11 @@ let rec convert_stmt_list_to_sstmt_list global_cmap env stmt_list =
 	| [] -> []
 	in (iter stmt_list), !env_ref
 
-
-let convert_constructor_to_sfdecl global_cmap reserved class_map cname constructor = 
+let convert_constructor_to_sfdecl class_maps reserved class_map cname constructor = 
 	let env = {
-		env_class_map 	= class_map;
+		env_class_maps 	= class_maps;
 		env_name     	= cname;
+		env_cmap 		= class_map;
 		env_locals    	= StringMap.empty;
 		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty constructor.formals;
 		env_returnType	= Datatype(Objecttype(cname));
@@ -356,29 +374,31 @@ let convert_constructor_to_sfdecl global_cmap reserved class_map cname construct
 		env_reserved 	= reserved;
 	} in 
 	{
-		sfname 			= Constructor;
+		sfname 			= Ast.FName (get_name cname constructor);
 		sreturnType 	= Datatype(Objecttype(cname));
 		sformals 		= constructor.formals;
-		sbody 			= fst (convert_stmt_list_to_sstmt_list global_cmap env constructor.body);
+		sbody 			= fst (convert_stmt_list_to_sstmt_list env constructor.body);
 		func_type		= Sast.User;
 	}
 
-let convert_fdecl_to_sfdecl global_cmap reserved class_map cname fdecl = 
+let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
+	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
 	let env = {
-		env_class_map 	= class_map;
+		env_class_maps 	= class_maps;
 		env_name     	= cname;
+		env_cmap 		= class_map;
 		env_locals    	= StringMap.empty;
-		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty fdecl.formals;
+		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty (class_formal :: fdecl.formals);
 		env_returnType	= fdecl.returnType;
 		env_callStack 	= [];
 		env_reserved 	= reserved;
 	} in 
 	(* We add the class as the first parameter to the function for codegen *)
 	{
-		sfname 			= fdecl.fname;
+		sfname 			= Ast.FName (get_name cname fdecl);
 		sreturnType 	= fdecl.returnType;
-		sformals 		= fdecl.formals;
-		sbody 			= fst (convert_stmt_list_to_sstmt_list global_cmap env fdecl.body);
+		sformals 		= class_formal :: fdecl.formals;
+		sbody 			= fst (convert_stmt_list_to_sstmt_list env fdecl.body);
 		func_type		= Sast.User;
 	}
 
@@ -397,14 +417,14 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 		(scdecl, func_list @ sconstructor_list)
 	in 
 		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
-(* 		let _ = List.iter (fun f -> match f.sfname with FName n -> print_string (n ^ "\n") | _ -> ()) (snd overall_list) in
- *)	let mains = (List.find_all (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) (snd overall_list)) in
+		let find_main = (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) in
+		let mains = (List.find_all find_main (snd overall_list)) in
 		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
-		let funcs = (List.filter (fun f -> match f.sfname with FName n -> n <> "main" | _ -> true) (snd overall_list)) in
+		let funcs = (List.filter (fun f -> not (find_main f)) (snd overall_list)) in
 		{
 			classes 		= fst overall_list;
-			functions 	= funcs;
-			main 				= main;
+			functions 		= funcs;
+			main 			= main;
 			reserved 		= reserved;
 		}
 
