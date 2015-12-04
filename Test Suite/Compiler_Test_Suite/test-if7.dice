@@ -1,0 +1,20 @@
+class test {
+	public void main(char[][] args) {
+
+		if(false) { 
+			print("if");
+		} 
+		
+		else if(false) { 
+			print("elseif"); 
+		}
+
+		else if(false) {
+			print("elseif2");
+		}
+
+		else {
+			print("else");
+		}
+	}
+}
