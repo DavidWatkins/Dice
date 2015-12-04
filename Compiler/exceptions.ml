@@ -48,3 +48,4 @@ exception FloatOpNotSupported
 exception IntOpNotSupported
 exception LLVMFunctionNotFound of string
 exception InvalidStructType of string
+exception UnableToCallFunctionWithoutParent of string

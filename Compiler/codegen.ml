@@ -195,8 +195,7 @@ and codegen_sizeof el llbuilder =
 and codegen_cast el d llbuilder =
 	let cast_malloc_to_objtype lhs currType newType llbuilder = match newType with
 		Datatype(Objecttype(x)) -> 
-			let obj_type = get_type (Arraytype(Objecttype(x), 1)) in
-			debug "Casting";
+			let obj_type = get_type (Arraytype(Objecttype(x), 1)) in 
 			build_pointercast lhs obj_type "" llbuilder
 		| 	_ as t -> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype currType, Utils.string_of_datatype t))
 	in
@@ -211,7 +210,7 @@ and codegen_call llbuilder d el = function
 	(* |  	"malloc" 	-> codegen_malloc el llbuilder *)
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
 	| 	"cast" 		-> codegen_cast el d llbuilder
-	| 	_ as fname 	-> codegen_func_call fname el llbuilder
+	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id id d llbuilder = 
 	let _val = 
@@ -250,16 +249,17 @@ and codegen_obj_access lhs rhs d llbuilder =
 	in
 	let check_lhs = function
 		SId(s, d)			-> codegen_id s d llbuilder
-	| 	SCall(fname, el, d) -> codegen_func_call fname (codegen_id "this" d llbuilder) el llbuilder
 	| 	_  	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc ("Need to print sexpr"))
 	in
+	(* Needs to be changed *)
 	let rec check_rhs parent_expr parent_type = 
 		let parent_str = Utils.string_of_object parent_type in
 		function
 			(* Check fields in parent *)
 			SId(field, d) -> 
+				dump_value parent_expr;
 				let field_index = Hashtbl.find struct_field_indexes (parent_str ^ "." ^ field) in
-				build_struct_gep parent_expr field_index "" llbuilder
+				build_struct_gep parent_expr 0 "" llbuilder
 			(* Check functions in parent *)
 		| 	SCall(fname, el, d) 	-> codegen_func_call fname parent_expr el llbuilder
 			(* Set parent, check if base is field *)
@@ -268,17 +268,22 @@ and codegen_obj_access lhs rhs d llbuilder =
 				let e1 = check_rhs parent_expr parent_type e1 in
 				let e2 = check_rhs e1 e1_type e2 in
 				e2
-		| 	_ 				-> raise (Exceptions.InvalidAccessLHS ("Need to print sexpr"))
+		| 	_ -> raise (Exceptions.InvalidAccessLHS ("Need to print sexpr"))
 	in 
 	let lhs_type = Analyzer.get_type_from_sexpr lhs in 
 	let lhs = check_lhs lhs in
 	let rhs = check_rhs lhs lhs_type rhs in
+	debug "rhs";
+
 	rhs
 
 and codegen_obj_create fname el d llbuilder = 
 	let f = func_lookup fname in
+	let t = get_type d in
+	let obj = build_alloca t "" llbuilder in
 	let params = List.map (codegen_sexpr llbuilder) el in
-	build_call f (Array.of_list params) "" llbuilder
+	let _ = build_call f (Array.of_list (obj :: params)) "" llbuilder in
+	obj
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
@@ -394,6 +399,12 @@ and codegen_alloca datatype var_name expr llbuilder =
 		let alloca = build_alloca (get_type datatype) var_name llbuilder in
 		Hashtbl.add named_values var_name alloca;
 		alloca
+	| SObjectCreate(id, el, d) -> 
+		debug "object_create";
+		let ret_val = codegen_obj_create id el d llbuilder in
+		debug "object_create2";
+		Hashtbl.add named_values id ret_val;
+		ret_val
 	| _ -> 
 		let init_val = codegen_sexpr llbuilder expr in
 		let alloca = build_alloca (get_type datatype) var_name llbuilder in
@@ -439,11 +450,12 @@ let codegen_func sfdecl =
 	let llbuilder = builder_at_end context (entry_block f) in
 	let _ = init_params f sfdecl.sformals in 
 	let _ = codegen_stmt llbuilder (SBlock (sfdecl.sbody)) in
+	debug (Utils.string_of_fname sfdecl.sfname);
 	if sfdecl.sreturnType = Datatype(Void_t) 
 		then ignore(build_ret_void llbuilder);
 	()
 	
-let codegen_library_functions = 
+let codegen_library_functions () = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let _ = declare_function "printf" printf_ty the_module in
 	let malloc_ty = function_type (str_t) [| i32_t |] in
@@ -474,7 +486,7 @@ let codegen_main main =
 	build_ret (const_int i32_t 0) llbuilder 
 
 let codegen_sprogram sprogram = 
-	let _ = codegen_library_functions in
+	let _ = codegen_library_functions () in
 	let _ = List.map (fun s -> codegen_struct_stub s) sprogram.classes in
 	let _ = List.map (fun s -> codegen_struct s) sprogram.classes in
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in

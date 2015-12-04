@@ -1,16 +1,20 @@
 #include <stdio.h>
 
-int main() {
+struct s {
+int five;
+};
 
-    int x = 10;
-    int i;
-    for ( i = 2; i < x; i++) {
-        if (x % i == 0)
-            printf("%d is not prime\n", x);
-            break;
-    }
+struct s test(struct s x) {
+	printf("%d", x.five);
+return x;
+}
 
-    printf("Hello %f", 12.0);
+int main() {	
+	struct s y;
+	y.five = 10;
+	y = test(y);
+
+    printf("Hello %d", y.five);
 
     return 0;
 }

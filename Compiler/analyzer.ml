@@ -165,7 +165,7 @@ and check_obj_access env lhs rhs =
 	let check_lhs = function
 		This 			-> SId("this", Datatype(Objecttype(env.env_name)))
 	|	Id s 			-> SId(s, get_ID_type env s)
-	| 	Call(fname, el) -> check_call_type env fname el
+	(* | 	Call(fname, el) -> check_call_type env fname el *)
 	| 	_ as e 	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc (Utils.string_of_expr e))
 	in
 	let rec check_rhs env parent_type = 
@@ -419,6 +419,7 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	in (iter stmt_list), !env_ref
 
 let convert_constructor_to_sfdecl class_maps reserved class_map cname constructor = 
+	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
 	let env = {
 		env_class_maps 	= class_maps;
 		env_name     	= cname;
@@ -432,7 +433,7 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	{
 		sfname 			= Ast.FName (get_name cname constructor);
 		sreturnType 	= Datatype(Objecttype(cname));
-		sformals 		= constructor.formals;
+		sformals 		= class_formal :: constructor.formals;
 		sbody 			= fst (convert_stmt_list_to_sstmt_list env constructor.body);
 		func_type		= Sast.User;
 	}
@@ -516,7 +517,7 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 		let mains = (List.find_all find_main (snd overall_list)) in
 		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
 		let funcs = (List.filter (fun f -> not (find_main f)) (snd overall_list)) in
-		let funcs = (add_default_constructors cdecls class_maps) @ funcs in
+		(* let funcs = (add_default_constructors cdecls class_maps) @ funcs in *)
 		{
 			classes 		= fst overall_list;
 			functions 		= funcs;
