@@ -120,7 +120,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	in
 
 	type_handler d
-
+ 
 and handle_unop op e d llbuilder =
 	(* Get the type of e *) 
 	let eType = Analyzer.get_type_from_sexpr e in
@@ -131,16 +131,17 @@ and handle_unop op e d llbuilder =
 		(Sub, Datatype(Int_t)) 		->  build_neg e "int_unoptmp" llbuilder
 	|   (Sub, Datatype(Float_t)) 	-> 	build_fneg e "flt_unoptmp" llbuilder
 	|   (Not, Datatype(Bool_t)) 	->  build_not e "bool_unoptmp" llbuilder
-	|    _ 	 -> raise Exceptions.UnopNotSupported	
+	|    _ 	 -> raise Exceptions.UnopNotSupported	in
 
 	let unop_type_handler d = match d with
 				Datatype(Float_t)   -> unops op eType e
-			|	Datatype(Int_t)		
-			|   Datatype(Bool_t)	
+			|	Datatype(Int_t)		-> unops op eType e
+			|   Datatype(Bool_t)	-> unops op eType e
 			|   _ -> raise Exceptions.InvalidUnopEvaluationType
 		in
-		unop_type_handler d 
-
+		
+		unop_type_handler d
+ 
 and codegen_print llbuilder el = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let printf = declare_function "printf" printf_ty the_module in
