@@ -6,7 +6,7 @@ class test {
 
 	public void main(char[][] args) {
 	  int a;
-	  a = add(39, 3);
+	  a = this.add(39, 3);
 	  print(a);
 	  return;
 	}

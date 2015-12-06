@@ -9,7 +9,7 @@ class test {
 	  int i;
 	  i = 1;
 
-	  fun(i, i);
+	  this.fun(i, i);
 
 	  print(i);
 	  return;

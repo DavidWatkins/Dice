@@ -1,16 +1,17 @@
 class test {
 	public void main(char[][] args) {
-		print(foo(1,42));
-	 	print(foo(0,37));
+		print(this.foo(1,42));
+	 	print(this.foo(0,37));
 	}
 
 	public int foo(int a, int b) {
 	  int i;
+	  int j = b;
 	  if ( a == 1)
 	    return b + 3;
 	  else
 	    for (i = 0 ; i < 5 ; i = i + 1)
-	       b = b + 5;
-	  return b;  
+	       j = j + 5;
+	  return j;  
 	}  
 }

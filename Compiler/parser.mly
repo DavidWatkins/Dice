@@ -105,7 +105,7 @@ constructor:
 			scope = Public;
 			fname = Constructor;
 			returnType = Datatype(ConstructorType);
-			formals = List.rev $3;
+			formals = $3;
 			body = List.rev $6;
 		}
 	}
@@ -136,7 +136,7 @@ fdecl:
 			scope = $1;
 			fname = FName($3);
 			returnType = $2;
-			formals = List.rev $5;
+			formals = $5;
 			body = List.rev $8;
 		} 
 	}

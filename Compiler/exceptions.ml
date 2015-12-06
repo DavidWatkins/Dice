@@ -32,14 +32,21 @@ exception InvalidUnaryOperation
 exception AssignmentTypeMismatch
 exception FunctionNotFound of string
 exception UndefinedID of string
+exception InvalidAccessLHS of string
+exception LHSofRootAccessMustBeIDorFunc of string
+exception ObjAccessMustHaveObjectType of string
+exception UnknownIdentifierForClass of string * string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
 exception InvalidBinaryOperator
 exception UnknownVariable of string
 exception AssignLHSMustBeAssignable
-exception CannotCastTypeException
+exception CannotCastTypeException of string * string
 exception InvalidBinopEvaluationType
 exception FloatOpNotSupported
 exception IntOpNotSupported
 exception LLVMFunctionNotFound of string
+exception InvalidStructType of string
+exception UnableToCallFunctionWithoutParent of string
+exception CannotAssignParam of string
