@@ -9,8 +9,8 @@ class test {
 
 	public void main(char[][] args) {
 	  int b;
-	  a = 42;
+	  this.a = 42;
 	  b = 57;
-	  print2(a + b * 3, 77);
+	  this.print2(this.a + b * 3, 77);
 	}
 }

@@ -40,15 +40,17 @@ let rec get_ptr_type datatype = match datatype with
 	|	Arraytype(t, i) -> pointer_type (get_ptr_type (Arraytype(t, (i-1))))
 	| 	_ -> raise(Exceptions.InvalidStructType "Array Pointer Type")
 
+and find_struct name = 
+	try Hashtbl.find struct_types name
+	with | Not_found -> raise(Exceptions.InvalidStructType name)
+
 and get_type (datatype:Ast.datatype) = match datatype with 
 		Datatype(Int_t) -> i32_t
 	| 	Datatype(Float_t) -> f_t
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
 	| 	Datatype(Void_t) -> void_t
-	| 	Datatype(Objecttype(name)) -> 
-			(	try Hashtbl.find struct_types name 
-				with | Not_found -> raise(Exceptions.InvalidStructType name))
+	| 	Datatype(Objecttype(name)) -> pointer_type(find_struct name)
 	| 	Arraytype(t, i) -> get_ptr_type (Arraytype(t, (i)))
 	| 	_ -> raise(Exceptions.InvalidStructType "Low level type") 
 
@@ -71,7 +73,7 @@ let cast lhs rhs lhsType rhsType llbuilder =
 		(* bool to,__)  ( zext fills the empty bits with zeros, zero extension *)
 	(* |   	(Datatype(Bool_t), Datatype(Int_t)) 			-> (const_zext lhs i32_t, rhs) *)
 	(* | 	(Datatype(Bool_t), Datatype(Char_t))			-> (const_zext lhs i8_t, rhs) *)
-	(* |   	(Datatype(Bool_t), Datatype(Bool_t))			-> (lhs, rhs) *)
+	|   	(Datatype(Bool_t), Datatype(Bool_t))			-> (lhs, rhs), Datatype(Bool_t)
 	(* |   	(Datatype(Bool_t), Datatype(Float_t))			-> (const_uitofp lhs f_t, rhs) *)
 
 		(* float to,__) ( using fptosi for signed ints *)
@@ -190,12 +192,14 @@ and codegen_func_call fname el llbuilder =
 
 and codegen_sizeof el llbuilder =
 	let type_of = Analyzer.get_type_from_sexpr (List.hd el) in
-	size_of (get_type type_of)
+	let type_of = get_type type_of in
+	let size_of = size_of type_of in
+	build_bitcast size_of i32_t "" llbuilder
 
 and codegen_cast el d llbuilder =
 	let cast_malloc_to_objtype lhs currType newType llbuilder = match newType with
 		Datatype(Objecttype(x)) -> 
-			let obj_type = get_type (Arraytype(Objecttype(x), 1)) in 
+			let obj_type = get_type (Datatype(Objecttype(x))) in 
 			build_pointercast lhs obj_type "" llbuilder
 		| 	_ as t -> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype currType, Utils.string_of_datatype t))
 	in
@@ -210,30 +214,39 @@ and codegen_call llbuilder d el = function
 	(* |  	"malloc" 	-> codegen_malloc el llbuilder *)
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
 	| 	"cast" 		-> codegen_cast el d llbuilder
+	| 	"malloc" 	-> codegen_func_call "malloc" el llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
-and codegen_id id d llbuilder = 
-	let _val = 
-		(	try build_load (Hashtbl.find named_values id) id llbuilder; 
-			with | Not_found -> 
-			try Hashtbl.find named_params id;
-			with | Not_found -> raise (Exceptions.UnknownVariable id))
-	in
-	match d with 
-		Datatype(Objecttype(x)) -> deref _val d llbuilder
-	|  	_ -> _val
+and codegen_id isDeref checkParam id d llbuilder = 
+	if isDeref then
+		try Hashtbl.find named_params id
+		with | Not_found ->
+		try let _val = Hashtbl.find named_values id in
+			build_load _val id llbuilder
+		with | Not_found -> raise (Exceptions.UnknownVariable id)
+	else 
+		try Hashtbl.find named_values id
+		with | Not_found ->
+			try 
+				let _val = Hashtbl.find named_params id in
+				if checkParam then raise (Exceptions.CannotAssignParam id)
+				else _val
+		with | Not_found -> raise (Exceptions.UnknownVariable id)
 
-and codegen_assign lhs rhs llbuilder = 
+and codegen_assign lhs rhs d llbuilder = 
 	(* Special case '=' because we don't want to emit the LHS as an
 	* expression. *)
 	let lhs = match lhs with
-	| 	Sast.SId(id, d) -> codegen_id id d llbuilder
-	|  	SObjAccess(e1, e2, d) -> codegen_obj_access e1 e2 d llbuilder
+	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder
+	|  	SObjAccess(e1, e2, d) -> codegen_obj_access false e1 e2 d llbuilder
 	| _ -> raise Exceptions.AssignLHSMustBeAssignable
 	in
 	(* Codegen the rhs. *)
 	let rhs = codegen_sexpr llbuilder rhs in
-
+	let rhs = match d with 
+			Datatype(Objecttype(_))	-> build_load rhs "" llbuilder
+		| _ -> rhs 
+	 in
 	(* Lookup the name. *)
 	ignore(build_store rhs lhs llbuilder);
 	rhs
@@ -241,14 +254,14 @@ and codegen_assign lhs rhs llbuilder =
 and deref ptr t llbuilder = 
 	build_gep ptr (Array.of_list [ptr]) "" llbuilder
 
-and codegen_obj_access lhs rhs d llbuilder = 
+and codegen_obj_access isAssign lhs rhs d llbuilder = 
 	let codegen_func_call fname parent_expr el llbuilder = 
 		let f = func_lookup fname in
 		let params = List.map (codegen_sexpr llbuilder) el in
 		build_call f (Array.of_list (parent_expr :: params)) "" llbuilder
 	in
 	let check_lhs = function
-		SId(s, d)			-> codegen_id s d llbuilder
+		SId(s, d)			-> codegen_id false false s d llbuilder
 	| 	_  	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc ("Need to print sexpr"))
 	in
 	(* Needs to be changed *)
@@ -257,9 +270,12 @@ and codegen_obj_access lhs rhs d llbuilder =
 		function
 			(* Check fields in parent *)
 			SId(field, d) -> 
-				dump_value parent_expr;
 				let field_index = Hashtbl.find struct_field_indexes (parent_str ^ "." ^ field) in
-				build_struct_gep parent_expr 0 "" llbuilder
+				let _val = build_struct_gep parent_expr field_index "" llbuilder in
+				if isAssign then
+					build_load _val field llbuilder
+				else 
+					_val
 			(* Check functions in parent *)
 		| 	SCall(fname, el, d) 	-> codegen_func_call fname parent_expr el llbuilder
 			(* Set parent, check if base is field *)
@@ -273,31 +289,32 @@ and codegen_obj_access lhs rhs d llbuilder =
 	let lhs_type = Analyzer.get_type_from_sexpr lhs in 
 	let lhs = check_lhs lhs in
 	let rhs = check_rhs lhs lhs_type rhs in
-	debug "rhs";
-
 	rhs
 
 and codegen_obj_create fname el d llbuilder = 
 	let f = func_lookup fname in
-	let t = get_type d in
-	let obj = build_alloca t "" llbuilder in
 	let params = List.map (codegen_sexpr llbuilder) el in
-	let _ = build_call f (Array.of_list (obj :: params)) "" llbuilder in
+	let obj = build_call f (Array.of_list params) "" llbuilder in
 	obj
+
+and codegen_string_lit s llbuilder = 
+	if s = "true" then build_global_stringptr "true" "" llbuilder
+	else if s = "false" then build_global_stringptr "false" "" llbuilder
+	else build_global_stringptr s "" llbuilder
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
 	|   SFloat_Lit(f, d)          -> const_float f_t f 
-	|   SString_Lit(s, d)         -> build_global_stringptr s "" llbuilder
+	|   SString_Lit(s, d)         -> codegen_string_lit s llbuilder
 	|   SChar_Lit(c, d)           -> const_int i32_t (Char.code c)
-	|   SId(id, d)                -> codegen_id id d llbuilder
+	|   SId(id, d)                -> codegen_id true false id d llbuilder
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
-	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 llbuilder
+	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SObjAccess(e1, e2, d)     -> codegen_obj_access e1 e2 d llbuilder
+	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
@@ -316,7 +333,7 @@ and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 
 	(* Emit 'then' value. *)
 	position_at_end then_bb llbuilder;
-	let then_val = codegen_stmt llbuilder then_ in
+	let _(* then_val *) = codegen_stmt llbuilder then_ in
 
 	(* Codegen of 'then' can change the current block, update then_bb for the
 	 * phi. We create a new name because one is used for the phi node, and the
@@ -326,7 +343,7 @@ and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	(* Emit 'else' value. *)
 	let else_bb = append_block context "else" the_function in
 	position_at_end else_bb llbuilder;
-	let else_val = codegen_stmt llbuilder else_ in
+	let _ (* else_val *) = codegen_stmt llbuilder else_ in
 
 	(* Codegen of 'else' can change the current block, update else_bb for the
 	 * phi. *)
@@ -335,8 +352,10 @@ and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	(* Emit merge block. *)
 	let merge_bb = append_block context "ifcont" the_function in
 	position_at_end merge_bb llbuilder;
-	let incoming = [(then_val, new_then_bb); (else_val, new_else_bb)] in
-	let phi = build_phi incoming "iftmp" llbuilder in
+	(* let then_bb_val = value_of_block new_then_bb in *)
+	let else_bb_val = value_of_block new_else_bb in
+	(* let incoming = [(then_bb_val, new_then_bb); (else_bb_val, new_else_bb)] in *)
+	(* let phi = build_phi incoming "iftmp" llbuilder in *)
 
 	(* Return to the start block to add the conditional branch. *)
 	position_at_end start_bb llbuilder;
@@ -350,7 +369,7 @@ and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	(* Finally, set the builder to the end of the merge block. *)
 	position_at_end merge_bb llbuilder;
 
-	phi
+	else_bb_val (* phi *)
 
 and codegen_for init_ cond_ inc_ body_ llbuilder = 
 
@@ -394,28 +413,32 @@ and codegen_for init_ cond_ inc_ body_ llbuilder =
 	const_null f_t
 
 and codegen_alloca datatype var_name expr llbuilder = 
+	let t = match datatype with 
+			Datatype(Objecttype(name)) -> find_struct name
+		|  	_ -> get_type datatype
+	in
+	let alloca = build_alloca t var_name llbuilder in
+	Hashtbl.add named_values var_name alloca;
+	let lhs = SId(var_name, datatype) in
 	match expr with 
-	SNoexpr(_) -> 
-		let alloca = build_alloca (get_type datatype) var_name llbuilder in
-		Hashtbl.add named_values var_name alloca;
-		alloca
-	| SObjectCreate(id, el, d) -> 
-		debug "object_create";
-		let ret_val = codegen_obj_create id el d llbuilder in
-		debug "object_create2";
-		Hashtbl.add named_values id ret_val;
-		ret_val
-	| _ -> 
-		let init_val = codegen_sexpr llbuilder expr in
-		let alloca = build_alloca (get_type datatype) var_name llbuilder in
-		ignore(build_store init_val alloca llbuilder);
-		Hashtbl.add named_values var_name alloca;
-		init_val
+		SNoexpr(_) -> alloca
+	|  	_ -> codegen_assign lhs expr datatype llbuilder
+
+and codegen_ret d expr llbuilder =  
+	let e = match expr with
+		SId(name, d) ->
+			(match d with 
+			| Datatype(Objecttype(_)) -> codegen_id false false name d llbuilder
+			| _ -> codegen_id true true name d llbuilder)
+		| SObjAccess(e1, e2, d) -> codegen_obj_access true e1 e2 d llbuilder
+		| _ -> codegen_sexpr llbuilder expr 
+	in
+	build_ret e llbuilder
 
 and codegen_stmt llbuilder = function
 		SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)	
 	|   SExpr(e, d)          		-> codegen_sexpr llbuilder e
-	|   SReturn(e, d)    			-> build_ret (codegen_sexpr llbuilder e) llbuilder
+	|   SReturn(e, d)    			-> codegen_ret d e llbuilder
 	|   SIf (e, s1, s2)       		-> codegen_if_stmt e s1 s2 llbuilder
 	|   SFor (e1, e2, e3, s)  		-> codegen_for e1 e2 e3 s llbuilder
 	|   SWhile (e, s)    			-> build_global_stringptr "Hi" "" llbuilder
@@ -434,7 +457,7 @@ let codegen_funcstub sfdecl =
 	define_function fname fty the_module
 
 let init_params f formals =
-	let formals = Array.of_list formals in
+	let formals = Array.of_list (formals) in
 	Array.iteri (fun i a ->
         let n = formals.(i) in
         let n = Utils.string_of_formal_name n in
@@ -450,7 +473,6 @@ let codegen_func sfdecl =
 	let llbuilder = builder_at_end context (entry_block f) in
 	let _ = init_params f sfdecl.sformals in 
 	let _ = codegen_stmt llbuilder (SBlock (sfdecl.sbody)) in
-	debug (Utils.string_of_fname sfdecl.sfname);
 	if sfdecl.sreturnType = Datatype(Void_t) 
 		then ignore(build_ret_void llbuilder);
 	()
@@ -479,6 +501,7 @@ let codegen_struct s =
 
 let codegen_main main = 
 	Hashtbl.clear named_values;
+	Hashtbl.clear named_params;
 	let fty = function_type i32_t [| |] in
 	let f = define_function "main" fty the_module in
 	let llbuilder = builder_at_end context (entry_block f) in

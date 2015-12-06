@@ -9,13 +9,13 @@ class test {
 	  l = 1;
 	  print(l);
 	  
-	  g = 3;
-	  print(g);
+	  this.g = 3;
+	  print(this.g);
 	  
 	  l = 5;
 	  print(l+100);
 	  
-	  g = 7;
-	  print(g+100);
+	  this.g = 7;
+	  print(this.g+100);
 	}
 }

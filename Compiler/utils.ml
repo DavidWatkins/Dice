@@ -70,7 +70,7 @@ and string_of_expr = function
 		Int_Lit(i)				-> string_of_int i
 	|	Boolean_Lit(b)			-> if b then "true" else "false"
 	|	Float_Lit(f)			-> string_of_float f
-	|	String_Lit(s)			-> "\"" ^ s ^ "\""
+	|	String_Lit(s)			-> "\"" ^ (String.escaped s) ^ "\""
 	|	Char_Lit(c)				-> Char.escaped c
 	|	This					-> "this"
 	|	Id(s)					-> s
@@ -80,7 +80,7 @@ and string_of_expr = function
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	ArrayPrimitive(el)		-> "|" ^ (string_of_array_primitive el) ^ "|"
-	|  	Unop(op, e)				-> (string_of_op op) ^ string_of_expr e
+	|  	Unop(op, e)				-> (string_of_op op) ^ "(" ^ string_of_expr e ^ ")"
 	|	Null					-> "null"
 	|   ArrayCreate(d, el)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_expr el
   	|   ArrayAccess(e, el)  	-> (string_of_expr e) ^ (string_of_bracket_expr el)
@@ -162,10 +162,9 @@ let string_of_field = function
 	Field(s, d, id) -> (string_of_scope s) ^ " " ^ (string_of_datatype d) ^ " " ^ id ^ ";\n"
 
 let string_of_cbody cbody = 
-	"\t" ^
-	"" ^ String.concat "\t" (List.map string_of_field cbody.fields) ^
-	"\t" ^ String.concat "\t" (List.map string_of_func_decl cbody.constructors) ^
-	"\t" ^ String.concat "\t" (List.map string_of_func_decl cbody.methods)
+	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_field cbody.fields)) ^
+	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.constructors)) ^
+	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.methods))
 
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^

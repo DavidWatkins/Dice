@@ -3,25 +3,25 @@ class test {
   public int b;
 
   public void printa(){
-    print(a);
+    print(this.a);
   }
 
   public void printb(){
-    print(b);
+    print(this.b);
   }
 
   public void incab(){
-    a = a + 1;
-    b = b + 1;
+    this.a = this.a + 1;
+    this.b = this.b + 1;
   }
 
   public void main(char[][] args) {
-      a = 42;
-      b = 21;
-      printa();
-      printb();
-      incab();
-      printa();
-      printb();
+      this.a = 42;
+      this.b = 21;
+      this.printa();
+      this.printb();
+      this.incab();
+      this.printa();
+      this.printb();
   }
 }

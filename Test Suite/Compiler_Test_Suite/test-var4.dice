@@ -1,16 +1,16 @@
 class test {
 	public int a;
 
-	public int foo(int b) {
+	public void foo(int b) {
 	  int c;
-	  c = a;
+	  c = this.a;
 	  print(c);
-	  a = b;
-	  print(a);
+	  this.a = b;
+	  print(this.a);
 	}
 
 	public void main(char[][] args) {
-	  a = 12;
-	  foo(42);
+	  this.a = 12;
+	  this.foo(42);
 	}
 }

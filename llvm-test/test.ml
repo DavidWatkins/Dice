@@ -17,16 +17,18 @@ let _ =
   let i32_t = i32_type llctx in
   let float_t = double_type llctx in
   let struct_t = named_struct_type llctx "test" in
+  let ptr_t = pointer_type struct_t in
+  let str_t = pointer_type i8_t in
   let _ = struct_set_body struct_t [| i32_t |] true in
 
     (* Printf *)
   let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
   let printf = declare_function "printf" printf_ty llm in
-  add_function_attr printf Attribute.Nounwind ;
-  add_param_attr (param printf 0) Attribute.Nocapture ;
+  let malloc_ty = function_type (str_t) [| i32_t |] in
+  let malloc = declare_function "malloc" malloc_ty llm in
 
 (* Func *)
-  let fty = function_type i32_t [| struct_t |] in
+  let fty = function_type ptr_t [| ptr_t |] in
   let test_type = define_function "test_type" fty llm in
   let llbuilder = builder_at_end llctx (entry_block test_type) in
   let this = param test_type 0 in
@@ -36,8 +38,16 @@ let _ =
   (* let obj = build_alloca struct_t "" llbuilder in *)
   let i = build_struct_gep this 0 "" llbuilder in
   let i = build_load i "" llbuilder in
-   let s = build_global_stringptr "Hello, world! %d\n" "" llbuilder in
+  let s = build_global_stringptr "Hello, world! %d\n" "" llbuilder in
   let _ = build_call printf [| s; i |] "" llbuilder in
+
+  (* Build obj *)
+  let size = build_bitcast (size_of struct_t) i32_t "" llbuilder in
+  let obj = build_call malloc [| size |] "" llbuilder in
+  let obj = build_bitcast obj ptr_t "" llbuilder in
+  let i = build_struct_gep obj 0 "" llbuilder in
+  ignore(build_store (const_int i32_t 0) i llbuilder);
+  let _ = build_ret obj llbuilder in
 
   (* Main *)
   let fty = function_type i32_t [| |] in
@@ -45,13 +55,18 @@ let _ =
   let llbuilder = builder_at_end llctx (entry_block f) in
 
   (* Code *)
-  let s = build_global_stringptr "Hello, world! %d\n" "" llbuilder in
-  let x = const_int i32_t 5 in
-  let f = const_float float_t 7.0 in
+  let s = build_global_stringptr "Hello, world! %d %d\n" "" llbuilder in
 
   (* Struct code *)
   let obj = build_alloca struct_t "" llbuilder in
-  let _ = build_call test_type [| obj |] "" llbuilder in
+  let i = build_struct_gep obj 0 "" llbuilder in
+  ignore(build_store (const_int i32_t 12) i llbuilder);
+  let obj2 = build_call test_type [| obj |] "" llbuilder in
+  let i = build_struct_gep obj 0 "" llbuilder in
+  let i2 = build_struct_gep obj2 0 "" llbuilder in
+  let i = build_load i "" llbuilder in
+  let i2 = build_load i2 "" llbuilder in
+  let _ = build_call printf [| s; i; i2 |] "" llbuilder in
 (* (*   let i = build_struct_gep obj 0 "" llbuilder in
   let _ = build_store x i llbuilder in *)
   let i = build_struct_gep obj 0 "" llbuilder in

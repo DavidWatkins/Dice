@@ -81,7 +81,7 @@ let get_name cname fdecl =
 	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
 	let name = Utils.string_of_fname fdecl.fname in
 	if name = "main" 
-		then name
+		then "main"
 		else cname ^ "." ^ name ^ params
 
 (* Generate list of all classes to be used for semantic checking *)
@@ -219,7 +219,7 @@ and check_call_type env fname el =
 	in
 	(* Add a reference to the class in front of the function call *)
 	(* Must properly handle the case where this is a reserved function *)
-	let sel = if func_type = Sast.User then SNoexpr(Datatype(Void_t)) :: sel else sel in
+	let sel = if func_type = Sast.User then sel else sel in
 	SCall(fname, sel, ftype)
 
 and check_object_constructor env s el = 
@@ -418,8 +418,53 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	| [] -> []
 	in (iter stmt_list), !env_ref
 
+let append_code_to_constructor fbody cname ret_type = 
+	let init_this = [SLocal(
+		ret_type,
+		"this",
+		SCall(	"cast", 
+				[SCall("malloc", 
+					[	
+						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t))
+					], 
+					Arraytype(Char_t, 1))
+				],
+				ret_type
+			)
+		)
+	]
+	in
+	let ret_this = 
+		[
+			SReturn(
+				SId("this", ret_type),
+				ret_type
+			)
+		]
+	in
+	(* Need to check for duplicate default constructs *)
+	(* Also need to add malloc around other constructors *)
+	init_this @ fbody @ ret_this
+
+let append_code_to_main fbody cname ret_type = 
+	let init_this = [SLocal(
+		ret_type,
+		"this",
+		SCall(	"cast", 
+				[SCall("malloc", 
+					[	
+						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t))
+					], 
+					Arraytype(Char_t, 1))
+				],
+				ret_type
+			)
+		)
+	]
+	in 
+	init_this @ fbody
+
 let convert_constructor_to_sfdecl class_maps reserved class_map cname constructor = 
-	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
 	let env = {
 		env_class_maps 	= class_maps;
 		env_name     	= cname;
@@ -430,11 +475,12 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		env_callStack 	= [];
 		env_reserved 	= reserved;
 	} in 
+	let fbody = fst (convert_stmt_list_to_sstmt_list env constructor.body) in
 	{
 		sfname 			= Ast.FName (get_name cname constructor);
 		sreturnType 	= Datatype(Objecttype(cname));
-		sformals 		= class_formal :: constructor.formals;
-		sbody 			= fst (convert_stmt_list_to_sstmt_list env constructor.body);
+		sformals 		= constructor.formals;
+		sbody 			= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
 		func_type		= Sast.User;
 	}
 
@@ -449,13 +495,15 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		env_returnType	= fdecl.returnType;
 		env_callStack 	= [];
 		env_reserved 	= reserved;
-	} in 
+	} in
+	let fbody = fst (convert_stmt_list_to_sstmt_list env fdecl.body) in
+	let fbody = if (get_name cname fdecl) = "main" then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) else fbody in
 	(* We add the class as the first parameter to the function for codegen *)
 	{
 		sfname 			= Ast.FName (get_name cname fdecl);
 		sreturnType 	= fdecl.returnType;
 		sformals 		= class_formal :: fdecl.formals;
-		sbody 			= fst (convert_stmt_list_to_sstmt_list env fdecl.body);
+		sbody 			= fbody;
 		func_type		= Sast.User;
 	}
 
@@ -472,37 +520,6 @@ let default_value t = match t with
 	| 	Datatype(Char_t) 		-> SChar_Lit(Char.chr 0, Datatype(Char_t))
 	|  	Arraytype(Char_t, 1) 	-> SString_Lit("", Arraytype(Char_t, 1))
 	| 	_ 						-> SNull(Datatype(Null_t))
-
-let add_default_constructors cdecls class_maps = 
-
-	let fdecl cdecl = 
-		let fbody = [SLocal(
-			Datatype(Objecttype(cdecl.cname)),
-			"tmp",
-			SCall(	"cast", 
-					[SCall("malloc", 
-					[	
-						SCall("sizeof", 
-						[SNoexpr(Datatype(Objecttype(cdecl.cname)))],
-						Datatype(Int_t))
-					],
-					Arraytype(Char_t, 1))],
-					Datatype(Objecttype(cdecl.cname))));
-
-			SReturn(SId("tmp", Datatype(Objecttype(cdecl.cname))), Datatype(Objecttype(cdecl.cname)));
-		]
-		in
-		{
-			sfname 			= FName(cdecl.cname ^ "." ^ "constructor");
-			sreturnType 	= Datatype(Objecttype(cdecl.cname));
-			sformals 		= [];
-			sbody 			= fbody;
-			func_type		= Sast.User;
-		}
-	in 
-	(* Need to check for duplicate default constructs *)
-	(* Also need to add malloc around other constructors *)
-	List.map fdecl cdecls
 
 let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) = 
 	let handle_cdecl cdecl = 

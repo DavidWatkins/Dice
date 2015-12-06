@@ -1,6 +1,6 @@
 class test {
 
-	public int foo(int a, int b){
+	public void foo(int a, int b){
 	  int c;
 	  int d;
 	  int e;
@@ -10,7 +10,7 @@ class test {
 	}
 	
 	public void main(char[][] args) {
-  		foo(1,2);
+  		this.foo(1,2);
 	}
 
 }
