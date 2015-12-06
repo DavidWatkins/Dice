@@ -50,3 +50,5 @@ exception LLVMFunctionNotFound of string
 exception InvalidStructType of string
 exception UnableToCallFunctionWithoutParent of string
 exception CannotAssignParam of string
+exception InvalidUnopEvaluationType
+exception UnopNotSupported
