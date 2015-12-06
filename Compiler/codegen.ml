@@ -54,6 +54,8 @@ and get_type (datatype:Ast.datatype) = match datatype with
 	| 	Arraytype(t, i) -> get_ptr_type (Arraytype(t, (i)))
 	| 	_ -> raise(Exceptions.InvalidStructType "Low level type") 
 
+
+
 (* cast will return an llvalue of the desired type *)
 (* The commented out casts are unsupported actions in Dice *)
 let cast lhs rhs lhsType rhsType llbuilder = 
@@ -139,13 +141,34 @@ let rec handle_binop e1 op e2 d llbuilder =
 	in
 
 	type_handler d
+ 
+and handle_unop op e d llbuilder =
+	(* Get the type of e *) 
+	let eType = Analyzer.get_type_from_sexpr e in
+	(* Get llvalue  *)
+	let e = codegen_sexpr llbuilder e in
 
+	let unops op eType e = match (op, eType) with
+		(Sub, Datatype(Int_t)) 		->  build_neg e "int_unoptmp" llbuilder
+	|   (Sub, Datatype(Float_t)) 	-> 	build_fneg e "flt_unoptmp" llbuilder
+	|   (Not, Datatype(Bool_t)) 	->  build_not e "bool_unoptmp" llbuilder
+	|    _ 	 -> raise Exceptions.UnopNotSupported	in
+
+	let unop_type_handler d = match d with
+				Datatype(Float_t)   
+			|	Datatype(Int_t)		
+			|   Datatype(Bool_t)	-> unops op eType e
+			|   _ -> raise Exceptions.InvalidUnopEvaluationType
+		in
+		
+		unop_type_handler d
+ 
 and func_lookup fname = 
 	match (lookup_function fname the_module) with
 			None 	-> raise (Exceptions.LLVMFunctionNotFound fname)
 		|  	Some f 	-> f
 
-and codegen_print el llbuilder= 
+and codegen_print el llbuilder = 
 	let printf = func_lookup "printf" in
 	let tmp_count = ref 0 in
 	let incr_tmp = fun x -> incr tmp_count in
@@ -318,7 +341,7 @@ and codegen_sexpr llbuilder = function
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
 	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SUnop(op, e, d)           -> build_global_stringptr "UNOP called" "" llbuilder
+	|   SUnop(op, e, d)           -> handle_unop op e d llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
 and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
