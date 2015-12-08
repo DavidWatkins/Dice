@@ -19,6 +19,17 @@ let get_action = function
 	| 	"-f" 		-> CompileToFile
 	|  	_ as s		-> raise (Exceptions.InvalidCompilerArgument s)
 
+let check_single_argument = function
+		"-h" 	-> Help, ""
+	| 	"-tendl"
+	| 	"-t" 	
+	| 	"-p" 	
+	| 	"-ast" 	
+	| 	"-sast" 
+	| 	"-c" 	
+	| 	"-f" 	-> raise (Exceptions.NoFileArgument)
+	|  	_ as s 	-> CompileToFile, s
+
 let dice_name filename = 
 	let basename = Filename.basename filename in
 	let filename = Filename.chop_extension basename in
@@ -39,21 +50,23 @@ let help_string = (
 	)
 
 let _ =
-	let action, filename = 
-  		if Array.length Sys.argv = 2 then
-			CompileToFile, Sys.argv.(1)
-		else if Array.length Sys.argv = 3 then 
-			get_action Sys.argv.(1), Sys.argv.(2)
-		else raise (Exceptions.InvalidNumberCompilerArguments (Array.length Sys.argv))
-	in 
-	let file_in = open_in filename in
-	try 
+	try
+		let action, filename = 
+			if Array.length Sys.argv = 1 then
+				Help, ""
+	  		else if Array.length Sys.argv = 2 then
+	  			check_single_argument (Sys.argv.(1))
+			else if Array.length Sys.argv = 3 then 
+				get_action Sys.argv.(1), Sys.argv.(2)
+			else raise (Exceptions.InvalidNumberCompilerArguments (Array.length Sys.argv)) 
+		in 
 		(* Added fun () -> <x> so that each is evaluated only when requested *)
-	  let lexbuf 		= 			Lexing.from_channel file_in in
-	  let token_list 	= fun () -> Processor.build_token_list lexbuf in
-	  let program 		= fun () -> Processor.parser filename (token_list ()) in
-	  let sprogram 		= fun () -> Analyzer.analyze filename (program ()) in
-	  let llm 			= fun () -> Codegen.codegen_sprogram (sprogram ()) in
+		let file_in 	= fun () -> open_in filename in
+	  	let lexbuf 		= fun () ->	Lexing.from_channel (file_in ()) in
+	  	let token_list 	= fun () -> Processor.build_token_list (lexbuf ()) in
+	  	let program 	= fun () -> Processor.parser filename (token_list ()) in
+	  	let sprogram 	= fun () -> Analyzer.analyze filename (program ()) in
+	  	let llm 		= fun () -> Codegen.codegen_sprogram (sprogram ()) in
 	  (* let _ = Llvm_analysis.assert_valid_module llm in *)
 	  match action with
 	  		Help 			-> print_string help_string
@@ -81,10 +94,11 @@ let _ =
 				"Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
 			)
 
+	| 	Exceptions.NoFileArgument 				-> print_string ("Must include file argument\n" ^ help_string)
 	|   Exceptions.ConstructorNotFound(str)     -> print_string ("ConstructorNotFound: " ^ str ^ "\n")
 	| 	Exceptions.DuplicateClassName			-> print_string "DuplicateClassName \n"
 	| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
-	| 	Exceptions.DuplicateFunction			-> print_string "DuplicateFunction \n"
+	| 	Exceptions.DuplicateFunction(str)		-> print_string ("DuplicateFunction: " ^ str ^ "\n")
 	| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"
 	|   Exceptions.DuplicateLocal(str)          -> print_string ("DuplicateLocal: " ^ str ^ "\n")
 	|   Exceptions.UndefinedClass(str)        	-> print_string("UndefinedClass: " ^ str ^ "\n")

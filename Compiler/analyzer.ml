@@ -93,9 +93,11 @@ let build_class_maps reserved cdecls =
 			let funcname = get_name cdecl.cname in
 			let funcfun = 
 				(fun m fdecl -> 
-					if (StringMap.mem (funcname fdecl) m) || (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
-						then raise(Exceptions.DuplicateFunction) 
-						else (StringMap.add (funcname fdecl) fdecl m)) 
+					if (StringMap.mem (funcname fdecl) m) 
+						then raise(Exceptions.DuplicateFunction(funcname fdecl)) 
+					else if (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
+						then raise(Exceptions.CannotUseReservedFuncName(Utils.string_of_fname fdecl.fname))
+					else (StringMap.add (funcname fdecl) fdecl m)) 
 			in
 			let constructor_name = get_name cdecl.cname in
 			let constructorfun = (fun m fdecl -> 

@@ -1,6 +1,7 @@
 (* Dice Exceptions *)
 exception InvalidNumberCompilerArguments of int
 exception InvalidCompilerArgument of string
+exception NoFileArgument
 
 (* Processor Exceptions *)
 exception MissingEOF
@@ -15,7 +16,7 @@ exception IncorrectNumberOfArgumentsException
 exception ConstructorNotFound of string
 exception DuplicateClassName
 exception DuplicateField
-exception DuplicateFunction
+exception DuplicateFunction of string
 exception DuplicateConstructor
 exception DuplicateLocal of string
 exception UndefinedClass of string
@@ -36,6 +37,7 @@ exception InvalidAccessLHS of string
 exception LHSofRootAccessMustBeIDorFunc of string
 exception ObjAccessMustHaveObjectType of string
 exception UnknownIdentifierForClass of string * string
+exception CannotUseReservedFuncName of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
