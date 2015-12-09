@@ -335,7 +335,7 @@ and codegen_sexpr llbuilder = function
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
-	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
+	|   SArrayCreate(t, el, d)    -> build_alloca (array_type (get_type t) (List.length el)) "" llbuilder 
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
