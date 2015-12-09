@@ -299,7 +299,7 @@ and expr_to_sexpr env = function
 
 	|   ArrayCreate(d, el)  -> check_array_init env d el, env
 	|   ArrayAccess(e, el)  -> check_array_access e el, env
-	|   ArrayPrimitive el   -> check_array_primitive env el, env
+	|   ArrayPrimitive el   -> let (al,_) = exprl_to_sexprl env el in SArrayPrimitive(al, Datatype(Int_t)), env
 
 	|   Assign(e1, e2)      -> check_assign env e1 e2, env
 	|   Unop(op, e)         -> check_unop env op e, env

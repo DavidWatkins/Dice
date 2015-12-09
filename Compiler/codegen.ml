@@ -340,7 +340,9 @@ and codegen_sexpr llbuilder = function
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
-	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
+
+    |   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder 
+(*    |   SArrayPrimitive(el, d)    -> const_array (get_type d) (Array.of_list (List.fold_left (fun s t -> codegen_sexpr s t) llbuilder el)) *)
 	|   SUnop(op, e, d)           -> handle_unop op e d llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
