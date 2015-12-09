@@ -38,6 +38,9 @@ exception LHSofRootAccessMustBeIDorFunc of string
 exception ObjAccessMustHaveObjectType of string
 exception UnknownIdentifierForClass of string * string
 exception CannotUseReservedFuncName of string
+exception ArrayInitTypeInvalid of string
+exception MustPassIntegerTypeToArrayCreate
+exception Troubleshooting of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

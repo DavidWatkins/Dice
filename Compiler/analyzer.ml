@@ -159,7 +159,24 @@ let rec get_ID_type env s =
 
 and check_array_primitive env el = SInt_Lit(0, Datatype(Int_t))
 
-and check_array_init env d el = SInt_Lit(0, Datatype(Int_t))
+and check_array_init env d el = 
+	let array_complexity = List.length el in
+	let check_elem_type e = 
+		let sexpr, _ = expr_to_sexpr env e in
+		let sexpr_type = get_type_from_sexpr sexpr in
+		if sexpr_type = Datatype(Int_t) 
+			then sexpr
+			else raise(Exceptions.MustPassIntegerTypeToArrayCreate)
+	in
+	let convert_d_to_arraytype = function
+		Datatype(x) -> Arraytype(x, array_complexity)
+	| 	_ as t -> 
+		let error_msg = Utils.string_of_datatype t in
+		raise (Exceptions.ArrayInitTypeInvalid(error_msg))
+	in
+	let sexpr_type = convert_d_to_arraytype d in
+	let sel = List.map check_elem_type el in
+	SArrayCreate(d, sel, sexpr_type)
 
 and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 
@@ -360,7 +377,9 @@ let rec local_handler d s e env =
 						(if not (StringMap.mem (Utils.string_of_object d) env.env_class_maps) 
 							then raise (Exceptions.UndefinedClass (Utils.string_of_object d)) 
 							else SLocal(d, s, se), new_env)
-				| 	_ -> SLocal(d, s, se), new_env) 
+				| 	_ -> SLocal(d, s, se), new_env )
+
+
 			else 
 				let type1 = (Utils.string_of_datatype t) in
 				let type2 = (Utils.string_of_datatype d) in
