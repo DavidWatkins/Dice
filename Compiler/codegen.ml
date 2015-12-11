@@ -331,12 +331,8 @@ and codegen_string_lit s llbuilder =
 
 
 and codegen_array_create t = function
-    [] -> [] 
-    | head::(_::_) -> array_type ((codegen_array_create t head)) (List.length head)
-
-(*and get_freaking_type = function
-    [] -> []
-    | head::tail -> *) 
+    [] -> get_type t 
+    | Datatype(x)::tail -> array_type (codegen_array_create t tail) x
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
@@ -363,10 +359,6 @@ and codegen_sexpr llbuilder = function
 and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	let cond_val = codegen_sexpr llbuilder exp in
 
-	(* Grab the first block so that we might later add the conditional branch
-	 * to it at the end of the function. *)
-	let start_bb = insertion_block llbuilder in
-	let the_function = block_parent start_bb in
 
 	let then_bb = append_block context "then" the_function in
 
@@ -465,6 +457,10 @@ and codegen_alloca datatype var_name expr llbuilder =
 
 and codegen_ret d expr llbuilder =  
 	let e = match expr with
+		SId(name, d) ->
+			(match d with 
+			| Datatype(Objecttype(_)) -> codegen_id false false name d llbuilder
+			| _ -> codegen_id true true name d llbuilder)
 		SId(name, d) ->
 			(match d with 
 			| Datatype(Objecttype(_)) -> codegen_id false false name d llbuilder
