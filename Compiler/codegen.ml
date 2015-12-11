@@ -329,11 +329,11 @@ and codegen_string_lit s llbuilder =
 	else if s = "false" then build_global_stringptr "false" "" llbuilder
 	else build_global_stringptr s "" llbuilder
 
-
-and codegen_array_create t = function
-    [] -> get_type t 
-    | Datatype(x)::tail -> array_type (codegen_array_create t tail) x
-
+(*
+and codegen_array_create t llbuilder = function
+    [] -> i32_t 
+    | x::tail -> array_type (codegen_array_create i32_t llbuilder tail) (codegen_sexpr llbuilder x)
+*)
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
@@ -345,7 +345,7 @@ and codegen_sexpr llbuilder = function
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 (*	|   SArrayCreate(t, el, d)    -> let x = (array_type (get_type t) (List.length el)) in let y = (array_type x (List.length el)) in build_alloca y "" llbuilder*)
-    |   SArrayCreate(t, el, d)    -> build_alloca (codegen_array_create t el) "" builder 
+    |   SArrayCreate(t, el, d)    -> build_array_alloca (get_type t) (const_int i32_t 5) "" llbuilder 
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
@@ -457,10 +457,6 @@ and codegen_alloca datatype var_name expr llbuilder =
 
 and codegen_ret d expr llbuilder =  
 	let e = match expr with
-		SId(name, d) ->
-			(match d with 
-			| Datatype(Objecttype(_)) -> codegen_id false false name d llbuilder
-			| _ -> codegen_id true true name d llbuilder)
 		SId(name, d) ->
 			(match d with 
 			| Datatype(Objecttype(_)) -> codegen_id false false name d llbuilder
