@@ -28,6 +28,10 @@ let void_t = void_type context;;
 let str_type = Arraytype(Char_t, 1)
 let noop = SNoexpr(Datatype(Int_t))
 
+let gimmi_array_type = function
+    x -> array_type x
+    | _ -> array_type i32_t
+
 let debug = fun s ->  
 	print_endline ("`````````````````````````````````````"^s);
 	dump_module the_module;
@@ -325,6 +329,15 @@ and codegen_string_lit s llbuilder =
 	else if s = "false" then build_global_stringptr "false" "" llbuilder
 	else build_global_stringptr s "" llbuilder
 
+
+and codegen_array_create t = function
+    [] -> [] 
+    | head::(_::_) -> array_type ((codegen_array_create t head)) (List.length head)
+
+(*and get_freaking_type = function
+    [] -> []
+    | head::tail -> *) 
+
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
@@ -335,7 +348,8 @@ and codegen_sexpr llbuilder = function
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
-	|   SArrayCreate(t, el, d)    -> build_alloca (array_type (get_type t) (List.length el)) "" llbuilder 
+(*	|   SArrayCreate(t, el, d)    -> let x = (array_type (get_type t) (List.length el)) in let y = (array_type x (List.length el)) in build_alloca y "" llbuilder*)
+    |   SArrayCreate(t, el, d)    -> build_alloca (codegen_array_create t el) "" builder 
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
