@@ -228,12 +228,12 @@ and check_object_constructor env s el =
 	let sel, env = exprl_to_sexprl env el in
 	(* check that 'env.env_name' is in the list of defined classes *)
 	let cmap = 
-		try StringMap.find env.env_name env.env_class_maps
-		with | Not_found -> raise (Exceptions.UndefinedClass env.env_name)
+		try StringMap.find s env.env_class_maps
+		with | Not_found -> raise (Exceptions.UndefinedClass s)
 	in
 	(* get a list of the types of the actuals to match against defined function formals *)
 	let params = List.fold_left (fun s e -> s ^ "." ^ (Utils.string_of_datatype (get_type_from_sexpr e))) "" sel in
-	let constructor_name = env.env_name ^ "." ^ "constructor" ^ params in
+	let constructor_name = s ^ "." ^ "constructor" ^ params in
 	let _ = 
 		try StringMap.find constructor_name cmap.constructor_map
 		with | Not_found -> raise (Exceptions.ConstructorNotFound constructor_name)
