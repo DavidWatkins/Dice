@@ -179,43 +179,9 @@ and check_array_init env d el =
 	let sel = List.map check_elem_type el in
 	SArrayCreate(d, sel, sexpr_type)
 
-and check_array_access env e el = (* SInt_Lit(0, Datatype(Int_t)) *)
-	(* Get dimensions of array *)
+and check_array_access env e el = 
+	(* Get dimensions of array, ex: foo[10][4][2] is dimen=3 *)
 	let array_dimensions = List.length el in
-
-	let check_elem_type arg = 
-		let sexpr, _ = expr_to_sexpr env arg in
-		let sexpr_type = get_type_from_sexpr sexpr in
-		if sexpr_type = Datatype(Int_t) 
-			then sexpr
-			else raise(Exceptions.MustPassIntegerTypeToArrayAccess)
-	in
-	let convert_e_to_d arg2 = 
-		let se, _ = expr_to_sexpr env arg2 in
-		let se_type = get_type_from_sexpr se in
-
-	let convert_d_to_arraytype = function
-		Datatype(x) -> Arraytype(x, array_dimensions)
-	| 	_ as t -> 
-		let error_msg = Utils.string_of_datatype t in
-		raise (Exceptions.ArrayInitTypeInvalid(error_msg))
-	in
-	let convert = convert_e_to_d e in
-	let sexpr_type = convert_d_to_arraytype se_type in
-	let sel = List.map check_elem_type el in
-
-	SArrayAccess(se, sel, sexpr_type)
-
-
-	(* (* Check that e is Arraytype and get dimensions *)
-	let check_e_type arg = 
-		let sexpr1, _ = expr_to_sexpr env arg in 
-		let sexpr_type1 = get_type_from_sexpr sexpr1 in
-		let e_dimensions = function
-			Arraytype(_, x ) -> x
-		| 	_ 				 -> raise(Exceptions.ExpressionNotArrayType)
-		in
-
 	(* Check every e in el is of type Datatype(Int_t). Ensure all indices are ints *)
 	let check_elem_type arg = 
 		let sexpr, _ = expr_to_sexpr env arg in
@@ -223,19 +189,28 @@ and check_array_access env e el = (* SInt_Lit(0, Datatype(Int_t)) *)
 		if sexpr_type = Datatype(Int_t) 
 			then sexpr
 			else raise(Exceptions.MustPassIntegerTypeToArrayAccess)
-	in 
+	in
+	(* converting e to se also checks if the array id has been declared  *)
+	let se, _ = expr_to_sexpr env e in 
+	let se_type = get_type_from_sexpr se in
+
+	(* Check that e has enough dimens as e's in el. Return overall datatype of access*)
+	let check_array_dim_vs_params num_params = function
+		Arraytype(t, n) -> 
+			if num_params < n then
+				Arraytype(t, (n-num_params))
+			else if num_params = n then
+				Datatype(t)
+			else
+				raise (Exceptions.ArrayAccessInvalidParamLength(string_of_int num_params, string_of_int n))
+	| 	_ as t -> 
+		let error_msg = Utils.string_of_datatype t in
+		raise (Exceptions.ArrayAccessExpressionNotArray(error_msg))
+	in
+	let sexpr_type = check_array_dim_vs_params array_dimensions se_type in
 	let sel = List.map check_elem_type el in
-	
-	let result = check_e_type e in
 
-	(* Check that e has enough dimens as e's in el *)
-	if array_dimensions = (e_dimensions sexpr_type1) then
-	(* return SArrayAccess(se, sel, type) *)
-		SArrayAccess(sexpr1, sel, sexpr_type1)
-	else
-		raise(Exceptions.ArrayDimensionsNotMatching)
-	 *)
-
+	SArrayAccess(se, sel, sexpr_type)
 
 and check_obj_access env lhs rhs = 
 	let check_lhs = function
