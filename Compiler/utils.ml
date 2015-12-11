@@ -281,7 +281,7 @@ let rec map_sexpr_to_json =
 	|   SBinop(e1, o, e2, d)     -> `Assoc [("binop", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
 	|   SAssign(e1, e2, d)        -> `Assoc [("assign", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "="); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
 	|   SNoexpr d                 -> `Assoc [("noexpr", `Assoc (datatype d))]
-	|   SArrayCreate(t, el, d)    -> `Assoc [("arraycreate", `Assoc ([("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SArrayCreate(t, el, d)    -> `Assoc [("arraycreate", `Assoc ([("primitive_type", `String (string_of_datatype t)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SArrayAccess(e, el, d)    -> `Assoc [("arrayaccess", `Assoc ([("array", map_sexpr_to_json e); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SObjAccess(e1, e2, d)     -> `Assoc [("objaccess", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "."); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
 	|   SCall(fname, el, d)       -> `Assoc [("call", `Assoc ([("name", `String fname); ("params", `List (List.map map_sexpr_to_json el)); ] @ (datatype d)) )]
