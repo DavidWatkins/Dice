@@ -40,7 +40,10 @@ exception UnknownIdentifierForClass of string * string
 exception CannotUseReservedFuncName of string
 exception ArrayInitTypeInvalid of string
 exception MustPassIntegerTypeToArrayCreate
-exception Troubleshooting of string
+exception MustPassIntegerTypeToArrayAccess
+exception ArrayAccessTypeInvalid of string
+exception ArrayAccessInvalidParamLength of string * string
+exception ArrayAccessExpressionNotArray of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
