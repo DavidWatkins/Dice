@@ -38,6 +38,13 @@ exception LHSofRootAccessMustBeIDorFunc of string
 exception ObjAccessMustHaveObjectType of string
 exception UnknownIdentifierForClass of string * string
 exception CannotUseReservedFuncName of string
+exception InvalidArrayPrimitiveConsecutiveTypes of string * string
+exception InvalidArrayPrimitiveType of string
+exception MustPassIntegerTypeToArrayCreate
+exception ArrayInitTypeInvalid of string
+exception MustPassIntegerTypeToArrayAccess
+exception ArrayAccessInvalidParamLength of string * string
+exception ArrayAccessExpressionNotArray of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

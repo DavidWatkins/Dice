@@ -87,6 +87,33 @@ and string_of_expr = function
   	|   ObjectCreate(s, el) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 ;;
 
+let rec string_of_bracket_sexpr = function
+		[] 				-> ""
+	| 	head :: tail 	-> "[" ^ (string_of_sexpr head) ^ "]" ^ (string_of_bracket_sexpr tail)
+and string_of_sarray_primitive = function
+		[] 				-> ""
+	|   [last]			-> (string_of_sexpr last)
+	| 	head :: tail 	-> (string_of_sexpr head) ^ ", " ^ (string_of_sarray_primitive tail)
+and string_of_sexpr = function 
+		SInt_Lit(i, _)				-> string_of_int i
+	|	SBoolean_Lit(b, _)			-> if b then "true" else "false"
+	|	SFloat_Lit(f, _)			-> string_of_float f
+	|	SString_Lit(s, _)			-> "\"" ^ (String.escaped s) ^ "\""
+	|	SChar_Lit(c, _)				-> Char.escaped c
+	|	SId(s, _)					-> s
+	|	SBinop(e1, o, e2, _)		-> (string_of_sexpr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_sexpr e2)
+	|	SAssign(e1, e2, _)			-> (string_of_sexpr e1) ^ " = " ^ (string_of_sexpr e2)
+	|	SNoexpr	_					-> ""
+	|	SObjAccess(e1, e2, _)		-> (string_of_sexpr e1) ^ "." ^ (string_of_sexpr e2)
+	|	SCall(f, el, _)				-> f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+	|	SArrayPrimitive(el, _)		-> "|" ^ (string_of_sarray_primitive el) ^ "|"
+	|  	SUnop(op, e, _)				-> (string_of_op op) ^ "(" ^ string_of_sexpr e ^ ")"
+	|	SNull _						-> "null"
+	|   SArrayCreate(d, el, _)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_sexpr el
+  	|   SArrayAccess(e, el, _)  	-> (string_of_sexpr e) ^ (string_of_bracket_sexpr el)
+  	|   SObjectCreate(s, el, _) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+;;
+
 let string_of_local_expr = function
 		Noexpr -> ""
 	|  	e 	   -> " = " ^ string_of_expr e
@@ -129,6 +156,48 @@ let rec string_of_stmt indent =
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
 		|   Local(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
+	in get_stmt_string
+
+let string_of_local_sexpr = function
+		SNoexpr _ -> ""
+	|  	e 	   -> " = " ^ string_of_sexpr e
+
+let rec string_of_sstmt indent =
+	let indent_string = String.make indent '\t' in
+ 	let get_stmt_string = function 
+
+			SBlock(stmts) 			-> 
+				indent_string ^ "{\n" ^ 
+					String.concat "" (List.map (string_of_sstmt (indent+1)) stmts) ^ 
+				indent_string ^ "}\n"
+
+		| 	SExpr(expr, _) 				-> 
+				indent_string ^ string_of_sexpr expr ^ ";\n";
+
+		| 	SReturn(expr, _) 			-> 
+				indent_string ^ "return " ^ string_of_sexpr expr ^ ";\n";
+
+		| 	SIf(e, s, SBlock([SExpr(SNoexpr(_), _)])) 	-> 
+				indent_string ^ "if (" ^ string_of_sexpr e ^ ")\n" ^ 
+					(string_of_sstmt (indent+1) s)
+
+		| 	SIf(e, s1, s2) 			-> 
+				indent_string ^ "if (" ^ string_of_sexpr e ^ ")\n" ^ 
+					string_of_sstmt (indent+1) s1 ^ 
+				indent_string ^ "else\n" ^ 
+					string_of_sstmt (indent+1) s2
+
+		| 	SFor(e1, e2, e3, s) 		-> 
+				indent_string ^ "for (" ^ string_of_sexpr e1  ^ " ; " ^ string_of_sexpr e2 ^ " ; " ^ string_of_sexpr e3  ^ ")\n" ^ 
+					string_of_sstmt (indent) s
+
+		| 	SWhile(e, s) 			-> 
+				indent_string ^ "while (" ^ string_of_sexpr e ^ ")\n" ^ 
+					string_of_sstmt (indent) s
+
+		|  	SBreak					-> indent_string ^ "break;\n"
+		|  	SContinue				-> indent_string ^ "continue;\n"
+		|   SLocal(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_sexpr e ^ ";\n"
 	in get_stmt_string
 
 (* Print Function *)

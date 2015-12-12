@@ -262,6 +262,7 @@ and codegen_assign lhs rhs d llbuilder =
 	let lhs = match lhs with
 	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder
 	|  	SObjAccess(e1, e2, d) -> codegen_obj_access false e1 e2 d llbuilder
+	| 	SArrayAccess(se, sel, d) -> codegen_array_access se sel d llbuilder
 	| _ -> raise Exceptions.AssignLHSMustBeAssignable
 	in
 	(* Codegen the rhs. *)
@@ -325,6 +326,22 @@ and codegen_string_lit s llbuilder =
 	else if s = "false" then build_global_stringptr "false" "" llbuilder
 	else build_global_stringptr s "" llbuilder
 
+and codegen_array_access e el d llbuilder = 
+	let x = List.map (codegen_sexpr llbuilder) el in 
+	build_gep (codegen_sexpr llbuilder e) (Array.of_list x) "" llbuilder
+
+and codegen_array_create llbuilder t el = 
+    let revlist = List.rev el in 
+    let head = List.hd revlist in 
+    let thelist = List.rev revlist in
+    let base_array = (build_array_alloca (get_type t) (codegen_sexpr llbuilder head) "" llbuilder) in 
+    
+    let rec helper base_num llbuilder = function
+        [] -> base_num
+        | head::tail -> build_array_alloca (type_of (helper base_num llbuilder tail)) (codegen_sexpr llbuilder head) "" llbuilder in 
+   
+    helper base_array llbuilder thelist
+
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
@@ -335,8 +352,8 @@ and codegen_sexpr llbuilder = function
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
-	|   SArrayCreate(t, el, d)    -> build_global_stringptr "Hi" "" llbuilder
-	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
+	|   SArrayCreate(t, el, d)    -> codegen_array_create llbuilder t el
+	|   SArrayAccess(e, el, d)    -> codegen_array_access e el d llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
