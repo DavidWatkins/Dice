@@ -28,10 +28,6 @@ let void_t = void_type context;;
 let str_type = Arraytype(Char_t, 1)
 let noop = SNoexpr(Datatype(Int_t))
 
-let gimmi_array_type = function
-    x -> array_type x
-    | _ -> array_type i32_t
-
 let debug = fun s ->  
 	print_endline ("`````````````````````````````````````"^s);
 	dump_module the_module;
@@ -319,8 +315,8 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 	rhs
 
 and codegen_obj_create fname el d llbuilder = 
-	let f = func_lookup fname in
-	let params = List.map (codegen_sexpr llbuilder) el in
+    let f = func_lookup fname in
+    let params = List.map (codegen_sexpr llbuilder) el in
 	let obj = build_call f (Array.of_list params) "" llbuilder in
 	obj
 
@@ -329,11 +325,18 @@ and codegen_string_lit s llbuilder =
 	else if s = "false" then build_global_stringptr "false" "" llbuilder
 	else build_global_stringptr s "" llbuilder
 
-(*
-and codegen_array_create t llbuilder = function
-    [] -> i32_t 
-    | x::tail -> array_type (codegen_array_create i32_t llbuilder tail) (codegen_sexpr llbuilder x)
-*)
+and codegen_array_create llbuilder t el = 
+    let revlist = List.rev el in 
+    let head = List.hd revlist in 
+    let thelist = List.rev revlist in
+    let base_array = (build_array_alloca (get_type t) (codegen_sexpr llbuilder head) "" llbuilder) in 
+    
+    let rec helper base_num llbuilder = function
+        [] -> base_num
+        | head::tail -> build_array_alloca (type_of (helper base_num llbuilder tail)) (codegen_sexpr llbuilder head) "" llbuilder in 
+   
+    helper base_array llbuilder thelist
+
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
@@ -344,21 +347,24 @@ and codegen_sexpr llbuilder = function
 	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
-(*	|   SArrayCreate(t, el, d)    -> let x = (array_type (get_type t) (List.length el)) in let y = (array_type x (List.length el)) in build_alloca y "" llbuilder*)
-    |   SArrayCreate(t, el, d)    -> build_array_alloca (get_type t) (const_int i32_t 5) "" llbuilder 
+(*	|   SArrayCreate(t, el, d)    -> let x = build_array_alloca (get_type t) (const_int i32_t 5) "" llbuilder in build_array_alloca (type_of x) (const_int i32_t 4) "" llbuilder *)
+    |   SArrayCreate(t, el, d)    -> codegen_array_create llbuilder t el 
+ 
 	|   SArrayAccess(e, el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
-
-    |   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder 
-(*    |   SArrayPrimitive(el, d)    -> const_array (get_type d) (Array.of_list (List.fold_left (fun s t -> codegen_sexpr s t) llbuilder el)) *)
+	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
 	|   SUnop(op, e, d)           -> handle_unop op e d llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
 and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	let cond_val = codegen_sexpr llbuilder exp in
 
+	(* Grab the first block so that we might later add the conditional branch
+	 * to it at the end of the function. *)
+	let start_bb = insertion_block llbuilder in
+	let the_function = block_parent start_bb in
 
 	let then_bb = append_block context "then" the_function in
 
