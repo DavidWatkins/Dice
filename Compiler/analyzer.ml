@@ -561,11 +561,28 @@ let add_reserved_functions =
 	let reserved = (reserved_stub "sizeof" (Datatype(Int_t)) ([ Formal(Any, "in")])) :: reserved in	
 	reserved
 
+let print_keys m = 
+StringMap.iter (fun key value -> print_string (key ^ "\n")) m
+
+let print_inheritance_tree m = 
+StringMap.iter (fun key value -> print_string ("\n" ^ key ^ "\n");
+List.iter (fun x -> print_string x) value) m
+
+let build_inheritance_tree cdecls = 
+    List.fold_left (fun a cdecl -> match cdecl.extends with Parent(s) -> if (StringMap.mem s a) then (StringMap.add s (cdecl.cname::(StringMap.find s a)) a) else StringMap.add s [cdecl.cname] a | NoParent -> a) StringMap.empty cdecls
+
+let inherit_fields class_maps predecessors = class_maps
+
+let check_cyclical_inheritance predecessors = print_string "checking for cycles"
+
 (* Main method for analyzer *)
 let analyze filename program = match program with
 	Program(includes, classes) ->
 	let cdecls = process_includes filename includes classes in
-	let reserved = add_reserved_functions in
+    let predecessors = build_inheritance_tree cdecls in
+	let _ = check_cyclical_inheritance predecessors in
+    let reserved = add_reserved_functions in
 	let class_maps = build_class_maps reserved cdecls in
-	let sast = convert_cdecls_to_sast class_maps reserved cdecls in
+    let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
+	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls in
 	sast
