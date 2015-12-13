@@ -6,6 +6,8 @@ open Filepath
 
 module StringMap = Map.Make (String)
 
+module StringSet = Set.Make (String)
+
 module SS = Set.Make(
     struct
         let compare = Pervasives.compare
@@ -568,10 +570,20 @@ let print_inheritance_tree m =
 StringMap.iter (fun key value -> print_string ("\n" ^ key ^ "\n");
 List.iter (fun x -> print_string x) value) m
 
+let print_set_members s = 
+StringSet.iter (fun el -> print_string el) s
+
 let build_inheritance_tree cdecls = 
     List.fold_left (fun a cdecl -> match cdecl.extends with Parent(s) -> if (StringMap.mem s a) then (StringMap.add s (cdecl.cname::(StringMap.find s a)) a) else StringMap.add s [cdecl.cname] a | NoParent -> a) StringMap.empty cdecls
 
-let inherit_fields class_maps predecessors = class_maps
+let inherit_fields class_maps predecessors =
+let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
+(List.fold_left (fun acc child -> StringSet.add child acc) (snd a) v)
+)) predecessors (StringSet.empty, StringSet.empty)
+in
+let roots = StringSet.diff (fst res) (snd res)
+(*in let _ = print_set_members roots*)
+in class_maps
 
 let check_cyclical_inheritance predecessors = print_string "checking for cycles"
 
