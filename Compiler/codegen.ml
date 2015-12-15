@@ -343,7 +343,9 @@ and codegen_array_create llbuilder t el =
         [] -> base_num
         | head::tail -> build_array_alloca (type_of (helper base_num llbuilder tail)) (codegen_sexpr llbuilder head) "" llbuilder in 
    
-    helper base_array llbuilder thelist
+    let _val = helper base_array llbuilder thelist in
+    dump_value _val;
+    _val
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
