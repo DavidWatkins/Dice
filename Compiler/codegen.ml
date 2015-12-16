@@ -325,14 +325,6 @@ and codegen_string_lit s llbuilder =
 	if s = "true" then build_global_stringptr "true" "" llbuilder
 	else if s = "false" then build_global_stringptr "false" "" llbuilder
 	else build_global_stringptr s "" llbuilder
-
-and codegen_array_access isAssign e el d llbuilder =
-    let index = codegen_sexpr llbuilder (List.hd el) in
-    let _val = build_gep (codegen_sexpr llbuilder e) (Array.of_list [index]) "" llbuilder in
-    if isAssign
-        then build_load _val "" llbuilder
-        else _val
-
 (*
 and codegen_array_access isAssign e el d llbuilder = 
 	let x = List.map (codegen_sexpr llbuilder) el in 
@@ -356,10 +348,15 @@ and codegen_array_create llbuilder t el =
     _val
 *)
 
+and codegen_array_access isAssign e el d llbuilder =
+    let index = codegen_sexpr llbuilder (List.hd el) in
+    let _val = build_gep (codegen_sexpr llbuilder e) (Array.of_list [index]) "" llbuilder in
+        _val
+
 and codegen_array_create llbuilder t el = 
 
-    let size = List.hd el in
-    build_array_alloca (get_type t) (codegen_sexpr llbuilder size) "" llbuilder
+    let size = (codegen_sexpr llbuilder (List.hd el)) in
+    build_array_malloc (get_type t) size "" llbuilder
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
