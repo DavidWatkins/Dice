@@ -18,6 +18,7 @@ type sexpr =
 	| 	SArrayPrimitive of sexpr list * datatype
 	|  	SUnop of op * sexpr * datatype
 	| 	SNull of datatype
+	| 	SDelete of sexpr
 
 type sstmt =
 		SBlock of sstmt list

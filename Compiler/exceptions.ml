@@ -46,6 +46,7 @@ exception MustPassIntegerTypeToArrayAccess
 exception ArrayAccessInvalidParamLength of string * string
 exception ArrayAccessExpressionNotArray of string
 exception CanOnlyAccessLengthOfArray
+exception CanOnlyDeleteObjectsOrArrays
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

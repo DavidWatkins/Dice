@@ -80,6 +80,7 @@ rule token = parse
 | "break" 		{ BREAK }
 | "continue"	{ CONTINUE }
 | "new" 		{ NEW }
+| "delete" 		{ DELETE }
 
 | int as lxm   		{ INT_LITERAL(int_of_string lxm) }
 | float as lxm 		{ FLOAT_LITERAL(float_of_string lxm) }

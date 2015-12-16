@@ -5,7 +5,7 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ BAR
-%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW
+%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
@@ -237,6 +237,7 @@ expr:
 	| 	expr OR     expr 					{ Binop($1, Or,    $3) }
 	| 	expr DOT    expr 					{ ObjAccess($1, $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
+	| 	DELETE expr 						{ Delete($2) }
 	|   MINUS expr 							{ Unop (Sub, $2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
 	| 	NEW ID LPAREN actuals_opt RPAREN 	{ ObjectCreate($2, $4) }

@@ -26,6 +26,7 @@ type expr =
 	| 	ArrayPrimitive of expr list
 	|  	Unop of op * expr
 	| 	Null
+	| 	Delete of expr
 
 type stmt =
 		Block of stmt list

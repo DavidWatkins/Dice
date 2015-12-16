@@ -400,24 +400,29 @@ and codegen_array_prim d el llbuilder =
     			ignore(build_store llval arr_ptr llbuilder);  ) llvalues;
     arr
 
+and codegen_delete e llbuilder =
+	let ce = codegen_sexpr llbuilder e in
+	build_free ce llbuilder
+
 and codegen_sexpr llbuilder = function
-		SInt_Lit(i, d)            -> const_int i32_t i
-	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
-	|   SFloat_Lit(f, d)          -> const_float f_t f 
-	|   SString_Lit(s, d)         -> codegen_string_lit s llbuilder
-	|   SChar_Lit(c, d)           -> const_int i32_t (Char.code c)
-	|   SId(id, d)                -> codegen_id true false id d llbuilder
-	|   SBinop(e1, op, e2, d)     -> handle_binop e1 op e2 d llbuilder
-	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
-	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
-	|   SArrayCreate(t, el, d)    -> codegen_array_create llbuilder t el
-	|   SArrayAccess(e, el, d)    -> codegen_array_access false e el d llbuilder
-	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
-	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
-	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
-	|   SArrayPrimitive(el, d)    -> codegen_array_prim d el llbuilder 
-	|   SUnop(op, e, d)           -> handle_unop op e d llbuilder
-	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
+		SInt_Lit(i, d)            	-> const_int i32_t i
+	|   SBoolean_Lit(b, d)        	-> if b then const_int i1_t 1 else const_int i1_t 0
+	|   SFloat_Lit(f, d)          	-> const_float f_t f 
+	|   SString_Lit(s, d)         	-> codegen_string_lit s llbuilder
+	|   SChar_Lit(c, d)           	-> const_int i32_t (Char.code c)
+	|   SId(id, d)                	-> codegen_id true false id d llbuilder
+	|   SBinop(e1, op, e2, d)     	-> handle_binop e1 op e2 d llbuilder
+	|   SAssign(e1, e2, d)        	-> codegen_assign e1 e2 d llbuilder
+	|   SNoexpr d                 	-> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
+	|   SArrayCreate(t, el, d)    	-> codegen_array_create llbuilder t el
+	|   SArrayAccess(e, el, d)    	-> codegen_array_access false e el d llbuilder
+	|   SObjAccess(e1, e2, d)     	-> codegen_obj_access true e1 e2 d llbuilder
+	|   SCall(fname, el, d)       	-> codegen_call llbuilder d el fname		
+	|   SObjectCreate(id, el, d)  	-> codegen_obj_create id el d llbuilder
+	|   SArrayPrimitive(el, d)    	-> codegen_array_prim d el llbuilder 
+	|   SUnop(op, e, d)           	-> handle_unop op e d llbuilder
+	|   SNull d                   	-> build_global_stringptr "Hi" "" llbuilder
+	| 	SDelete e 				 	-> codegen_delete e llbuilder
 
 and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	let cond_val = codegen_sexpr llbuilder exp in

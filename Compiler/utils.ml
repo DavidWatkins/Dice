@@ -85,6 +85,7 @@ and string_of_expr = function
 	|   ArrayCreate(d, el)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_expr el
   	|   ArrayAccess(e, el)  	-> (string_of_expr e) ^ (string_of_bracket_expr el)
   	|   ObjectCreate(s, el) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  	| 	Delete(e) 				-> "delete (" ^ (string_of_expr e) ^ ")"
 ;;
 
 let rec string_of_bracket_sexpr = function
@@ -112,6 +113,7 @@ and string_of_sexpr = function
 	|   SArrayCreate(d, el, _)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_sexpr el
   	|   SArrayAccess(e, el, _)  	-> (string_of_sexpr e) ^ (string_of_bracket_sexpr el)
   	|   SObjectCreate(s, el, _) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  	| 	SDelete(e) 					-> "delete (" ^ (string_of_sexpr e) ^ ")"
 ;;
 
 let string_of_local_expr = function
@@ -292,6 +294,7 @@ let rec map_expr_to_json = function
 	|   ArrayCreate(d, el)  	-> `Assoc [("arraycreate", `Assoc [("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_expr_to_json el))])]
   	|   ArrayAccess(e, el)  	-> `Assoc [("arrayaccess", `Assoc [("array", map_expr_to_json e); ("args", `List (List.map map_expr_to_json el))])]
   	|   ObjectCreate(s, el) 	-> `Assoc [("objectcreate", `Assoc [("type", `String s); ("args", `List (List.map map_expr_to_json el))])]
+  	| 	Delete(e) 				-> `Assoc [("delete", `Assoc [("expr", map_expr_to_json e)])]
 
 let rec map_stmt_to_json = function
 		Block(stmts) 			-> `Assoc [("block", `List (List.map (map_stmt_to_json) stmts))]
@@ -341,23 +344,24 @@ let print_tree = function
 let rec map_sexpr_to_json = 
 	let datatype d = [("datatype", `String (string_of_datatype d))] in
 	function
-		SInt_Lit(i, d)            -> `Assoc [("int_lit", `Assoc ([("val", `Int i)] @ (datatype d)))]
-	|   SBoolean_Lit(b, d)        -> `Assoc [("bool_lit", `Assoc ([("val", `Bool b)] @ (datatype d)))]
-	|   SFloat_Lit(f, d)          -> `Assoc [("float_lit", `Assoc ([("val", `Float f)]  @ (datatype d)))]
-	|   SString_Lit(s, d)         -> `Assoc [("string_lit", `Assoc ([("val", `String s)] @ (datatype d)))]
-	|   SChar_Lit(c, d)           -> `Assoc [("char_lit", `Assoc ([("val", `String (Char.escaped c))] @ (datatype d)))]
-	|   SId(s, d)                -> `Assoc [("id", `Assoc ([("name", `String s)] @ (datatype d)))]
-	|   SBinop(e1, o, e2, d)     -> `Assoc [("binop", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
-	|   SAssign(e1, e2, d)        -> `Assoc [("assign", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "="); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
-	|   SNoexpr d                 -> `Assoc [("noexpr", `Assoc (datatype d))]
-	|   SArrayCreate(t, el, d)    -> `Assoc [("arraycreate", `Assoc ([("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
-	|   SArrayAccess(e, el, d)    -> `Assoc [("arrayaccess", `Assoc ([("array", map_sexpr_to_json e); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
-	|   SObjAccess(e1, e2, d)     -> `Assoc [("objaccess", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "."); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
-	|   SCall(fname, el, d)       -> `Assoc [("call", `Assoc ([("name", `String fname); ("params", `List (List.map map_sexpr_to_json el)); ] @ (datatype d)) )]
-	|   SObjectCreate(s, el, d)  -> `Assoc [("objectcreate", `Assoc ([("type", `String s); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
-	|   SArrayPrimitive(el, d)    -> `Assoc [("arrayprimitive", `Assoc ([("expressions", `List(List.map map_sexpr_to_json el))] @ (datatype d)))]
-	|   SUnop(op, e, d)           -> `Assoc [("Unop", `Assoc ([("op", `String (string_of_op op)); ("operand", map_sexpr_to_json e)] @ (datatype d)))]
-	|   SNull d                   -> `Assoc [("null", `Assoc (datatype d))] 
+		SInt_Lit(i, d)          -> `Assoc [("int_lit", `Assoc ([("val", `Int i)] @ (datatype d)))]
+	|   SBoolean_Lit(b, d)      -> `Assoc [("bool_lit", `Assoc ([("val", `Bool b)] @ (datatype d)))]
+	|   SFloat_Lit(f, d)        -> `Assoc [("float_lit", `Assoc ([("val", `Float f)]  @ (datatype d)))]
+	|   SString_Lit(s, d)       -> `Assoc [("string_lit", `Assoc ([("val", `String s)] @ (datatype d)))]
+	|   SChar_Lit(c, d)         -> `Assoc [("char_lit", `Assoc ([("val", `String (Char.escaped c))] @ (datatype d)))]
+	|   SId(s, d)               -> `Assoc [("id", `Assoc ([("name", `String s)] @ (datatype d)))]
+	|   SBinop(e1, o, e2, d)    -> `Assoc [("binop", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
+	|   SAssign(e1, e2, d)      -> `Assoc [("assign", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "="); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
+	|   SNoexpr d               -> `Assoc [("noexpr", `Assoc (datatype d))]
+	|   SArrayCreate(t, el, d)  -> `Assoc [("arraycreate", `Assoc ([("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SArrayAccess(e, el, d)  -> `Assoc [("arrayaccess", `Assoc ([("array", map_sexpr_to_json e); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SObjAccess(e1, e2, d)   -> `Assoc [("objaccess", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "."); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
+	|   SCall(fname, el, d)     -> `Assoc [("call", `Assoc ([("name", `String fname); ("params", `List (List.map map_sexpr_to_json el)); ] @ (datatype d)) )]
+	|   SObjectCreate(s, el, d) -> `Assoc [("objectcreate", `Assoc ([("type", `String s); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SArrayPrimitive(el, d)  -> `Assoc [("arrayprimitive", `Assoc ([("expressions", `List(List.map map_sexpr_to_json el))] @ (datatype d)))]
+	|   SUnop(op, e, d)         -> `Assoc [("Unop", `Assoc ([("op", `String (string_of_op op)); ("operand", map_sexpr_to_json e)] @ (datatype d)))]
+	|   SNull d                 -> `Assoc [("null", `Assoc (datatype d))] 
+	| 	SDelete(e) 				-> `Assoc [("delete", `Assoc [("expr", map_sexpr_to_json e); ("type", `String "void")])]
 
 let rec map_sstmt_to_json = 
 	let datatype d = [("datatype", `String (string_of_datatype d))] in
@@ -460,6 +464,7 @@ let string_of_token = function
 	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL(" ^ Char.escaped c ^ ")"
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL(" ^ s ^ ")"
 	| 	ID(s)				-> "ID(" ^ s ^ ")"
+	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
 
 let string_of_token_no_id = function
@@ -515,6 +520,7 @@ let string_of_token_no_id = function
 	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL"
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL"
 	| 	ID(s)				-> "ID"
+	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
 
 let token_list_to_string_endl token_list =

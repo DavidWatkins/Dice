@@ -362,6 +362,13 @@ and check_binop env e1 op e2 =
     | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
     | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
 
+and check_delete env e = 
+	let se, _ = expr_to_sexpr env e in
+	let t = get_type_from_sexpr se in
+	match t with
+		Arraytype(_, _) | Datatype(Objecttype(_)) -> SDelete(se)
+	| 	_ -> raise(Exceptions.CanOnlyDeleteObjectsOrArrays)
+
 and expr_to_sexpr env = function
 		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
 	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t)), env
@@ -384,6 +391,7 @@ and expr_to_sexpr env = function
 	|   Assign(e1, e2)      -> check_assign env e1 e2, env
 	|   Unop(op, e)         -> check_unop env op e, env
 	|   Binop(e1, op, e2)   -> check_binop env e1 op e2, env
+	| 	Delete(e) 			-> check_delete env e, env
 
 
 and get_type_from_sexpr = function
@@ -404,6 +412,7 @@ and get_type_from_sexpr = function
 	| 	SArrayPrimitive(_, d)	-> d
 	|  	SUnop(_, _, d) 			-> d
 	| 	SNull d 				-> d
+	| 	SDelete _ 				-> Datatype(Void_t)
 
 and exprl_to_sexprl env el =
   let env_ref = ref(env) in
