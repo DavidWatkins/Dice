@@ -45,6 +45,7 @@ exception ArrayInitTypeInvalid of string
 exception MustPassIntegerTypeToArrayAccess
 exception ArrayAccessInvalidParamLength of string * string
 exception ArrayAccessExpressionNotArray of string
+exception CanOnlyAccessLengthOfArray
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

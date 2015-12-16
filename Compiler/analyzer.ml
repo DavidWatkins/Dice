@@ -238,7 +238,6 @@ and check_obj_access env lhs rhs =
 	let check_lhs = function
 		This 			-> SId("this", Datatype(Objecttype(env.env_name)))
 	|	Id s 			-> SId(s, get_ID_type env s)
-	(* | 	Call(fname, el) -> check_call_type env fname el *)
 	| 	_ as e 	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc (Utils.string_of_expr e))
 	in
 	let rec check_rhs env parent_type = 
@@ -268,11 +267,21 @@ and check_obj_access env lhs rhs =
 				SObjAccess(lhs, rhs, rhs_type), old_env
 		| 	_ as e				-> raise (Exceptions.InvalidAccessLHS (Utils.string_of_expr e))
 	in 
-	let lhs = check_lhs lhs in
-	let lhs_type = get_type_from_sexpr lhs in 
-	let rhs, _ = check_rhs env lhs_type rhs in
-	let rhs_type = get_type_from_sexpr rhs in
-	SObjAccess(lhs, rhs, rhs_type)
+	let arr_lhs, _ = expr_to_sexpr env lhs in
+	let arr_lhs_type = get_type_from_sexpr arr_lhs in
+	match arr_lhs_type with
+		Arraytype(_, _) -> 
+			let rhs = match rhs with
+				Id("length") -> SId("length", Datatype(Int_t))
+			| 	_ -> raise(Exceptions.CanOnlyAccessLengthOfArray)
+			in
+			SObjAccess(arr_lhs, rhs, Datatype(Int_t))
+	| _ ->
+		let lhs = check_lhs lhs in
+		let lhs_type = get_type_from_sexpr lhs in 
+		let rhs, _ = check_rhs env lhs_type rhs in
+		let rhs_type = get_type_from_sexpr rhs in
+		SObjAccess(lhs, rhs, rhs_type)
 
 and check_call_type env fname el = 
 	let sel, env = exprl_to_sexprl env el in

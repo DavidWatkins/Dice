@@ -312,9 +312,19 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 		| 	_ -> raise (Exceptions.InvalidAccessLHS ("Need to print sexpr"))
 	in 
 	let lhs_type = Analyzer.get_type_from_sexpr lhs in 
-	let lhs = check_lhs lhs in
-	let rhs = check_rhs lhs lhs_type rhs in
-	rhs
+	match lhs_type with
+		Arraytype(_, _) -> 
+			let lhs = codegen_sexpr llbuilder lhs in
+			let _ = match rhs with
+				SId("length", _) -> "length"
+			| 	_ -> raise(Exceptions.CanOnlyAccessLengthOfArray)
+			in
+			let _val = build_gep lhs [| (const_int i32_t 0) |] "" llbuilder in
+			build_load _val "" llbuilder 
+	| 	_ -> 
+		let lhs = check_lhs lhs in
+		let rhs = check_rhs lhs lhs_type rhs in
+		rhs
 
 and codegen_obj_create fname el d llbuilder = 
 	let f = func_lookup fname in
@@ -366,23 +376,23 @@ and codegen_array_create llbuilder t el =
 	else
 	let e = List.hd el in
 	let size = (codegen_sexpr llbuilder e) in
-	let size = build_add size (const_int i32_t 1) "arr_size" llbuilder in
+	let size_real = build_add size (const_int i32_t 1) "arr_size" llbuilder in
 	let t = get_type t in
-    let arr = build_array_malloc t size "" llbuilder in
+    let arr = build_array_malloc t size_real "" llbuilder in
 	let arr = build_pointercast arr (pointer_type t) "" llbuilder in
 	ignore(build_store size arr llbuilder); (* Store length at this position *)
-	initialise_array arr size (const_int i32_t 0) llbuilder;
+	initialise_array arr size_real (const_int i32_t 0) llbuilder;
 	arr
 
 and codegen_array_prim d el llbuilder =
     let t = d in
-    let size = (const_int i32_t ((List.length el) + 1)) in
-    (*let size = build_add size (const_int i32_t 1) "arr_size" llbuilder in*)
+    let size = (const_int i32_t ((List.length el))) in
+    let size_real = (const_int i32_t ((List.length el) + 1)) in
 	let t = get_type t in
-    let arr = build_array_malloc t size "" llbuilder in
+    let arr = build_array_malloc t size_real "" llbuilder in
 	let arr = build_pointercast arr t "" llbuilder in
 	ignore(build_store size arr llbuilder); (* Store length at this position *)
-	initialise_array arr size (const_int i32_t 0) llbuilder;
+	initialise_array arr size_real (const_int i32_t 0) llbuilder;
 
     let llvalues = List.map (codegen_sexpr llbuilder) el in
     List.iteri (fun i llval -> 
