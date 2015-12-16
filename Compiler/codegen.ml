@@ -374,6 +374,22 @@ and codegen_array_create llbuilder t el =
 	initialise_array arr size (const_int i32_t 0) llbuilder;
 	arr
 
+and codegen_array_prim d el llbuilder =
+    let t = d in
+    let size = (const_int i32_t ((List.length el) + 1)) in
+    (*let size = build_add size (const_int i32_t 1) "arr_size" llbuilder in*)
+	let t = get_type t in
+    let arr = build_array_malloc t size "" llbuilder in
+	let arr = build_pointercast arr t "" llbuilder in
+	ignore(build_store size arr llbuilder); (* Store length at this position *)
+	initialise_array arr size (const_int i32_t 0) llbuilder;
+
+    let llvalues = List.map (codegen_sexpr llbuilder) el in
+    List.iteri (fun i llval -> 
+    			let arr_ptr = build_gep arr [| (const_int i32_t (i+1)) |] "" llbuilder in
+    			ignore(build_store llval arr_ptr llbuilder);  ) llvalues;
+    arr
+
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
 	|   SBoolean_Lit(b, d)        -> if b then const_int i1_t 1 else const_int i1_t 0
@@ -389,7 +405,7 @@ and codegen_sexpr llbuilder = function
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
-	|   SArrayPrimitive(el, d)    -> build_global_stringptr "Hi" "" llbuilder
+	|   SArrayPrimitive(el, d)    -> codegen_array_prim d el llbuilder 
 	|   SUnop(op, e, d)           -> handle_unop op e d llbuilder
 	|   SNull d                   -> build_global_stringptr "Hi" "" llbuilder
 
