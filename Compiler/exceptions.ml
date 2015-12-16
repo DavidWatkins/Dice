@@ -61,3 +61,4 @@ exception UnableToCallFunctionWithoutParent of string
 exception CannotAssignParam of string
 exception InvalidUnopEvaluationType
 exception UnopNotSupported
+exception ArrayLargerThan1Unsupported

@@ -23,6 +23,7 @@ let i8_t = i8_type context;;
 let f_t = double_type context;;
 let i1_t = i1_type context;;
 let str_t = pointer_type i8_t;;
+let i64_t = i64_type context;;
 let void_t = void_type context;;
 
 let str_type = Arraytype(Char_t, 1)
@@ -325,38 +326,53 @@ and codegen_string_lit s llbuilder =
 	if s = "true" then build_global_stringptr "true" "" llbuilder
 	else if s = "false" then build_global_stringptr "false" "" llbuilder
 	else build_global_stringptr s "" llbuilder
-(*
-and codegen_array_access isAssign e el d llbuilder = 
-	let x = List.map (codegen_sexpr llbuilder) el in 
-	let _val = build_gep (codegen_sexpr llbuilder e) (Array.of_list x) "" llbuilder in
-	if isAssign 
-		then build_load _val "" llbuilder 
-		else _val
-
-and codegen_array_create llbuilder t el = 
-    let revlist = List.rev el in 
-    let head = List.hd revlist in 
-    let thelist = List.rev revlist in
-    let base_array = (build_array_alloca (get_type t) (codegen_sexpr llbuilder head) "" llbuilder) in 
-    
-    let rec helper base_num llbuilder = function
-        [] -> base_num
-        | head::tail -> build_array_alloca (type_of (helper base_num llbuilder tail)) (codegen_sexpr llbuilder head) "" llbuilder in 
-   
-    let _val = helper base_array llbuilder thelist in
-    dump_value _val;
-    _val
-*)
 
 and codegen_array_access isAssign e el d llbuilder =
     let index = codegen_sexpr llbuilder (List.hd el) in
-    let _val = build_gep (codegen_sexpr llbuilder e) (Array.of_list [index]) "" llbuilder in
-        _val
+    let index = build_add index (const_int i32_t 1) "" llbuilder in
+    let arr = codegen_sexpr llbuilder e in
+    let _val = build_gep arr [| index |] "" llbuilder in
+    if isAssign
+    	then _val
+    	else build_load _val "" llbuilder 
+
+and initialise_array arr arr_len init_val llbuilder =
+	let new_block label =
+		let f = block_parent (insertion_block llbuilder) in
+		append_block (global_context ()) label f
+	in
+  let bbcurr = insertion_block llbuilder in
+  let bbcond = new_block "array.cond" in
+  let bbbody = new_block "array.init" in
+  let bbdone = new_block "array.done" in
+  ignore (build_br bbcond llbuilder);
+  position_at_end bbcond llbuilder;
+
+  (* Counter into the length of the array *)
+  let counter = build_phi [const_int i32_t 1, bbcurr] "counter" llbuilder in
+  add_incoming ((build_add counter (const_int i32_t 1) "" llbuilder), bbbody) counter;
+  let cmp = build_icmp Icmp.Slt counter arr_len "" llbuilder in
+  ignore (build_cond_br cmp bbbody bbdone llbuilder);
+  position_at_end bbbody llbuilder;
+
+  (* Assign array position to init_val *)
+  let arr_ptr = build_gep arr [| counter |] "" llbuilder in
+  ignore (build_store init_val arr_ptr llbuilder);
+  ignore (build_br bbcond llbuilder);
+  position_at_end bbdone llbuilder
 
 and codegen_array_create llbuilder t el = 
-
-    let size = (codegen_sexpr llbuilder (List.hd el)) in
-    build_array_malloc (get_type t) size "" llbuilder
+	if(List.length el > 1) then raise(Exceptions.ArrayLargerThan1Unsupported)
+	else
+	let e = List.hd el in
+	let size = (codegen_sexpr llbuilder e) in
+	let size = build_add size (const_int i32_t 1) "arr_size" llbuilder in
+	let t = get_type t in
+    let arr = build_array_malloc t size "" llbuilder in
+	let arr = build_pointercast arr (pointer_type t) "" llbuilder in
+	ignore(build_store size arr llbuilder); (* Store length at this position *)
+	initialise_array arr size (const_int i32_t 0) llbuilder;
+	arr
 
 and codegen_sexpr llbuilder = function
 		SInt_Lit(i, d)            -> const_int i32_t i
@@ -369,7 +385,7 @@ and codegen_sexpr llbuilder = function
 	|   SAssign(e1, e2, d)        -> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 -> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    -> codegen_array_create llbuilder t el
-	|   SArrayAccess(e, el, d)    -> codegen_array_access true e el d llbuilder
+	|   SArrayAccess(e, el, d)    -> codegen_array_access false e el d llbuilder
 	|   SObjAccess(e1, e2, d)     -> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       -> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  -> codegen_obj_create id el d llbuilder
