@@ -1,4 +1,2 @@
 <filepath.*> or <**/*.native> or <**/*.byte>: package(unix)
 <*.{byte,native}>: g++
-<*.{byte,native}>: use_llvm_scalar_opts, use_bindings
-
