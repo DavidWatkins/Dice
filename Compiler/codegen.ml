@@ -10,6 +10,9 @@ open Exceptions
 open Batteries
 open Hashtbl
 
+open Llvm.MemoryBuffer
+open Llvm_bitreader
+
 let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
@@ -615,6 +618,12 @@ let codegen_main main =
 	let _ = codegen_stmt llbuilder (SBlock (main.sbody)) in
 	build_ret (const_int i32_t 0) llbuilder 
 
+let linker filename = 
+	let llctx = Llvm.global_context () in
+	let llmem = Llvm.MemoryBuffer.of_file filename in
+	let llm = Llvm_bitreader.parse_bitcode llctx llmem in
+	ignore(Llvm_linker.link_modules the_module llm)
+
 let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions () in
 	let _ = List.map (fun s -> codegen_struct_stub s) sprogram.classes in
@@ -622,4 +631,5 @@ let codegen_sprogram sprogram =
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
 	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = codegen_main sprogram.main in
+	let _ = linker "c_lib_ext/bindings.bc" in
 	the_module
