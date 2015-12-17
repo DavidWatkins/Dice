@@ -573,8 +573,10 @@ List.iter (fun x -> print_string x) value) m
 let print_set_members s = 
 StringSet.iter (fun el -> print_string el) s
 
-let build_inheritance_tree cdecls = 
-    List.fold_left (fun a cdecl -> match cdecl.extends with Parent(s) -> if (StringMap.mem s a) then (StringMap.add s (cdecl.cname::(StringMap.find s a)) a) else StringMap.add s [cdecl.cname] a | NoParent -> a) StringMap.empty cdecls
+let build_inheritance_forest cdecls cmap = 
+    let forest = List.fold_left (fun a cdecl -> match cdecl.extends with Parent(s) -> if (StringMap.mem s a) then (StringMap.add s (cdecl.cname::(StringMap.find s a)) a) else StringMap.add s [cdecl.cname] a | NoParent -> a) StringMap.empty cdecls
+    in let _ = StringMap.iter (fun key value -> if not (StringMap.mem key cmap) then raise (Exceptions.UndefinedClass key)) forest
+    in forest
 
 let inherit_fields class_maps predecessors =
 let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
@@ -582,7 +584,7 @@ let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a),
 )) predecessors (StringSet.empty, StringSet.empty)
 in
 let roots = StringSet.diff (fst res) (snd res)
-(*in let _ = print_set_members roots*)
+in let _ = print_set_members roots
 in class_maps
 
 let check_cyclical_inheritance predecessors = print_string "checking for cycles"
@@ -591,10 +593,11 @@ let check_cyclical_inheritance predecessors = print_string "checking for cycles"
 let analyze filename program = match program with
 	Program(includes, classes) ->
 	let cdecls = process_includes filename includes classes in
-    let predecessors = build_inheritance_tree cdecls in
-	let _ = check_cyclical_inheritance predecessors in
     let reserved = add_reserved_functions in
 	let class_maps = build_class_maps reserved cdecls in
+    let predecessors = build_inheritance_forest cdecls class_maps in
+	let _ = check_cyclical_inheritance predecessors in
+
     let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
 	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls in
 	sast
