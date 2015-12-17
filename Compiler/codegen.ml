@@ -585,6 +585,10 @@ let codegen_library_functions () =
 	let _ = declare_function "printf" printf_ty the_module in
 	let malloc_ty = function_type (str_t) [| i32_t |] in
 	let _ = declare_function "malloc" malloc_ty the_module in
+    let rec_init_ty = function_type void_t [| (pointer_type i64_t); i32_t; (pointer_type i32_t); (pointer_type i32_t); (pointer_type i32_t); i32_t; i32_t |] in
+    let _ = declare_function "rec_init" rec_init_ty the_module in
+    let init_arr_ty = function_type (pointer_type i64_t) [| (pointer_type i32_t); i32_t |] in
+    let _ = declare_function "init_arr" init_arr_ty the_module in 
 	()
 
 let codegen_struct_stub s =
