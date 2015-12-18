@@ -44,6 +44,12 @@ type env = {
 		env_reserved  : sfunc_decl list;
 }
 
+let print_keys m = 
+StringMap.iter (fun key value -> print_string (key ^ "\n")) m
+
+
+let print_map m = StringMap.iter (fun k v -> print_string ("\n" ^ k ^ "\n"); print_keys v.field_map) m
+
 let construct_env cmaps cname cmap locals parameters returnType callStack reserved = 
 {
 	env_class_maps = cmaps;
@@ -166,6 +172,7 @@ and check_array_init env d el = SInt_Lit(0, Datatype(Int_t))
 and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 
 and check_obj_access env lhs rhs = 
+let _ = print_map env.env_class_maps in
 	let check_lhs = function
 		This 			-> SId("this", Datatype(Objecttype(env.env_name)))
 	|	Id s 			-> SId(s, get_ID_type env s)
@@ -178,6 +185,8 @@ and check_obj_access env lhs rhs =
 		| 	_ as d						-> raise (Exceptions.ObjAccessMustHaveObjectType (Utils.string_of_datatype d))
 		in 
 		let get_id_type_from_object env id cname = 
+            let _ = print_string cname in
+            let _ = print_map env.env_class_maps in
 			let cmap = StringMap.find cname env.env_class_maps in
 			try (function Field(_, d, _) -> d) (StringMap.find id cmap.field_map)
 			with | Not_found -> raise (Exceptions.UnknownIdentifierForClass(id, cname))
@@ -563,9 +572,6 @@ let add_reserved_functions =
 	let reserved = (reserved_stub "sizeof" (Datatype(Int_t)) ([ Formal(Any, "in")])) :: reserved in	
 	reserved
 
-let print_keys m = 
-StringMap.iter (fun key value -> print_string (key ^ "\n")) m
-
 let print_inheritance_tree m = 
 StringMap.iter (fun key value -> print_string ("\n" ^ key ^ "\n");
 List.iter (fun x -> print_string x) value) m
@@ -584,8 +590,6 @@ let merged = StringMap.fold (fun k v a -> StringMap.add k v a) m1 m2
 in let _ = print_keys merged
 in merged
 
-let print_map m = StringMap.iter (fun k v -> print_string ("\n" ^ k ^ "\n"); print_keys v.field_map) m
-
 let update_class_maps cmap_attr cmap_val cname cmap_to_update = 
     let update m = function
     "field_map" -> {field_map = cmap_val;
@@ -594,8 +598,8 @@ let update_class_maps cmap_attr cmap_val cname cmap_to_update =
                     reserved_map = m.reserved_map}
      | _ -> m
 in let updated = StringMap.add cname (update (StringMap.find cname cmap_to_update) cmap_attr) cmap_to_update
-in let _ = print_map updated
 in updated
+
 
 let inherit_fields class_maps predecessors =
 let cmaps_inherit = StringMap.fold (fun k v a -> StringMap.add k v a) class_maps StringMap.empty
@@ -609,23 +613,12 @@ let roots = StringSet.diff (fst res) (snd res)
 in let rec add_inherited_fields predec desc cmap_to_update = 
     if (StringSet.mem predec roots) then List.fold_left (fun a x -> let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in let updated = (update_class_maps "field_map" merged x a) in if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) updated) else updated) cmap_to_update desc
     else 
-        (*
-        let _ = print_string ("fields for (predec): " ^ predec ^ " \n")
-        (* print keys in predec's field map *)
-        in let _ = StringMap.iter (fun k v -> print_string k) (StringMap.find predec cmap_to_update).field_map
-        in let _ = print_string ("fields for desc of " ^ predec ^ "\n")
-        (* print keys each descendant's field map *)
-        in let _ = List.iter (fun x -> print_keys (StringMap.find x cmap_to_update).field_map) desc
-        in let _ = print_string("finished printing fields for descendants of " ^ predec ^ "\n")
-        in 
-        *)
         List.fold_left (fun a x ->  let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in let updated = (update_class_maps "field_map" merged x a) in if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) updated) else let _ = print_string (x ^ " is not a predecessor\n") in updated) cmap_to_update desc
         (* end of add_inherited_fields *)
-in StringSet.fold (fun x a -> let _ = print_string ("calling with root " ^ x ^ "\n") in add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
-(*
-in let _ = StringSet.fold (fun x a -> let _ = print_string "foo" in a) roots cmaps_inherit
-in class_maps
-*)
+in let result = StringSet.fold (fun x a -> let _ = print_string ("calling with root " ^ x ^ "\n") in add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
+(*in let _ = print_map result*)
+in result
+
 
 let check_cyclical_inheritance predecessors = print_string "checking for cycles"
 
@@ -637,7 +630,6 @@ let analyze filename program = match program with
 	let class_maps = build_class_maps reserved cdecls in
     let predecessors = build_inheritance_forest cdecls class_maps in
 	let _ = check_cyclical_inheritance predecessors in
-
     let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
 	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls in
 	sast
