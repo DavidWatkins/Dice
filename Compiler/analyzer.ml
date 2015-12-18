@@ -607,7 +607,7 @@ in
 let roots = StringSet.diff (fst res) (snd res)
 (*in let _ = print_set_members roots*)
 in let rec add_inherited_fields predec desc cmap_to_update = 
-    if (StringSet.mem predec roots) then List.fold_left (fun a x -> if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) a) else let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in (update_class_maps "field_map" merged x a)) cmap_to_update desc
+    if (StringSet.mem predec roots) then List.fold_left (fun a x -> let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in let updated = (update_class_maps "field_map" merged x a) in if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) updated) else updated) cmap_to_update desc
     else 
         (*
         let _ = print_string ("fields for (predec): " ^ predec ^ " \n")
