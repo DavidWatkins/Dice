@@ -10,6 +10,9 @@ open Exceptions
 open Batteries
 open Hashtbl
 
+open Llvm.MemoryBuffer
+open Llvm_bitreader
+
 let context = global_context ()
 let the_module = create_module context "Dice Codegen"
 let builder = builder context
@@ -452,7 +455,7 @@ and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	 * phi. *)
 	let new_else_bb = insertion_block llbuilder in
 
-	(* Emit merge block. *)
+	
 	let merge_bb = append_block context "ifcont" the_function in
 	position_at_end merge_bb llbuilder;
 	(* let then_bb_val = value_of_block new_then_bb in *)
@@ -585,7 +588,19 @@ let codegen_library_functions () =
 	let _ = declare_function "printf" printf_ty the_module in
 	let malloc_ty = function_type (str_t) [| i32_t |] in
 	let _ = declare_function "malloc" malloc_ty the_module in
-	()
+    let rec_init_ty = function_type void_t [| (pointer_type i64_t); i32_t; (pointer_type i32_t); (pointer_type i32_t); (pointer_type i32_t); i32_t; i32_t |] in
+    let _ = declare_function "rec_init" rec_init_ty the_module in
+    let init_arr_ty = function_type (pointer_type i64_t) [| (pointer_type i32_t); i32_t |] in
+    let _ = declare_function "init_arr" init_arr_ty the_module in 
+    let open_ty = function_type i32_t [| (pointer_type i8_t); (pointer_type i8_t) |] in 
+    let _ = declare_function "open" open_ty the_module in
+    let close_ty = function_type i32_t [| i32_t |] in
+    let _ = declare_function "close" close_ty the_module in
+    let read_ty = function_type i64_t [| i32_t; pointer_type i8_t; i64_t |] in
+    let _ = declare_function "read" read_ty the_module in
+    let write_ty = function_type i64_t [| i32_t; pointer_type i8_t; i64_t |] in
+    let _ = declare_function "write" write_ty the_module in 
+    ()
 
 let codegen_struct_stub s =
 	let struct_t = named_struct_type context s.scname in
@@ -611,6 +626,12 @@ let codegen_main main =
 	let _ = codegen_stmt llbuilder (SBlock (main.sbody)) in
 	build_ret (const_int i32_t 0) llbuilder 
 
+let linker filename = 
+	let llctx = Llvm.global_context () in
+	let llmem = Llvm.MemoryBuffer.of_file filename in
+	let llm = Llvm_bitreader.parse_bitcode llctx llmem in
+	ignore(Llvm_linker.link_modules the_module llm)
+
 let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions () in
 	let _ = List.map (fun s -> codegen_struct_stub s) sprogram.classes in
@@ -618,4 +639,5 @@ let codegen_sprogram sprogram =
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
 	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = codegen_main sprogram.main in
+	let _ = linker "includes/bindings.bc" in
 	the_module

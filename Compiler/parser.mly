@@ -22,6 +22,7 @@
 %left PLUS MINUS
 %left TIMES DIVIDE
 %right NOT
+%right DELETE
 %right RBRACKET
 %left LBRACKET 
 %left DOT
