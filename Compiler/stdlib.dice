@@ -1,0 +1,137 @@
+class String {
+
+   private char[] my_string; 
+   private int length;
+
+   constructor(char[] input) {
+
+       this.my_string = input;         
+       this.length = this.length();
+   }
+
+   public int length() {
+       
+       int length = 0;
+       
+       for (;this.my_string[length] == null;) {
+           length = length + 1;
+       }
+
+       return length;
+   }
+    
+   public char getChar(int index) {
+
+        return this.my_string[index];
+   }
+
+   public bool compare(class String check) {
+
+       if (check.length != this.length) {
+            return false;
+       }    
+    
+       int i = 0;
+       
+       for (; i < check.length(); i = i + 1) {
+
+           if (check.getChar(i) != this.getChar(i)) {
+                return false;
+           }
+       }
+
+       return true;
+    }
+
+   public char[] string() {
+        return this.my_string;
+    }
+       
+   public bool contains(class String check) {
+        
+   
+        if (this.length() < check.length()) {
+            return false;
+        } else if (this.compare(check)) {
+            return true;
+     }   else {
+            
+            int diff = this.length() - check.length() + 1;
+            int i;
+            int j;
+            for ( i = 0; i < diff; i = i + 1)     
+                
+                for ( j = 0; j < check.length(); j = j + 1) {
+
+                    if (this.getChar(i+j) != check.getChar(j)) {
+                        break;
+                    } 
+                    
+                    if (j == check.length()-1) {
+                        return true;
+                    }
+                }    
+            }
+    }
+}
+
+
+class File {
+
+    private class String filePath;
+    private bool isWriteEnabled;
+    private int fd;
+
+    constructor(char[] path, bool isWriteEnabled) {
+        
+        this.filePath = new String(path);
+        this.isWriteEnabled = isWriteEnabled;
+        this.fd = this.open(this.filePath, isWriteEnabled);
+        if (this.fd < 0) {
+            (* exit the program with error *)
+        }
+    }
+
+    private int open(class String path, bool isWriteEnabled) {
+
+        if (isWriteEnabled) {
+
+            (* 2 is the value for O_RDWR *)
+            return open(path.string(), 2);
+        } else {
+
+            (* 0 is the value for O_RDONLY *)
+            return open(path.string(), 0);
+        }
+    }
+
+    public int close() {
+        
+        if (close(this.fd) < 0) {
+            (* problem closign file, error *)
+        }
+    }
+
+    public char[] read(int bytes) {
+
+        char[] buf = new char[bytes];
+
+        int ret = read(this.fd, buf, bytes);
+
+        if (ret < 0) {
+            (* read failed *)
+        }
+
+        return buf;
+    }
+     
+    public int write(char[] buf) {
+
+        class String temp = new String(buf);
+        int ret = write(this.fd, temp.string(), temp.length());
+        if (ret < 0) {
+            (* write failed *)
+        }
+        return ret;
+    }
+}    
