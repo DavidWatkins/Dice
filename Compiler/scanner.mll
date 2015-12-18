@@ -1,6 +1,7 @@
 { 
 	open Parser 
     let lineno = ref 1
+    let depth = ref 0
     let filename = ref ""
 
     let unescape s =
@@ -23,7 +24,7 @@ let return = '\n'
 rule token = parse
   whitespace { token lexbuf }
 | return 	 { incr lineno; token lexbuf}
-| "(*"       { comment lexbuf }
+| "(*"       { incr depth; comment lexbuf }
 
 | '('      { LPAREN }
 | ')'      { RPAREN }
@@ -95,5 +96,6 @@ rule token = parse
 
 and comment = parse
     	return 	{ incr lineno; comment lexbuf }
-  	|	"*)" 	{ token lexbuf }
+  	|	"*)" 	{ decr depth; print_string (string_of_int (!depth)); if !depth > 0 then comment lexbuf else token lexbuf }
+	|   "(*" 	{ incr depth; comment lexbuf }
 	|	_    	{ comment lexbuf }
