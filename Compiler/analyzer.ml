@@ -619,7 +619,7 @@ in let rec add_inherited_fields predec desc cmap_to_update =
         in let _ = print_string("finished printing fields for descendants of " ^ predec ^ "\n")
         in 
         *)
-        List.fold_left (fun a x -> if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) a) else let _ = print_string (x ^ " is not a predecessor\n") in a) cmap_to_update desc
+        List.fold_left (fun a x ->  let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in let updated = (update_class_maps "field_map" merged x a) in if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) updated) else let _ = print_string (x ^ " is not a predecessor\n") in updated) cmap_to_update desc
         (* end of add_inherited_fields *)
 in StringSet.fold (fun x a -> let _ = print_string ("calling with root " ^ x ^ "\n") in add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
 (*
