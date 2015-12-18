@@ -3,7 +3,7 @@ LIBS=-I,/usr/lib/ocaml/
 FLAGS= -j 0 -use-ocamlfind -pkgs yojson,llvm,llvm.analysis,llvm.bitwriter,llvm.bitreader,llvm.linker,llvm.target,batteries
 OCAMLBUILD=ocamlbuild
 OPAM=opam config env
-CLIBEXT=c_lib_ext
+CLIBEXT=includes
 
 all: clean native
 	mv dice.native dice
@@ -16,6 +16,7 @@ clean:
 	rm -rf $(CLIBEXT)
 
 native:
+	eval 
 	$(OCAMLBUILD) $(FLAGS) $(TARGET).native
 
 byte:

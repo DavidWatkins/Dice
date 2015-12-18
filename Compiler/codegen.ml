@@ -639,5 +639,5 @@ let codegen_sprogram sprogram =
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
 	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = codegen_main sprogram.main in
-	let _ = linker "c_lib_ext/bindings.bc" in
+	let _ = linker "includes/bindings.bc" in
 	the_module

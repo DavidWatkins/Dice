@@ -5,6 +5,7 @@ open Utils
 open Ast
 open Yojson
 open Exceptions
+open Filepath
 
 type action = Tokens | TokenEndl | PrettyPrint | Ast | Sast | Compile | CompileToFile | Help
 
@@ -61,6 +62,7 @@ let _ =
 			else raise (Exceptions.InvalidNumberCompilerArguments (Array.length Sys.argv)) 
 		in 
 		(* Added fun () -> <x> so that each is evaluated only when requested *)
+		let filename 	= Filepath.realpath filename in
 		let file_in 	= fun () -> open_in filename in
 	  	let lexbuf 		= fun () ->	Lexing.from_channel (file_in ()) in
 	  	let token_list 	= fun () -> Processor.build_token_list (lexbuf ()) in
