@@ -528,31 +528,51 @@ let convert_cdecl_to_sast (cdecl:Ast.class_decl) =
 
 let print_fields cdecl = List.iter (fun x -> print_string (Utils.string_of_field x)) cdecl.cbody.fields; print_string "\n\n\n"
 
+let merge_cdecls base_cdecl child_cdecl = 
+(* return a cdecl in which cdecl.cbody.fields contains the fields of 
+the extended class, concatenated by the fields of the child class *)
+let child_cbody = 
+{fields = base_cdecl.cbody.fields @ child_cdecl.cbody.fields;
+ constructors = child_cdecl.cbody.constructors;
+ methods = child_cdecl.cbody.methods} in
+{
+    cname = child_cdecl.cname;
+    extends = child_cdecl.extends;
+    cbody = child_cbody}
+
 let inherit_fields_cdecls cdecls inheritance_forest = 
-(* iterate through cdecls to make a map for lookup *)
-let cdecl_lookup = List.fold_left (fun a litem -> StringMap.add litem.cname litem a) StringMap.empty cdecls
-in
+(* returns a list of cdecls that contains inherited fields *)
+    (* iterate through cdecls to make a map for lookup *)
+    let cdecl_lookup = List.fold_left (fun a litem -> StringMap.add litem.cname litem a) StringMap.empty cdecls in
+(*
 (* print the cdecl lookup map for debugging *)
 let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) cdecl_lookup in
-(*
-(* returns a list of cdecls that contains inherited fields *)
-let cmaps_inherit = StringMap.fold (fun k v a -> StringMap.add k v a) class_maps StringMap.empty
-(*in let _ = print_keys cmaps_inherit*)
-in let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
+*)
+    let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
 (List.fold_left (fun acc child -> StringSet.add child acc) (snd a) v)
-)) predecessors (StringSet.empty, StringSet.empty)
-in
-let roots = StringSet.diff (fst res) (snd res)
+)) inheritance_forest (StringSet.empty, StringSet.empty) in
+    let roots = StringSet.diff (fst res) (snd res)
 (*in let _ = print_set_members roots*)
-in let rec add_inherited_fields predec desc cmap_to_update = 
-    List.fold_left (fun a x -> let merged = merge_cdecls (StringMap.find predec a).field_map (StringMap.find x a).field_map in let updated = (update_class_maps "field_map" merged x a) in if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) updated) else updated) cmap_to_update desc
+(*
+in let rec add_inherited_fields predec desc map_to_update = 
+    let predec_cdecl = 
+    let desc_cdecl = 
+    List.fold_left (fun a x -> let merged = merge_cdecls (StringMap.find predec a) (StringMap.find x cdecl_lookup) in let updated = (StringMap.add x merged a) in if (StringMap.mem x inheritance_forest) then (add_inherited_fields x (StringMap.find x inheritance_forest) updated) else updated) map_to_update desc
     (* end of add_inherited_fields *)
-in let result = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
-(*in let _ = print_map result*)
+in let inherited_cdecls = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x inheritance_forest) (StringMap.add x (StringMap.find x cdecl_lookup) a)) roots StringMap.empty
+(* print the updated cdecl for debugging *)
+in let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) inherited_cdecls
+(* build a list of updated cdecls corresponding to the sequence
+of cdecls in `cdecls` *)
+in let result = List.fold_right (fun x a -> (StringMap.find x.cname inherited_cdecls)::a) cdecls []
+(* print list of cdecls and inherited_cdecls *)
+(*
+in let _ = List.iter (fun x -> ) cdecls
+in let _ = print_string "\n\n\n\n"
 in result
 *)
-cdecls
-
+*)
+in cdecls
 
 let default_value t = match t with 
 		Datatype(Int_t) 		-> SInt_Lit(0, Datatype(Int_t))
@@ -629,20 +649,30 @@ in updated
 
 
 let inherit_fields class_maps predecessors =
-let cmaps_inherit = StringMap.fold (fun k v a -> StringMap.add k v a) class_maps StringMap.empty
-(*in let _ = print_keys cmaps_inherit*)
-in let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
+    let cmaps_inherit = StringMap.fold (fun k v a -> StringMap.add k v a) class_maps StringMap.empty in
+    (*in let _ = print_keys cmaps_inherit*)
+    let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
 (List.fold_left (fun acc child -> StringSet.add child acc) (snd a) v)
-)) predecessors (StringSet.empty, StringSet.empty)
-in
-let roots = StringSet.diff (fst res) (snd res)
-(*in let _ = print_set_members roots*)
-in let rec add_inherited_fields predec desc cmap_to_update = 
-    List.fold_left (fun a x -> let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in let updated = (update_class_maps "field_map" merged x a) in if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) updated) else updated) cmap_to_update desc
-    (* end of add_inherited_fields *)
-in let result = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
-(*in let _ = print_map result*)
-in result
+)) predecessors (StringSet.empty, StringSet.empty) in
+    let roots = StringSet.diff (fst res) (snd res) in
+    (*in let _ = print_set_members roots*)
+    let rec add_inherited_fields predec desc cmap_to_update = 
+        let cmap_inherit accum descendant = 
+            let predec_field_map = (StringMap.find predec accum).field_map in
+            let desc_field_map = (StringMap.find descendant accum).field_map in 
+            let merged = merge_maps predec_field_map desc_field_map in 
+            let updated = update_class_maps "field_map" merged descendant accum in
+            if (StringMap.mem descendant predecessors) then 
+                let descendants_of_descendant = StringMap.find descendant predecessors in
+                add_inherited_fields descendant descendants_of_descendant updated 
+            else updated
+        in
+        List.fold_left cmap_inherit cmap_to_update desc
+        (* end of add_inherited_fields *)
+    in 
+    let result = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
+    (*in let _ = print_map result*)
+    in result
 
 
 let check_cyclical_inheritance predecessors = print_string "checking for cycles"
@@ -657,4 +687,5 @@ let analyze filename program = match program with
 	let _ = check_cyclical_inheritance predecessors in
     let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
 	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls predecessors in
-	sast
+	let _ = print_string "\ndone with analyzer\n"
+    in sast

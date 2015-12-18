@@ -293,7 +293,9 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 		function
 			(* Check fields in parent *)
 			SId(field, d) -> 
-				let field_index = Hashtbl.find struct_field_indexes (parent_str ^ "." ^ field) in
+				let field_index = try Hashtbl.find struct_field_indexes (parent_str ^ "." ^ field) 
+                                  with | Not_found -> raise (Exceptions.RHSNotFoundInCodegen(field))
+                in
 				let _val = build_struct_gep parent_expr field_index "" llbuilder in
 				if isAssign then
 					build_load _val field llbuilder
