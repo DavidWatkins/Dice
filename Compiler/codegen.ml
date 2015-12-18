@@ -598,6 +598,8 @@ let codegen_library_functions () =
     let _ = declare_function "close" close_ty the_module in
     let read_ty = function_type i64_t [| i32_t; pointer_type i8_t; i64_t |] in
     let _ = declare_function "read" read_ty the_module in
+    let write_ty = function_type i64_t [| i32_t; pointer_type i8_t; i64_t |] in
+    let _ = declare_function "write" write_ty the_module in 
     ()
 
 let codegen_struct_stub s =
