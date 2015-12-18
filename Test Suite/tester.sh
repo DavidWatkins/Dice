@@ -12,23 +12,25 @@ GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 errorFile=errors.log
+excpTestFlag=0
 
 # Set time limit for all operations
 ulimit -t 30
 
-if [ $# -eq 0 ]; then
+usage(){
 	echo "Usage: $0 [test flag] [other]";
 	echo "";
-	echo "[test flag] = -s   Test Scanner";
-	echo "              -c   Test Compiler";
+	echo "[test flag] = -c   Test Compiler (default if test flag not selected)";
 	echo "              -d   Test Compiler and display Dice Compiler messages";
+	echo "              -s   Test Scanner";
+	echo "              -m   Run script without compiling Dice executable";
 	echo "[other]     = -v   Verbose (prints log results)";
 	exit 1;
-fi
+}
 
 confirmation(){
 	#$? is the exit code for diff, if 0, then test output matched!
-	if [ $? -eq 0 ]
+	if [ $? -eq 0 ];
 			then
 			echo -e "${GREEN}$filename passed!${NC}" >> session_file
 			echo -e "${GREEN}$filename passed!${NC}"
@@ -36,10 +38,21 @@ confirmation(){
 
 		else
 			echo -e "${RED}$filename FAILED${NC}" >> session_file
-			echo -e "${RED}$filename FAILED${NC}" 
-			diff temp_Dice_Tester "$testPath"$filename$testExtension >> session_file
-			((fail++))
+			echo -e "${RED}$filename FAILED${NC}"
 
+			#print out expected output and result
+			echo "Expected Output:" >> session_file
+			
+			if [ $excpTestFlag -eq 0 ];	then
+				cat "$testPath"$filename$testExtension >> session_file
+			else
+				cat "$testExceptionsPath"$filename$testExtension >> session_file
+			fi
+			echo "" >> session_file
+			echo "Generated Output:" >> session_file
+			cat temp_Dice_Tester  >> session_file
+			echo "" >> session_file
+			((fail++))
 		fi
 }
 
@@ -71,7 +84,7 @@ test_function(){
 			#extract filename without extension for exectuable
 			name=$(echo $filename | cut -f 1 -d '.')
 			
-			if [[ "$testOption" == "-d" ]]; then
+			if [ "$testOption" == "-d" ]; then
 				#run the executable and port output (stderr) to temp test file
 				#port stdout (compiler msgs) to screen with color
 				echo ""
@@ -102,11 +115,35 @@ test_function(){
 		fi
 	done
 
+	#The following portion is only to test compiler errors
+	if [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ] || [ "$testOption" == "-m" ] || [ $# -eq 0 ]; then
+
+		#set flag to prevent 
+		excpTestFlag=1
+		for testFile in "$testExceptionsPath"*.dice; do
+
+			filename=$(basename "$testFile")
+
+			echo "==================================" >> session_file
+			echo "Testing: $filename" >> session_file
+		
+			#Only other option is -c or -d which perform the same function except where noted below
+			#extract filename without extension for exectuable
+			name=$(echo $filename | cut -f 1 -d '.')
+				
+			#run the executable and port error  output (stdout) to temp test file
+			#port stdout (compiler msgs) to log file
+			$diceExecPath $diceOption "$testFile" 1> temp_Dice_Tester
+			
+			#Perform comparison of outputs
+			diff temp_Dice_Tester "$testExceptionsPath"$filename$testExtension > /dev/null
+			confirmation #function
+		done
+	fi
 	echo "" >> session_file
 
 	#Verbose flag actuated
-	if [ "$vFlag" == "-v" ]
-		then
+	if [ "$vFlag" == "-v" ]; then
 		cat session_file
 	fi
 
@@ -134,12 +171,7 @@ createDice(){
 	echo "Compilation of dice executable complete"
 }
 
-deleteDice(){
-	cd ../Compiler
-	make clean 2>&1 > /dev/null
-	cd ../Test\ Suite
-}
-
+#-----------Script starts flag checking here ------------------
 if [ "$testOption" == "-s" ]; then
 	echo "Scanner Test Started"
 	createDice
@@ -148,19 +180,30 @@ if [ "$testOption" == "-s" ]; then
 	diceOption=-tendl
 	testExtension=.ManualTokens
 	test_function
-	deleteDice
-fi
 
-if [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ]; then
+elif [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ] || [ "$testOption" == "-m" ] || [ $# -eq 0 ]; then
 	echo "Compiler Test Started"
-	createDice
+
+	if [ "$testOption" == "-m" ]; then
+		if [ -f $diceExecPath ]; then
+			echo "Skipping Dice recompilation"
+		else
+			createDice
+		fi
+	else
+		createDice	
+	fi
+
 	logFile=compiler_tests.log
 	testPath=Compiler_Test_Suite/
+	testExceptionsPath=Compiler_Test_Suite/Exceptions/
 	diceOption=-c
 	testExtension=.out
 	test_function
-	deleteDice
 	rm temp.ll;
+
+else
+	usage 
 fi
 
 #Print out number of bash script errors and 
