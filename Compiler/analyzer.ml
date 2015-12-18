@@ -584,6 +584,8 @@ let merged = StringMap.fold (fun k v a -> StringMap.add k v a) m1 m2
 in let _ = print_keys merged
 in merged
 
+let print_map m = StringMap.iter (fun k v -> print_string ("\n" ^ k ^ "\n"); print_keys v.field_map) m
+
 let update_class_maps cmap_attr cmap_val cname cmap_to_update = 
     let update m = function
     "field_map" -> {field_map = cmap_val;
@@ -591,7 +593,9 @@ let update_class_maps cmap_attr cmap_val cname cmap_to_update =
                     constructor_map = m.constructor_map;
                     reserved_map = m.reserved_map}
      | _ -> m
-in StringMap.add cname (update (StringMap.find cname cmap_to_update) cmap_attr) cmap_to_update
+in let updated = StringMap.add cname (update (StringMap.find cname cmap_to_update) cmap_attr) cmap_to_update
+in let _ = print_map updated
+in updated
 
 let inherit_fields class_maps predecessors =
 let cmaps_inherit = StringMap.fold (fun k v a -> StringMap.add k v a) class_maps StringMap.empty
@@ -605,6 +609,7 @@ let roots = StringSet.diff (fst res) (snd res)
 in let rec add_inherited_fields predec desc cmap_to_update = 
     if (StringSet.mem predec roots) then List.fold_left (fun a x -> if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) a) else let merged = merge_maps (StringMap.find predec a).field_map (StringMap.find x a).field_map in (update_class_maps "field_map" merged x a)) cmap_to_update desc
     else 
+        (*
         let _ = print_string ("fields for (predec): " ^ predec ^ " \n")
         (* print keys in predec's field map *)
         in let _ = StringMap.iter (fun k v -> print_string k) (StringMap.find predec cmap_to_update).field_map
@@ -612,7 +617,9 @@ in let rec add_inherited_fields predec desc cmap_to_update =
         (* print keys each descendant's field map *)
         in let _ = List.iter (fun x -> print_keys (StringMap.find x cmap_to_update).field_map) desc
         in let _ = print_string("finished printing fields for descendants of " ^ predec ^ "\n")
-        in List.fold_left (fun a x -> if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) a) else let _ = print_string (x ^ " is not a predecessor\n") in a) cmap_to_update desc
+        in 
+        *)
+        List.fold_left (fun a x -> if (StringMap.mem x predecessors) then (add_inherited_fields x (StringMap.find x predecessors) a) else let _ = print_string (x ^ " is not a predecessor\n") in a) cmap_to_update desc
         (* end of add_inherited_fields *)
 in StringSet.fold (fun x a -> let _ = print_string ("calling with root " ^ x ^ "\n") in add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
 (*
