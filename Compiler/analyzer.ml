@@ -172,7 +172,6 @@ and check_array_init env d el = SInt_Lit(0, Datatype(Int_t))
 and check_array_access e el = SInt_Lit(0, Datatype(Int_t))
 
 and check_obj_access env lhs rhs = 
-let _ = print_map env.env_class_maps in
 	let check_lhs = function
 		This 			-> SId("this", Datatype(Objecttype(env.env_name)))
 	|	Id s 			-> SId(s, get_ID_type env s)
@@ -185,8 +184,6 @@ let _ = print_map env.env_class_maps in
 		| 	_ as d						-> raise (Exceptions.ObjAccessMustHaveObjectType (Utils.string_of_datatype d))
 		in 
 		let get_id_type_from_object env id cname = 
-            let _ = print_string cname in
-            let _ = print_map env.env_class_maps in
 			let cmap = StringMap.find cname env.env_class_maps in
 			try (function Field(_, d, _) -> d) (StringMap.find id cmap.field_map)
 			with | Not_found -> raise (Exceptions.UnknownIdentifierForClass(id, cname))
@@ -544,35 +541,50 @@ let inherit_fields_cdecls cdecls inheritance_forest =
 (* returns a list of cdecls that contains inherited fields *)
     (* iterate through cdecls to make a map for lookup *)
     let cdecl_lookup = List.fold_left (fun a litem -> StringMap.add litem.cname litem a) StringMap.empty cdecls in
-(*
-(* print the cdecl lookup map for debugging *)
-let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) cdecl_lookup in
-*)
+    (*
+    (* print the cdecl lookup map for debugging *)
+    let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) cdecl_lookup in
+    *)
     let res = StringMap.fold (fun k v a -> (StringSet.add k (fst a), 
 (List.fold_left (fun acc child -> StringSet.add child acc) (snd a) v)
 )) inheritance_forest (StringSet.empty, StringSet.empty) in
     let roots = StringSet.diff (fst res) (snd res)
-(*in let _ = print_set_members roots*)
-(*
+    (*in let _ = print_set_members roots*)
 in let rec add_inherited_fields predec desc map_to_update = 
-    let predec_cdecl = 
-    let desc_cdecl = 
-    List.fold_left (fun a x -> let merged = merge_cdecls (StringMap.find predec a) (StringMap.find x cdecl_lookup) in let updated = (StringMap.add x merged a) in if (StringMap.mem x inheritance_forest) then (add_inherited_fields x (StringMap.find x inheritance_forest) updated) else updated) map_to_update desc
+    let merge_fields accum descendant = 
+        let updated_predec_cdecl = StringMap.find predec accum in 
+        let descendant_cdecl_to_update = StringMap.find descendant cdecl_lookup in
+        let merged = merge_cdecls updated_predec_cdecl descendant_cdecl_to_update in 
+        let updated = (StringMap.add descendant merged accum) in 
+        if (StringMap.mem descendant inheritance_forest) then 
+            let descendants_of_descendant = StringMap.find descendant inheritance_forest in
+            add_inherited_fields descendant descendants_of_descendant updated
+        else updated
+    in
+    List.fold_left merge_fields map_to_update desc
     (* end of add_inherited_fields *)
-in let inherited_cdecls = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x inheritance_forest) (StringMap.add x (StringMap.find x cdecl_lookup) a)) roots StringMap.empty
-(* print the updated cdecl for debugging *)
-in let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) inherited_cdecls
-(* build a list of updated cdecls corresponding to the sequence
+    in
+    (* map class name of every class_decl in `cdecls` to 
+    its inherited cdecl *)
+    let inherited_cdecls = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x inheritance_forest) (StringMap.add x (StringMap.find x cdecl_lookup) a)) roots StringMap.empty in
+    (* print the updated cdecl for debugging *)
+    let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) inherited_cdecls in
+    (* build a list of updated cdecls corresponding to the sequence
 of cdecls in `cdecls` *)
-in let result = List.fold_right (fun x a -> (StringMap.find x.cname inherited_cdecls)::a) cdecls []
-(* print list of cdecls and inherited_cdecls *)
-(*
-in let _ = List.iter (fun x -> ) cdecls
-in let _ = print_string "\n\n\n\n"
-in result
-*)
-*)
-in cdecls
+    let add_inherited_cdecl cdecl accum = 
+        let inherited_cdecl = try StringMap.find cdecl.cname inherited_cdecls 
+                              with | Not_found -> cdecl
+        in
+        inherited_cdecl::accum
+    in
+    let result = List.fold_right add_inherited_cdecl cdecls [] in
+    (* print list of cdecls and inherited_cdecls *)
+    (*
+    in let _ = List.iter (fun x -> ) cdecls
+    in let _ = print_string "\n\n\n\n"
+    in result
+    *)
+    cdecls
 
 let default_value t = match t with 
 		Datatype(Int_t) 		-> SInt_Lit(0, Datatype(Int_t))
