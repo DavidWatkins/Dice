@@ -528,14 +528,18 @@ let print_fields cdecl = List.iter (fun x -> print_string (Utils.string_of_field
 let merge_cdecls base_cdecl child_cdecl = 
 (* return a cdecl in which cdecl.cbody.fields contains the fields of 
 the extended class, concatenated by the fields of the child class *)
-let child_cbody = 
-{fields = base_cdecl.cbody.fields @ child_cdecl.cbody.fields;
- constructors = child_cdecl.cbody.constructors;
- methods = child_cdecl.cbody.methods} in
-{
-    cname = child_cdecl.cname;
-    extends = child_cdecl.extends;
-    cbody = child_cbody}
+    let child_cbody = 
+        {
+            fields = base_cdecl.cbody.fields @ child_cdecl.cbody.fields;
+             constructors = child_cdecl.cbody.constructors;
+             methods = child_cdecl.cbody.methods
+        }
+        in
+        {
+            cname = child_cdecl.cname;
+            extends = child_cdecl.extends;
+            cbody = child_cbody
+        }
 
 let inherit_fields_cdecls cdecls inheritance_forest = 
 (* returns a list of cdecls that contains inherited fields *)
