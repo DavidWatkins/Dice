@@ -19,6 +19,6 @@ class shape {
 	 public void main(char[][] args) {
 		 class shape a = new shape();
 		 a.setArea(50);
-		 print (getArea());
+		 print (a.getArea());
 		 }
  }

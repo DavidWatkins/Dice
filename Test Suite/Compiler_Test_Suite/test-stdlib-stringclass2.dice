@@ -1,0 +1,8 @@
+include(stdlib);
+
+class test {
+	public void main(char[][] args) {
+        class String s = new String("StringDoesn'tStartWithH");
+        print(s.string());
+	}
+}

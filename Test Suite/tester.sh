@@ -133,7 +133,7 @@ test_function(){
 				
 			#run the executable and port error  output (stdout) to temp test file
 			#port stdout (compiler msgs) to log file
-			$diceExecPath $diceOption "$testFile" 1> temp_Dice_Tester
+			$diceExecPath $diceOption "$testFile" 1> temp_Dice_Tester 2>/dev/null
 			
 			#Perform comparison of outputs
 			diff temp_Dice_Tester "$testExceptionsPath"$filename$testExtension > /dev/null
@@ -148,7 +148,7 @@ test_function(){
 	fi
 
 	#Copy session output to historical log
-	cat session_file >> $logFile
+	cat session_file >> "$logFile"
 
 	#Test status output
 	echo ""
@@ -208,6 +208,7 @@ fi
 
 #Print out number of bash script errors and 
 errorLines=$(cat $errorFile | wc -l)
+mv $errorFile Test\ Suite/$errorFile
 if [ $errorLines -ne 0 ]; then
 echo "$errorLines lines of script errors reported. Please check $errorFile!"
 fi
