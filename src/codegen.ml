@@ -564,6 +564,10 @@ and codegen_for init_ cond_ inc_ body_ llbuilder =
 	(* for expr always returns 0.0. *)
 	const_null f_t
 
+and codegen_while cond_ body_ llbuilder = 
+	let null_sexpr = SInt_Lit(0, Datatype(Int_t)) in
+	codegen_for null_sexpr cond_ null_sexpr body_ llbuilder
+
 and codegen_alloca datatype var_name expr llbuilder = 
 	let t = match datatype with 
 			Datatype(Objecttype(name)) -> find_struct name
@@ -593,7 +597,7 @@ and codegen_stmt llbuilder = function
 	|   SReturn(e, d)    			-> codegen_ret d e llbuilder
 	|   SIf (e, s1, s2)       		-> codegen_if_stmt e s1 s2 llbuilder
 	|   SFor (e1, e2, e3, s)  		-> codegen_for e1 e2 e3 s llbuilder
-	|   SWhile (e, s)    			-> build_global_stringptr "Hi" "tmp" llbuilder
+	|   SWhile (e, s)    			-> codegen_while e s llbuilder
 	|   SBreak           			-> build_global_stringptr "Hi" "tmp" llbuilder   
 	|   SContinue        			-> build_global_stringptr "Hi" "tmp" llbuilder
 	|   SLocal(d, s, e)  			-> codegen_alloca d s e llbuilder
