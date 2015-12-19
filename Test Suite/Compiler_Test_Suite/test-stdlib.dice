@@ -12,11 +12,13 @@ class String {
    }
 
    (* PRIVATE CLASSES -----------------------------------------   *)
+
     
    private int length(char[] input) {
         int length = 0;
 
-        for (; input[length] != 0; length = length + 1) {
+        for ( ; input[length] != 0; length = length + 1) {
+            null;
         }
 
         return length;
@@ -28,7 +30,7 @@ class String {
 
         int i = 0;
 
-        for (; input[i] != 0; i = i + 1) {
+        for ( i = 0; input[i] != '\000'; i = i + 1) {
 
             newString[i] = input[i];
         }
@@ -37,21 +39,22 @@ class String {
    }
 
    (* PUBLIC CLASSES -----------------------------------------   *)
+   public char getChar(int index) {
+
+        return this.my_string[index];
+   }
 
    public char[] string() {
         return this.my_string;
     }
 
-   public char getChar(int index) {
-
-        return this.my_string[index];
-   }
 
    public int length() {
        
        int length = 0;
        
        for (;this.my_string[length] != 0; length = length + 1) {
+            null;
        }
 
        return length;
@@ -64,10 +67,11 @@ class String {
         return newString;
     }
     
-   public int indexOf(char x) {
+  public int indexOf(char x) {
 
         int i = 0;
         for (; this.getChar(i) != x and this.getChar(i) != 0; i = i + 1) {
+            null;
             }
 
         (* If the char was not found, return -1 *)
@@ -159,70 +163,9 @@ class String {
 }
 
 
-
-class File {
-
-    private class String filePath;
-    private bool isWriteEnabled;
-    private int fd;
-
-    constructor(char[] path, bool isWriteEnabled) {
-        
-        this.filePath = new String(path);
-        this.isWriteEnabled = isWriteEnabled;
-        this.fd = this.open(this.filePath, this.isWriteEnabled);
-        if (this.fd < 0) {
-            (* exit the program with error *)
-        }
-    }
-
-   (* PRIVATE CLASSES -----------------------------------------   *)
-
-    private int openfile(class String path, bool isWriteEnabled) {
-
-        if (isWriteEnabled) {
-
-            (* 2 is the value for O_RDWR *)
-            return open(path.string(), 2);
-        } else {
-
-            (* 0 is the value for O_RDONLY *)
-            return open(path.string(), 0);
-        }
-    }
-
-   (* PUBLIC CLASSES -----------------------------------------   *)
-
-    public int closefile() {
-        
-        if (close(this.fd) < 0) {
-            (* problem closing file, error *)
-        }
-    }
-
-    public char[] readfile(int bytes) {
-
-        char[] buf = new char[bytes];
-
-        int ret = read(this.fd, buf, bytes);
-
-        if (ret < 0) {
-            (* read failed *)
-        }
-
-        return buf;
-    }
-    (* 
-    public int writefile(char[] buf) {
-
-        class String temp = new String(buf);
-        int ret = write(this.fd, temp.string(), temp.length());
-        if (ret < 0) {
-            (* write failed *)
-        }
-        return ret;
-    }
-*)
-}    
-
-
+class Two {
+	public void main(char[][] args) {
+        class String s = new String("hi");
+        print(s.string());
+	}
+}

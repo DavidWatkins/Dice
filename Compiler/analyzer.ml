@@ -659,6 +659,10 @@ let add_reserved_functions =
 	let reserved = (reserved_stub "malloc" (Arraytype(Char_t, 1)) ([ Formal(Datatype(Int_t), "size")])) :: reserved in
 	let reserved = (reserved_stub "cast" (Any) ([ Formal(Any, "in")])) :: reserved in
 	let reserved = (reserved_stub "sizeof" (Datatype(Int_t)) ([ Formal(Any, "in")])) :: reserved in	
+    let reserved = (reserved_stub "open" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "close" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "read" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "write" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
 	reserved
 
 (* Main method for analyzer *)

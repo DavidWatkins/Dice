@@ -610,13 +610,13 @@ let codegen_library_functions () =
     let _ = declare_function "rec_init" rec_init_ty the_module in
     let init_arr_ty = function_type (pointer_type i64_t) [| (pointer_type i32_t); i32_t |] in
     let _ = declare_function "init_arr" init_arr_ty the_module in 
-    let open_ty = function_type i32_t [| (pointer_type i8_t); (pointer_type i8_t) |] in 
+    let open_ty = function_type i32_t [| (pointer_type i8_t); i32_t |] in 
     let _ = declare_function "open" open_ty the_module in
     let close_ty = function_type i32_t [| i32_t |] in
     let _ = declare_function "close" close_ty the_module in
-    let read_ty = function_type i64_t [| i32_t; pointer_type i8_t; i64_t |] in
+    let read_ty = function_type i32_t [| i32_t; pointer_type i8_t; i32_t |] in
     let _ = declare_function "read" read_ty the_module in
-    let write_ty = function_type i64_t [| i32_t; pointer_type i8_t; i64_t |] in
+    let write_ty = function_type i32_t [| i32_t; pointer_type i8_t; i32_t |] in
     let _ = declare_function "write" write_ty the_module in 
     ()
 
