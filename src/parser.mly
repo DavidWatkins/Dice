@@ -25,7 +25,7 @@
 %right DELETE
 %right RBRACKET
 %left LBRACKET 
-%left DOT
+%right DOT
 
 %start program
 %type <Ast.program> program
