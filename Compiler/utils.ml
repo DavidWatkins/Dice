@@ -324,6 +324,7 @@ let map_scdecls_to_json scdecls =
 							`Assoc[
 								("scname", `String scdecl.scname); 
 								("sfields", map_fields_to_json scdecl.sfields);
+                                ("sfuncs", map_sfdecls_to_json scdecl.sfuncs);
 							])
 						]) 
 		scdecls)
