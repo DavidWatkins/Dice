@@ -4,12 +4,15 @@ class shape {
 }
 
 class circle extends shape {
+	constructor() {
+
+	}
   public float radius;
 }
 
 class test {
   public void main(char[][] args) {
-      circle a = new circle(); 
+      class circle a = new circle(); 
       a.xCoord = 1.5;
       print(a.xCoord);
   }

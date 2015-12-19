@@ -223,7 +223,7 @@ and codegen_cast el d llbuilder =
 	let cast_malloc_to_objtype lhs currType newType llbuilder = match newType with
 		Datatype(Objecttype(x)) -> 
 			let obj_type = get_type (Datatype(Objecttype(x))) in 
-			build_pointercast lhs obj_type "" llbuilder
+			build_pointercast lhs obj_type "tmp" llbuilder
 		| 	_ as t -> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype currType, Utils.string_of_datatype t))
 	in
 	let expr = List.hd el in
@@ -257,6 +257,8 @@ and codegen_id isDeref checkParam id d llbuilder =
 		with | Not_found -> raise (Exceptions.UnknownVariable id)
 
 and codegen_assign lhs rhs d llbuilder = 
+	let rhsType = Analyzer.get_type_from_sexpr rhs in
+	let lhsType = Analyzer.get_type_from_sexpr lhs in
 	(* Special case '=' because we don't want to emit the LHS as an
 	* expression. *)
 	let lhs = match lhs with
@@ -268,8 +270,12 @@ and codegen_assign lhs rhs d llbuilder =
 	let rhs = codegen_sexpr llbuilder rhs in
 	let rhs = match d with 
 			Datatype(Objecttype(_))	-> build_load rhs "" llbuilder
-		| _ -> rhs 
-	 in
+		| 	_ -> rhs 
+	in
+	let rhs = match lhsType, rhsType with
+		Datatype(Objecttype(_)), Datatype(Objecttype(_)) ->
+			build_pointercast rhs (get_type lhsType) "tmp" llbuilder
+	| 	_ -> rhs
 	(* Lookup the name. *)
 	ignore(build_store rhs lhs llbuilder);
 	rhs
