@@ -48,10 +48,8 @@ confirmation(){
 			else
 				cat "$testExceptionsPath"$filename$testExtension >> session_file
 			fi
-			echo "" >> session_file
 			echo "Generated Output:" >> session_file
 			cat temp_Dice_Tester  >> session_file
-			echo "" >> session_file
 			((fail++))
 		fi
 }
@@ -136,7 +134,7 @@ test_function(){
 			$diceExecPath $diceOption "$testFile" 1> temp_Dice_Tester 2>/dev/null
 			
 			#Perform comparison of outputs
-			diff temp_Dice_Tester "$testExceptionsPath"$filename$testExtension > /dev/null
+			diff temp_Dice_Tester "$testExceptionsPath"$filename$testExtension >> /dev/null
 			confirmation #function
 		done
 	fi
@@ -175,7 +173,7 @@ createDice(){
 if [ "$testOption" == "-s" ]; then
 	echo "Scanner Test Started"
 	createDice
-	logFile=scanner_tests.log
+	logFile=Test\ Suite/scanner_tests.log
 	testPath=Test\ Suite/Scanner\ Test\ Suite/
 	diceOption=-tendl
 	testExtension=.ManualTokens
@@ -207,10 +205,14 @@ else
 fi
 
 #Print out number of bash script errors and 
-errorLines=$(cat $errorFile | wc -l)
-mv $errorFile Test\ Suite/$errorFile
-if [ $errorLines -ne 0 ]; then
-echo "$errorLines lines of script errors reported. Please check $errorFile!"
+if [ "$testOption" != "-s" ]; then
+	errorLines=$(cat $errorFile | wc -l)
+	mv $errorFile Test\ Suite/$errorFile
+	if [ $errorLines -ne 0 ]; then
+	echo "$errorLines lines of script errors reported. Please check $errorFile!"
+	else
+		Test\ Suite/$errorFile
+	fi
 fi
 
 exit 0
