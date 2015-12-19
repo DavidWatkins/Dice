@@ -96,6 +96,6 @@ rule token = parse
 
 and comment = parse
     	return 	{ incr lineno; comment lexbuf }
-  	|	"*)" 	{ decr depth; print_string (string_of_int (!depth)); if !depth > 0 then comment lexbuf else token lexbuf }
+  	|	"*)" 	{ decr depth; if !depth > 0 then comment lexbuf else token lexbuf }
 	|   "(*" 	{ incr depth; comment lexbuf }
 	|	_    	{ comment lexbuf }

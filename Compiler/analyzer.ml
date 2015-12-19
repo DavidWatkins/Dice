@@ -118,10 +118,15 @@ let get_equality_binop_type type1 type2 se1 se2 op =
         (* Equality op not supported for float operands. The correct way to test floats 
            for equality is to check the difference between the operands in question *)
 	    if (type1 = Datatype(Float_t) || type2 = Datatype(Float_t)) then raise (Exceptions.InvalidBinopExpression "Equality operation is not supported for Float types")
-        else if (type1 = Datatype(Char_t) && type2 = Datatype(Int_t) || 
-                type1 = Datatype(Int_t) && type2 = Datatype(Char_t) || 
-                type1 = type2) then SBinop(se1, op, se2, Datatype(Bool_t))
-        else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
+        else 
+        match type1, type2 with
+        	Datatype(Char_t), Datatype(Int_t) 
+        | 	Datatype(Int_t), Datatype(Char_t)
+       	| 	Datatype(Objecttype(_)), Datatype(Null_t)
+       	| 	Arraytype(_, _), Datatype(Null_t) -> SBinop(se1, op, se2, Datatype(Bool_t))
+       	| _ ->
+       		if type1 = type2 then SBinop(se1, op, se2, Datatype(Bool_t))
+       		else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
 
 
 let get_logical_binop_type se1 se2 op = function 
