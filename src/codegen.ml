@@ -232,14 +232,7 @@ and codegen_print el llbuilder =
 
 and codegen_func_call fname el isVoid llbuilder = 
 	let f = func_lookup fname in
-	let match_sexpr se = match se with
-		SId(id, d) -> let isDeref = match d with
-			Datatype(Objecttype(_)) -> false
-		| 	_ -> true 
-		in codegen_id isDeref false id d llbuilder
-	| 	se -> codegen_sexpr llbuilder se
-	in
-	let params = List.map match_sexpr el in
+	let params = List.map (codegen_sexpr llbuilder) el in
 	if isVoid then
 	build_call f (Array.of_list params) "" llbuilder
 	else
@@ -325,8 +318,15 @@ and deref ptr t llbuilder =
 
 and codegen_obj_access isAssign lhs rhs d llbuilder = 
 	let codegen_func_call fname parent_expr el d llbuilder = 
+		let match_sexpr se = match se with
+			SId(id, d) -> let isDeref = match d with
+				Datatype(Objecttype(_)) -> false
+			| 	_ -> true 
+			in codegen_id isDeref false id d llbuilder
+		| 	se -> codegen_sexpr llbuilder se
+		in
 		let f = func_lookup fname in
-		let params = List.map (codegen_sexpr llbuilder) el in
+		let params = List.map match_sexpr el in
 		match d with
 			Datatype(Void_t) -> build_call f (Array.of_list (parent_expr :: params)) "" llbuilder
 		| 	_ -> build_call f (Array.of_list (parent_expr :: params)) "tmp" llbuilder
