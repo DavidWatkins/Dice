@@ -16,7 +16,8 @@ class String {
    private int length(char[] input) {
         int length = 0;
 
-        for (; input[length] != '\000'; length = length + 1) {
+        while(input[length] != 0) {
+          length = length + 1;
         }
 
         return length;
@@ -27,13 +28,12 @@ class String {
         char[] newString = new char[this.length(input) + 1];
 
         int i = 0;
-        bool tmp = i != 12;
-        for (; input[i] != '\000'; i = i + 1) {
+        for (; input[i] != 0; i = i + 1) {
 
             newString[i] = input[i];
         }
 
-        newString[i] = '\000';
+        newString[i] = 0;
         return newString;
    }
 
@@ -52,7 +52,9 @@ class String {
        
        int length = 0;
        
-       for (;this.my_string[length] != '\000'; length = length + 1) { }
+       while(this.my_string[length] != 0){
+        length = length + 1;
+      }
 
        return length;
    }
@@ -67,7 +69,7 @@ class String {
    public int indexOf(char x) {
 
         int i = 0;
-        for (; this.getChar(i) != x and this.getChar(i) != '\000'; i = i + 1) {
+        for (; this.getChar(i) != x and this.getChar(i) != 0; i = i + 1) {
             }
 
         (* If the char was not found, return -1 *)
@@ -77,13 +79,6 @@ class String {
 
         return i;
     }
-(*
-    public int indexOf(char[] x) {
-
-        
-        int i = 0;
-        for (; this.
-*)
 
    public class String concat(class String temp) {
 
@@ -91,17 +86,17 @@ class String {
         
         (* Copy over the current string into a new char array *)
         int i = 0;
-        for (; this.getChar(i) != '\000'; i = i + 1) {
+        for (; this.getChar(i) != 0; i = i + 1) {
             temparray[i] = this.getChar(i);
         }
 
         (* Append the new string *)
         int j = 0;
-        for (; temp.getChar(j) != '\000'; j = j + 1) {
+        for (; temp.getChar(j) != 0; j = j + 1) {
             temparray[i+j] = temp.getChar(j);
         }
 
-        temparray[this.length() + temp.length() + 1] = '\000';
+        temparray[this.length() + temp.length() + 1] = 0;
         class String newString = new String(temparray);
         return newString;
     }
@@ -149,6 +144,7 @@ class String {
                     }
                 }    
             }
+        return false;
     }
 
     public void free() {
@@ -170,7 +166,7 @@ class File {
         
         this.filePath = new String(path);
         this.isWriteEnabled = isWriteEnabled;
-        this.fd = this.open(this.filePath, this.isWriteEnabled);
+        this.fd = this.openfile(this.filePath, this.isWriteEnabled);
         if (this.fd < 0) {
             (* exit the program with error *)
         }
@@ -184,16 +180,15 @@ class File {
 
             (* 2 is the value for O_RDWR *)
             return open(path.string(), 2);
-        } else {
+        } 
 
-            (* 0 is the value for O_RDONLY *)
-            return open(path.string(), 0);
-        }
+        (* 0 is the value for O_RDONLY *)
+        return open(path.string(), 0);
     }
 
    (* PUBLIC CLASSES -----------------------------------------   *)
 
-    public int closefile() {
+    public void closefile() {
         
         if (close(this.fd) < 0) {
             (* problem closing file, error *)

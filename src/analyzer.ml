@@ -268,7 +268,7 @@ and check_obj_access env lhs rhs =
 			(* Check functions in parent *)
 		| 	Call(fname, el) 	-> 
 				let env = construct_env env.env_class_maps ptype_name env.env_cmap env.env_locals env.env_parameters env.env_returnType env.env_callStack env.env_reserved in
-				check_call_type env fname el, env
+				check_call_type true env fname el, env
 			(* Set parent, check if base is field *)
 		| 	ObjAccess(e1, e2) 	-> 
 				let old_env = env in
@@ -296,7 +296,7 @@ and check_obj_access env lhs rhs =
 		let rhs_type = get_type_from_sexpr rhs in
 		SObjAccess(lhs, rhs, rhs_type)
 
-and check_call_type env fname el = 
+and check_call_type isObjAccess env fname el = 
 	let sel, env = exprl_to_sexprl env el in
 	(* check that 'env.env_name' is in the list of defined classes *)
 	let cmap = 
@@ -309,6 +309,8 @@ and check_call_type env fname el =
 	let (fname, ftype, func_type) = 
 		try (sfname, (StringMap.find sfname cmap.func_map).returnType, User)
 		with | Not_found -> 
+		if isObjAccess then raise (Exceptions.FunctionNotFound fname)
+		else 
 		try (fname, (StringMap.find fname cmap.reserved_map).sreturnType, Reserved)
 		with | Not_found -> raise (Exceptions.FunctionNotFound fname)
 	in
@@ -345,9 +347,13 @@ and check_assign env e1 e2 =
 		Datatype(Objecttype(_)), SNull(Datatype(Null_t)) 
 	| 	Arraytype(_, _), SNull(Datatype(Null_t)) -> SAssign(se1, se2, type1)
 	|   _ -> 
+	match type1, type2 with
+		Datatype(Char_t), Datatype(Int_t)
+	| 	Datatype(Int_t), Datatype(Char_t) -> SAssign(se1, se2, type1)
+	| _ -> 
 	if type1 = type2 
 		then SAssign(se1, se2, type1)
-		else raise (Exceptions.AssignmentTypeMismatch)
+		else raise (Exceptions.AssignmentTypeMismatch(Utils.string_of_datatype type1, Utils.string_of_datatype type2))
 
 and check_unop env op e = 
 	let check_num_unop t = function
@@ -367,7 +373,6 @@ and check_unop env op e =
 	| 	_ -> raise(Exceptions.InvalidUnaryOperation)
 
 and check_binop env e1 op e2 =
-    let ts = List.fold_left (fun map (key, value) -> TM.add key value map) TM.empty [(Equal, "Equal"); (Add, "Add"); (Sub, "Sub"); (Mult, "Mult"); (Div, "Div"); (And, "And"); (Or, "Or")] in   
 	let se1, env = expr_to_sexpr env e1 in
 	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
@@ -377,7 +382,7 @@ and check_binop env e1 op e2 =
     | And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
     | Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
     | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
-    | _ -> raise (Exceptions.InvalidBinopExpression ((TM.find op ts) ^ " is not a supported binary op"))
+    | _ -> raise (Exceptions.InvalidBinopExpression ((Utils.string_of_op op) ^ " is not a supported binary op"))
 
 and check_delete env e = 
 	let se, _ = expr_to_sexpr env e in
@@ -399,7 +404,7 @@ and expr_to_sexpr env = function
 
 	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2, env
 	|   ObjectCreate(s, el) -> check_object_constructor env s el, env
-	|   Call(s, el)         -> check_call_type env s el, env
+	|   Call(s, el)         -> check_call_type false env s el, env
 
 	|   ArrayCreate(d, el)  -> check_array_init env d el, env
 	|   ArrayAccess(e, el)  -> check_array_access env e el, env
@@ -477,7 +482,7 @@ let rec local_handler d s e env =
 let rec convert_stmt_list_to_sstmt_list env stmt_list = 
 	let rec helper env = function 
 			Block [] 				-> SBlock([SExpr(SNoexpr(Datatype(Void_t)), Datatype(Void_t))]), env
-			
+
 		|	Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
 										SBlock(sl), env
 
@@ -526,7 +531,9 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	    env_ref := env;
 	    a_head::(iter tail)
 	| [] -> []
-	in (iter stmt_list), !env_ref
+	in 
+	let sstmt_list = (iter stmt_list), !env_ref in
+	sstmt_list
 
 let append_code_to_constructor fbody cname ret_type = 
 	let init_this = [SLocal(
@@ -594,6 +601,13 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		func_type		= Sast.User;
 	}
 
+let check_fbody fname fbody returnType =
+	let final_stmt = List.hd (List.rev fbody) in
+	match returnType, final_stmt with
+		Datatype(Void_t), _ -> ()
+	| 	_, SReturn(_, _) -> ()
+	| 	_ -> raise(Exceptions.AllNonVoidFunctionsMustEndWithReturn(fname))
+
 let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
 	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
 	let env = {
@@ -607,7 +621,9 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		env_reserved 	= reserved;
 	} in
 	let fbody = fst (convert_stmt_list_to_sstmt_list env fdecl.body) in
-	let fbody = if (get_name cname fdecl) = "main" then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) else fbody in
+	let fname = (get_name cname fdecl) in
+	ignore(check_fbody fname fbody fdecl.returnType);
+	let fbody = if fname = "main" then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) else fbody in
 	(* We add the class as the first parameter to the function for codegen *)
 	{
 		sfname 			= Ast.FName (get_name cname fdecl);

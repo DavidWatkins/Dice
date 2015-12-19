@@ -5,12 +5,11 @@
     let filename = ref ""
 
     let unescape s =
-    	try Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
-    	with _ -> let s = Char.escaped (Char.chr 0) in print_string s; s
+    	Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
-let escape = '\\' ['\\' ''' '"' 'n' 'r' 't'] | '\\' "000"
+let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
 let escape_char = ''' (escape) '''
 let ascii = ([' '-'!' '#'-'[' ']'-'~'])
 let digit = ['0'-'9']

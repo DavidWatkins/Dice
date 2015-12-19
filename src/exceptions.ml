@@ -30,7 +30,7 @@ exception MultipleMainsDefined
 exception InvalidWhileStatementType
 exception LocalAssignTypeMismatch of string * string
 exception InvalidUnaryOperation
-exception AssignmentTypeMismatch
+exception AssignmentTypeMismatch of string * string
 exception FunctionNotFound of string
 exception UndefinedID of string
 exception InvalidAccessLHS of string
@@ -48,6 +48,7 @@ exception ArrayAccessExpressionNotArray of string
 exception CanOnlyAccessLengthOfArray
 exception CanOnlyDeleteObjectsOrArrays
 exception CannotAccessLengthOfCharArray
+exception AllNonVoidFunctionsMustEndWithReturn of string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

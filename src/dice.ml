@@ -114,7 +114,6 @@ let _ =
 	| 	Exceptions.MultipleMainsDefined			-> print_string "MultipleMainsDefined \n"
 	| 	Exceptions.InvalidWhileStatementType	-> print_string "InvalidWhileStatementType \n"
 	|   Exceptions.InvalidUnaryOperation 		-> print_string "InvalidUnaryOperation\n" 
-	|   Exceptions.AssignmentTypeMismatch 		-> print_string "AssignmentTypeMismatch\n" 
 	|   Exceptions.InvalidTypePassedToPrintf 	-> print_string "InvalidTypePassedToPrintf\n" 
 	|   Exceptions.InvalidBinaryOperator 		-> print_string "InvalidBinaryOperator\n"     
 

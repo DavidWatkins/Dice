@@ -285,21 +285,29 @@ and codegen_id isDeref checkParam id d llbuilder =
 		with | Not_found -> raise (Exceptions.UnknownVariable id)
 
 and codegen_assign lhs rhs d llbuilder = 
+	let rhsType = Analyzer.get_type_from_sexpr rhs in
 	(* Special case '=' because we don't want to emit the LHS as an
 	* expression. *)
-	let lhs = match lhs with
-	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder
-	|  	SObjAccess(e1, e2, d) -> codegen_obj_access false e1 e2 d llbuilder
-	| 	SArrayAccess(se, sel, d) -> codegen_array_access true se sel d llbuilder
+	let lhs, isObjAccess = match lhs with
+	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder, false
+	|  	SObjAccess(e1, e2, d) -> codegen_obj_access false e1 e2 d llbuilder, true
+	| 	SArrayAccess(se, sel, d) -> codegen_array_access true se sel d llbuilder, false
 	| _ -> raise Exceptions.AssignLHSMustBeAssignable
 	in
 	(* Codegen the rhs. *)
 	let rhs = codegen_sexpr llbuilder rhs in
 	let rhs = match d with 
-			Datatype(Objecttype(_))	-> build_load rhs "tmp" llbuilder
+			Datatype(Objecttype(_))	-> 
+				if isObjAccess then rhs
+				else build_load rhs "tmp" llbuilder
 		| 	Datatype(Null_t) -> const_null (get_type d)
 		| _ -> rhs 
-	 in
+	in
+	let rhs = match d, rhsType with
+		Datatype(Char_t), Datatype(Int_t) -> build_uitofp rhs i8_t "tmp" llbuilder
+	| 	Datatype(Int_t), Datatype(Char_t) -> build_uitofp rhs i32_t "tmp" llbuilder
+	| 	_ -> rhs
+	in 
 	(* Lookup the name. *)
 	ignore(build_store rhs lhs llbuilder);
 	rhs
