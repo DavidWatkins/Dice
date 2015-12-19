@@ -1,2 +1,0 @@
-<filepath.*> or <**/*.native> or <**/*.byte>: package(unix)
-<*.{byte,native}>: g++
