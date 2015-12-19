@@ -328,6 +328,10 @@ and check_assign env e1 e2 =
 	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in 
+	match (type1, se2) with
+		Datatype(Objecttype(_)), SNull(Datatype(Null_t)) 
+	| 	Arraytype(_, _), SNull(Datatype(Null_t)) -> SAssign(se1, se2, type1)
+	|   _ -> 
 	if type1 = type2 
 		then SAssign(se1, se2, type1)
 		else raise (Exceptions.AssignmentTypeMismatch)
@@ -431,7 +435,7 @@ let rec local_handler d s e env =
 			let se, env = expr_to_sexpr env e in
 			let t = get_type_from_sexpr se in
 (* TODO allow class Foo someObj = new Goo() if class Goo extends Foo *)
-			if t = Datatype(Void_t) || t = d 
+			if t = Datatype(Void_t) || t = Datatype(Null_t) || t = d 
 				then
 				let new_env = {
 					env_class_maps = env.env_class_maps;
@@ -451,10 +455,10 @@ let rec local_handler d s e env =
 							else SLocal(d, s, se), new_env)
 				| 	_ -> SLocal(d, s, se), new_env) 
 			else 
-				let type1 = (Utils.string_of_datatype t) in
+				(let type1 = (Utils.string_of_datatype t) in
 				let type2 = (Utils.string_of_datatype d) in
-				print_string (type1 ^ type2);
-				raise (Exceptions.LocalTypeMismatch)
+				let ex = Exceptions.LocalAssignTypeMismatch(type1, type2) in
+				raise ex)
 
 (* Update this function to return an env object *)
 let rec convert_stmt_list_to_sstmt_list env stmt_list = 

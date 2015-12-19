@@ -28,7 +28,7 @@ exception ReturnTypeMismatch
 exception MainNotDefined
 exception MultipleMainsDefined
 exception InvalidWhileStatementType
-exception LocalTypeMismatch
+exception LocalAssignTypeMismatch of string * string
 exception InvalidUnaryOperation
 exception AssignmentTypeMismatch
 exception FunctionNotFound of string
@@ -64,3 +64,6 @@ exception CannotAssignParam of string
 exception InvalidUnopEvaluationType
 exception UnopNotSupported
 exception ArrayLargerThan1Unsupported
+exception CanOnlyCompareObjectsWithNull of string * string
+exception ObjOpNotSupported of string
+exception CanOnlyCompareArraysWithNull of string * string

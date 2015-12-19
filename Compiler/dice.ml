@@ -113,7 +113,6 @@ let _ =
 	| 	Exceptions.MainNotDefined				-> print_string "MainNotDefined \n"
 	| 	Exceptions.MultipleMainsDefined			-> print_string "MultipleMainsDefined \n"
 	| 	Exceptions.InvalidWhileStatementType	-> print_string "InvalidWhileStatementType \n"
-	| 	Exceptions.LocalTypeMismatch			-> print_string "LocalTypeMismatch \n"
 	|   Exceptions.InvalidUnaryOperation 		-> print_string "InvalidUnaryOperation\n" 
 	|   Exceptions.AssignmentTypeMismatch 		-> print_string "AssignmentTypeMismatch\n" 
 	|   Exceptions.InvalidTypePassedToPrintf 	-> print_string "InvalidTypePassedToPrintf\n" 

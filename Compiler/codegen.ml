@@ -88,6 +88,12 @@ let cast lhs rhs lhsType rhsType llbuilder =
 	(* |   	(Datatype(Float_t), Datatype(Bool_t))			-> (lhs, const_uitofp rhs f_t) *)
 	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs), Datatype(Float_t)
 
+	| Datatype(Objecttype(d)), Datatype(Null_t)			-> (lhs, rhs), lhsType
+	| Datatype(Objecttype(d)), t 						-> raise(Exceptions.CanOnlyCompareObjectsWithNull(d, (Utils.string_of_datatype t)))
+
+	| Arraytype(d, s), Datatype(Null_t)					-> (lhs, rhs), lhsType
+	| Arraytype(d, _), t 								-> raise(Exceptions.CanOnlyCompareArraysWithNull(Utils.string_of_primitive d, (Utils.string_of_datatype t)))
+
 	| 	_ 												-> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype lhsType, Utils.string_of_datatype rhsType))
 
 let rec handle_binop e1 op e2 d llbuilder =
@@ -133,6 +139,13 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Or 			-> build_or  e1 e2 "ortmp" llbuilder
 	| 	_ 			-> raise Exceptions.IntOpNotSupported 
 	in 
+
+	let obj_ops op e1 e2 = 
+		match op with
+			Equal -> build_is_null e1 "" llbuilder 
+		| 	Neq -> build_is_not_null e1 "" llbuilder 
+		| 	_ 	-> raise (Exceptions.ObjOpNotSupported(Utils.string_of_op op))
+	in
 	
 	let (e1, e2), d = cast e1 e2 type1 type2 llbuilder in
 
@@ -141,6 +154,8 @@ let rec handle_binop e1 op e2 d llbuilder =
 		|	Datatype(Int_t)	
 		|   Datatype(Bool_t)
 		| 	Datatype(Char_t) 	-> int_ops op e1 e2
+		| 	Datatype(Objecttype(_))
+		| 	Arraytype(_, _) -> obj_ops op e1 e2
 		|   _ -> raise Exceptions.InvalidBinopEvaluationType
 	in
 
@@ -273,6 +288,7 @@ and codegen_assign lhs rhs d llbuilder =
 	let rhs = codegen_sexpr llbuilder rhs in
 	let rhs = match d with 
 			Datatype(Objecttype(_))	-> build_load rhs "" llbuilder
+		| 	Datatype(Null_t) -> const_null (get_type d)
 		| _ -> rhs 
 	 in
 	(* Lookup the name. *)
