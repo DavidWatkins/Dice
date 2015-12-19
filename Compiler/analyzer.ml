@@ -566,9 +566,13 @@ in let rec add_inherited_fields predec desc map_to_update =
     in
     (* map class name of every class_decl in `cdecls` to 
     its inherited cdecl *)
-    let inherited_cdecls = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x inheritance_forest) (StringMap.add x (StringMap.find x cdecl_lookup) a)) roots StringMap.empty in
-    (* print the updated cdecl for debugging *)
-    let _ = StringMap.iter (fun k v -> print_string(k ^ "\n"); print_fields v) inherited_cdecls in
+    let inherited_cdecls = 
+        let traverse_tree tree_root accum = 
+            let tree_root_descendant = StringMap.find tree_root inheritance_forest in 
+            let accum_with_tree_root_mapping = StringMap.add tree_root (StringMap.find tree_root cdecl_lookup) accum in
+            add_inherited_fields tree_root tree_root_descendant accum_with_tree_root_mapping
+        in
+        StringSet.fold traverse_tree roots StringMap.empty in
     (* build a list of updated cdecls corresponding to the sequence
 of cdecls in `cdecls` *)
     let add_inherited_cdecl cdecl accum = 
@@ -576,15 +580,17 @@ of cdecls in `cdecls` *)
                               with | Not_found -> cdecl
         in
         inherited_cdecl::accum
+        (* end of add_inherited_cdecl *)
     in
     let result = List.fold_right add_inherited_cdecl cdecls [] in
-    (* print list of cdecls and inherited_cdecls *)
-    (*
-    in let _ = List.iter (fun x -> ) cdecls
-    in let _ = print_string "\n\n\n\n"
-    in result
-    *)
-    cdecls
+    (* print list of inherited_cdecls *)
+    let print_fields cdecl = 
+        (print_string (cdecl.cname ^ "\n");
+        List.iter (fun field -> print_string (string_of_field field)) cdecl.cbody.fields;
+        print_string "\n\n")
+    in
+    let _ = List.iter (fun x -> print_fields x) result in
+    result
 
 let default_value t = match t with 
 		Datatype(Int_t) 		-> SInt_Lit(0, Datatype(Int_t))
