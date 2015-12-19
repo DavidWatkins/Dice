@@ -9,7 +9,7 @@
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
-let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
+let escape = '\\' ['\\' ''' '"' 'n' 'r' 't' '0']
 let escape_char = ''' (escape) '''
 let ascii = ([' '-'!' '#'-'[' ']'-'~'])
 let digit = ['0'-'9']

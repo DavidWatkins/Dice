@@ -123,6 +123,8 @@ let get_equality_binop_type type1 type2 se1 se2 op =
         	Datatype(Char_t), Datatype(Int_t) 
         | 	Datatype(Int_t), Datatype(Char_t)
        	| 	Datatype(Objecttype(_)), Datatype(Null_t)
+       	| 	Datatype(Null_t), Datatype(Objecttype(_))
+       	| 	Datatype(Null_t), Arraytype(_, _)
        	| 	Arraytype(_, _), Datatype(Null_t) -> SBinop(se1, op, se2, Datatype(Bool_t))
        	| _ ->
        		if type1 = type2 then SBinop(se1, op, se2, Datatype(Bool_t))

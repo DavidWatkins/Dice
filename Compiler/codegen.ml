@@ -89,9 +89,11 @@ let cast lhs rhs lhsType rhsType llbuilder =
 	|   (Datatype(Float_t), Datatype(Float_t)) 			-> (lhs, rhs), Datatype(Float_t)
 
 	| Datatype(Objecttype(d)), Datatype(Null_t)			-> (lhs, rhs), lhsType
+	| Datatype(Null_t), Datatype(Objecttype(d)) 		-> (rhs, lhs), rhsType
 	| Datatype(Objecttype(d)), t 						-> raise(Exceptions.CanOnlyCompareObjectsWithNull(d, (Utils.string_of_datatype t)))
 
 	| Arraytype(d, s), Datatype(Null_t)					-> (lhs, rhs), lhsType
+	| Datatype(Null_t), Arraytype(d, s) 				-> (rhs, lhs), rhsType
 	| Arraytype(d, _), t 								-> raise(Exceptions.CanOnlyCompareArraysWithNull(Utils.string_of_primitive d, (Utils.string_of_datatype t)))
 
 	| 	_ 												-> raise (Exceptions.CannotCastTypeException(Utils.string_of_datatype lhsType, Utils.string_of_datatype rhsType))
