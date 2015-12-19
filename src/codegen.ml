@@ -55,11 +55,10 @@ and get_type (datatype:Ast.datatype) = match datatype with
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
 	| 	Datatype(Void_t) -> void_t
+	| 	Datatype(Null_t) -> i32_t
 	| 	Datatype(Objecttype(name)) -> pointer_type(find_struct name)
 	| 	Arraytype(t, i) -> get_ptr_type (Arraytype(t, (i)))
-	| 	_ -> raise(Exceptions.InvalidStructType "Low level type") 
-
-
+	| 	d -> raise(Exceptions.InvalidStructType (Utils.string_of_datatype d)) 
 
 (* cast will return an llvalue of the desired type *)
 (* The commented out casts are unsupported actions in Dice *)
@@ -115,6 +114,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Sub 		-> build_fsub e1 e2 "flt_subtmp" llbuilder
 	| 	Mult 		-> build_fmul e1 e2 "flt_multmp" llbuilder
 	| 	Div 		-> build_fdiv e1 e2 "flt_divtmp" llbuilder
+	| 	Mod 		-> build_frem e1 e2 "flt_sremtmp" llbuilder
 	| 	Equal 		-> build_fcmp Fcmp.Oeq e1 e2 "flt_eqtmp" llbuilder
 	| 	Neq 		-> build_fcmp Fcmp.One e1 e2 "flt_neqtmp" llbuilder
 	| 	Less 		-> build_fcmp Fcmp.Ult e1 e2 "flt_lesstmp" llbuilder
@@ -132,6 +132,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Sub 		-> build_sub e1 e2 "subtmp" llbuilder
 	| 	Mult 		-> build_mul e1 e2 "multmp" llbuilder
 	| 	Div 		-> build_sdiv e1 e2 "divtmp" llbuilder
+	| 	Mod 		-> build_srem e1 e2 "sremtmp" llbuilder
 	| 	Equal 		-> build_icmp Icmp.Eq e1 e2 "eqtmp" llbuilder
 	| 	Neq 		-> build_icmp Icmp.Ne e1 e2 "neqtmp" llbuilder
 	| 	Less 		-> build_icmp Icmp.Slt e1 e2 "lesstmp" llbuilder
@@ -477,7 +478,7 @@ and codegen_sexpr llbuilder = function
 	|   SBoolean_Lit(b, d)        	-> if b then const_int i1_t 1 else const_int i1_t 0
 	|   SFloat_Lit(f, d)          	-> const_float f_t f 
 	|   SString_Lit(s, d)         	-> codegen_string_lit s llbuilder
-	|   SChar_Lit(c, d)           	-> const_int i32_t (Char.code c)
+	|   SChar_Lit(c, d)           	-> const_int i8_t (Char.code c)
 	|   SId(id, d)                	-> codegen_id true false id d llbuilder
 	|   SBinop(e1, op, e2, d)     	-> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        	-> codegen_assign e1 e2 d llbuilder

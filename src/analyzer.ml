@@ -381,7 +381,7 @@ and check_binop env e1 op e2 =
     Equal | Neq -> get_equality_binop_type type1 type2 se1 se2 op
     | And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
     | Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
-    | Add | Mult | Sub | Div -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
+    | Add | Mult | Sub | Div | Mod -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
     | _ -> raise (Exceptions.InvalidBinopExpression ((Utils.string_of_op op) ^ " is not a supported binary op"))
 
 and check_delete env e = 

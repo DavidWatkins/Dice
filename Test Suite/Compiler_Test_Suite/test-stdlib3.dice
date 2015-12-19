@@ -1,0 +1,12 @@
+include("stdlib");
+
+class Two {
+	public void main(char[][] args) {
+        class String b = new String("phil");
+        class String c = new String("khal");
+        class String a = b.concat(c);
+        print(b.string(), "\n");
+        print(c.string(), "\n");
+        print(a.string(), "\n");
+	}
+}
