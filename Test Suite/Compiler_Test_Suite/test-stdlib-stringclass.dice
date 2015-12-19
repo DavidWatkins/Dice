@@ -1,0 +1,8 @@
+include(stdlib);
+
+class Two {
+	public void main(char[][] args) {
+        class String s = new String("hi");
+        print(s.string());
+	}
+}
