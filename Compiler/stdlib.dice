@@ -1,3 +1,4 @@
+
 class String {
 
    private char[] my_string; 
@@ -5,25 +6,106 @@ class String {
 
    constructor(char[] input) {
 
-       this.my_string = input;         
+       this.my_string = this.copy(input);         
        this.length = this.length();
+   }
+
+   (* PRIVATE CLASSES -----------------------------------------   *)
+    
+   private int length(char[] input) {
+        int length = 0;
+
+        for (; input[length] != null; length = length + 1) {
+        }
+
+        return length;
+    }
+
+   private char[] copy(char[] input) {
+
+        char[] newString = new char[this.length(input) + 1];
+
+        int i = 0;
+
+        for (; input[i] != null; i = i + 1) {
+
+            newString[i] = input[i];
+        }
+        newString[i] = null;
+        return newString;
+   }
+
+   (* PUBLIC CLASSES -----------------------------------------   *)
+
+   public char[] string() {
+        return this.my_string;
+    }
+
+   public char getChar(int index) {
+
+        return this.my_string[index];
    }
 
    public int length() {
        
        int length = 0;
        
-       for (;this.my_string[length] == null;) {
-           length = length + 1;
+       for (;this.my_string[length] != null; length = length + 1) {
        }
 
        return length;
    }
-    
-   public char getChar(int index) {
 
-        return this.my_string[index];
-   }
+   public class String copy(class String input) {
+
+        char[] newArray = this.copy(input.string());
+        class String newString = new String(newArray);
+        return newString;
+    }
+    
+   public int indexOf(char x) {
+
+        int i = 0;
+        for (; this.getChar(i) != x and this.getChar(i) != null; i = i + 1) {
+            }
+
+        (* If the char was not found, return -1 *)
+        if (i == this.length()) {
+            return -1;
+        }   
+
+        return i;
+    }
+(*
+    public int indexOf(char[] x) {
+
+        
+        int i = 0;
+        for (; this.
+*)
+
+   public class String concat(class String temp) {
+
+        char[] temparray = new char[this.length() + temp.length() + 1];
+        
+        (* Copy over the current string into a new char array *)
+        int i = 0;
+        for (; this.getChar(i) != null; i = i + 1) {
+            temparray[i] = this.getChar(i);
+        }
+
+        (* Append the new string *)
+        int j = 0;
+        for (; temp.getChar(j) != null; j = j + 1) {
+            temparray[i+j] = temp.getChar(j);
+        }
+
+        temparray[this.length() + temp.length() + 1] = null;
+        class String newString = new String(temparray);
+        return newString;
+    }
+         
+        
 
    public bool compare(class String check) {
 
@@ -42,38 +124,35 @@ class String {
 
        return true;
     }
-
-   public char[] string() {
-        return this.my_string;
-    }
        
    public bool contains(class String check) {
         
    
-        if (this.length() < check.length()) {
+        if (this.length < check.length) {
             return false;
         } else if (this.compare(check)) {
             return true;
-     }   else {
+        } else {
             
-            int diff = this.length() - check.length() + 1;
+            int diff = this.length - check.length + 1;
             int i;
             int j;
             for ( i = 0; i < diff; i = i + 1)     
                 
-                for ( j = 0; j < check.length(); j = j + 1) {
+                for ( j = 0; j < check.length; j = j + 1) {
 
                     if (this.getChar(i+j) != check.getChar(j)) {
                         break;
                     } 
                     
-                    if (j == check.length()-1) {
+                    if (j == check.length - 1) {
                         return true;
                     }
                 }    
             }
     }
 }
+
 
 
 class File {
@@ -86,11 +165,13 @@ class File {
         
         this.filePath = new String(path);
         this.isWriteEnabled = isWriteEnabled;
-        this.fd = this.open(this.filePath, isWriteEnabled);
+        this.fd = this.open(this.filePath, this.isWriteEnabled);
         if (this.fd < 0) {
             (* exit the program with error *)
         }
     }
+
+   (* PRIVATE CLASSES -----------------------------------------   *)
 
     private int open(class String path, bool isWriteEnabled) {
 
@@ -105,10 +186,12 @@ class File {
         }
     }
 
+   (* PUBLIC CLASSES -----------------------------------------   *)
+
     public int close() {
         
         if (close(this.fd) < 0) {
-            (* problem closign file, error *)
+            (* problem closing file, error *)
         }
     }
 
@@ -135,3 +218,5 @@ class File {
         return ret;
     }
 }    
+
+
