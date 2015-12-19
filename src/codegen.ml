@@ -376,8 +376,11 @@ and codegen_string_lit s llbuilder =
 	else build_global_stringptr s "tmp" llbuilder
 
 and codegen_array_access isAssign e el d llbuilder =
-    let index = codegen_sexpr llbuilder (List.hd el) in
-    let index = build_add index (const_int i32_t 1) "tmp" llbuilder in
+	let index = codegen_sexpr llbuilder (List.hd el) in
+	let index = match d with
+		Datatype(Char_t) -> build_add index (const_int i32_t 1) "tmp" llbuilder
+	| 	_ -> index
+	in
     let arr = codegen_sexpr llbuilder e in
     let _val = build_gep arr [| index |] "tmp" llbuilder in
     if isAssign
