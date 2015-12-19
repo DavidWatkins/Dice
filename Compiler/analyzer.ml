@@ -517,10 +517,11 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		func_type		= Sast.User;
 	}
 
-let convert_cdecl_to_sast (cdecl:Ast.class_decl) = 
+let convert_cdecl_to_sast sfdecls (cdecl:Ast.class_decl) = 
 	{
 		scname = cdecl.cname;
 		sfields = cdecl.cbody.fields;
+        sfuncs = sfdecls;
 	}
 
 let print_fields cdecl = List.iter (fun x -> print_string (Utils.string_of_field x)) cdecl.cbody.fields; print_string "\n\n\n"
@@ -607,9 +608,9 @@ let default_value t = match t with
 let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) inheritance_forest = 
 	let handle_cdecl cdecl = 
 		let class_map = StringMap.find cdecl.cname class_maps in 
-		let scdecl = convert_cdecl_to_sast cdecl in
-		let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
+        let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
 		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl class_maps reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
+        let scdecl = convert_cdecl_to_sast (func_list @ sconstructor_list) cdecl in
 		(scdecl, func_list @ sconstructor_list)
 	in 
         let cdecls_inherited = inherit_fields_cdecls cdecls inheritance_forest in
