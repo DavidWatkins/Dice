@@ -1,4 +1,5 @@
 
+
 class String {
 
    private char[] my_string; 
@@ -164,18 +165,22 @@ class File {
 
     constructor(char[] path, bool isWriteEnabled) {
         
+        print("path is, ", path);
         this.filePath = new String(path);
         this.isWriteEnabled = isWriteEnabled;
         this.fd = this.openfile(this.filePath, this.isWriteEnabled);
         if (this.fd < 0) {
-            (* exit the program with error *)
+            print("open failed");
+        } else {
+            print("fd = %d\n", this.fd);
         }
     }
 
    (* PRIVATE CLASSES -----------------------------------------   *)
 
     private int openfile(class String path, bool isWriteEnabled) {
-
+        
+        print(path.string());
         if (isWriteEnabled) {
 
             (* 2 is the value for O_RDWR *)
@@ -191,7 +196,7 @@ class File {
     public void closefile() {
         
         if (close(this.fd) < 0) {
-            (* problem closing file, error *)
+            print("close failed");
         }
     }
 
@@ -202,22 +207,22 @@ class File {
         int ret = read(this.fd, buf, bytes);
 
         if (ret < 0) {
-            (* read failed *)
+            print("read failed");
         }
 
         return buf;
     }
-    (* 
+
     public int writefile(char[] buf) {
 
         class String temp = new String(buf);
         int ret = write(this.fd, temp.string(), temp.length());
         if (ret < 0) {
-            (* write failed *)
+            print("write failed");
         }
         return ret;
     }
-*)
+
 }    
 
 
