@@ -48,7 +48,7 @@ include_list:
   	| 	include_list include_decl { $2::$1 }
 
 include_decl:
-	INCLUDE LPAREN ID RPAREN SEMI { Include($3) }
+	INCLUDE LPAREN STRING_LITERAL RPAREN SEMI { Include($3) }
 
 
 /******************

@@ -232,7 +232,11 @@ and codegen_print el llbuilder =
 
 and codegen_func_call fname el isVoid llbuilder = 
 	let f = func_lookup fname in
-	let params = List.map (codegen_sexpr llbuilder) el in
+	let match_sexpr se = match se with
+		SId(id, d) -> codegen_id false false id d llbuilder
+	| 	se -> codegen_sexpr llbuilder se
+	in
+	let params = List.map match_sexpr el in
 	if isVoid then
 	build_call f (Array.of_list params) "" llbuilder
 	else
