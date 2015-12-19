@@ -276,6 +276,7 @@ and codegen_assign lhs rhs d llbuilder =
 		Datatype(Objecttype(_)), Datatype(Objecttype(_)) ->
 			build_pointercast rhs (get_type lhsType) "tmp" llbuilder
 	| 	_ -> rhs
+	in
 	(* Lookup the name. *)
 	ignore(build_store rhs lhs llbuilder);
 	rhs
