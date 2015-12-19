@@ -7,6 +7,7 @@ class String {
    constructor(char[] input) {
 
        this.my_string = this.copy(input);         
+       
        this.length = this.length();
    }
 
@@ -15,7 +16,7 @@ class String {
    private int length(char[] input) {
         int length = 0;
 
-        for (; input[length] != null; length = length + 1) {
+        for (; input[length] != 0; length = length + 1) {
         }
 
         return length;
@@ -27,11 +28,11 @@ class String {
 
         int i = 0;
 
-        for (; input[i] != null; i = i + 1) {
+        for (; input[i] != 0; i = i + 1) {
 
             newString[i] = input[i];
         }
-        newString[i] = null;
+        newString[i] = '\0';
         return newString;
    }
 
@@ -50,7 +51,7 @@ class String {
        
        int length = 0;
        
-       for (;this.my_string[length] != null; length = length + 1) {
+       for (;this.my_string[length] != 0; length = length + 1) {
        }
 
        return length;
@@ -66,7 +67,7 @@ class String {
    public int indexOf(char x) {
 
         int i = 0;
-        for (; this.getChar(i) != x and this.getChar(i) != null; i = i + 1) {
+        for (; this.getChar(i) != x and this.getChar(i) != 0; i = i + 1) {
             }
 
         (* If the char was not found, return -1 *)
@@ -90,22 +91,20 @@ class String {
         
         (* Copy over the current string into a new char array *)
         int i = 0;
-        for (; this.getChar(i) != null; i = i + 1) {
+        for (; this.getChar(i) != 0; i = i + 1) {
             temparray[i] = this.getChar(i);
         }
 
         (* Append the new string *)
         int j = 0;
-        for (; temp.getChar(j) != null; j = j + 1) {
+        for (; temp.getChar(j) != 0; j = j + 1) {
             temparray[i+j] = temp.getChar(j);
         }
 
-        temparray[this.length() + temp.length() + 1] = null;
+        temparray[this.length() + temp.length() + 1] = '\0';
         class String newString = new String(temparray);
         return newString;
     }
-         
-        
 
    public bool compare(class String check) {
 
@@ -151,6 +150,12 @@ class String {
                 }    
             }
     }
+
+    public void close() {
+
+        delete(this.my_string);
+    }
+
 }
 
 
