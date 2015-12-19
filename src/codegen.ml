@@ -55,11 +55,10 @@ and get_type (datatype:Ast.datatype) = match datatype with
 	| 	Datatype(Bool_t) -> i1_t
 	| 	Datatype(Char_t) -> i8_t
 	| 	Datatype(Void_t) -> void_t
+	| 	Datatype(Null_t) -> i32_t
 	| 	Datatype(Objecttype(name)) -> pointer_type(find_struct name)
 	| 	Arraytype(t, i) -> get_ptr_type (Arraytype(t, (i)))
-	| 	_ -> raise(Exceptions.InvalidStructType "Low level type") 
-
-
+	| 	d -> raise(Exceptions.InvalidStructType (Utils.string_of_datatype d)) 
 
 (* cast will return an llvalue of the desired type *)
 (* The commented out casts are unsupported actions in Dice *)
@@ -479,7 +478,7 @@ and codegen_sexpr llbuilder = function
 	|   SBoolean_Lit(b, d)        	-> if b then const_int i1_t 1 else const_int i1_t 0
 	|   SFloat_Lit(f, d)          	-> const_float f_t f 
 	|   SString_Lit(s, d)         	-> codegen_string_lit s llbuilder
-	|   SChar_Lit(c, d)           	-> const_int i32_t (Char.code c)
+	|   SChar_Lit(c, d)           	-> const_int i8_t (Char.code c)
 	|   SId(id, d)                	-> codegen_id true false id d llbuilder
 	|   SBinop(e1, op, e2, d)     	-> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        	-> codegen_assign e1 e2 d llbuilder
