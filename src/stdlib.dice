@@ -37,14 +37,12 @@ class Integer {
             return '8';
         } else if (digit == 9) {
             return '9';
-        } else {
-            null;
         }
         
         return 'z';
     }
 
-    public char[] toString() {
+    public class String toString() {
 
         (* integer cannot be greater than 10 digits in 32 bit *)
         int temp = this.my_int;
@@ -64,7 +62,10 @@ class Integer {
         }
 
         str[i] = 0;
-        return str;
+        class String newString = new String(str);
+        class String a = newString.reverse();
+        print(a.string(), "\n");
+        return newString.reverse();
     }
 }
         
@@ -148,6 +149,21 @@ class String {
         }   
 
         return i;
+    }
+
+   public class String reverse() {
+        
+       class String newString;
+
+       char[] temp = new char[this.length + 1];
+       int i = this.length;
+       for (; i > 0; i = i - 1) {
+
+            temp[this.length - i] = this.getChar(i-1);
+       }
+       temp[this.length] = 0;
+       newString = new String(temp);
+       return newString;
     }
 
    public class String concat(class String temp) {
