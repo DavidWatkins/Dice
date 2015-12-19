@@ -1,0 +1,25 @@
+class shape {
+	public int xCoord;
+	public int yCoord;
+	
+	constructor(){
+		xCoord = 0;
+		yCoord = 0;
+	}
+
+	constructor(int x, int y){
+		xCoord = x;
+		yCoord = y;
+	}
+}
+
+ class test {
+	 public void main(char[][] args) {
+		 class shape a = new shape();
+		 class shape b = new shape(5,10);
+		 print (a.xCoord);
+		 print (a.yCoord);
+		 print (b.xCoord);
+		 print (b.yCoord);
+	 }
+ }

@@ -1,0 +1,22 @@
+class shape {
+  public int xCoord;
+  public int yCoord;
+
+  public int getX(){
+  	return xCoord;
+  }
+  public int getY(){
+   	return yCoord;
+  }
+
+}
+
+class test {
+  public void main(char[][] args) {
+      class shape a = new shape(); 
+      a.xCoord = 1;
+      a.yCoord = 3;
+      print(a.getX());
+      print(a.getY());
+  }
+}

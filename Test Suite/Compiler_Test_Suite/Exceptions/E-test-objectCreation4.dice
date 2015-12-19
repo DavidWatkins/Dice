@@ -1,0 +1,15 @@
+class Bar {
+constructor(char c, float f) {}
+constructor(bool b, char c, float f) {}
+}
+class Foo {
+constructor(int a, bool b, char c, float f) {}
+}
+ class test {
+ public void main(char[][] args) {
+ char myc = 'z';
+ float myf = 4.5;
+ class Bar myb = new Bar(myc, myf);
+ class Foo myFooObj = new Foo(5, true, myc, myf);
+ }
+ }
