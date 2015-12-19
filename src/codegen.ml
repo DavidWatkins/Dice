@@ -224,15 +224,18 @@ and codegen_print el llbuilder =
 		| 	Datatype(Char_t) 		-> "%c"
 		| 	_ 						-> raise (Exceptions.InvalidTypePassedToPrintf)
 	in 
-	let const_str = List.fold_left (fun s t -> s ^ map_param_to_string t) "tmp" param_types in
+	let const_str = List.fold_left (fun s t -> s ^ map_param_to_string t) "" param_types in
 	let s = codegen_sexpr llbuilder (SString_Lit(const_str, Arraytype(Char_t, 1))) in
 	let zero = const_int i32_t 0 in 
 	let s = build_in_bounds_gep s [| zero |] "tmp" llbuilder in
-	build_call printf (Array.of_list (s :: params)) "tmp" llbuilder
+	build_call printf (Array.of_list (s :: params)) "" llbuilder
 
-and codegen_func_call fname el llbuilder = 
+and codegen_func_call fname el isVoid llbuilder = 
 	let f = func_lookup fname in
 	let params = List.map (codegen_sexpr llbuilder) el in
+	if isVoid then
+	build_call f (Array.of_list params) "" llbuilder
+	else
 	build_call f (Array.of_list params) "tmp" llbuilder
 
 and codegen_sizeof el llbuilder =
@@ -258,11 +261,11 @@ and codegen_call llbuilder d el = function
 		"print" 	-> codegen_print el llbuilder
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
 	| 	"cast" 		-> codegen_cast el d llbuilder
-	| 	"malloc" 	-> codegen_func_call "malloc" el llbuilder
-	| 	"open" 		-> codegen_func_call "open" el llbuilder
-	| 	"write"		-> codegen_func_call "write" el llbuilder
-	| 	"close"		-> codegen_func_call "close" el llbuilder
-	| 	"read" 		-> codegen_func_call "read" el llbuilder
+	| 	"malloc" 	-> codegen_func_call "malloc" el false llbuilder
+	| 	"open" 		-> codegen_func_call "open" el false llbuilder
+	| 	"write"		-> codegen_func_call "write" el false llbuilder
+	| 	"close"		-> codegen_func_call "close" el false llbuilder
+	| 	"read" 		-> codegen_func_call "read" el false llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id isDeref checkParam id d llbuilder = 
@@ -305,10 +308,12 @@ and deref ptr t llbuilder =
 	build_gep ptr (Array.of_list [ptr]) "tmp" llbuilder
 
 and codegen_obj_access isAssign lhs rhs d llbuilder = 
-	let codegen_func_call fname parent_expr el llbuilder = 
+	let codegen_func_call fname parent_expr el d llbuilder = 
 		let f = func_lookup fname in
 		let params = List.map (codegen_sexpr llbuilder) el in
-		build_call f (Array.of_list (parent_expr :: params)) "tmp" llbuilder
+		match d with
+			Datatype(Void_t) -> build_call f (Array.of_list (parent_expr :: params)) "" llbuilder
+		| 	_ -> build_call f (Array.of_list (parent_expr :: params)) "tmp" llbuilder
 	in
 	let check_lhs = function
 		SId(s, d)			-> codegen_id false false s d llbuilder
@@ -327,7 +332,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				else 
 					_val
 			(* Check functions in parent *)
-		| 	SCall(fname, el, d) 	-> codegen_func_call fname parent_expr el llbuilder
+		| 	SCall(fname, el, d) 	-> codegen_func_call fname parent_expr el d llbuilder
 			(* Set parent, check if base is field *)
 		| 	SObjAccess(e1, e2, d) 	-> 
 				let e1_type = Analyzer.get_type_from_sexpr e1 in
@@ -414,7 +419,8 @@ and codegen_array_create llbuilder t expr_type el =
 
 		(* This will not work for arrays of objects *)
 		let size = (codegen_sexpr llbuilder e) in
-		let size = build_mul (size_of t) size "tmp" llbuilder in
+		let size_t = build_intcast (size_of t) i32_t "tmp" llbuilder in
+		let size = build_mul size_t size "tmp" llbuilder in
 		let size_real = build_add size (const_int i32_t 1) "arr_size" llbuilder in
 		
 	    let arr = build_array_malloc t size_real "tmp" llbuilder in
