@@ -266,6 +266,7 @@ and codegen_call llbuilder d el = function
 	| 	"write"		-> codegen_func_call "write" el false llbuilder
 	| 	"close"		-> codegen_func_call "close" el false llbuilder
 	| 	"read" 		-> codegen_func_call "read" el false llbuilder
+	| 	"lseek" 	-> codegen_func_call "lseek" el false llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id isDeref checkParam id d llbuilder = 
