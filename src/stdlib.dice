@@ -166,11 +166,12 @@ class File {
         
         this.filePath = new String(path);
         this.isWriteEnabled = isWriteEnabled;
+        print(this.filePath.string());
         this.fd = this.openfile(this.filePath, this.isWriteEnabled);
         if (this.fd < 0) {
             print("open failed");
         } else {
-            print("fd = ");
+            print("fd = ", this.fd);
         }
     }
 
@@ -213,6 +214,9 @@ class File {
     public int writefile(char[] buf) {
 
         class String temp = new String(buf);
+
+        (* Seek to the end of the file by default *)
+        int x = lseek(this.fd, 0, 2);
         int ret = write(this.fd, temp.string(), temp.length());
         if (ret < 0) {
             print("write failed");

@@ -1,0 +1,12 @@
+include("stdlib");
+
+class Two {
+	public void main(char[][] args) {
+        class String b = new String("phil");
+        class String c = new String("khal");
+        class String d = c.copy(c);
+        print(b.string());
+        print(c.string());
+        print(d.string());
+	}
+}
