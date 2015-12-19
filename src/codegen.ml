@@ -233,7 +233,10 @@ and codegen_print el llbuilder =
 and codegen_func_call fname el isVoid llbuilder = 
 	let f = func_lookup fname in
 	let match_sexpr se = match se with
-		SId(id, d) -> codegen_id false false id d llbuilder
+		SId(id, d) -> let isDeref = match d with
+			Datatype(Objecttype(_)) -> false
+		| 	_ -> true 
+		in codegen_id isDeref false id d llbuilder
 	| 	se -> codegen_sexpr llbuilder se
 	in
 	let params = List.map match_sexpr el in
