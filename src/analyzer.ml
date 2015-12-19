@@ -678,16 +678,19 @@ let add_reserved_functions =
 			func_type		= Sast.Reserved;
 		}
 	in
+	let i32_t = Datatype(Int_t) in
+	let mf t n = Formal(t, n) in (* Make formal *)
 	let reserved = [] in
 	let reserved = (reserved_stub "print" (Datatype(Void_t)) ([ Many(Any) ])) :: reserved in
 	let reserved = (reserved_stub "malloc" (Arraytype(Char_t, 1)) ([ Formal(Datatype(Int_t), "size")])) :: reserved in
 	let reserved = (reserved_stub "cast" (Any) ([ Formal(Any, "in")])) :: reserved in
-	let reserved = (reserved_stub "sizeof" (Datatype(Int_t)) ([ Formal(Any, "in")])) :: reserved in	
+	let reserved = (reserved_stub "sizeof" (i32_t) ([ Formal(Any, "in")])) :: reserved in	
 	(* TODO Fix the parameters here *)
-    let reserved = (reserved_stub "open" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "close" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "read" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "write" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "open" (i32_t) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "close" (i32_t) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "read" (i32_t) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "write" (i32_t) ([ Many(Any)])) :: reserved in 
+    let reserved = (reserved_stub "lseek" (i32_t) ([ mf i32_t "fd"; mf i32_t "offset"; mf i32_t "whence"])) :: reserved in
 	reserved
 
 (* Main method for analyzer *)
