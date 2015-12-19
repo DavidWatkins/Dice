@@ -691,6 +691,7 @@ let add_reserved_functions =
     let reserved = (reserved_stub "read" (i32_t) ([ Many(Any)])) :: reserved in 
     let reserved = (reserved_stub "write" (i32_t) ([ Many(Any)])) :: reserved in 
     let reserved = (reserved_stub "lseek" (i32_t) ([ mf i32_t "fd"; mf i32_t "offset"; mf i32_t "whence"])) :: reserved in
+    let reserved = (reserved_stub "exit" (Datatype(Void_t)) ([mf i32_t "status"])) :: reserved in
 	reserved
 
 (* Main method for analyzer *)

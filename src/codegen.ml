@@ -268,6 +268,7 @@ and codegen_call llbuilder d el = function
 	| 	"close"		-> codegen_func_call "close" el false llbuilder
 	| 	"read" 		-> codegen_func_call "read" el false llbuilder
 	| 	"lseek" 	-> codegen_func_call "lseek" el false llbuilder
+	| 	"exit" 		-> codegen_func_call "exit" el false llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id isDeref checkParam id d llbuilder = 
@@ -672,6 +673,8 @@ let codegen_library_functions () =
     let _ = declare_function "write" write_ty the_module in 
     let lseek_ty = function_type i32_t [| i32_t; i32_t; i32_t |] in
     let _ = declare_function "lseek" lseek_ty the_module in
+    let exit_ty = function_type void_t [| i32_t |] in
+    let _ = declare_function "exit" exit_ty the_module in
     ()
 
 let codegen_struct_stub s =
