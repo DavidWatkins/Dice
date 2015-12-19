@@ -1,0 +1,11 @@
+
+
+class Foo {}
+
+class Baz {}
+
+class test {
+public void main(char[][] args) {
+class Baz b;
+}
+}

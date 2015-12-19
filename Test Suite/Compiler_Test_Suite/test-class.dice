@@ -3,14 +3,12 @@ class shape {
   public float yCoord;
 }
 
-class circle extends shape {
-  public float radius;
-}
-
 class test {
   public void main(char[][] args) {
-      class circle a = new circle(); 
-      a.xCoord = 1.5;
+      class shape a = new shape(); 
+      a.xCoord = 1;
+      a.yCoord = 3;
       print(a.xCoord);
+      print(a.yCoord);
   }
 }

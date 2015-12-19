@@ -1,0 +1,7 @@
+class test {
+public void main(char[][] args) {
+char myc = 'z';
+int myc = 2;
+float myf = 4.5;
+}
+}

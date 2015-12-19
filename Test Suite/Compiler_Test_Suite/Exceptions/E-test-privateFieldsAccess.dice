@@ -1,0 +1,24 @@
+class shape {
+	private int area;
+
+	constructor(){
+	this.area = 100;
+	}
+
+	public void setArea(int x){
+		this.area = x;
+	}
+
+	public int getArea(){
+		return this.area;
+	}
+	
+}
+
+ class test {
+	 public void main(char[][] args) {
+		 shape a = new shape();
+		 a.setArea(50);
+		 print (getArea());
+		 }
+ }

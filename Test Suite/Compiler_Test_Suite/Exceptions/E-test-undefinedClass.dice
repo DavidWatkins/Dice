@@ -1,0 +1,8 @@
+class D {
+  public void main(char[][] args) {}
+}
+class A extends B {}
+class B extends C {}
+class C extends D {}
+class G extends H {}
+class I extends H {}
