@@ -661,6 +661,8 @@ let codegen_library_functions () =
     let _ = declare_function "read" read_ty the_module in
     let write_ty = function_type i32_t [| i32_t; pointer_type i8_t; i32_t |] in
     let _ = declare_function "write" write_ty the_module in 
+    let lseek_ty = function_type i32_t [| i32_t; i32_t; i32_t |] in
+    let _ = declare_function "lseek" lseek_ty the_module in
     ()
 
 let codegen_struct_stub s =
