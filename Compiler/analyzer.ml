@@ -605,7 +605,7 @@ let default_value t = match t with
 	|  	Arraytype(Char_t, 1) 	-> SString_Lit("", Arraytype(Char_t, 1))
 	| 	_ 						-> SNull(Datatype(Null_t))
 
-let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) inheritance_forest = 
+let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) = 
 	let handle_cdecl cdecl = 
 		let class_map = StringMap.find cdecl.cname class_maps in 
         let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
@@ -613,8 +613,7 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) inhe
         let scdecl = convert_cdecl_to_sast (func_list @ sconstructor_list) cdecl in
 		(scdecl, func_list @ sconstructor_list)
 	in 
-        let cdecls_inherited = inherit_fields_cdecls cdecls inheritance_forest in
-		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls_inherited in
+        let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
         let find_main = (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) in
 		let mains = (List.find_all find_main (snd overall_list)) in
 		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
@@ -707,8 +706,9 @@ let analyze filename program = match program with
     let reserved = add_reserved_functions in
 	let class_maps = build_class_maps reserved cdecls in
     let predecessors = build_inheritance_forest cdecls class_maps in
+    let cdecls_inherited = inherit_fields_cdecls cdecls predecessors in
 	let _ = check_cyclical_inheritance predecessors in
     let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
-	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls predecessors in
+	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls_inherited in
 	let _ = print_string "\ndone with analyzer\n"
     in sast

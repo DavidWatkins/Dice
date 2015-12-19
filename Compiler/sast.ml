@@ -43,6 +43,7 @@ type sfunc_decl = {
 type sclass_decl = {
 	scname : string;
 	sfields : field list;
+    sfuncs: sfunc_decl list;
 }
 
 (* Class Declarations | All method declarations | Main entry method *)
