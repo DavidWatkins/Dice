@@ -9,6 +9,7 @@ open Analyzer
 open Exceptions
 open Batteries
 open Hashtbl
+open Conf
 
 open Llvm.MemoryBuffer
 open Llvm_bitreader
@@ -255,10 +256,13 @@ and codegen_cast el d llbuilder =
 
 and codegen_call llbuilder d el = function
 		"print" 	-> codegen_print el llbuilder
-	(* |  	"malloc" 	-> codegen_malloc el llbuilder *)
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
 	| 	"cast" 		-> codegen_cast el d llbuilder
 	| 	"malloc" 	-> codegen_func_call "malloc" el llbuilder
+	| 	"open" 		-> codegen_func_call "open" el llbuilder
+	| 	"write"		-> codegen_func_call "write" el llbuilder
+	| 	"close"		-> codegen_func_call "close" el llbuilder
+	| 	"read" 		-> codegen_func_call "read" el llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id isDeref checkParam id d llbuilder = 
@@ -367,7 +371,7 @@ and codegen_array_access isAssign e el d llbuilder =
     	then _val
     	else build_load _val "" llbuilder 
 
-and initialise_array arr arr_len init_val llbuilder =
+and initialise_array arr arr_len init_val start_pos llbuilder =
 	let new_block label =
 		let f = block_parent (insertion_block llbuilder) in
 		append_block (global_context ()) label f
@@ -380,7 +384,7 @@ and initialise_array arr arr_len init_val llbuilder =
   position_at_end bbcond llbuilder;
 
   (* Counter into the length of the array *)
-  let counter = build_phi [const_int i32_t 1, bbcurr] "counter" llbuilder in
+  let counter = build_phi [const_int i32_t start_pos, bbcurr] "counter" llbuilder in
   add_incoming ((build_add counter (const_int i32_t 1) "" llbuilder), bbbody) counter;
   let cmp = build_icmp Icmp.Slt counter arr_len "" llbuilder in
   ignore (build_cond_br cmp bbbody bbdone llbuilder);
@@ -392,18 +396,35 @@ and initialise_array arr arr_len init_val llbuilder =
   ignore (build_br bbcond llbuilder);
   position_at_end bbdone llbuilder
 
-and codegen_array_create llbuilder t el = 
+and codegen_array_create llbuilder t expr_type el = 
 	if(List.length el > 1) then raise(Exceptions.ArrayLargerThan1Unsupported)
 	else
-	let e = List.hd el in
-	let size = (codegen_sexpr llbuilder e) in
-	let size_real = build_add size (const_int i32_t 1) "arr_size" llbuilder in
-	let t = get_type t in
-    let arr = build_array_malloc t size_real "" llbuilder in
-	let arr = build_pointercast arr (pointer_type t) "" llbuilder in
-	ignore(build_store size arr llbuilder); (* Store length at this position *)
-	initialise_array arr size_real (const_int i32_t 0) llbuilder;
-	arr
+	match expr_type with 
+		Arraytype(Char_t, 1) -> 
+		let e = List.hd el in
+		let size = (codegen_sexpr llbuilder e) in
+		let t = get_type t in
+		let arr = build_array_malloc t size "" llbuilder in
+		let arr = build_pointercast arr (pointer_type t) "" llbuilder in
+		(* initialise_array arr size (const_int i32_t 0) 0 llbuilder; *)
+		arr
+	| 	_ -> 
+		let e = List.hd el in
+		let t = get_type t in
+
+		(* This will not work for arrays of objects *)
+		let size = (codegen_sexpr llbuilder e) in
+		let size = build_mul (size_of t) size "" llbuilder in
+		let size_real = build_add size (const_int i32_t 1) "arr_size" llbuilder in
+		
+	    let arr = build_array_malloc t size_real "" llbuilder in
+		let arr = build_pointercast arr (pointer_type t) "" llbuilder in
+		let arr_len_ptr = build_pointercast arr (pointer_type i32_t) "" llbuilder in
+
+		(* Store length at this position *)
+		ignore(build_store size_real arr_len_ptr llbuilder); 
+		initialise_array arr size_real (const_int i32_t 0) 1 llbuilder;
+		arr
 
 and codegen_array_prim d el llbuilder =
     let t = d in
@@ -412,8 +433,9 @@ and codegen_array_prim d el llbuilder =
 	let t = get_type t in
     let arr = build_array_malloc t size_real "" llbuilder in
 	let arr = build_pointercast arr t "" llbuilder in
-	ignore(build_store size arr llbuilder); (* Store length at this position *)
-	initialise_array arr size_real (const_int i32_t 0) llbuilder;
+	let size_casted = build_bitcast size t "" llbuilder in
+	ignore(if d = Arraytype(Char_t, 1) then ignore(build_store size_casted arr llbuilder);); (* Store length at this position *)
+	initialise_array arr size_real (const_int i32_t 0) 1 llbuilder;
 
     let llvalues = List.map (codegen_sexpr llbuilder) el in
     List.iteri (fun i llval -> 
@@ -435,7 +457,7 @@ and codegen_sexpr llbuilder = function
 	|   SBinop(e1, op, e2, d)     	-> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        	-> codegen_assign e1 e2 d llbuilder
 	|   SNoexpr d                 	-> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
-	|   SArrayCreate(t, el, d)    	-> codegen_array_create llbuilder t el
+	|   SArrayCreate(t, el, d)    	-> codegen_array_create llbuilder t d el
 	|   SArrayAccess(e, el, d)    	-> codegen_array_access false e el d llbuilder
 	|   SObjAccess(e1, e2, d)     	-> codegen_obj_access true e1 e2 d llbuilder
 	|   SCall(fname, el, d)       	-> codegen_call llbuilder d el fname		
@@ -560,7 +582,7 @@ and codegen_ret d expr llbuilder =
 	build_ret e llbuilder
 
 and codegen_stmt llbuilder = function
-		SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)	
+		SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)
 	|   SExpr(e, d)          		-> codegen_sexpr llbuilder e
 	|   SReturn(e, d)    			-> codegen_ret d e llbuilder
 	|   SIf (e, s1, s2)       		-> codegen_if_stmt e s1 s2 llbuilder
@@ -657,5 +679,5 @@ let codegen_sprogram sprogram =
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
 	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = codegen_main sprogram.main in
-	let _ = linker "includes/bindings.bc" in
+	let _ = linker Conf.bindings_path in
 	the_module

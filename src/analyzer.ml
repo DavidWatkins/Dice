@@ -3,6 +3,7 @@ open Ast
 open Processor
 open Utils
 open Filepath
+open Conf
 
 module StringMap = Map.Make (String)
 
@@ -57,22 +58,26 @@ let construct_env cmaps cname cmap locals parameters returnType callStack reserv
 let process_includes filename includes classes =
 	(* Bring in each include  *)
 	let processInclude include_statement = 
-		let file_in = open_in filename in
+		let file_in = open_in include_statement in
 		let lexbuf = Lexing.from_channel file_in in
 		let token_list = Processor.build_token_list lexbuf in
 		let program = Processor.parser include_statement token_list in
+		ignore(close_in file_in);
 		program
 	in
 	let rec iterate_includes classes m = function
 			[] -> classes
 		| (Include h) :: t -> 
+			let h = if h = "stdlib" then Conf.stdlib_path else h in
 			(* Check each include against the map *)
 			let realpath = Filepath.realpath h in
-			let result = processInclude realpath in 
-			if StringMap.mem h m then 
+			if StringMap.mem realpath m then 
 				iterate_includes (classes) (m) (t)
 			else 
-				(function Program(i, c) -> iterate_includes (classes @ c) (StringMap.add realpath 1 m) (i @ t) ) result
+				let result = processInclude realpath in 
+				match result with Program(i,c) ->
+				List.iter (fun x -> print_string(Utils.string_of_include x)) i;
+				iterate_includes (classes @ c) (StringMap.add realpath 1 m) (i @ t)
 	in
 	iterate_includes classes (StringMap.add (Filepath.realpath filename) 1 StringMap.empty) includes
 
@@ -105,7 +110,7 @@ let build_class_maps reserved cdecls =
 										then raise(Exceptions.DuplicateConstructor) 
 										else (StringMap.add (constructor_name fdecl) fdecl m)) 
 			in
-			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName) else
+			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName(cdecl.cname)) else
 				StringMap.add cdecl.cname 
 						{ field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
 							func_map = List.fold_left funcfun StringMap.empty cdecl.cbody.methods;
@@ -277,7 +282,8 @@ and check_obj_access env lhs rhs =
 	let arr_lhs, _ = expr_to_sexpr env lhs in
 	let arr_lhs_type = get_type_from_sexpr arr_lhs in
 	match arr_lhs_type with
-		Arraytype(_, _) -> 
+		Arraytype(Char_t, 1) -> raise(Exceptions.CannotAccessLengthOfCharArray)
+	|	Arraytype(_, _) -> 
 			let rhs = match rhs with
 				Id("length") -> SId("length", Datatype(Int_t))
 			| 	_ -> raise(Exceptions.CanOnlyAccessLengthOfArray)
@@ -470,7 +476,9 @@ let rec local_handler d s e env =
 (* Update this function to return an env object *)
 let rec convert_stmt_list_to_sstmt_list env stmt_list = 
 	let rec helper env = function 
-			Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
+			Block [] 				-> SBlock([SExpr(SNoexpr(Datatype(Void_t)), Datatype(Void_t))]), env
+			
+		|	Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
 										SBlock(sl), env
 
 		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
@@ -659,6 +667,7 @@ let add_reserved_functions =
 	let reserved = (reserved_stub "malloc" (Arraytype(Char_t, 1)) ([ Formal(Datatype(Int_t), "size")])) :: reserved in
 	let reserved = (reserved_stub "cast" (Any) ([ Formal(Any, "in")])) :: reserved in
 	let reserved = (reserved_stub "sizeof" (Datatype(Int_t)) ([ Formal(Any, "in")])) :: reserved in	
+	(* TODO Fix the parameters here *)
     let reserved = (reserved_stub "open" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
     let reserved = (reserved_stub "close" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 
     let reserved = (reserved_stub "read" (Datatype(Int_t)) ([ Many(Any)])) :: reserved in 

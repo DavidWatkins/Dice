@@ -16,7 +16,7 @@ class String {
    private int length(char[] input) {
         int length = 0;
 
-        for (; input[length] != 0; length = length + 1) {
+        for (; input[length] != '\000'; length = length + 1) {
         }
 
         return length;
@@ -27,11 +27,12 @@ class String {
         char[] newString = new char[this.length(input) + 1];
 
         int i = 0;
-
-        for (; input[i] != 0; i = i + 1) {
+        bool tmp = i != 12;
+        for (; input[i] != '\000'; i = i + 1) {
 
             newString[i] = input[i];
         }
+
         newString[i] = '\000';
         return newString;
    }
@@ -51,8 +52,7 @@ class String {
        
        int length = 0;
        
-       for (;this.my_string[length] != 0; length = length + 1) {
-       }
+       for (;this.my_string[length] != '\000'; length = length + 1) { }
 
        return length;
    }
@@ -67,7 +67,7 @@ class String {
    public int indexOf(char x) {
 
         int i = 0;
-        for (; this.getChar(i) != x and this.getChar(i) != 0; i = i + 1) {
+        for (; this.getChar(i) != x and this.getChar(i) != '\000'; i = i + 1) {
             }
 
         (* If the char was not found, return -1 *)
@@ -91,13 +91,13 @@ class String {
         
         (* Copy over the current string into a new char array *)
         int i = 0;
-        for (; this.getChar(i) != 0; i = i + 1) {
+        for (; this.getChar(i) != '\000'; i = i + 1) {
             temparray[i] = this.getChar(i);
         }
 
         (* Append the new string *)
         int j = 0;
-        for (; temp.getChar(j) != 0; j = j + 1) {
+        for (; temp.getChar(j) != '\000'; j = j + 1) {
             temparray[i+j] = temp.getChar(j);
         }
 

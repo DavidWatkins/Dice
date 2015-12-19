@@ -51,6 +51,7 @@ let help_string = (
 	)
 
 let _ =
+	ignore(Printexc.record_backtrace true);
 	try
 		let action, filename = 
 			if Array.length Sys.argv = 1 then
@@ -98,7 +99,6 @@ let _ =
 
 	| 	Exceptions.NoFileArgument 				-> print_string ("Must include file argument\n" ^ help_string)
 	|   Exceptions.ConstructorNotFound(str)     -> print_string ("ConstructorNotFound: " ^ str ^ "\n")
-	| 	Exceptions.DuplicateClassName			-> print_string "DuplicateClassName \n"
 	| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
 	| 	Exceptions.DuplicateFunction(str)		-> print_string ("DuplicateFunction: " ^ str ^ "\n")
 	| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"

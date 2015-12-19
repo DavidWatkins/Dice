@@ -2,7 +2,7 @@
 # This script must reside in the "Test Suite" directory of the project
 # Make sure the "dice" executable is in the "Compiler" directory
 
-diceExecPath=../Compiler/dice
+diceExecPath=./dice
 testOption=$1 #stores the test flag since functions can't see the $1
 vFlag=$2 #stores the -v flag since functions can't see it with $2
 pass=0
@@ -163,11 +163,11 @@ test_function(){
 
 createDice(){
 	echo "Compiling dice executable"
-	cd ../Compiler
+	cd ..
 	make clean 2>&1 > /dev/null
-	./build.sh
+	make
 	#cp dice ../Test\ Suite/Hello_World_Demo/dice
-	cd ../Test\ Suite
+	# cd Test\ Suite
 	echo "Compilation of dice executable complete"
 }
 
@@ -176,7 +176,7 @@ if [ "$testOption" == "-s" ]; then
 	echo "Scanner Test Started"
 	createDice
 	logFile=scanner_tests.log
-	testPath=Scanner\ Test\ Suite/
+	testPath=Test\ Suite/Scanner\ Test\ Suite/
 	diceOption=-tendl
 	testExtension=.ManualTokens
 	test_function
@@ -194,9 +194,9 @@ elif [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ] || [ "$testOption" =
 		createDice	
 	fi
 
-	logFile=compiler_tests.log
-	testPath=Compiler_Test_Suite/
-	testExceptionsPath=Compiler_Test_Suite/Exceptions/
+	logFile=Test\ Suite/compiler_tests.log
+	testPath=Test\ Suite/Compiler_Test_Suite/
+	testExceptionsPath=Test\ Suite/Compiler_Test_Suite/Exceptions/
 	diceOption=-c
 	testExtension=.out
 	test_function

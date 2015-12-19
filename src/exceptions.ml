@@ -14,7 +14,7 @@ exception IllegalToken of string
 (* Analyzer Exceptions *)
 exception IncorrectNumberOfArgumentsException
 exception ConstructorNotFound of string
-exception DuplicateClassName
+exception DuplicateClassName of string
 exception DuplicateField
 exception DuplicateFunction of string
 exception DuplicateConstructor
@@ -47,6 +47,7 @@ exception ArrayAccessInvalidParamLength of string * string
 exception ArrayAccessExpressionNotArray of string
 exception CanOnlyAccessLengthOfArray
 exception CanOnlyDeleteObjectsOrArrays
+exception CannotAccessLengthOfCharArray
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
