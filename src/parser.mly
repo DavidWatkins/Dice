@@ -3,7 +3,7 @@
 %token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
-%token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN
+%token AND NOT OR PLUS MINUS TIMES DIVIDE ASSIGN MODULO
 %token EQ NEQ LT LEQ GT GEQ BAR
 %token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE
 %token <int> INT_LITERAL
@@ -20,7 +20,7 @@
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MODULO
 %right NOT
 %right DELETE
 %right RBRACKET
@@ -234,6 +234,7 @@ expr:
 	| 	expr GT     expr 					{ Binop($1, Greater,  $3) }
 	| 	expr GEQ    expr 					{ Binop($1, Geq,   $3) }
 	| 	expr AND    expr 					{ Binop($1, And,   $3) }
+	| 	expr MODULO expr 					{ Binop($1, Mod,   $3)}
 	| 	NOT  expr 							{ Unop (Not,   $2) }
 	| 	expr OR     expr 					{ Binop($1, Or,    $3) }
 	| 	expr DOT    expr 					{ ObjAccess($1, $3) }

@@ -115,6 +115,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Sub 		-> build_fsub e1 e2 "flt_subtmp" llbuilder
 	| 	Mult 		-> build_fmul e1 e2 "flt_multmp" llbuilder
 	| 	Div 		-> build_fdiv e1 e2 "flt_divtmp" llbuilder
+	| 	Mod 		-> build_frem e1 e2 "flt_sremtmp" llbuilder
 	| 	Equal 		-> build_fcmp Fcmp.Oeq e1 e2 "flt_eqtmp" llbuilder
 	| 	Neq 		-> build_fcmp Fcmp.One e1 e2 "flt_neqtmp" llbuilder
 	| 	Less 		-> build_fcmp Fcmp.Ult e1 e2 "flt_lesstmp" llbuilder
@@ -132,6 +133,7 @@ let rec handle_binop e1 op e2 d llbuilder =
 	| 	Sub 		-> build_sub e1 e2 "subtmp" llbuilder
 	| 	Mult 		-> build_mul e1 e2 "multmp" llbuilder
 	| 	Div 		-> build_sdiv e1 e2 "divtmp" llbuilder
+	| 	Mod 		-> build_srem e1 e2 "sremtmp" llbuilder
 	| 	Equal 		-> build_icmp Icmp.Eq e1 e2 "eqtmp" llbuilder
 	| 	Neq 		-> build_icmp Icmp.Ne e1 e2 "neqtmp" llbuilder
 	| 	Less 		-> build_icmp Icmp.Slt e1 e2 "lesstmp" llbuilder

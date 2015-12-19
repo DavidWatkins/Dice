@@ -58,6 +58,7 @@ let string_of_op = function
 	 | 	And			-> "and"	
 	 | 	Not			-> "not"	
 	 | 	Or			-> "or"
+	 | 	Mod 		-> "%"
 
 let rec string_of_bracket_expr = function
 		[] 				-> ""
@@ -465,6 +466,7 @@ let string_of_token = function
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL(" ^ s ^ ")"
 	| 	ID(s)				-> "ID(" ^ s ^ ")"
 	| 	DELETE 				-> "DELETE"
+	| 	MODULO 				-> "MODULO"
 	|  	EOF					-> "EOF"
 
 let string_of_token_no_id = function
@@ -521,6 +523,7 @@ let string_of_token_no_id = function
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL"
 	| 	ID(s)				-> "ID"
 	| 	DELETE 				-> "DELETE"
+	| 	MODULO 				-> "MODULO"
 	|  	EOF					-> "EOF"
 
 let token_list_to_string_endl token_list =
