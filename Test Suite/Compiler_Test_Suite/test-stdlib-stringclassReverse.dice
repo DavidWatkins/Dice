@@ -3,6 +3,8 @@ include("stdlib");
 class Test {
     public void main(char[][] args) {
         class String a = new String("hello");
-        print(a.reverse().string());
+        class String reverse = a.reverse();
+
+        print(reverse.string());
     }   
 }
