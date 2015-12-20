@@ -231,13 +231,12 @@ and codegen_print el llbuilder =
 	let s = build_in_bounds_gep s [| zero |] "tmp" llbuilder in
 	build_call printf (Array.of_list (s :: params)) "" llbuilder
 
-and codegen_func_call fname el isVoid llbuilder = 
+and codegen_func_call fname el d llbuilder = 
 	let f = func_lookup fname in
 	let params = List.map (codegen_sexpr llbuilder) el in
-	if isVoid then
-	build_call f (Array.of_list params) "" llbuilder
-	else
-	build_call f (Array.of_list params) "tmp" llbuilder
+	match d with
+		Datatype(Void_t) -> build_call f (Array.of_list params) "" llbuilder
+	| 	_ -> 				build_call f (Array.of_list params) "tmp" llbuilder
 
 and codegen_sizeof el llbuilder =
 	let type_of = Analyzer.get_type_from_sexpr (List.hd el) in
@@ -262,13 +261,13 @@ and codegen_call llbuilder d el = function
 		"print" 	-> codegen_print el llbuilder
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
 	| 	"cast" 		-> codegen_cast el d llbuilder
-	| 	"malloc" 	-> codegen_func_call "malloc" el false llbuilder
-	| 	"open" 		-> codegen_func_call "open" el false llbuilder
-	| 	"write"		-> codegen_func_call "write" el false llbuilder
-	| 	"close"		-> codegen_func_call "close" el false llbuilder
-	| 	"read" 		-> codegen_func_call "read" el false llbuilder
-	| 	"lseek" 	-> codegen_func_call "lseek" el false llbuilder
-	| 	"exit" 		-> codegen_func_call "exit" el false llbuilder
+	| 	"malloc" 	-> codegen_func_call "malloc" el d llbuilder
+	| 	"open" 		-> codegen_func_call "open" el d llbuilder
+	| 	"write"		-> codegen_func_call "write" el d llbuilder
+	| 	"close"		-> codegen_func_call "close" el d llbuilder
+	| 	"read" 		-> codegen_func_call "read" el d llbuilder
+	| 	"lseek" 	-> codegen_func_call "lseek" el d llbuilder
+	| 	"exit" 		-> codegen_func_call "exit" el d llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id isDeref checkParam id d llbuilder = 
