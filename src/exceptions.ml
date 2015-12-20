@@ -51,6 +51,8 @@ exception CannotAccessLengthOfCharArray
 exception AllNonVoidFunctionsMustEndWithReturn of string
 exception CyclicalDependencyBetween of string * string
 exception CannotAccessPrivateFieldInNonProperScope of string * string * string
+exception CannotCallBreakOutsideOfLoop
+exception CannotCallContinueOutsideOfLoop
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

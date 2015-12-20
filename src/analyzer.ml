@@ -26,26 +26,15 @@ type class_map = {
 }
 
 type env = {
-		env_class_maps: class_map StringMap.t;
-		env_name      : string;
-		env_cmap 	  : class_map;
-		env_locals    : datatype StringMap.t;
-		env_parameters: Ast.formal StringMap.t;
-		env_returnType: datatype;
-		env_callStack : bool;
-		env_reserved  : sfunc_decl list;
-}
-
-let construct_env cmaps cname cmap locals parameters returnType callStack reserved = 
-{
-	env_class_maps = cmaps;
-	env_name       = cname;
-	env_cmap 	   = cmap;
-	env_locals     = locals;
-	env_parameters = parameters;
-	env_returnType = returnType;
-	env_callStack  = callStack;
-	env_reserved   = reserved;
+	env_class_maps: class_map StringMap.t;
+	env_name      : string;
+	env_cmap 	  : class_map;
+	env_locals    : datatype StringMap.t;
+	env_parameters: Ast.formal StringMap.t;
+	env_returnType: datatype;
+	env_in_for    : bool;
+	env_in_while  : bool;
+	env_reserved  : sfunc_decl list;
 }
 
 let update_env_name env env_name = 
@@ -56,7 +45,21 @@ let update_env_name env env_name =
 	env_locals     = env.env_locals;
 	env_parameters = env.env_parameters;
 	env_returnType = env.env_returnType;
-	env_callStack  = env.env_callStack;
+	env_in_for     = env.env_in_for;
+	env_in_while   = env.env_in_while;
+	env_reserved   = env.env_reserved;
+}
+
+let update_call_stack env in_for in_while = 
+{
+	env_class_maps = env.env_class_maps;
+	env_name       = env.env_name;
+	env_cmap 	   = env.env_cmap;
+	env_locals     = env.env_locals;
+	env_parameters = env.env_parameters;
+	env_returnType = env.env_returnType;
+	env_in_for     = in_for;
+	env_in_while   = in_while;
 	env_reserved   = env.env_reserved;
 }
 
@@ -577,7 +580,8 @@ let rec local_handler d s e env =
 					env_locals = StringMap.add s d env.env_locals;
 					env_parameters = env.env_parameters;
 					env_returnType = env.env_returnType;
-					env_callStack = env.env_callStack;
+					env_in_for = env.env_in_for;
+					env_in_while = env.env_in_while;
 					env_reserved = env.env_reserved;
 				} in 
 (* if the user-defined type being declared is not in global classes map, it is an undefined class *)
@@ -593,56 +597,96 @@ let rec local_handler d s e env =
 				let ex = Exceptions.LocalAssignTypeMismatch(type1, type2) in
 				raise ex)
 
-(* Update this function to return an env object *)
-let rec convert_stmt_list_to_sstmt_list env stmt_list = 
-	let rec helper env = function 
-			Block [] 				-> SBlock([SExpr(SNoexpr, Datatype(Void_t))]), env
+let rec check_sblock sl env = match sl with
+		[] -> SBlock([SExpr(SNoexpr, Datatype(Void_t))]), env
+	| 	_  -> 
+		let sl, _ = convert_stmt_list_to_sstmt_list env sl in
+		SBlock(sl), env
 
-		|	Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
-										SBlock(sl), env
+and check_expr_stmt e env = 
+	let se, env = expr_to_sexpr env e in
+	let t = get_type_from_sexpr se in 
+	SExpr(se, t), env
 
-		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in 
-										SExpr(se, t), env
+and check_return e env = 
+	let se, _ = expr_to_sexpr env e in
+	let t = get_type_from_sexpr se in
+	if t = env.env_returnType 
+		then SReturn(se, t), env
+		else raise Exceptions.ReturnTypeMismatch
 
-		| 	Return e 				-> 	let se, _ = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
-										if t = env.env_returnType 
-											then SReturn(se, t), env
-											else raise Exceptions.ReturnTypeMismatch
+and check_if e s1 s2 env = 
+	let se, _ = expr_to_sexpr env e in
+	let t = get_type_from_sexpr se in
+	let ifbody, _ = parse_stmt env s1 in
+	let elsebody, _ = parse_stmt env s2 in
+	if t = Datatype(Bool_t) 
+		then SIf(se, ifbody, elsebody), env
+		else raise Exceptions.InvalidIfStatementType
 
-		| 	If(e, s1, s2) 			-> 	let se, _ = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
-										let ifbody, _ = helper env s1 in
-										let elsebody, _ = helper env s2 in
-										if t = Datatype(Bool_t) 
-											then SIf(se, ifbody, elsebody), env
-											else raise Exceptions.InvalidIfStatementType
+and check_for e1 e2 e3 s env = 
+	let old_val = env.env_in_for in
+	let env = update_call_stack env true env.env_in_while in
 
-		| 	For(e1, e2, e3, s)		-> 	let se1, _ = expr_to_sexpr env e1 in
-										let se2, _ = expr_to_sexpr env e2 in
-										let se3, _ = expr_to_sexpr env e3 in
-										let forbody, _ = helper env s in
-										let conditional = get_type_from_sexpr se2 in
-										if (conditional = Datatype(Bool_t) || conditional = Datatype(Void_t))
-											then SFor(se1, se2, se3, forbody), env
-											else raise Exceptions.InvalidForStatementType
-
-		| 	While(e, s)				->	let se, _ = expr_to_sexpr env e in
-										let t = get_type_from_sexpr se in
-										let sstmt, _ = helper env s in 
-										if (t = Datatype(Bool_t) || t = Datatype(Void_t)) 
-											then SWhile(se, sstmt), env
-											else raise Exceptions.InvalidWhileStatementType
-
-		|  	Break 					-> SBreak, env (* Need to check if in right context *)
-		|   Continue 				-> SContinue, env (* Need to check if in right context *)
-		|   Local(d, s, e) 			-> local_handler d s e env
+	let se1, _ = expr_to_sexpr env e1 in
+	let se2, _ = expr_to_sexpr env e2 in
+	let se3, _ = expr_to_sexpr env e3 in
+	let forbody, _ = parse_stmt env s in
+	let conditional = get_type_from_sexpr se2 in
+	let sfor = 
+		if (conditional = Datatype(Bool_t) || conditional = Datatype(Void_t))
+			then SFor(se1, se2, se3, forbody)
+			else raise Exceptions.InvalidForStatementType
 	in
+
+	let env = update_call_stack env old_val env.env_in_while in
+	sfor, env
+
+and check_while e s env = 
+	let old_val = env.env_in_while in
+	let env = update_call_stack env env.env_in_for true in
+
+	let se, _ = expr_to_sexpr env e in
+	let t = get_type_from_sexpr se in
+	let sstmt, _ = parse_stmt env s in 
+	let swhile = 
+		if (t = Datatype(Bool_t) || t = Datatype(Void_t)) 
+			then SWhile(se, sstmt)
+			else raise Exceptions.InvalidWhileStatementType
+	in
+
+	let env = update_call_stack env env.env_in_for old_val in
+	swhile, env
+
+and check_break env = 
+	if env.env_in_for || env.env_in_while then
+		SBreak, env
+	else
+		raise Exceptions.CannotCallBreakOutsideOfLoop
+
+and check_continue env = 
+	if env.env_in_for then
+		SContinue, env
+	else
+		raise Exceptions.CannotCallContinueOutsideOfLoop
+
+and parse_stmt env = function
+		Block sl 				-> check_sblock sl env
+	| 	Expr e 					-> check_expr_stmt e env
+	| 	Return e 				-> check_return e env
+	| 	If(e, s1, s2) 			-> check_if e s1 s2	env
+	| 	For(e1, e2, e3, e4) 	-> check_for e1 e2 e3 e4 env	
+	| 	While(e, s)				-> check_while e s env
+	|  	Break 					-> check_break env (* Need to check if in right context *)
+	|   Continue 				-> check_continue env (* Need to check if in right context *)
+	|   Local(d, s, e) 			-> local_handler d s e env
+
+(* Update this function to return an env object *)
+and convert_stmt_list_to_sstmt_list env stmt_list = 
 	let env_ref = ref(env) in
 	let rec iter = function
 	  head::tail ->
-		let a_head, env = helper !env_ref head in
+		let a_head, env = parse_stmt !env_ref head in
 		env_ref := env;
 		a_head::(iter tail)
 	| [] -> []
@@ -689,7 +733,8 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		env_locals    	= StringMap.empty;
 		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty constructor.formals;
 		env_returnType	= Datatype(Objecttype(cname));
-		env_callStack 	= false;
+		env_in_for 		= false;
+		env_in_while 	= false;
 		env_reserved 	= reserved;
 	} in 
 	let fbody = fst (convert_stmt_list_to_sstmt_list env constructor.body) in
@@ -733,7 +778,8 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		env_locals    	= StringMap.empty;
 		env_parameters	= env_params;
 		env_returnType	= fdecl.returnType;
-		env_callStack 	= false;
+		env_in_for 		= false;
+		env_in_while 	= false;
 		env_reserved 	= reserved;
 	} 
 	in
