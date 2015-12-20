@@ -3,10 +3,10 @@ class shape {
   public int yCoord;
 
   public void setX(int x){
-  	xCoord = x;
+  	this.xCoord = x;
   }
   public int setY(int y){
-   	yCoord = y;
+   	this.yCoord = y;
   }
 
 }

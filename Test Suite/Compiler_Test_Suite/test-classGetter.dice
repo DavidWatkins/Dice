@@ -3,10 +3,10 @@ class shape {
   public int yCoord;
 
   public int getX(){
-  	return xCoord;
+  	return this.xCoord;
   }
   public int getY(){
-   	return yCoord;
+   	return this.yCoord;
   }
 
 }

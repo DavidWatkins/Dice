@@ -3,13 +3,13 @@ class shape {
 	public int yCoord;
 	
 	constructor(){
-		xCoord = 0;
-		yCoord = 0;
+		this.xCoord = 0;
+		this.yCoord = 0;
 	}
 
 	constructor(int x, int y){
-		xCoord = x;
-		yCoord = y;
+		this.xCoord = x;
+		this.yCoord = y;
 	}
 }
 
