@@ -64,7 +64,6 @@ class Integer {
         str[i] = 0;
         class String newString = new String(str);
         class String a = newString.reverse();
-        print(a.string(), "\n");
         return newString.reverse();
     }
 }
