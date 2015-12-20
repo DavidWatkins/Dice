@@ -1,0 +1,7 @@
+class test {
+  public void main(char[][] args) {
+      float a = 1.5;
+      print(a);
+
+     }
+}

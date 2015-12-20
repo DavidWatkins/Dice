@@ -1,0 +1,17 @@
+class test {
+	public void main(char[][] args) {
+	  int a;
+	  a = 1;
+	  {
+	  	int b = 2;
+	  	{
+	  		int c = 3;
+	  		print(a);
+	  		print(b);
+	  		print(c);
+	  	}
+	  	print(b);
+	  }
+	  print(a);
+	}
+}

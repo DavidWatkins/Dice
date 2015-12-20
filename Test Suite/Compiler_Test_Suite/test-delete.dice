@@ -1,0 +1,19 @@
+class test {
+
+public void main() {
+
+int[] a = new int[10];
+delete a;
+
+class test b = new test();
+delete b;
+
+delete (new test());
+
+int[][] a = new int[10][20];
+delete a[2]; 
+(* Not sure if this would delete the entire 1-d array )
+( Probably should make this undefined *)
+
+}
+}

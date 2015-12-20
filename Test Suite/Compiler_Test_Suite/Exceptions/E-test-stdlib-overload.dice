@@ -1,0 +1,10 @@
+class test {
+
+	public void print(){
+
+	}
+
+  public void main(char[][] args) {
+     
+  }
+}

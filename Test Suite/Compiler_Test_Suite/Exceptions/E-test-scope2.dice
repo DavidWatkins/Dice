@@ -1,9 +1,7 @@
 class test {
 
 	public void main(char[][] args) {
-		int x = 5;
-		print(x);
-		{
+		if(true){
 			int x = 10;
 			print(x);
 		}
