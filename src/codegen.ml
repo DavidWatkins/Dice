@@ -791,12 +791,61 @@ let codegen_struct s =
     ) name_list;
 	struct_set_body struct_t type_array true
 
+let init_args argv args argc llbuilder =
+	let new_block label =
+		let f = block_parent (insertion_block llbuilder) in
+		append_block (global_context ()) label f
+	in
+	let bbcurr = insertion_block llbuilder in
+	let bbcond = new_block "args.cond" in
+	let bbbody = new_block "args.init" in
+	let bbdone = new_block "args.done" in
+	ignore (build_br bbcond llbuilder);
+	position_at_end bbcond llbuilder;
+
+	(* Counter into the length of the array *)
+	let counter = build_phi [const_int i32_t 0, bbcurr] "counter" llbuilder in
+	add_incoming ((build_add counter (const_int i32_t 1) "tmp" llbuilder), bbbody) counter;
+	let cmp = build_icmp Icmp.Slt counter argc "tmp" llbuilder in
+	ignore (build_cond_br cmp bbbody bbdone llbuilder);
+	position_at_end bbbody llbuilder;
+
+	(* Assign array position to init_val *)
+	let arr_ptr = build_gep args [| counter |] "tmp" llbuilder in
+	let argv_val = build_gep argv [| counter |] "tmp" llbuilder in
+	let argv_val = build_load argv_val "tmp" llbuilder in
+	ignore (build_store argv_val arr_ptr llbuilder);
+	ignore (build_br bbcond llbuilder);
+	position_at_end bbdone llbuilder
+
+let construct_args argc argv llbuilder = 
+	let str_pt = pointer_type str_t in
+	let size_real = build_add argc (const_int i32_t 1) "arr_size" llbuilder in
+
+	let arr = build_array_malloc str_pt size_real "args" llbuilder in
+	let arr = build_pointercast arr str_pt "args" llbuilder in
+	let arr_len_ptr = build_pointercast arr (pointer_type i32_t) "argc_len" llbuilder in
+	let arr_1 = build_gep arr [| const_int i32_t 1 |] "arr_1" llbuilder in
+
+	(* Store length at this position *)
+	ignore(build_store argc arr_len_ptr llbuilder); 
+	ignore(init_args argv arr_1 argc llbuilder);
+	arr
+
 let codegen_main main = 
 	Hashtbl.clear named_values;
 	Hashtbl.clear named_params;
-	let fty = function_type i32_t [| |] in
+	let fty = function_type i32_t [| i32_t; pointer_type str_t |] in
 	let f = define_function "main" fty the_module in
 	let llbuilder = builder_at_end context (entry_block f) in
+
+	let argc = param f 0 in
+	let argv = param f 1 in
+	set_value_name "argc" argc;
+	set_value_name "argv" argv;
+	let args = construct_args argc argv llbuilder in
+	Hashtbl.add named_params "args" args;
+
 	let _ = codegen_stmt llbuilder (SBlock (main.sbody)) in
 	build_ret (const_int i32_t 0) llbuilder 
 
