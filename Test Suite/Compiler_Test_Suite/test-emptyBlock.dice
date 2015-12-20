@@ -1,0 +1,9 @@
+class test {
+	public void main(char[][] args) {
+		{
+		(* Nothing in the following blocks*) {} {}
+		}
+		{ null; }
+		print(1);
+	}
+}

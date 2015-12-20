@@ -1,4 +1,4 @@
-include(stdlib);
+include("stdlib");
 
 class Two {
 	public void main(char[][] args) {

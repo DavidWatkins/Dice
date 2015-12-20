@@ -48,8 +48,10 @@ confirmation(){
 			else
 				cat "$testExceptionsPath"$filename$testExtension >> session_file
 			fi
+			echo "" >> session_file
 			echo "Generated Output:" >> session_file
 			cat temp_Dice_Tester  >> session_file
+			echo "" >> session_file
 			((fail++))
 		fi
 }
@@ -85,20 +87,20 @@ test_function(){
 			if [ "$testOption" == "-d" ]; then
 				#run the executable and port output (stderr) to temp test file
 				#port stdout (compiler msgs) to screen with color
-				echo ""
 				echo -e -n "${CYAN}"
 				$diceExecPath $diceOption "$testFile" 2> temp.ll 
 				echo -e -n "${NC}"
+				echo ""
 
 			else
 				#Create header for any messages coming from Dice compiler
-				echo "" >> session_file
-				echo -e "${CYAN}Dice Compiler Messages (if any):" >> session_file
 				
+				echo -e "${CYAN}Dice Compiler Messages (if any):" >> session_file
 				#run the executable and port output (stderr) to temp test file
 				#port stdout (compiler msgs) to log file
 				$diceExecPath $diceOption "$testFile" 2> temp.ll 1>> session_file
 				echo -e "${NC}">> session_file
+				echo "" >> session_file
 			fi
 
 			#Run the llvm executable and port output to temp test file
@@ -183,13 +185,15 @@ elif [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ] || [ "$testOption" =
 	echo "Compiler Test Started"
 
 	if [ "$testOption" == "-m" ]; then
-		if [ -f $diceExecPath ]; then
+		if [ -f ../dice ]; then
 			echo "Skipping Dice recompilation"
+			cd ..
 		else
 			createDice
 		fi
 	else
 		createDice	
+
 	fi
 
 	logFile=Test\ Suite/compiler_tests.log
@@ -211,7 +215,7 @@ if [ "$testOption" != "-s" ]; then
 	if [ $errorLines -ne 0 ]; then
 	echo "$errorLines lines of script errors reported. Please check $errorFile!"
 	else
-		Test\ Suite/$errorFile
+		mv Test\ Suite/$errorFile
 	fi
 fi
 

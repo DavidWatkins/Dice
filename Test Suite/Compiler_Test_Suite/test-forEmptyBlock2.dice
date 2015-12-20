@@ -1,0 +1,9 @@
+class test {
+	public void main(char[][] args) {
+	  int i;
+	  for (i = 0 ; i < 5 ; i = i + 1) {
+	   (*empty block*) null;
+	  }
+	  print(1);
+	}
+}

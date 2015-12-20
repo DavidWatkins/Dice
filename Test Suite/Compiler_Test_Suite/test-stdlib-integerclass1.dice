@@ -3,10 +3,6 @@ include("stdlib");
 class Two {
 	public void main(char[][] args) {
         class Integer x = new Integer(128);
-        class String str = x.toString();
-(*
         print(x.num(), "\n");
-        print(str.string(), "\n");
-*)
-	}
+      }
 }

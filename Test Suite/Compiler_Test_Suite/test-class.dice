@@ -1,6 +1,9 @@
 class shape {
   public float xCoord;
   public float yCoord;
+
+  constructor (){
+  }
 }
 
 class test {

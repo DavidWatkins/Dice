@@ -1,0 +1,7 @@
+class test {
+	public void main(char[][] args) {
+  		if (false){}
+  		else {}
+  		print(17);
+	}
+}

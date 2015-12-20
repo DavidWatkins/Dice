@@ -115,7 +115,8 @@ let _ =
 	| 	Exceptions.InvalidWhileStatementType	-> print_string "InvalidWhileStatementType \n"
 	|   Exceptions.InvalidUnaryOperation 		-> print_string "InvalidUnaryOperation\n" 
 	|   Exceptions.InvalidTypePassedToPrintf 	-> print_string "InvalidTypePassedToPrintf\n" 
-	|   Exceptions.InvalidBinaryOperator 		-> print_string "InvalidBinaryOperator\n"     
+	|   Exceptions.InvalidBinaryOperator 		-> print_string "InvalidBinaryOperator\n"
+	|   Exceptions.AssignmentTypeMismatch(str, str2) -> print_endline ("AssignmentTypeMismatch ("^str^","^str2^")" )     
 
 	|  	Exceptions.InvalidNumberCompilerArguments i -> print_endline ("Invalid argument passed " ^ (string_of_int i)); print_string help_string
 	| 	Exceptions.InvalidCompilerArgument s 		-> print_endline ("Invalid argument passed " ^ s); print_string help_string
