@@ -9,6 +9,8 @@ module StringMap = Map.Make (String)
 
 module StringSet = Set.Make (String)
 
+let struct_indexes:(string, int) Hashtbl.t = Hashtbl.create 10
+
 module SS = Set.Make(
 	struct
 		let compare = Pervasives.compare
@@ -44,6 +46,9 @@ let construct_env cmaps cname cmap locals parameters returnType callStack reserv
 	env_callStack  = callStack;
 	env_reserved   = reserved;
 }
+
+let print_elems = fun () ->
+	Hashtbl.iter (fun a b -> prerr_endline(a ^ " " ^ string_of_int b)) struct_indexes
 
 let process_includes filename includes classes =
 	(* Bring in each include  *)
@@ -313,6 +318,10 @@ and check_call_type isObjAccess env fname el =
 	(* Add a reference to the class in front of the function call *)
 	(* Must properly handle the case where this is a reserved function *)
 	let sel = if func_type = Sast.User then sel else sel in
+	(* let index = if func_type = Sast.User 
+		then Hashtbl.find struct_indexes env.env_name
+		else 0
+	in *)
 	SCall(fname, sel, ftype, 0)
 
 and check_object_constructor env s el = 
@@ -531,7 +540,8 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	let sstmt_list = (iter stmt_list), !env_ref in
 	sstmt_list
 
-let append_code_to_constructor fbody cname ret_type = 
+let append_code_to_constructor fbody cname ret_type =
+	let key = Hashtbl.find struct_indexes cname in 
 	let init_this = [SLocal(
 		ret_type,
 		"this",
@@ -545,6 +555,18 @@ let append_code_to_constructor fbody cname ret_type =
 				ret_type,
 				0
 			)
+		);
+		SExpr(
+			SAssign(
+				SObjAccess(
+					SId("this", ret_type),
+					SId(".key", Datatype(Int_t)),
+					Datatype(Int_t)
+				),
+				SInt_Lit(key),
+				Datatype(Int_t)
+			),
+			Datatype(Int_t)
 		)
 	]
 	in
@@ -767,25 +789,40 @@ let inherit_fields_cdecls cdecls inheritance_forest =
 	result
 
 let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) = 
+	let find_main = (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) in
+	let get_main func_list = 
+		let mains = (List.find_all find_main func_list) in
+		if List.length mains < 1 then 
+			raise Exceptions.MainNotDefined 
+		else if List.length mains > 1 then 
+			raise Exceptions.MultipleMainsDefined 
+		else List.hd mains 
+	in
+	let remove_main func_list = 
+		List.filter (fun f -> not (find_main f)) func_list 
+	in
 	let handle_cdecl cdecl = 
 		let class_map = StringMap.find cdecl.cname class_maps in 
 		let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
 		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl class_maps reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
-		let scdecl = convert_cdecl_to_sast func_list cdecl in
+		let sfunc_list = remove_main func_list in
+		let scdecl = convert_cdecl_to_sast sfunc_list cdecl in
 		(scdecl, func_list @ sconstructor_list)
 	in 
-		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
-		let find_main = (fun f -> match f.sfname with FName n -> n = "main" | _ -> false) in
-		let mains = (List.find_all find_main (snd overall_list)) in
-		let main = if List.length mains < 1 then raise Exceptions.MainNotDefined else if List.length mains > 1 then raise Exceptions.MultipleMainsDefined else List.hd mains in
-		let funcs = (List.filter (fun f -> not (find_main f)) (snd overall_list)) in
-		(* let funcs = (add_default_constructors cdecls class_maps) @ funcs in *)
-		{
-			classes 		= fst overall_list;
-			functions 		= funcs;
-			main 			= main;
-			reserved 		= reserved;
-		}
+	let iter_cdecls t c = 
+		let scdecl = handle_cdecl c in 
+		(fst scdecl :: fst t, snd scdecl @ snd t)
+	in
+	let scdecl_list, func_list = List.fold_left iter_cdecls ([], []) cdecls in
+	let main = get_main func_list in
+	let funcs = remove_main func_list in
+	(* let funcs = (add_default_constructors cdecls class_maps) @ funcs in *)
+	{
+		classes 		= scdecl_list;
+		functions 		= funcs;
+		main 			= main;
+		reserved 		= reserved;
+	}
 
 let add_reserved_functions = 
 	let reserved_stub name return_type formals = 
@@ -932,11 +969,19 @@ let handle_inheritance cdecls class_maps =
 	let cmaps_inherited = add_inherited_methods cmaps_with_inherited_fields func_maps_inherited in
 	cmaps_inherited, cdecls_inherited
 
+let generate_struct_indexes cdecls = 
+	let cdecl_handler index cdecl = 
+		Hashtbl.add struct_indexes cdecl.cname index
+	in
+	List.iteri cdecl_handler cdecls
+
 (* Main method for analyzer *)
 let analyze filename program = match program with
 	Program(includes, classes) ->
 	(* Include code from external files *)
 	let cdecls = process_includes filename includes classes in
+	ignore(generate_struct_indexes cdecls);
+
 	(* Add built-in functions *)
 	let reserved = add_reserved_functions in
 	(* Generate the class_maps for look up in checking functions *)

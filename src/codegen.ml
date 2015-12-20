@@ -341,7 +341,8 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 		function
 			(* Check fields in parent *)
 			SId(field, d) -> 
-				let field_index = Hashtbl.find struct_field_indexes (parent_str ^ "." ^ field) in
+				let search_term = (parent_str ^ "." ^ field) in
+				let field_index = Hashtbl.find struct_field_indexes search_term in
 				let _val = build_struct_gep parent_expr field_index "tmp" llbuilder in
 				if isAssign then
 					build_load _val field llbuilder
@@ -651,12 +652,61 @@ let codegen_func sfdecl =
 	if sfdecl.sreturnType = Datatype(Void_t) 
 		then ignore(build_ret_void llbuilder);
 	()
+
+let codegen_vtbl scdecls = 
+	let rt = pointer_type i64_t in
+	let void_pt = pointer_type i64_t in
+	let void_ppt = pointer_type void_pt in
+
+	let fty = function_type rt [| i32_t; i32_t |] in
+	let f = define_function "lookup" fty the_module in
+	let llbuilder = builder_at_end context (entry_block f) in
+
+	let len = List.length scdecls in
+	let total_len = ref 0 in
+	let scdecl_llvm_arr = build_array_alloca void_ppt (const_int i32_t len) "tmp" llbuilder in
+
+	let handle_scdecl scdecl = 
+		let index = Hashtbl.find Analyzer.struct_indexes scdecl.scname in
+		let len = List.length scdecl.sfuncs in
+		let sfdecl_llvm_arr = build_array_alloca void_pt (const_int i32_t len) "tmp" llbuilder in
+
+		let handle_fdecl i sfdecl = 
+			let fptr = func_lookup (Utils.string_of_fname sfdecl.sfname) in
+			let fptr = build_pointercast fptr void_pt "tmp" llbuilder in
+
+			let ep = build_gep sfdecl_llvm_arr [| (const_int i32_t i) |] "tmp" llbuilder in
+			ignore(build_store fptr ep llbuilder);
+		in 
+		List.iteri handle_fdecl scdecl.sfuncs;
+		total_len := !total_len + len;
+
+		let ep = build_gep scdecl_llvm_arr [| (const_int i32_t index) |] "tmp" llbuilder in
+		ignore(build_store sfdecl_llvm_arr ep llbuilder);
+	in
+	List.iter handle_scdecl scdecls;
+
+	let c_index = param f 0 in
+	let f_index = param f 1 in
+	set_value_name "c_index" c_index;
+	set_value_name "f_index" f_index;
+
+	if !total_len == 0 then
+		build_ret (const_null rt) llbuilder
+	else
+		let vtbl = build_gep scdecl_llvm_arr [| c_index |] "tmp" llbuilder in
+		let vtbl = build_load vtbl "tmp" llbuilder in
+		let fptr = build_gep vtbl [| f_index |] "tmp" llbuilder in
+		let fptr = build_load fptr "tmp" llbuilder in
+
+		build_ret fptr llbuilder 
 	
 let codegen_library_functions () = 
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let _ = declare_function "printf" printf_ty the_module in
 	let malloc_ty = function_type (str_t) [| i32_t |] in
 	let _ = declare_function "malloc" malloc_ty the_module in
+	(* Not sure we need rec_init *)
     let rec_init_ty = function_type void_t [| (pointer_type i64_t); i32_t; (pointer_type i32_t); (pointer_type i32_t); (pointer_type i32_t); i32_t; i32_t |] in
     let _ = declare_function "rec_init" rec_init_ty the_module in
     let init_arr_ty = function_type (pointer_type i64_t) [| (pointer_type i32_t); i32_t |] in
@@ -680,9 +730,14 @@ let codegen_struct_stub s =
 	Hashtbl.add struct_types s.scname struct_t
 
 let codegen_struct s = 
-	let struct_t = Hashtbl.find struct_types s.scname in
+		let struct_t = Hashtbl.find struct_types s.scname in
 	let type_list = List.map (function Field(_, d, _) -> get_type d) s.sfields in
 	let name_list = List.map (function Field(_, _, s) -> s) s.sfields in
+
+	(* Add key field to all structs *)
+	let type_list = i32_t :: type_list in
+	let name_list = ".key" :: name_list in
+
 	let type_array = (Array.of_list type_list) in
 	List.iteri (fun i f ->
         let n = s.scname ^ "." ^ f in
@@ -712,5 +767,11 @@ let codegen_sprogram sprogram =
 	let _ = List.map (fun f -> codegen_funcstub f) sprogram.functions in
 	let _ = List.map (fun f -> codegen_func f) sprogram.functions in
 	let _ = codegen_main sprogram.main in
+	let _ = codegen_vtbl sprogram.classes in
 	let _ = linker Conf.bindings_path in
 	the_module
+
+(* Need to build const_table full of function pointers *)
+(* Need indexes to functions *)
+(* Need to cast functions to the right type *)
+(* Need to look at overrides flag and add implicity cast at the beginning *)
