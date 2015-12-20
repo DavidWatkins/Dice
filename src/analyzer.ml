@@ -613,7 +613,7 @@ let rec local_handler d s e env =
 						(if not (StringMap.mem (Utils.string_of_object d) env.env_class_maps) 
 							then raise (Exceptions.UndefinedClass (Utils.string_of_object d)) 
 							else
-                                let local = if inherited d t then SLocal(t, s, se)                                  else SLocal(d, s, se)
+                                let local = if inherited d t then SLocal(t, s, se) else SLocal(d, s, se)
                                 in local, new_env)
 				| _ -> SLocal(d, s, se), new_env)
 			else 
