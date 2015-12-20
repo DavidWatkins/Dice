@@ -1,0 +1,12 @@
+include("Test Suite/Compiler_Test_Suite/test-cyclicalIncludes2.dice");
+
+class test {
+	public void main(char[][] args) {
+        class test2 a = new test2();
+        this.output();
+	}
+
+	public void output(){
+		print("a");
+	}
+}

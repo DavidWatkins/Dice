@@ -14,8 +14,8 @@ class shape {
 class test {
   public void main(char[][] args) {
       class shape a = new shape(); 
-      a.setX() = 1;
-      a.setY() = 3;
+      a.setX(1);
+      a.setY(3);
       print(a.xCoord);
       print(a.yCoord);
   }
