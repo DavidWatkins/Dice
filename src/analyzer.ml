@@ -18,10 +18,11 @@ module SS = Set.Make(
 	end )
 
 type class_map = {
-		field_map       : Ast.field StringMap.t;
-		func_map        : Ast.func_decl StringMap.t;
-		constructor_map : Ast.func_decl StringMap.t;
-		reserved_map 	: sfunc_decl StringMap.t;
+	field_map       : Ast.field StringMap.t;
+	func_map        : Ast.func_decl StringMap.t;
+	constructor_map : Ast.func_decl StringMap.t;
+	reserved_map 	: sfunc_decl StringMap.t;
+	cdecl 			: Ast.class_decl;
 }
 
 type env = {
@@ -113,10 +114,11 @@ let build_class_maps reserved cdecls =
 			in
 			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName(cdecl.cname)) else
 				StringMap.add cdecl.cname 
-						{ field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
+						{ 	field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
 							func_map = List.fold_left funcfun StringMap.empty cdecl.cbody.methods;
 							constructor_map = List.fold_left constructorfun StringMap.empty cdecl.cbody.constructors; 
-							reserved_map = reserved_map; } 
+							reserved_map = reserved_map; 
+							cdecl = cdecl } 
 											 m) in
 		List.fold_left helper StringMap.empty cdecls
 
@@ -318,11 +320,23 @@ and check_call_type isObjAccess env fname el =
 	(* Add a reference to the class in front of the function call *)
 	(* Must properly handle the case where this is a reserved function *)
 	let sel = if func_type = Sast.User then sel else sel in
-	(* let index = if func_type = Sast.User 
-		then Hashtbl.find struct_indexes env.env_name
+	let index = if func_type = Sast.User 
+		then 
+			let cdecl = cmap.cdecl in
+			let fns = List.rev cdecl.cbody.methods in
+			let rec find x lst =
+			    match lst with
+			    | [] -> raise (Failure ("Could not find " ^ sfname))
+			    | fdecl :: t -> 
+			    	let search_name = (get_name env.env_name fdecl) in
+			    	if x = search_name then 0 
+			    	else if search_name = "main" then find x t 
+			    	else 1 + find x t
+			in
+			find sfname fns
 		else 0
-	in *)
-	SCall(fname, sel, ftype, 0)
+	in
+	SCall(fname, sel, ftype, index)
 
 and check_object_constructor env s el = 
 	let sel, env = exprl_to_sexprl env el in
@@ -588,6 +602,7 @@ let default_constructor_body cname =
 	append_code_to_constructor fbody cname ret_type
 
 let append_code_to_main fbody cname ret_type = 
+	let key = Hashtbl.find struct_indexes cname in 
 	let init_this = [SLocal(
 		ret_type,
 		"this",
@@ -600,6 +615,18 @@ let append_code_to_main fbody cname ret_type =
 				],
 				ret_type, 0
 			)
+		);
+		SExpr(
+			SAssign(
+				SObjAccess(
+					SId("this", ret_type),
+					SId(".key", Datatype(Int_t)),
+					Datatype(Int_t)
+				),
+				SInt_Lit(key),
+				Datatype(Int_t)
+			),
+			Datatype(Int_t)
 		)
 	]
 	in 
@@ -883,6 +910,7 @@ let update_class_maps map_type cmap_val cname cmap_to_update =
 				func_map = m.func_map;
 				constructor_map = m.constructor_map;
 				reserved_map = m.reserved_map;
+				cdecl = m.cdecl;
 			}
 		else m
 	in
@@ -955,6 +983,7 @@ let add_inherited_methods cmaps func_maps_inherited =
 			func_map = fmap;
 			constructor_map = cmap.constructor_map;
 			reserved_map = cmap.reserved_map;
+			cdecl = cmap.cdecl;
 		}
 	in
 	let add_updated_cmap cname cmap accum = StringMap.add cname (update_with_inherited_methods cname cmap) accum in

@@ -317,7 +317,7 @@ and deref ptr t llbuilder =
 	build_gep ptr (Array.of_list [ptr]) "tmp" llbuilder
 
 and codegen_obj_access isAssign lhs rhs d llbuilder = 
-	let codegen_func_call fname parent_expr el d llbuilder = 
+	let codegen_func_call fptr parent_expr el d llbuilder = 
 		let match_sexpr se = match se with
 			SId(id, d) -> let isDeref = match d with
 				Datatype(Objecttype(_)) -> false
@@ -325,11 +325,10 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 			in codegen_id isDeref false id d llbuilder
 		| 	se -> codegen_sexpr llbuilder se
 		in
-		let f = func_lookup fname in
 		let params = List.map match_sexpr el in
 		match d with
-			Datatype(Void_t) -> build_call f (Array.of_list (parent_expr :: params)) "" llbuilder
-		| 	_ -> build_call f (Array.of_list (parent_expr :: params)) "tmp" llbuilder
+			Datatype(Void_t) -> build_call fptr (Array.of_list (parent_expr :: params)) "" llbuilder
+		| 	_ -> build_call fptr (Array.of_list (parent_expr :: params)) "tmp" llbuilder
 	in
 	let check_lhs = function
 		SId(s, d)			-> codegen_id false false s d llbuilder
@@ -349,7 +348,15 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				else 
 					_val
 			(* Check functions in parent *)
-		| 	SCall(fname, el, d, _) 	-> codegen_func_call fname parent_expr el d llbuilder
+		| 	SCall(fname, el, d, index) 	-> 
+				let index = const_int i32_t index in
+				let c_index = build_struct_gep parent_expr 0 "cindex" llbuilder in
+				let c_index = build_load c_index "cindex" llbuilder in
+				let lookup = func_lookup "lookup" in
+				let fptr = build_call lookup [| c_index; index |] "fptr" llbuilder in
+				let f_ty = type_of (func_lookup fname) in
+				let fptr = build_pointercast fptr f_ty "fptr" llbuilder in
+				codegen_func_call fptr parent_expr el d llbuilder
 			(* Set parent, check if base is field *)
 		| 	SObjAccess(e1, e2, d) 	-> 
 				let e1_type = Analyzer.get_type_from_sexpr e1 in
@@ -658,8 +665,7 @@ let codegen_vtbl scdecls =
 	let void_pt = pointer_type i64_t in
 	let void_ppt = pointer_type void_pt in
 
-	let fty = function_type rt [| i32_t; i32_t |] in
-	let f = define_function "lookup" fty the_module in
+	let f = func_lookup "lookup" in
 	let llbuilder = builder_at_end context (entry_block f) in
 
 	let len = List.length scdecls in
@@ -723,6 +729,8 @@ let codegen_library_functions () =
     let _ = declare_function "lseek" lseek_ty the_module in
     let exit_ty = function_type void_t [| i32_t |] in
     let _ = declare_function "exit" exit_ty the_module in
+    let fty = function_type (pointer_type i64_t) [| i32_t; i32_t |] in
+	let _ = define_function "lookup" fty the_module in
     ()
 
 let codegen_struct_stub s =
