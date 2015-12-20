@@ -1,0 +1,9 @@
+ class test {
+
+ 	public int increment(int x){
+ 		x = x+1;
+ 	}
+	 public void main(char[][] args) {
+		int x = this.increment(5);
+ 	}
+ }

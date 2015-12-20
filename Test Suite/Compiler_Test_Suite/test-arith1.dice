@@ -1,5 +1,5 @@
 class test {
 	public void main(char[][] args) {
-		print(15+5);
+		print(5+15);
 	}
 }

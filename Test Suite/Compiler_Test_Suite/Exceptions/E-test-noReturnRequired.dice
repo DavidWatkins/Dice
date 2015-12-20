@@ -1,0 +1,11 @@
+ class test {
+
+ 	public void addOne(int x){
+ 		x = x+1;
+ 		return x;
+
+ 	}
+	 public void main(char[][] args) {
+		this.addOne(5);
+ 	}
+ }

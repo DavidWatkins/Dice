@@ -1,0 +1,13 @@
+class Factorial {
+
+   public void main(char[][] args) {
+      print(this.factorial(5));
+   }
+
+   public int factorial(int n) {
+    int temp;
+    if(n <= 1) return 1;
+    temp = n * factorial(n - 1);
+    return temp;
+   }
+}

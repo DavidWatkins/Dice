@@ -117,6 +117,8 @@ let _ =
 	|   Exceptions.InvalidTypePassedToPrintf 	-> print_string "InvalidTypePassedToPrintf\n" 
 	|   Exceptions.InvalidBinaryOperator 		-> print_string "InvalidBinaryOperator\n"
 	|   Exceptions.AssignmentTypeMismatch(str, str2) -> print_endline ("AssignmentTypeMismatch ("^str^","^str2^")" )     
+	|   Exceptions.UnableToCallFunctionWithoutParent(str) -> print_endline("UnableToCallFunctionWithoutParent( "^str^" )")
+	|   Exceptions.AllNonVoidFunctionsMustEndWithReturn(str) -> print_endline("Exceptions.AllNonVoidFunctionsMustEndWithReturn("^str^")")
 
 	|  	Exceptions.InvalidNumberCompilerArguments i -> print_endline ("Invalid argument passed " ^ (string_of_int i)); print_string help_string
 	| 	Exceptions.InvalidCompilerArgument s 		-> print_endline ("Invalid argument passed " ^ s); print_string help_string
