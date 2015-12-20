@@ -154,7 +154,6 @@ let process_includes filename includes classes =
 			else 
 				let result = processInclude realpath in 
 				match result with Program(i,c) ->
-				List.iter (fun x -> print_string(Utils.string_of_include x)) i;
 				iterate_includes (classes @ c) (StringMap.add realpath 1 m) (i @ t)
 	in
 	iterate_includes classes (StringMap.add (Filepath.realpath filename) 1 StringMap.empty) includes
@@ -206,26 +205,24 @@ let build_class_maps reserved cdecls =
 	List.fold_left helper StringMap.empty cdecls
 
 let get_equality_binop_type type1 type2 se1 se2 op = 
-		(* Equality op not supported for float operands. The correct way to test floats 
-		   for equality is to check the difference between the operands in question *)
-		if (type1 = Datatype(Float_t) || type2 = Datatype(Float_t)) then raise (Exceptions.InvalidBinopExpression "Equality operation is not supported for Float types")
-		else 
-		match type1, type2 with
-			Datatype(Char_t), Datatype(Int_t) 
-		| 	Datatype(Int_t), Datatype(Char_t)
-		| 	Datatype(Objecttype(_)), Datatype(Null_t)
-		| 	Datatype(Null_t), Datatype(Objecttype(_))
-		| 	Datatype(Null_t), Arraytype(_, _)
-		| 	Arraytype(_, _), Datatype(Null_t) -> SBinop(se1, op, se2, Datatype(Bool_t))
-		| _ ->
-			if type1 = type2 then SBinop(se1, op, se2, Datatype(Bool_t))
-			else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
-
+	(* Equality op not supported for float operands. The correct way to test floats 
+	   for equality is to check the difference between the operands in question *)
+	if (type1 = Datatype(Float_t) || type2 = Datatype(Float_t)) then raise (Exceptions.InvalidBinopExpression "Equality operation is not supported for Float types")
+	else 
+	match type1, type2 with
+		Datatype(Char_t), Datatype(Int_t) 
+	| 	Datatype(Int_t), Datatype(Char_t)
+	| 	Datatype(Objecttype(_)), Datatype(Null_t)
+	| 	Datatype(Null_t), Datatype(Objecttype(_))
+	| 	Datatype(Null_t), Arraytype(_, _)
+	| 	Arraytype(_, _), Datatype(Null_t) -> SBinop(se1, op, se2, Datatype(Bool_t))
+	| _ ->
+		if type1 = type2 then SBinop(se1, op, se2, Datatype(Bool_t))
+		else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
 
 let get_logical_binop_type se1 se2 op = function 
-		(Datatype(Bool_t), Datatype(Bool_t)) -> SBinop(se1, op, se2, Datatype(Bool_t))
-		| _ -> raise (Exceptions.InvalidBinopExpression "Logical operators only operate on Bool_t types")
-
+	(Datatype(Bool_t), Datatype(Bool_t)) -> SBinop(se1, op, se2, Datatype(Bool_t))
+	| _ -> raise (Exceptions.InvalidBinopExpression "Logical operators only operate on Bool_t types")
 
 let get_comparison_binop_type type1 type2 se1 se2 op =  
 	let numerics = SS.of_list [Datatype(Int_t); Datatype(Char_t); Datatype(Float_t)]
@@ -434,8 +431,24 @@ and check_call_type top_level_env isObjAccess env fname el =
 		find sfname fns
 	in
 
+	let handle_param formal param = 
+		let fty = match formal with Formal(d, _) -> d | _ -> Datatype(Void_t) in
+		let pty = get_type_from_sexpr param in
+		match fty, pty with 
+			Datatype(Objecttype(f)), Datatype(Objecttype(p)) -> 
+				if f <> p then
+				let descendants = Hashtbl.find predecessors f in
+				let _ = try List.find (fun d -> p = d) descendants
+						with | Not_found -> raise(Exceptions.CannotPassNonInheritedClassesInPlaceOfOthers(f, p))
+				in
+				let rt = Datatype(Objecttype(f)) in
+				SCall("cast", [param; SId("ignore", rt)], rt, 0)
+				else param
+		|	_ -> param
+	in
 	try let fdecl = (StringMap.find sfname cmap.func_map) in
 		let index = index fdecl in
+		let sel = List.map2 handle_param fdecl.formals sel in 
 		SCall(sfname, sel, fdecl.returnType, index)
 	with | Not_found -> 
 	if isObjAccess then raise (Exceptions.FunctionNotFound fname)
@@ -757,6 +770,8 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	}
 
 let check_fbody fname fbody returnType =
+	let len = List.length fbody in
+	if len = 0 then () else 
 	let final_stmt = List.hd (List.rev fbody) in
 	match returnType, final_stmt with
 		Datatype(Void_t), _ -> ()

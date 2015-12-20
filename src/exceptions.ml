@@ -54,6 +54,7 @@ exception CannotAccessPrivateFieldInNonProperScope of string * string * string
 exception CannotCallBreakOutsideOfLoop
 exception CannotCallContinueOutsideOfLoop
 exception CannotAccessPrivateFunctionInNonProperScope of string * string * string
+exception CannotPassNonInheritedClassesInPlaceOfOthers of string * string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf
