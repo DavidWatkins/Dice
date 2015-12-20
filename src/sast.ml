@@ -39,6 +39,7 @@ type sfunc_decl = {
 	sformals : formal list;
 	sbody : sstmt list;
 	func_type : func_type;
+	source : string;
 	overrides : bool;
 }
 

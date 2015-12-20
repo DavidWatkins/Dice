@@ -655,6 +655,12 @@ let codegen_func sfdecl =
 	let f = func_lookup fname in
 	let llbuilder = builder_at_end context (entry_block f) in
 	let _ = init_params f sfdecl.sformals in 
+	let _ = if sfdecl.overrides then
+		let this_param = Hashtbl.find named_params "this" in
+		let source = Datatype(Objecttype(sfdecl.source)) in
+		let casted_param = build_pointercast this_param (get_type source) "casted" llbuilder in
+		Hashtbl.replace named_params "this" casted_param;
+	in
 	let _ = codegen_stmt llbuilder (SBlock (sfdecl.sbody)) in
 	if sfdecl.sreturnType = Datatype(Void_t) 
 		then ignore(build_ret_void llbuilder);
@@ -779,7 +785,6 @@ let codegen_sprogram sprogram =
 	let _ = linker Conf.bindings_path in
 	the_module
 
-(* Need to build const_table full of function pointers *)
-(* Need indexes to functions *)
-(* Need to cast functions to the right type *)
 (* Need to look at overrides flag and add implicity cast at the beginning *)
+(* Need to handle assignment of two different types *)
+(* Need to handle private/public access *)

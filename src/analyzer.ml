@@ -103,6 +103,7 @@ let default_sc cname =
 	sbody 			= default_constructor_body cname;
 	func_type		= Sast.User;
 	overrides       = false;
+	source 			= "NA";
 }
 
 let default_c cname = 
@@ -671,6 +672,7 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		sbody 		= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
 		func_type	= Sast.User;
 		overrides 	= false;
+		source 		= "NA";
 	}
 
 let check_fbody fname fbody returnType =
@@ -722,6 +724,7 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		sbody 			= fbody;
 		func_type		= Sast.User;
 		overrides       = fdecl.overrides;
+		source 			= cname;
 	}
 
 let convert_cdecl_to_sast sfdecls (cdecl:Ast.class_decl) = 
@@ -892,6 +895,7 @@ let add_reserved_functions =
 			sbody 			= [];
 			func_type		= Sast.Reserved;
 			overrides 		= false;
+			source 			= "NA";
 		}
 	in
 	let i32_t = Datatype(Int_t) in
