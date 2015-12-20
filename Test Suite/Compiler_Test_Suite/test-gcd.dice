@@ -6,7 +6,9 @@ class test {
 		print(this.gcd(99,121));
 	}
 
-	public int gcd(int a, int b){
+	public int gcd(int x, int y){
+		int a = x;
+		int b = y;
   		while (a != b) {
     		if (a > b)
     			a = a - b;
