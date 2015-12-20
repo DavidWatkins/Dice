@@ -584,7 +584,7 @@ let inherited potential_predec potential_child =
     match potential_predec, potential_child with 
     Datatype(Objecttype(predec_cname)), Datatype(Objecttype(child_cname)) -> 
         let descendants = get_all_descendants predec_cname StringSet.empty in
-        if (StringSet.mem child_cname descendants) then true else raise (Exceptions.LocalAssignTypeMismatch(predec_cname, child_cname))
+        if (predec_cname = child_cname) || (StringSet.mem child_cname descendants) then true else raise (Exceptions.LocalAssignTypeMismatch(predec_cname, child_cname))
     | _ , _ -> false
 
 
