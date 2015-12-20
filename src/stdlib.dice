@@ -182,7 +182,7 @@ class String {
             temparray[i+j] = temp.getChar(j);
         }
 
-        temparray[this.length() + temp.length() + 1] = 0;
+        temparray[this.length() + temp.length()] = 0;
         class String newString = new String(temparray);
         return newString;
     }
