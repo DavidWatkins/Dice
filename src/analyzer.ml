@@ -13,18 +13,6 @@ module SS = Set.Make(
         type t = datatype
     end )
 
-module TM = Map.Make(
-    struct
-        let compare = Pervasives.compare
-        type t = op
-    end )
-
-module Type_to_String = Map.Make(
-    struct
-        let compare = Pervasives.compare
-        type t = datatype
-    end )
-
 type class_map = {
 		field_map       : Ast.field StringMap.t;
 		func_map        : Ast.func_decl StringMap.t;
@@ -39,7 +27,7 @@ type env = {
 		env_locals    : datatype StringMap.t;
 		env_parameters: Ast.formal StringMap.t;
 		env_returnType: datatype;
-		env_callStack : stmt list;
+		env_callStack : bool;
 		env_reserved  : sfunc_decl list;
 }
 
@@ -563,6 +551,11 @@ let append_code_to_constructor fbody cname ret_type =
 	(* Also need to add malloc around other constructors *)
 	init_this @ fbody @ ret_this
 
+let default_constructor_body cname = 
+	let ret_type = Datatype(Objecttype(cname)) in
+	let fbody = [] in
+	append_code_to_constructor fbody cname ret_type
+
 let append_code_to_main fbody cname ret_type = 
 	let init_this = [SLocal(
 		ret_type,
@@ -589,7 +582,7 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		env_locals    	= StringMap.empty;
 		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty constructor.formals;
 		env_returnType	= Datatype(Objecttype(cname));
-		env_callStack 	= [];
+		env_callStack 	= false;
 		env_reserved 	= reserved;
 	} in 
 	let fbody = fst (convert_stmt_list_to_sstmt_list env constructor.body) in
@@ -617,7 +610,7 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		env_locals    	= StringMap.empty;
 		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty (class_formal :: fdecl.formals);
 		env_returnType	= fdecl.returnType;
-		env_callStack 	= [];
+		env_callStack 	= false;
 		env_reserved 	= reserved;
 	} in
 	let fbody = fst (convert_stmt_list_to_sstmt_list env fdecl.body) in
@@ -638,14 +631,6 @@ let convert_cdecl_to_sast (cdecl:Ast.class_decl) =
 		scname = cdecl.cname;
 		sfields = cdecl.cbody.fields;
 	}
-
-let default_value t = match t with 
-		Datatype(Int_t) 		-> SInt_Lit(0, Datatype(Int_t))
-	| 	Datatype(Float_t) 		-> SFloat_Lit(0.0, Datatype(Float_t))
-	| 	Datatype(Bool_t) 		-> SBoolean_Lit(false, Datatype(Bool_t))
-	| 	Datatype(Char_t) 		-> SChar_Lit(Char.chr 0, Datatype(Char_t))
-	|  	Arraytype(Char_t, 1) 	-> SString_Lit("", Arraytype(Char_t, 1))
-	| 	_ 						-> SNull(Datatype(Null_t))
 
 let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) = 
 	let handle_cdecl cdecl = 
@@ -679,19 +664,21 @@ let add_reserved_functions =
 		}
 	in
 	let i32_t = Datatype(Int_t) in
+	let void_t = Datatype(Void_t) in
+	let str_t = Arraytype(Char_t, 1) in
 	let mf t n = Formal(t, n) in (* Make formal *)
-	let reserved = [] in
-	let reserved = (reserved_stub "print" (Datatype(Void_t)) ([ Many(Any) ])) :: reserved in
-	let reserved = (reserved_stub "malloc" (Arraytype(Char_t, 1)) ([ Formal(Datatype(Int_t), "size")])) :: reserved in
-	let reserved = (reserved_stub "cast" (Any) ([ Formal(Any, "in")])) :: reserved in
-	let reserved = (reserved_stub "sizeof" (i32_t) ([ Formal(Any, "in")])) :: reserved in	
-	(* TODO Fix the parameters here *)
-    let reserved = (reserved_stub "open" (i32_t) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "close" (i32_t) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "read" (i32_t) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "write" (i32_t) ([ Many(Any)])) :: reserved in 
-    let reserved = (reserved_stub "lseek" (i32_t) ([ mf i32_t "fd"; mf i32_t "offset"; mf i32_t "whence"])) :: reserved in
-    let reserved = (reserved_stub "exit" (Datatype(Void_t)) ([mf i32_t "status"])) :: reserved in
+	let reserved = [
+		reserved_stub "print" 	(void_t) 	([Many(Any)]);
+		reserved_stub "malloc" 	(str_t) 	([mf i32_t "size"]);
+		reserved_stub "cast" 	(Any) 		([mf Any "in"]);
+		reserved_stub "sizeof" 	(i32_t) 	([mf Any "in"]);
+		reserved_stub "open" 	(i32_t) 	([mf str_t "path"; mf i32_t "flags"]);
+		reserved_stub "close" 	(i32_t) 	([mf i32_t "fd"]);
+		reserved_stub "read" 	(i32_t) 	([mf i32_t "fd"; mf str_t "buf"; mf i32_t "nbyte"; mf i32_t "offset"]);
+		reserved_stub "write" 	(i32_t) 	([mf i32_t "fd"; mf str_t "buf"; mf i32_t "nbyte"]);
+		reserved_stub "lseek" 	(i32_t) 	([mf i32_t "fd"; mf i32_t "offset"; mf i32_t "whence"]);
+		reserved_stub "exit" 	(void_t) 	([mf i32_t "status"]);
+	] in
 	reserved
 
 (* Main method for analyzer *)
