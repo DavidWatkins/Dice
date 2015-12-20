@@ -1,0 +1,9 @@
+
+class test {
+  public void main(char[][] args) {
+      print(args[1]);
+      print(args[2]);
+      print(args[3]);
+      print(args.length);
+  }
+}

@@ -139,6 +139,15 @@ test_function(){
 			diff temp_Dice_Tester "$testExceptionsPath"$filename$testExtension >> /dev/null
 			confirmation #function
 		done
+
+		#Test if our executable can take in command line arguments:
+		filename=test-args.dice
+		$diceExecPath $diceOption "$argsPath"test-args.dice 2>temp.ll
+		lli temp.ll david emily phil > tempArgs
+		diff tempArgs "$argsPath"test-args.dice.out >/dev/null
+		confirmation
+		rm tempArgs
+
 	fi
 	echo "" >> session_file
 
@@ -199,6 +208,7 @@ elif [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ] || [ "$testOption" =
 	logFile=Test\ Suite/compiler_tests.log
 	testPath=Test\ Suite/Compiler_Test_Suite/
 	testExceptionsPath=Test\ Suite/Compiler_Test_Suite/Exceptions/
+	argsPath=Test\ Suite/Compiler_Test_Suite/Args/
 	diceOption=-c
 	testExtension=.out
 	test_function

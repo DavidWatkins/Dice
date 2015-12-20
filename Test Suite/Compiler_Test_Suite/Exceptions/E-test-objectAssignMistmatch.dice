@@ -1,0 +1,9 @@
+class A {}
+class B extends A {}
+class C {}
+class test {
+public void main(char[][] args) {
+class A myBObj = new B();
+ class B mySecondBObj = new C();
+ }
+ }

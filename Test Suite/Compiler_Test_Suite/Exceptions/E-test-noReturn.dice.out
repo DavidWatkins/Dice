@@ -1,1 +1,1 @@
-Exceptions.AllNonVoidFunctionsMustEndWithReturn(test.increment.int)
+Exceptions.AllNonVoidFunctionsMustEndWithReturn(test.increment)

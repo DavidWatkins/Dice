@@ -9,11 +9,7 @@ class test b = new test();
 delete b;
 
 delete (new test());
-
-int[][] c = new int[10][20];
-delete c[2]; 
-(* Not sure if this would delete the entire 1-d array )
-( Probably should make this undefined *)
+print("pass");
 
 }
 }
