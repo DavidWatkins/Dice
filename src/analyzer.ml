@@ -48,8 +48,73 @@ let construct_env cmaps cname cmap locals parameters returnType callStack reserv
 	env_reserved   = reserved;
 }
 
-let print_elems = fun () ->
-	Hashtbl.iter (fun a b -> prerr_endline(a ^ " " ^ string_of_int b)) struct_indexes
+let append_code_to_constructor fbody cname ret_type =
+	let key = Hashtbl.find struct_indexes cname in 
+	let init_this = [SLocal(
+		ret_type,
+		"this",
+		SCall(	"cast", 
+				[SCall("malloc", 
+					[	
+						SCall("sizeof", [SId("ignore", ret_type)], Datatype(Int_t), 0)
+					], 
+					Arraytype(Char_t, 1), 0)
+				],
+				ret_type,
+				0
+			)
+		);
+		SExpr(
+			SAssign(
+				SObjAccess(
+					SId("this", ret_type),
+					SId(".key", Datatype(Int_t)),
+					Datatype(Int_t)
+				),
+				SInt_Lit(key),
+				Datatype(Int_t)
+			),
+			Datatype(Int_t)
+		)
+	]
+	in
+	let ret_this = 
+		[
+			SReturn(
+				SId("this", ret_type),
+				ret_type
+			)
+		]
+	in
+	(* Need to check for duplicate default constructs *)
+	(* Also need to add malloc around other constructors *)
+	init_this @ fbody @ ret_this
+
+let default_constructor_body cname = 
+	let ret_type = Datatype(Objecttype(cname)) in
+	let fbody = [] in
+	append_code_to_constructor fbody cname ret_type
+
+let default_sc cname = 
+{
+	sfname 			= Ast.FName (cname ^ "." ^ "constructor");
+	sreturnType 	= Datatype(Objecttype(cname));
+	sformals 		= [];
+	sbody 			= default_constructor_body cname;
+	func_type		= Sast.User;
+	overrides       = false;
+}
+
+let default_c cname = 
+{
+	scope			= Ast.Public;
+	fname 			= Ast.Constructor;
+	returnType 		= Datatype(ConstructorType);
+	formals 		= [];
+	body 			= [];
+	overrides 		= false;
+	root_cname 		= None;
+}
 
 let process_includes filename includes classes =
 	(* Bring in each include  *)
@@ -93,34 +158,35 @@ let get_name_without_class fdecl =
 
 (* Generate list of all classes to be used for semantic checking *)
 let build_class_maps reserved cdecls =
-		let reserved_map = List.fold_left (fun m f -> StringMap.add (Utils.string_of_fname f.sfname) f m) StringMap.empty reserved in
-		(* helper global_obj cdecls *)
-		let helper m (cdecl:Ast.class_decl) =  
-			let fieldfun = (fun m -> (function Field(s, d, n) -> if (StringMap.mem (n) m) then raise(Exceptions.DuplicateField) else (StringMap.add n (Field(s, d, n)) m))) in
-			let funcname = get_name cdecl.cname in
-			let funcfun = 
-				(fun m fdecl -> 
-					if (StringMap.mem (funcname fdecl) m) 
-						then raise(Exceptions.DuplicateFunction(funcname fdecl)) 
-					else if (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
-						then raise(Exceptions.CannotUseReservedFuncName(Utils.string_of_fname fdecl.fname))
-					else (StringMap.add (funcname fdecl) fdecl m)) 
-			in
-			let constructor_name = get_name cdecl.cname in
-			let constructorfun = (fun m fdecl -> 
-									if StringMap.mem (constructor_name fdecl) m 
-										then raise(Exceptions.DuplicateConstructor) 
-										else (StringMap.add (constructor_name fdecl) fdecl m)) 
-			in
-			(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName(cdecl.cname)) else
-				StringMap.add cdecl.cname 
-						{ 	field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
-							func_map = List.fold_left funcfun StringMap.empty cdecl.cbody.methods;
-							constructor_map = List.fold_left constructorfun StringMap.empty cdecl.cbody.constructors; 
-							reserved_map = reserved_map; 
-							cdecl = cdecl } 
-											 m) in
-		List.fold_left helper StringMap.empty cdecls
+	let reserved_map = List.fold_left (fun m f -> StringMap.add (Utils.string_of_fname f.sfname) f m) StringMap.empty reserved in
+	let helper m (cdecl:Ast.class_decl) =  
+		let fieldfun = (fun m -> (function Field(s, d, n) -> if (StringMap.mem (n) m) then raise(Exceptions.DuplicateField) else (StringMap.add n (Field(s, d, n)) m))) in
+		let funcname = get_name cdecl.cname in
+		let funcfun m fdecl = 
+			if (StringMap.mem (funcname fdecl) m) 
+				then raise(Exceptions.DuplicateFunction(funcname fdecl)) 
+			else if (StringMap.mem (Utils.string_of_fname fdecl.fname) reserved_map)
+				then raise(Exceptions.CannotUseReservedFuncName(Utils.string_of_fname fdecl.fname))
+			else (StringMap.add (funcname fdecl) fdecl m)	
+		in
+		let constructor_name = get_name cdecl.cname in
+		let constructorfun m fdecl = 
+			if fdecl.formals = [] then m
+			else if StringMap.mem (constructor_name fdecl) m 
+				then raise(Exceptions.DuplicateConstructor) 
+				else (StringMap.add (constructor_name fdecl) fdecl m)
+		in
+		let default_c = default_c cdecl.cname in
+		let constructor_map = StringMap.add (get_name cdecl.cname default_c) default_c StringMap.empty in
+		(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName(cdecl.cname)) else
+			StringMap.add cdecl.cname 
+			{ 	field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
+				func_map = List.fold_left funcfun StringMap.empty cdecl.cbody.methods;
+				constructor_map = List.fold_left constructorfun constructor_map cdecl.cbody.constructors; 
+				reserved_map = reserved_map; 
+				cdecl = cdecl } 
+										 m) in
+	List.fold_left helper StringMap.empty cdecls
 
 let get_equality_binop_type type1 type2 se1 se2 op = 
 		(* Equality op not supported for float operands. The correct way to test floats 
@@ -323,6 +389,7 @@ and check_call_type isObjAccess env fname el =
 	let index = if func_type = Sast.User 
 		then 
 			let cdecl = cmap.cdecl in
+			(* Not exactly sure why there needs to be a list.rev *)
 			let fns = List.rev cdecl.cbody.methods in
 			let rec find x lst =
 			    match lst with
@@ -554,53 +621,6 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	let sstmt_list = (iter stmt_list), !env_ref in
 	sstmt_list
 
-let append_code_to_constructor fbody cname ret_type =
-	let key = Hashtbl.find struct_indexes cname in 
-	let init_this = [SLocal(
-		ret_type,
-		"this",
-		SCall(	"cast", 
-				[SCall("malloc", 
-					[	
-						SCall("sizeof", [SId("ignore", ret_type)], Datatype(Int_t), 0)
-					], 
-					Arraytype(Char_t, 1), 0)
-				],
-				ret_type,
-				0
-			)
-		);
-		SExpr(
-			SAssign(
-				SObjAccess(
-					SId("this", ret_type),
-					SId(".key", Datatype(Int_t)),
-					Datatype(Int_t)
-				),
-				SInt_Lit(key),
-				Datatype(Int_t)
-			),
-			Datatype(Int_t)
-		)
-	]
-	in
-	let ret_this = 
-		[
-			SReturn(
-				SId("this", ret_type),
-				ret_type
-			)
-		]
-	in
-	(* Need to check for duplicate default constructs *)
-	(* Also need to add malloc around other constructors *)
-	init_this @ fbody @ ret_this
-
-let default_constructor_body cname = 
-	let ret_type = Datatype(Objecttype(cname)) in
-	let fbody = [] in
-	append_code_to_constructor fbody cname ret_type
-
 let append_code_to_main fbody cname ret_type = 
 	let key = Hashtbl.find struct_indexes cname in 
 	let init_this = [SLocal(
@@ -828,9 +848,21 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 	let remove_main func_list = 
 		List.filter (fun f -> not (find_main f)) func_list 
 	in
+	let find_default_constructor cdecl clist = 
+		let default_cname = cdecl.cname ^ "." ^ "constructor" in
+		let find_default_c f =
+			match f.sfname with FName n -> n = default_cname | _ -> false
+		in
+		try let _ = List.find find_default_c clist in
+			clist
+		with | Not_found -> 
+			let default_c = default_sc cdecl.cname in
+			default_c :: clist
+	in
 	let handle_cdecl cdecl = 
 		let class_map = StringMap.find cdecl.cname class_maps in 
 		let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
+		let sconstructor_list = find_default_constructor cdecl sconstructor_list in
 		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl class_maps reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
 		let sfunc_list = remove_main func_list in
 		let scdecl = convert_cdecl_to_sast sfunc_list cdecl in
