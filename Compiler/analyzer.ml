@@ -754,6 +754,27 @@ let inherit_fields class_maps predecessors =
     (*in let _ = print_map result*)
     in result
 
+let build_func_map_inherited_lookup cdecls_inherited = 
+    let build_func_map cdecl =
+        let add_func m fdecl = StringMap.add (get_name cdecl.cname fdecl) fdecl m in
+        List.fold_left add_func StringMap.empty cdecl.cbody.methods
+    in
+    let add_class_func_map m cdecl = StringMap.add cdecl.cname (build_func_map cdecl) m in
+    List.fold_left add_class_func_map StringMap.empty cdecls_inherited
+
+let update_class_map_inherited_methods cmaps func_maps_inherited = 
+    let update_with_inherited_methods cname cmap = 
+        let fmap = StringMap.find cname func_maps_inherited in
+        {
+            field_map = cmap.field_map;
+            func_map = fmap;
+            constructor_map = cmap.constructor_map;
+            reserved_map = cmap.reserved_map;
+        }
+    in
+    let add_updated_cmap cname cmap accum = StringMap.add cname (update_with_inherited_methods cname cmap) accum in
+StringMap.fold add_updated_cmap cmaps StringMap.empty
+
 
 let check_cyclical_inheritance predecessors = print_string "checking for cycles"
 
@@ -765,8 +786,10 @@ let analyze filename program = match program with
 	let class_maps = build_class_maps reserved cdecls in
     let predecessors = build_inheritance_forest cdecls class_maps in
     let cdecls_inherited = inherit_fields_cdecls cdecls predecessors in
+    let func_maps_inherited = build_func_map_inherited_lookup cdecls_inherited in
 	let _ = check_cyclical_inheritance predecessors in
     let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
+    let cmaps_with_inherited_fields_and_methods = update_class_map_inherited_methods cmaps_with_inherited_fields func_maps_inherited in
 	let sast = convert_cdecls_to_sast cmaps_with_inherited_fields reserved cdecls_inherited in
 	let _ = print_string "\ndone with analyzer\n"
     in sast
