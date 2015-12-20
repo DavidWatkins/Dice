@@ -1,10 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define INIT_SIZE 100
+
 struct s {
 	int x;
 	int y;
 };
+
+char* input() {
+	int initial_size = INIT_SIZE;
+	char* str = malloc(initial_size);
+	int index = 0;
+	char tmp = '0';
+	while((tmp = getchar() )!= '\n') {
+		if(index >= initial_size - 1) {
+			str = realloc(str, initial_size *= 2);
+		}
+		str[index++] = tmp;
+	}
+	str[index] = '\0';
+	return str;
+}
 
 void rec_init(long* arr, int curr_offset, int* static_offsets, int* indexes, int* dims, int dimc, int dim_curr) {
 
