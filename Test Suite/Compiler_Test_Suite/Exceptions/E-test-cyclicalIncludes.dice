@@ -1,0 +1,7 @@
+include("Test Suite/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludes2.dice");
+
+class test {
+	public void main(char[][] args) {
+        
+	}
+}
