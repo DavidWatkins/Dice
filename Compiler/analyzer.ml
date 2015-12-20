@@ -504,7 +504,15 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	}
 
 let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
-	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
+    let root_cname = match fdecl.root_cname with 
+        Some(x) -> x
+        | None -> cname
+    in
+    let get_class_formal fdecl = match fdecl.overrides with
+            false -> Ast.Formal(Datatype(Objecttype(cname)), "this")  
+            | true -> Ast.Formal(Datatype(Objecttype(root_cname)), "this")
+    in
+	let class_formal = get_class_formal fdecl in
 	let env = {
 		env_class_maps 	= class_maps;
 		env_name     	= cname;
@@ -518,7 +526,6 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 	let fbody = fst (convert_stmt_list_to_sstmt_list env fdecl.body) in
 	let fbody = if (get_name cname fdecl) = "main" then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) else fbody in
 	(* We add the class as the first parameter to the function for codegen *)
-    (* TODO add fdecl.root_cname to sformals if fdecl.root_cname matches Some(x) *)
 	{
 		sfname 			= Ast.FName (get_name cname fdecl);
 		sreturnType 	= fdecl.returnType;
