@@ -349,7 +349,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				else 
 					_val
 			(* Check functions in parent *)
-		| 	SCall(fname, el, d) 	-> codegen_func_call fname parent_expr el d llbuilder
+		| 	SCall(fname, el, d, _) 	-> codegen_func_call fname parent_expr el d llbuilder
 			(* Set parent, check if base is field *)
 		| 	SObjAccess(e1, e2, d) 	-> 
 				let e1_type = Analyzer.get_type_from_sexpr e1 in
@@ -486,7 +486,7 @@ and codegen_sexpr llbuilder = function
 	|   SArrayCreate(t, el, d)    	-> codegen_array_create llbuilder t d el
 	|   SArrayAccess(e, el, d)    	-> codegen_array_access false e el d llbuilder
 	|   SObjAccess(e1, e2, d)     	-> codegen_obj_access true e1 e2 d llbuilder
-	|   SCall(fname, el, d)       	-> codegen_call llbuilder d el fname		
+	|   SCall(fname, el, d, _)       	-> codegen_call llbuilder d el fname		
 	|   SObjectCreate(id, el, d)  	-> codegen_obj_create id el d llbuilder
 	|   SArrayPrimitive(el, d)    	-> codegen_array_prim d el llbuilder 
 	|   SUnop(op, e, d)           	-> handle_unop op e d llbuilder

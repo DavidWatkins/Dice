@@ -107,7 +107,7 @@ and string_of_sexpr = function
 	|	SAssign(e1, e2, _)			-> (string_of_sexpr e1) ^ " = " ^ (string_of_sexpr e2)
 	|	SNoexpr	_					-> ""
 	|	SObjAccess(e1, e2, _)		-> (string_of_sexpr e1) ^ "." ^ (string_of_sexpr e2)
-	|	SCall(f, el, _)				-> f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+	|	SCall(f, el, _, _)			-> f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
 	|	SArrayPrimitive(el, _)		-> "|" ^ (string_of_sarray_primitive el) ^ "|"
 	|  	SUnop(op, e, _)				-> (string_of_op op) ^ "(" ^ string_of_sexpr e ^ ")"
 	|	SNull _						-> "null"
@@ -357,7 +357,7 @@ let rec map_sexpr_to_json =
 	|   SArrayCreate(t, el, d)  -> `Assoc [("arraycreate", `Assoc ([("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SArrayAccess(e, el, d)  -> `Assoc [("arrayaccess", `Assoc ([("array", map_sexpr_to_json e); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SObjAccess(e1, e2, d)   -> `Assoc [("objaccess", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "."); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
-	|   SCall(fname, el, d)     -> `Assoc [("call", `Assoc ([("name", `String fname); ("params", `List (List.map map_sexpr_to_json el)); ] @ (datatype d)) )]
+	|   SCall(fname, el, d, i)  -> `Assoc [("call", `Assoc ([("name", `String fname); ("params", `List (List.map map_sexpr_to_json el)); ("index", `Int i) ] @ (datatype d)) )]
 	|   SObjectCreate(s, el, d) -> `Assoc [("objectcreate", `Assoc ([("type", `String s); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SArrayPrimitive(el, d)  -> `Assoc [("arrayprimitive", `Assoc ([("expressions", `List(List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SUnop(op, e, d)         -> `Assoc [("Unop", `Assoc ([("op", `String (string_of_op op)); ("operand", map_sexpr_to_json e)] @ (datatype d)))]

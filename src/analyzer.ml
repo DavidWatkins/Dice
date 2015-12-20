@@ -313,7 +313,7 @@ and check_call_type isObjAccess env fname el =
 	(* Add a reference to the class in front of the function call *)
 	(* Must properly handle the case where this is a reserved function *)
 	let sel = if func_type = Sast.User then sel else sel in
-	SCall(fname, sel, ftype)
+	SCall(fname, sel, ftype, 0)
 
 and check_object_constructor env s el = 
 	let sel, env = exprl_to_sexprl env el in
@@ -425,7 +425,7 @@ and get_type_from_sexpr = function
 	| 	SArrayCreate(_, _, d)	-> d
 	| 	SArrayAccess(_, _, d) 	-> d
 	| 	SObjAccess(_, _, d)		-> d
-	| 	SCall(_, _, d) 			-> d
+	| 	SCall(_, _, d, _)		-> d
 	|   SObjectCreate(_, _, d) 	-> d
 	| 	SArrayPrimitive(_, d)	-> d
 	|  	SUnop(_, _, d) 			-> d
@@ -538,11 +538,12 @@ let append_code_to_constructor fbody cname ret_type =
 		SCall(	"cast", 
 				[SCall("malloc", 
 					[	
-						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t))
+						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t), 0)
 					], 
-					Arraytype(Char_t, 1))
+					Arraytype(Char_t, 1), 0)
 				],
-				ret_type
+				ret_type,
+				0
 			)
 		)
 	]
@@ -571,11 +572,11 @@ let append_code_to_main fbody cname ret_type =
 		SCall(	"cast", 
 				[SCall("malloc", 
 					[	
-						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t))
+						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t), 0)
 					], 
-					Arraytype(Char_t, 1))
+					Arraytype(Char_t, 1), 0)
 				],
-				ret_type
+				ret_type, 0
 			)
 		)
 	]
