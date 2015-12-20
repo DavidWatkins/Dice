@@ -47,7 +47,8 @@ type func_decl = {
 	returnType : datatype;
 	formals : formal list;
 	body : stmt list;
-    overrides: bool;
+    overrides : bool;
+    root_cname : string option;
 }
 
 type cbody = {

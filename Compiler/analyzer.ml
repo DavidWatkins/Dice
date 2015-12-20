@@ -500,7 +500,7 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		sformals 		= constructor.formals;
 		sbody 			= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
 		func_type		= Sast.User;
-        overrides       = constructor.overrides;
+        overrides       = false;
 	}
 
 let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
@@ -518,6 +518,7 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 	let fbody = fst (convert_stmt_list_to_sstmt_list env fdecl.body) in
 	let fbody = if (get_name cname fdecl) = "main" then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) else fbody in
 	(* We add the class as the first parameter to the function for codegen *)
+    (* TODO add fdecl.root_cname to sformals if fdecl.root_cname matches Some(x) *)
 	{
 		sfname 			= Ast.FName (get_name cname fdecl);
 		sreturnType 	= fdecl.returnType;
@@ -536,20 +537,44 @@ let convert_cdecl_to_sast sfdecls (cdecl:Ast.class_decl) =
 
 let print_fields cdecl = List.iter (fun x -> print_string (Utils.string_of_field x)) cdecl.cbody.fields; print_string "\n\n\n"
 
-let replace_fdecl_in_base_methods base_methods child_fdecl = 
+let replace_fdecl_in_base_methods base_cname base_methods child_fdecl = 
 (* Given a list of func_decls for the base class and a single func_decl
 for the child class, replaces func_decls for the base class if any of them 
 have the same method signature *)
-(*
 let replace base_fdecl accum = 
-if (get_name_without_class base_fdecl) = (get_name_without_class base_fdecl) 
-    then child_fdecl::accum else base_fdecl::accum
-List.fold_right replace base_methods [] in
+    let get_root_cname = function
+        None -> Some(base_cname)
+        | Some(x) -> Some(x)
+    in
+    let modify_child_fdecl = 
+    {
+        scope = child_fdecl.scope;
+        fname = child_fdecl.fname;
+        returnType = child_fdecl.returnType;
+        formals = child_fdecl.formals;
+        body = child_fdecl.body;
+        overrides = true;
+        root_cname = get_root_cname base_fdecl.root_cname;
+    } in
+    if (get_name_without_class base_fdecl) = (get_name_without_class child_fdecl) 
+    then modify_child_fdecl::accum else base_fdecl::accum
+in
+List.fold_right replace base_methods []
+(*
+in let _ = List.iter (fun base_fdecl -> print_string (get_name base_cname base_fdecl)) res
+in let _ = print_string "\n\n"
+in res
 *)
-base_methods
 
-let merge_methods base_methods child_methods =
-child_methods
+let merge_methods base_cname base_methods child_methods =
+    let check_overrides child_fdecl accum = 
+        let base_checked_for_overrides = replace_fdecl_in_base_methods base_cname (fst accum) child_fdecl in
+        if (fst accum) = base_checked_for_overrides
+        then ((fst accum), child_fdecl::(snd accum)) else (base_checked_for_overrides, (snd accum))
+    in
+    let updated_base_and_child_fdecls = 
+    List.fold_right check_overrides child_methods (base_methods, [])
+in (fst updated_base_and_child_fdecls) @ (snd updated_base_and_child_fdecls)
 
 let merge_cdecls base_cdecl child_cdecl = 
 (* return a cdecl in which cdecl.cbody.fields contains the fields of 
@@ -558,7 +583,7 @@ the extended class, concatenated by the fields of the child class *)
         {
             fields = base_cdecl.cbody.fields @ child_cdecl.cbody.fields;
              constructors = child_cdecl.cbody.constructors;
-             methods = merge_methods base_cdecl.cbody.methods child_cdecl.cbody.methods
+             methods = merge_methods base_cdecl.cname base_cdecl.cbody.methods child_cdecl.cbody.methods
         }
         in
         {
@@ -635,7 +660,7 @@ let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) =
 		let class_map = StringMap.find cdecl.cname class_maps in 
         let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
 		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl class_maps reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
-        let scdecl = convert_cdecl_to_sast (func_list @ sconstructor_list) cdecl in
+        let scdecl = convert_cdecl_to_sast func_list cdecl in
 		(scdecl, func_list @ sconstructor_list)
 	in 
         let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
