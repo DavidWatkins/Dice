@@ -49,6 +49,7 @@ exception CanOnlyAccessLengthOfArray
 exception CanOnlyDeleteObjectsOrArrays
 exception CannotAccessLengthOfCharArray
 exception AllNonVoidFunctionsMustEndWithReturn of string
+exception CyclicalDependencyBetween of string * string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

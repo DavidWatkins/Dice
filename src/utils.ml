@@ -6,13 +6,13 @@ open Processor
 open Yojson
 
 let save file string =
-     let channel = open_out file in
-     output_string channel string;
-     close_out channel
+	 let channel = open_out file in
+	 output_string channel string;
+	 close_out channel
 
 let replace input output =
-    Str.global_replace (Str.regexp_string input) output
-    
+	Str.global_replace (Str.regexp_string input) output
+	
 (* Print data types *)
 
 let string_of_scope = function 
@@ -45,7 +45,7 @@ let string_of_datatype = function
 (* Print expressions *)
 
 let string_of_op = function
-	   	Add			-> "+"	
+		Add			-> "+"	
 	 | 	Sub			-> "-"	
 	 | 	Mult		-> "*"	
 	 | 	Div			-> "/"	
@@ -84,9 +84,9 @@ and string_of_expr = function
 	|  	Unop(op, e)				-> (string_of_op op) ^ "(" ^ string_of_expr e ^ ")"
 	|	Null					-> "null"
 	|   ArrayCreate(d, el)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_expr el
-  	|   ArrayAccess(e, el)  	-> (string_of_expr e) ^ (string_of_bracket_expr el)
-  	|   ObjectCreate(s, el) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  	| 	Delete(e) 				-> "delete (" ^ (string_of_expr e) ^ ")"
+	|   ArrayAccess(e, el)  	-> (string_of_expr e) ^ (string_of_bracket_expr el)
+	|   ObjectCreate(s, el) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+	| 	Delete(e) 				-> "delete (" ^ (string_of_expr e) ^ ")"
 ;;
 
 let rec string_of_bracket_sexpr = function
@@ -112,9 +112,9 @@ and string_of_sexpr = function
 	|  	SUnop(op, e, _)				-> (string_of_op op) ^ "(" ^ string_of_sexpr e ^ ")"
 	|	SNull _						-> "null"
 	|   SArrayCreate(d, el, _)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_sexpr el
-  	|   SArrayAccess(e, el, _)  	-> (string_of_sexpr e) ^ (string_of_bracket_sexpr el)
-  	|   SObjectCreate(s, el, _) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
-  	| 	SDelete(e) 					-> "delete (" ^ (string_of_sexpr e) ^ ")"
+	|   SArrayAccess(e, el, _)  	-> (string_of_sexpr e) ^ (string_of_bracket_sexpr el)
+	|   SObjectCreate(s, el, _) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+	| 	SDelete(e) 					-> "delete (" ^ (string_of_sexpr e) ^ ")"
 ;;
 
 let string_of_local_expr = function
@@ -125,7 +125,7 @@ let string_of_local_expr = function
 
 let rec string_of_stmt indent =
 	let indent_string = String.make indent '\t' in
- 	let get_stmt_string = function 
+	let get_stmt_string = function 
 
 			Block(stmts) 			-> 
 				indent_string ^ "{\n" ^ 
@@ -167,7 +167,7 @@ let string_of_local_sexpr = function
 
 let rec string_of_sstmt indent =
 	let indent_string = String.make indent '\t' in
- 	let get_stmt_string = function 
+	let get_stmt_string = function 
 
 			SBlock(stmts) 			-> 
 				indent_string ^ "{\n" ^ 
@@ -293,9 +293,9 @@ let rec map_expr_to_json = function
 	|  	Unop(op, e)				-> `Assoc [("Unop", `Assoc [("op", `String (string_of_op op)); ("operand", map_expr_to_json e)])]
 	|	Null					-> `String "null"
 	|   ArrayCreate(d, el)  	-> `Assoc [("arraycreate", `Assoc [("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_expr_to_json el))])]
-  	|   ArrayAccess(e, el)  	-> `Assoc [("arrayaccess", `Assoc [("array", map_expr_to_json e); ("args", `List (List.map map_expr_to_json el))])]
-  	|   ObjectCreate(s, el) 	-> `Assoc [("objectcreate", `Assoc [("type", `String s); ("args", `List (List.map map_expr_to_json el))])]
-  	| 	Delete(e) 				-> `Assoc [("delete", `Assoc [("expr", map_expr_to_json e)])]
+	|   ArrayAccess(e, el)  	-> `Assoc [("arrayaccess", `Assoc [("array", map_expr_to_json e); ("args", `List (List.map map_expr_to_json el))])]
+	|   ObjectCreate(s, el) 	-> `Assoc [("objectcreate", `Assoc [("type", `String s); ("args", `List (List.map map_expr_to_json el))])]
+	| 	Delete(e) 				-> `Assoc [("delete", `Assoc [("expr", map_expr_to_json e)])]
 
 let rec map_stmt_to_json = function
 		Block(stmts) 			-> `Assoc [("block", `List (List.map (map_stmt_to_json) stmts))]
@@ -398,6 +398,7 @@ let map_scdecls_to_json scdecls =
 							`Assoc[
 								("scname", `String scdecl.scname); 
 								("sfields", map_fields_to_json scdecl.sfields);
+								("sfuncs", map_sfdecls_to_json scdecl.sfuncs);
 							])
 						]) 
 		scdecls)
@@ -528,16 +529,16 @@ let string_of_token_no_id = function
 
 let token_list_to_string_endl token_list =
   let rec helper last_line_number = function
-    	(token, curr)::tail ->
-    	let line = curr.lineno in 
-        (if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^
-        string_of_token token ^ helper line tail
-    | 	[] -> "\n"
+		(token, curr)::tail ->
+		let line = curr.lineno in 
+		(if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^
+		string_of_token token ^ helper line tail
+	| 	[] -> "\n"
   in helper 0 token_list
 
 let token_list_to_string token_list =
   let rec helper = function
-    	(token, line)::tail ->
-        string_of_token_no_id token ^ " " ^ helper tail
-    | 	[] -> "\n"
+		(token, line)::tail ->
+		string_of_token_no_id token ^ " " ^ helper tail
+	| 	[] -> "\n"
   in helper token_list

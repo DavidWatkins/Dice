@@ -39,11 +39,13 @@ type sfunc_decl = {
 	sformals : formal list;
 	sbody : sstmt list;
 	func_type : func_type;
+	overrides : bool;
 }
 
 type sclass_decl = {
 	scname : string;
 	sfields : field list;
+	sfuncs: sfunc_decl list;
 }
 
 (* Class Declarations | All method declarations | Main entry method *)

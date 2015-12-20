@@ -7,11 +7,13 @@ open Conf
 
 module StringMap = Map.Make (String)
 
+module StringSet = Set.Make (String)
+
 module SS = Set.Make(
-    struct
-        let compare = Pervasives.compare
-        type t = datatype
-    end )
+	struct
+		let compare = Pervasives.compare
+		type t = datatype
+	end )
 
 type class_map = {
 		field_map       : Ast.field StringMap.t;
@@ -77,6 +79,12 @@ let get_name cname fdecl =
 		then "main"
 		else cname ^ "." ^ name ^ params
 
+let get_name_without_class fdecl = 
+	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
+	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
+	let name = Utils.string_of_fname fdecl.fname in
+    name ^ params
+
 (* Generate list of all classes to be used for semantic checking *)
 let build_class_maps reserved cdecls =
 		let reserved_map = List.fold_left (fun m f -> StringMap.add (Utils.string_of_fname f.sfname) f m) StringMap.empty reserved in
@@ -108,47 +116,47 @@ let build_class_maps reserved cdecls =
 		List.fold_left helper StringMap.empty cdecls
 
 let get_equality_binop_type type1 type2 se1 se2 op = 
-        (* Equality op not supported for float operands. The correct way to test floats 
-           for equality is to check the difference between the operands in question *)
-	    if (type1 = Datatype(Float_t) || type2 = Datatype(Float_t)) then raise (Exceptions.InvalidBinopExpression "Equality operation is not supported for Float types")
-        else 
-        match type1, type2 with
-        	Datatype(Char_t), Datatype(Int_t) 
-        | 	Datatype(Int_t), Datatype(Char_t)
-       	| 	Datatype(Objecttype(_)), Datatype(Null_t)
-       	| 	Datatype(Null_t), Datatype(Objecttype(_))
-       	| 	Datatype(Null_t), Arraytype(_, _)
-       	| 	Arraytype(_, _), Datatype(Null_t) -> SBinop(se1, op, se2, Datatype(Bool_t))
-       	| _ ->
-       		if type1 = type2 then SBinop(se1, op, se2, Datatype(Bool_t))
-       		else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
+		(* Equality op not supported for float operands. The correct way to test floats 
+		   for equality is to check the difference between the operands in question *)
+		if (type1 = Datatype(Float_t) || type2 = Datatype(Float_t)) then raise (Exceptions.InvalidBinopExpression "Equality operation is not supported for Float types")
+		else 
+		match type1, type2 with
+			Datatype(Char_t), Datatype(Int_t) 
+		| 	Datatype(Int_t), Datatype(Char_t)
+		| 	Datatype(Objecttype(_)), Datatype(Null_t)
+		| 	Datatype(Null_t), Datatype(Objecttype(_))
+		| 	Datatype(Null_t), Arraytype(_, _)
+		| 	Arraytype(_, _), Datatype(Null_t) -> SBinop(se1, op, se2, Datatype(Bool_t))
+		| _ ->
+			if type1 = type2 then SBinop(se1, op, se2, Datatype(Bool_t))
+			else raise (Exceptions.InvalidBinopExpression "Equality operator can't operate on different types, with the exception of Int_t and Char_t")
 
 
 let get_logical_binop_type se1 se2 op = function 
-        (Datatype(Bool_t), Datatype(Bool_t)) -> SBinop(se1, op, se2, Datatype(Bool_t))
-        | _ -> raise (Exceptions.InvalidBinopExpression "Logical operators only operate on Bool_t types")
+		(Datatype(Bool_t), Datatype(Bool_t)) -> SBinop(se1, op, se2, Datatype(Bool_t))
+		| _ -> raise (Exceptions.InvalidBinopExpression "Logical operators only operate on Bool_t types")
 
 
 let get_comparison_binop_type type1 type2 se1 se2 op =  
-    let numerics = SS.of_list [Datatype(Int_t); Datatype(Char_t); Datatype(Float_t)]
-    in
-        if SS.mem type1 numerics && SS.mem type2 numerics
-            then SBinop(se1, op, se2, Datatype(Bool_t))
-        else raise (Exceptions.InvalidBinopExpression "Comparison operators operate on numeric types only")
+	let numerics = SS.of_list [Datatype(Int_t); Datatype(Char_t); Datatype(Float_t)]
+	in
+		if SS.mem type1 numerics && SS.mem type2 numerics
+			then SBinop(se1, op, se2, Datatype(Bool_t))
+		else raise (Exceptions.InvalidBinopExpression "Comparison operators operate on numeric types only")
 
 
 let get_arithmetic_binop_type se1 se2 op = function 
-        	(Datatype(Int_t), Datatype(Float_t)) 
-        | 	(Datatype(Float_t), Datatype(Int_t)) 
-        | 	(Datatype(Float_t), Datatype(Float_t)) 	-> SBinop(se1, op, se2, Datatype(Float_t))
+			(Datatype(Int_t), Datatype(Float_t)) 
+		| 	(Datatype(Float_t), Datatype(Int_t)) 
+		| 	(Datatype(Float_t), Datatype(Float_t)) 	-> SBinop(se1, op, se2, Datatype(Float_t))
 
-        | 	(Datatype(Int_t), Datatype(Char_t)) 
-        | 	(Datatype(Char_t), Datatype(Int_t)) 
-        | 	(Datatype(Char_t), Datatype(Char_t)) 	-> SBinop(se1, op, se2, Datatype(Char_t))
+		| 	(Datatype(Int_t), Datatype(Char_t)) 
+		| 	(Datatype(Char_t), Datatype(Int_t)) 
+		| 	(Datatype(Char_t), Datatype(Char_t)) 	-> SBinop(se1, op, se2, Datatype(Char_t))
 
-        | 	(Datatype(Int_t), Datatype(Int_t)) 		-> SBinop(se1, op, se2, Datatype(Int_t))
+		| 	(Datatype(Int_t), Datatype(Int_t)) 		-> SBinop(se1, op, se2, Datatype(Int_t))
 
-        | _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
+		| _ -> raise (Exceptions.InvalidBinopExpression "Arithmetic operators don't support these types")
 
 let rec get_ID_type env s = 
 	try StringMap.find s env.env_locals
@@ -365,12 +373,12 @@ and check_binop env e1 op e2 =
 	let se2, env = expr_to_sexpr env e2 in
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in
-    match op with
-    Equal | Neq -> get_equality_binop_type type1 type2 se1 se2 op
-    | And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
-    | Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
-    | Add | Mult | Sub | Div | Mod -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
-    | _ -> raise (Exceptions.InvalidBinopExpression ((Utils.string_of_op op) ^ " is not a supported binary op"))
+	match op with
+	Equal | Neq -> get_equality_binop_type type1 type2 se1 se2 op
+	| And | Or -> get_logical_binop_type se1 se2 op (type1, type2)
+	| Less | Leq | Greater | Geq -> get_comparison_binop_type type1 type2 se1 se2 op
+	| Add | Mult | Sub | Div | Mod -> get_arithmetic_binop_type se1 se2 op (type1, type2) 
+	| _ -> raise (Exceptions.InvalidBinopExpression ((Utils.string_of_op op) ^ " is not a supported binary op"))
 
 and check_delete env e = 
 	let se, _ = expr_to_sexpr env e in
@@ -427,11 +435,11 @@ and get_type_from_sexpr = function
 and exprl_to_sexprl env el =
   let env_ref = ref(env) in
   let rec helper = function
-      head::tail ->
-        let a_head, env = expr_to_sexpr !env_ref head in
-        env_ref := env;
-        a_head::(helper tail)
-    | [] -> []
+	  head::tail ->
+		let a_head, env = expr_to_sexpr !env_ref head in
+		env_ref := env;
+		a_head::(helper tail)
+	| [] -> []
   in (helper el), !env_ref
 
 let rec local_handler d s e env = 
@@ -476,7 +484,7 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 
 		| 	Expr e 					-> 	let se, env = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in 
-									   	SExpr(se, t), env
+										SExpr(se, t), env
 
 		| 	Return e 				-> 	let se, _ = expr_to_sexpr env e in
 										let t = get_type_from_sexpr se in
@@ -515,9 +523,9 @@ let rec convert_stmt_list_to_sstmt_list env stmt_list =
 	let env_ref = ref(env) in
 	let rec iter = function
 	  head::tail ->
-	    let a_head, env = helper !env_ref head in
-	    env_ref := env;
-	    a_head::(iter tail)
+		let a_head, env = helper !env_ref head in
+		env_ref := env;
+		a_head::(iter tail)
 	| [] -> []
 	in 
 	let sstmt_list = (iter stmt_list), !env_ref in
@@ -587,11 +595,12 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	} in 
 	let fbody = fst (convert_stmt_list_to_sstmt_list env constructor.body) in
 	{
-		sfname 			= Ast.FName (get_name cname constructor);
-		sreturnType 	= Datatype(Objecttype(cname));
-		sformals 		= constructor.formals;
-		sbody 			= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
-		func_type		= Sast.User;
+		sfname 		= Ast.FName (get_name cname constructor);
+		sreturnType = Datatype(Objecttype(cname));
+		sformals 	= constructor.formals;
+		sbody 		= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
+		func_type	= Sast.User;
+		overrides 	= false;
 	}
 
 let check_fbody fname fbody returnType =
@@ -602,21 +611,39 @@ let check_fbody fname fbody returnType =
 	| 	_ -> raise(Exceptions.AllNonVoidFunctionsMustEndWithReturn(fname))
 
 let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
-	let class_formal = Ast.Formal(Datatype(Objecttype(cname)), "this") in
+	let root_cname = match fdecl.root_cname with 
+        Some(x) -> x
+        | None -> cname
+    in
+    let class_formal = 
+    	if fdecl.overrides then 
+    		Ast.Formal(Datatype(Objecttype(root_cname)), "this")
+    	else 
+    		Ast.Formal(Datatype(Objecttype(cname)), "this")
+    in
+	let env_param_helper m fname = match fname with 
+			Formal(d, s) -> (StringMap.add s fname m) 
+		| 	_ -> m
+	in
+	let env_params = List.fold_left env_param_helper StringMap.empty (class_formal :: fdecl.formals) in
 	let env = {
 		env_class_maps 	= class_maps;
 		env_name     	= cname;
 		env_cmap 		= class_map;
 		env_locals    	= StringMap.empty;
-		env_parameters	= List.fold_left (fun m f -> match f with Formal(d, s) -> (StringMap.add s f m) | _ -> m) StringMap.empty (class_formal :: fdecl.formals);
+		env_parameters	= env_params;
 		env_returnType	= fdecl.returnType;
 		env_callStack 	= false;
 		env_reserved 	= reserved;
-	} in
+	} 
+	in
 	let fbody = fst (convert_stmt_list_to_sstmt_list env fdecl.body) in
 	let fname = (get_name cname fdecl) in
 	ignore(check_fbody fname fbody fdecl.returnType);
-	let fbody = if fname = "main" then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) else fbody in
+	let fbody = if fname = "main" 
+		then (append_code_to_main fbody cname (Datatype(Objecttype(cname)))) 
+		else fbody 
+	in
 	(* We add the class as the first parameter to the function for codegen *)
 	{
 		sfname 			= Ast.FName (get_name cname fdecl);
@@ -624,20 +651,126 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		sformals 		= class_formal :: fdecl.formals;
 		sbody 			= fbody;
 		func_type		= Sast.User;
+		overrides       = fdecl.overrides;
 	}
 
-let convert_cdecl_to_sast (cdecl:Ast.class_decl) = 
+let convert_cdecl_to_sast sfdecls (cdecl:Ast.class_decl) = 
 	{
 		scname = cdecl.cname;
 		sfields = cdecl.cbody.fields;
+		sfuncs = sfdecls;
 	}
+
+(* 
+ * Given a list of func_decls for the base class and a single func_decl
+ * for the child class, replaces func_decls for the base class if any of them 
+ * have the same method signature 
+ *)
+let replace_fdecl_in_base_methods base_cname base_methods child_fdecl = 
+	let replace base_fdecl accum = 
+		let get_root_cname = function
+			None -> Some(base_cname)
+			| Some(x) -> Some(x)
+		in
+		let modify_child_fdecl = 
+			{
+				scope = child_fdecl.scope;
+				fname = child_fdecl.fname;
+				returnType = child_fdecl.returnType;
+				formals = child_fdecl.formals;
+				body = child_fdecl.body;
+				overrides = true;
+				root_cname = get_root_cname base_fdecl.root_cname;
+			} 
+		in
+		if (get_name_without_class base_fdecl) = (get_name_without_class child_fdecl) 
+			then modify_child_fdecl::accum 
+			else base_fdecl::accum
+	in
+	List.fold_right replace base_methods []
+
+let merge_methods base_cname base_methods child_methods =
+	let check_overrides child_fdecl accum = 
+		let base_checked_for_overrides = 
+			replace_fdecl_in_base_methods base_cname (fst accum) child_fdecl 
+		in
+		if (fst accum) = base_checked_for_overrides
+			then ((fst accum), child_fdecl::(snd accum)) 
+			else (base_checked_for_overrides, (snd accum))
+	in
+	let updated_base_and_child_fdecls = 
+		List.fold_right check_overrides child_methods (base_methods, [])
+	in
+	(fst updated_base_and_child_fdecls) @ (snd updated_base_and_child_fdecls)
+
+let merge_cdecls base_cdecl child_cdecl = 
+(* return a cdecl in which cdecl.cbody.fields contains the fields of 
+the extended class, concatenated by the fields of the child class *)
+	let child_cbody = 
+		{
+			fields = base_cdecl.cbody.fields @ child_cdecl.cbody.fields;
+			 constructors = child_cdecl.cbody.constructors;
+			 methods = merge_methods base_cdecl.cname base_cdecl.cbody.methods child_cdecl.cbody.methods
+		}
+		in
+		{
+			cname = child_cdecl.cname;
+			extends = child_cdecl.extends;
+			cbody = child_cbody
+		}
+
+(* returns a list of cdecls that contains inherited fields *)
+let inherit_fields_cdecls cdecls inheritance_forest = 
+	(* iterate through cdecls to make a map for lookup *)
+	let cdecl_lookup = List.fold_left (fun a litem -> StringMap.add litem.cname litem a) StringMap.empty cdecls in
+	let add_key key pred maps = 
+		let elem1 = StringSet.add key (fst maps) in
+		let accum acc child = StringSet.add child acc in
+		let elem2 = List.fold_left (accum) (snd maps) pred in
+		(elem1, elem2)
+	in
+	let empty_s = StringSet.empty in
+	let res = StringMap.fold add_key inheritance_forest (empty_s, empty_s) in
+	let roots = StringSet.diff (fst res) (snd res) in
+	let rec add_inherited_fields predec desc map_to_update = 
+		let merge_fields accum descendant = 
+			let updated_predec_cdecl = StringMap.find predec accum in 
+			let descendant_cdecl_to_update = StringMap.find descendant cdecl_lookup in
+			let merged = merge_cdecls updated_predec_cdecl descendant_cdecl_to_update in 
+			let updated = (StringMap.add descendant merged accum) in 
+			if (StringMap.mem descendant inheritance_forest) then 
+				let descendants_of_descendant = StringMap.find descendant inheritance_forest in
+				add_inherited_fields descendant descendants_of_descendant updated
+			else updated
+		in
+		List.fold_left merge_fields map_to_update desc
+	in
+	(* map class name of every class_decl in `cdecls` to its inherited cdecl *)
+	let inherited_cdecls = 
+		let traverse_tree tree_root accum = 
+			let tree_root_descendant = StringMap.find tree_root inheritance_forest in 
+			let accum_with_tree_root_mapping = StringMap.add tree_root (StringMap.find tree_root cdecl_lookup) accum in
+			add_inherited_fields tree_root tree_root_descendant accum_with_tree_root_mapping
+		in
+		StringSet.fold traverse_tree roots StringMap.empty 
+	in
+	(* build a list of updated cdecls corresponding to the sequence of cdecls in `cdecls` *)
+	let add_inherited_cdecl cdecl accum = 
+		let inherited_cdecl = 
+			try StringMap.find cdecl.cname inherited_cdecls 
+			with | Not_found -> cdecl
+		in
+		inherited_cdecl::accum
+	in
+	let result = List.fold_right add_inherited_cdecl cdecls [] in
+	result
 
 let convert_cdecls_to_sast class_maps reserved (cdecls:Ast.class_decl list) = 
 	let handle_cdecl cdecl = 
 		let class_map = StringMap.find cdecl.cname class_maps in 
-		let scdecl = convert_cdecl_to_sast cdecl in
 		let sconstructor_list = List.fold_left (fun l c -> (convert_constructor_to_sfdecl class_maps reserved class_map cdecl.cname c) :: l) [] cdecl.cbody.constructors in
 		let func_list = List.fold_left (fun l f -> (convert_fdecl_to_sfdecl class_maps reserved class_map cdecl.cname f) :: l) [] cdecl.cbody.methods in
+		let scdecl = convert_cdecl_to_sast func_list cdecl in
 		(scdecl, func_list @ sconstructor_list)
 	in 
 		let overall_list = List.fold_left (fun t c -> let scdecl = handle_cdecl c in (fst scdecl :: fst t, snd scdecl @ snd t)) ([], []) cdecls in
@@ -661,6 +794,7 @@ let add_reserved_functions =
 			sformals 		= formals;
 			sbody 			= [];
 			func_type		= Sast.Reserved;
+			overrides 		= false;
 		}
 	in
 	let i32_t = Datatype(Int_t) in
@@ -681,11 +815,131 @@ let add_reserved_functions =
 	] in
 	reserved
 
+let build_inheritance_forest cdecls cmap = 
+	let handler a cdecl =
+		match cdecl.extends with 
+			Parent(s) 	-> 
+				if (StringMap.mem s a) then 
+					(StringMap.add s (cdecl.cname::(StringMap.find s a)) a) 
+				else
+					StringMap.add s [cdecl.cname] a 
+		| 	NoParent 	-> a
+	in
+	let forest = List.fold_left handler StringMap.empty cdecls in
+
+	let handler key value = 
+		if not (StringMap.mem key cmap) then 
+			raise (Exceptions.UndefinedClass key)
+	in
+	ignore(StringMap.iter handler forest);
+	forest
+
+let merge_maps m1 m2 = 
+	StringMap.fold (fun k v a -> StringMap.add k v a) m1 m2
+
+let update_class_maps map_type cmap_val cname cmap_to_update = 
+	let update m map_type = 
+		if map_type = "field_map" then
+			{
+				field_map = cmap_val;
+				func_map = m.func_map;
+				constructor_map = m.constructor_map;
+				reserved_map = m.reserved_map;
+			}
+		else m
+	in
+	let updated = StringMap.find cname cmap_to_update in
+	let updated = update updated map_type in
+	let updated = StringMap.add cname updated cmap_to_update in
+	updated
+
+let inherit_fields class_maps predecessors =
+	(* Get basic inheritance map *)
+	let add_key key pred map = StringMap.add key pred map in
+	let cmaps_inherit = StringMap.fold add_key class_maps StringMap.empty in
+	(* Perform accumulation of child classes *)
+	let add_key key pred maps = 
+		let elem1 = StringSet.add key (fst maps) in
+		let accum acc child = StringSet.add child acc in
+		let elem2 = List.fold_left (accum) (snd maps) pred in
+		(elem1, elem2)
+	in
+	let empty_s = StringSet.empty in
+	let res = StringMap.fold add_key predecessors (empty_s, empty_s) in
+	let roots = StringSet.diff (fst res) (snd res) in
+	(*in let _ = print_set_members roots*)
+	let rec add_inherited_fields predec desc cmap_to_update = 
+		let cmap_inherit accum descendant = 
+			let predec_field_map = (StringMap.find predec accum).field_map in
+			let desc_field_map = (StringMap.find descendant accum).field_map in 
+			let merged = merge_maps predec_field_map desc_field_map in 
+			let updated = update_class_maps "field_map" merged descendant accum in
+			if (StringMap.mem descendant predecessors) then 
+				let descendants_of_descendant = StringMap.find descendant predecessors in
+				add_inherited_fields descendant descendants_of_descendant updated 
+			else updated
+		in
+		List.fold_left cmap_inherit cmap_to_update desc
+		(* end of add_inherited_fields *)
+	in 
+	let result = StringSet.fold (fun x a -> add_inherited_fields x (StringMap.find x predecessors) a) roots cmaps_inherit
+	(*in let _ = print_map result*)
+	in result
+
+(* TODO Check that this actually works *)
+let check_cyclical_inheritance cdecls predecessors = 
+	let handle_predecessor cdecl parent predecessor =
+		if cdecl.cname = predecessor then
+			raise(Exceptions.CyclicalDependencyBetween(cdecl.cname, parent))
+	in
+	let handle_cdecl cdecl = 
+		if StringMap.mem cdecl.cname predecessors
+			then 
+				let pred_list = StringMap.find cdecl.cname predecessors in
+				List.iter (handle_predecessor cdecl (List.hd pred_list)) pred_list
+			else ()
+	in
+	List.iter handle_cdecl cdecls
+
+let build_func_map_inherited_lookup cdecls_inherited = 
+	let build_func_map cdecl =
+		let add_func m fdecl = StringMap.add (get_name cdecl.cname fdecl) fdecl m in
+		List.fold_left add_func StringMap.empty cdecl.cbody.methods
+	in
+	let add_class_func_map m cdecl = StringMap.add cdecl.cname (build_func_map cdecl) m in
+	List.fold_left add_class_func_map StringMap.empty cdecls_inherited
+
+let add_inherited_methods cmaps func_maps_inherited = 
+	let update_with_inherited_methods cname cmap = 
+		let fmap = StringMap.find cname func_maps_inherited in
+		{
+			field_map = cmap.field_map;
+			func_map = fmap;
+			constructor_map = cmap.constructor_map;
+			reserved_map = cmap.reserved_map;
+		}
+	in
+	let add_updated_cmap cname cmap accum = StringMap.add cname (update_with_inherited_methods cname cmap) accum in
+	StringMap.fold add_updated_cmap cmaps StringMap.empty
+
+let handle_inheritance cdecls class_maps = 
+	let predecessors = build_inheritance_forest cdecls class_maps in
+	let cdecls_inherited = inherit_fields_cdecls cdecls predecessors in
+	let func_maps_inherited = build_func_map_inherited_lookup cdecls_inherited in
+	ignore(check_cyclical_inheritance cdecls predecessors);
+	let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
+	let cmaps_inherited = add_inherited_methods cmaps_with_inherited_fields func_maps_inherited in
+	cmaps_inherited, cdecls_inherited
+
 (* Main method for analyzer *)
 let analyze filename program = match program with
 	Program(includes, classes) ->
+	(* Include code from external files *)
 	let cdecls = process_includes filename includes classes in
+	(* Add built-in functions *)
 	let reserved = add_reserved_functions in
+	(* Generate the class_maps for look up in checking functions *)
 	let class_maps = build_class_maps reserved cdecls in
+	let class_maps, cdecls = handle_inheritance cdecls class_maps in
 	let sast = convert_cdecls_to_sast class_maps reserved cdecls in
 	sast
