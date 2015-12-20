@@ -338,6 +338,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 	in
 	let check_lhs = function
 		SId(s, d)			-> codegen_id false false s d llbuilder
+	| 	SArrayAccess(e, el, d) -> codegen_array_access false e el d llbuilder
 	| 	_  	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc ("Need to print sexpr"))
 	in
 	(* Needs to be changed *)
@@ -353,6 +354,20 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 					build_load _val field llbuilder
 				else 
 					_val
+
+		| 	SArrayAccess(e, el, d) ->
+
+			let ce = check_rhs false parent_expr parent_type e in
+			let index = codegen_sexpr llbuilder (List.hd el) in
+			let index = match d with
+				Datatype(Char_t) -> index
+			| 	_ -> build_add index (const_int i32_t 1) "tmp" llbuilder
+			in
+		    let _val = build_gep ce [| index |] "tmp" llbuilder in
+		    if isLHS
+		    	then _val
+		    	else build_load _val "tmp" llbuilder 
+
 			(* Check functions in parent *)
 		| 	SCall(fname, el, d, index) 	-> 
 				let index = const_int i32_t index in
@@ -496,7 +511,6 @@ and codegen_array_prim d el llbuilder =
     arr
 
 and codegen_delete e llbuilder =
-	let t = Analyzer.get_type_from_sexpr e in
 	let ce = match e with
 		SId(id, d) -> codegen_id false false id d llbuilder
 	| 	_ -> codegen_sexpr llbuilder e
