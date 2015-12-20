@@ -340,8 +340,8 @@ and check_assign env e1 e2 =
 	let type1 = get_type_from_sexpr se1 in
 	let type2 = get_type_from_sexpr se2 in 
 	match (type1, se2) with
-		Datatype(Objecttype(_)), SNull(Datatype(Null_t)) 
-	| 	Arraytype(_, _), SNull(Datatype(Null_t)) -> SAssign(se1, se2, type1)
+		Datatype(Objecttype(_)), SNull 
+	| 	Arraytype(_, _), SNull -> SAssign(se1, se2, type1)
 	|   _ -> 
 	match type1, type2 with
 		Datatype(Char_t), Datatype(Int_t)
@@ -388,15 +388,15 @@ and check_delete env e =
 	| 	_ -> raise(Exceptions.CanOnlyDeleteObjectsOrArrays)
 
 and expr_to_sexpr env = function
-		Int_Lit i           -> SInt_Lit(i, Datatype(Int_t)), env
-	|   Boolean_Lit b       -> SBoolean_Lit(b, Datatype(Bool_t)), env
-	|   Float_Lit f         -> SFloat_Lit(f, Datatype(Float_t)), env
-	|   String_Lit s        -> SString_Lit(s, Arraytype(Char_t, 1)), env
-	|   Char_Lit c          -> SChar_Lit(c, Datatype(Char_t)), env
+		Int_Lit i           -> SInt_Lit(i), env
+	|   Boolean_Lit b       -> SBoolean_Lit(b), env
+	|   Float_Lit f         -> SFloat_Lit(f), env
+	|   String_Lit s        -> SString_Lit(s), env
+	|   Char_Lit c          -> SChar_Lit(c), env
 	|   This                -> SId("this", Datatype(Objecttype(env.env_name))), env
 	|   Id s                -> SId(s, get_ID_type env s), env
-	|   Null                -> SNull(Datatype(Null_t)), env
-	|   Noexpr              -> SNoexpr(Datatype(Void_t)), env
+	|   Null                -> SNull, env
+	|   Noexpr              -> SNoexpr, env
 
 	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2, env
 	|   ObjectCreate(s, el) -> check_object_constructor env s el, env
@@ -413,15 +413,15 @@ and expr_to_sexpr env = function
 
 
 and get_type_from_sexpr = function
-		SInt_Lit(_, d)			-> d
-	| 	SBoolean_Lit(_, d)		-> d
-	| 	SFloat_Lit(_, d)		-> d
-	| 	SString_Lit(_, d) 		-> d
-	| 	SChar_Lit(_, d) 		-> d
+		SInt_Lit(_)				-> Datatype(Int_t)
+	| 	SBoolean_Lit(_)			-> Datatype(Bool_t)
+	| 	SFloat_Lit(_)			-> Datatype(Float_t)
+	| 	SString_Lit(_) 			-> Arraytype(Char_t, 1)
+	| 	SChar_Lit(_) 			-> Datatype(Char_t)
 	| 	SId(_, d) 				-> d
 	| 	SBinop(_, _, _, d) 		-> d
 	| 	SAssign(_, _, d) 		-> d
-	| 	SNoexpr d 				-> d
+	| 	SNoexpr 				-> Datatype(Void_t)
 	| 	SArrayCreate(_, _, d)	-> d
 	| 	SArrayAccess(_, _, d) 	-> d
 	| 	SObjAccess(_, _, d)		-> d
@@ -429,7 +429,7 @@ and get_type_from_sexpr = function
 	|   SObjectCreate(_, _, d) 	-> d
 	| 	SArrayPrimitive(_, d)	-> d
 	|  	SUnop(_, _, d) 			-> d
-	| 	SNull d 				-> d
+	| 	SNull					-> Datatype(Null_t)
 	| 	SDelete _ 				-> Datatype(Void_t)
 
 and exprl_to_sexprl env el =
@@ -477,7 +477,7 @@ let rec local_handler d s e env =
 (* Update this function to return an env object *)
 let rec convert_stmt_list_to_sstmt_list env stmt_list = 
 	let rec helper env = function 
-			Block [] 				-> SBlock([SExpr(SNoexpr(Datatype(Void_t)), Datatype(Void_t))]), env
+			Block [] 				-> SBlock([SExpr(SNoexpr, Datatype(Void_t))]), env
 
 		|	Block sl 				-> 	let sl, _ = convert_stmt_list_to_sstmt_list env sl in
 										SBlock(sl), env
@@ -538,7 +538,7 @@ let append_code_to_constructor fbody cname ret_type =
 		SCall(	"cast", 
 				[SCall("malloc", 
 					[	
-						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t), 0)
+						SCall("sizeof", [SId("ignore", ret_type)], Datatype(Int_t), 0)
 					], 
 					Arraytype(Char_t, 1), 0)
 				],
@@ -572,7 +572,7 @@ let append_code_to_main fbody cname ret_type =
 		SCall(	"cast", 
 				[SCall("malloc", 
 					[	
-						SCall("sizeof", [SNoexpr(ret_type)], Datatype(Int_t), 0)
+						SCall("sizeof", [SId("ignore", ret_type)], Datatype(Int_t), 0)
 					], 
 					Arraytype(Char_t, 1), 0)
 				],

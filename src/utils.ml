@@ -97,20 +97,20 @@ and string_of_sarray_primitive = function
 	|   [last]			-> (string_of_sexpr last)
 	| 	head :: tail 	-> (string_of_sexpr head) ^ ", " ^ (string_of_sarray_primitive tail)
 and string_of_sexpr = function 
-		SInt_Lit(i, _)				-> string_of_int i
-	|	SBoolean_Lit(b, _)			-> if b then "true" else "false"
-	|	SFloat_Lit(f, _)			-> string_of_float f
-	|	SString_Lit(s, _)			-> "\"" ^ (String.escaped s) ^ "\""
-	|	SChar_Lit(c, _)				-> Char.escaped c
+		SInt_Lit(i)					-> string_of_int i
+	|	SBoolean_Lit(b)				-> if b then "true" else "false"
+	|	SFloat_Lit(f)				-> string_of_float f
+	|	SString_Lit(s)				-> "\"" ^ (String.escaped s) ^ "\""
+	|	SChar_Lit(c)				-> Char.escaped c
 	|	SId(s, _)					-> s
 	|	SBinop(e1, o, e2, _)		-> (string_of_sexpr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_sexpr e2)
 	|	SAssign(e1, e2, _)			-> (string_of_sexpr e1) ^ " = " ^ (string_of_sexpr e2)
-	|	SNoexpr	_					-> ""
+	|	SNoexpr						-> ""
 	|	SObjAccess(e1, e2, _)		-> (string_of_sexpr e1) ^ "." ^ (string_of_sexpr e2)
 	|	SCall(f, el, _, _)			-> f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
 	|	SArrayPrimitive(el, _)		-> "|" ^ (string_of_sarray_primitive el) ^ "|"
 	|  	SUnop(op, e, _)				-> (string_of_op op) ^ "(" ^ string_of_sexpr e ^ ")"
-	|	SNull _						-> "null"
+	|	SNull						-> "null"
 	|   SArrayCreate(d, el, _)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_sexpr el
 	|   SArrayAccess(e, el, _)  	-> (string_of_sexpr e) ^ (string_of_bracket_sexpr el)
 	|   SObjectCreate(s, el, _) 	-> "new " ^ s ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
@@ -162,8 +162,8 @@ let rec string_of_stmt indent =
 	in get_stmt_string
 
 let string_of_local_sexpr = function
-		SNoexpr _ -> ""
-	|  	e 	   -> " = " ^ string_of_sexpr e
+		SNoexpr 	-> ""
+	|  	e 	   		-> " = " ^ string_of_sexpr e
 
 let rec string_of_sstmt indent =
 	let indent_string = String.make indent '\t' in
@@ -180,7 +180,7 @@ let rec string_of_sstmt indent =
 		| 	SReturn(expr, _) 			-> 
 				indent_string ^ "return " ^ string_of_sexpr expr ^ ";\n";
 
-		| 	SIf(e, s, SBlock([SExpr(SNoexpr(_), _)])) 	-> 
+		| 	SIf(e, s, SBlock([SExpr(SNoexpr, _)])) 	-> 
 				indent_string ^ "if (" ^ string_of_sexpr e ^ ")\n" ^ 
 					(string_of_sstmt (indent+1) s)
 
@@ -345,15 +345,15 @@ let print_tree = function
 let rec map_sexpr_to_json = 
 	let datatype d = [("datatype", `String (string_of_datatype d))] in
 	function
-		SInt_Lit(i, d)          -> `Assoc [("int_lit", `Assoc ([("val", `Int i)] @ (datatype d)))]
-	|   SBoolean_Lit(b, d)      -> `Assoc [("bool_lit", `Assoc ([("val", `Bool b)] @ (datatype d)))]
-	|   SFloat_Lit(f, d)        -> `Assoc [("float_lit", `Assoc ([("val", `Float f)]  @ (datatype d)))]
-	|   SString_Lit(s, d)       -> `Assoc [("string_lit", `Assoc ([("val", `String s)] @ (datatype d)))]
-	|   SChar_Lit(c, d)         -> `Assoc [("char_lit", `Assoc ([("val", `String (Char.escaped c))] @ (datatype d)))]
+		SInt_Lit(i)          	-> `Assoc [("int_lit", `Assoc ([("val", `Int i)] @ (datatype (Datatype(Int_t)))))]
+	|   SBoolean_Lit(b)      	-> `Assoc [("bool_lit", `Assoc ([("val", `Bool b)] @ (datatype (Datatype(Bool_t)))))]
+	|   SFloat_Lit(f)        	-> `Assoc [("float_lit", `Assoc ([("val", `Float f)]  @ (datatype (Datatype(Float_t)))))]
+	|   SString_Lit(s)       	-> `Assoc [("string_lit", `Assoc ([("val", `String s)] @ (datatype (Arraytype(Char_t, 1)))))]
+	|   SChar_Lit(c)         	-> `Assoc [("char_lit", `Assoc ([("val", `String (Char.escaped c))] @ (datatype (Datatype(Char_t)))))]
 	|   SId(s, d)               -> `Assoc [("id", `Assoc ([("name", `String s)] @ (datatype d)))]
 	|   SBinop(e1, o, e2, d)    -> `Assoc [("binop", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
 	|   SAssign(e1, e2, d)      -> `Assoc [("assign", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "="); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
-	|   SNoexpr d               -> `Assoc [("noexpr", `Assoc (datatype d))]
+	|   SNoexpr              	-> `Assoc [("noexpr", `Assoc (datatype (Datatype(Void_t))))]
 	|   SArrayCreate(t, el, d)  -> `Assoc [("arraycreate", `Assoc ([("datatype", `String (string_of_datatype d)); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SArrayAccess(e, el, d)  -> `Assoc [("arrayaccess", `Assoc ([("array", map_sexpr_to_json e); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SObjAccess(e1, e2, d)   -> `Assoc [("objaccess", `Assoc ([("lhs", map_sexpr_to_json e1); ("op", `String "."); ("rhs", map_sexpr_to_json e2)] @ (datatype d)))]
@@ -361,8 +361,8 @@ let rec map_sexpr_to_json =
 	|   SObjectCreate(s, el, d) -> `Assoc [("objectcreate", `Assoc ([("type", `String s); ("args", `List (List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SArrayPrimitive(el, d)  -> `Assoc [("arrayprimitive", `Assoc ([("expressions", `List(List.map map_sexpr_to_json el))] @ (datatype d)))]
 	|   SUnop(op, e, d)         -> `Assoc [("Unop", `Assoc ([("op", `String (string_of_op op)); ("operand", map_sexpr_to_json e)] @ (datatype d)))]
-	|   SNull d                 -> `Assoc [("null", `Assoc (datatype d))] 
-	| 	SDelete(e) 				-> `Assoc [("delete", `Assoc [("expr", map_sexpr_to_json e); ("type", `String "void")])]
+	|   SNull               	-> `Assoc [("null", `Assoc (datatype (Datatype(Void_t))))] 
+	| 	SDelete(e) 				-> `Assoc [("delete", `Assoc ([("expr", map_sexpr_to_json e)] @ (datatype (Datatype(Void_t)))))]
 
 let rec map_sstmt_to_json = 
 	let datatype d = [("datatype", `String (string_of_datatype d))] in

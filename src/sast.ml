@@ -1,15 +1,15 @@
 open Ast
 
 type sexpr =
-		SInt_Lit of int * datatype
-	| 	SBoolean_Lit of bool * datatype
-	| 	SFloat_Lit of float * datatype
-	| 	SString_Lit of string * datatype
-	| 	SChar_Lit of char * datatype
+		SInt_Lit of int
+	| 	SBoolean_Lit of bool
+	| 	SFloat_Lit of float
+	| 	SString_Lit of string
+	| 	SChar_Lit of char
 	| 	SId of string * datatype
 	| 	SBinop of sexpr * op * sexpr * datatype
 	| 	SAssign of sexpr * sexpr * datatype
-	| 	SNoexpr of datatype
+	| 	SNoexpr
 	| 	SArrayCreate of datatype * sexpr list * datatype
 	| 	SArrayAccess of sexpr * sexpr list * datatype
 	| 	SObjAccess of sexpr * sexpr * datatype
@@ -17,7 +17,7 @@ type sexpr =
 	|   SObjectCreate of string * sexpr list * datatype
 	| 	SArrayPrimitive of sexpr list * datatype
 	|  	SUnop of op * sexpr * datatype
-	| 	SNull of datatype
+	| 	SNull
 	| 	SDelete of sexpr
 
 type sstmt =

@@ -31,7 +31,6 @@ let i64_t = i64_type context;;
 let void_t = void_type context;;
 
 let str_type = Arraytype(Char_t, 1)
-let noop = SNoexpr(Datatype(Int_t))
 
 let debug = fun s ->  
 	print_endline ("`````````````````````````````````````"^s);
@@ -202,10 +201,10 @@ and codegen_print el llbuilder =
 		Datatype(Bool_t) ->
 			incr_tmp ();
 			let tmp_var = "tmp" ^ (string_of_int !tmp_count) in
-			let trueStr = SString_Lit("true", str_type) in
-			let falseStr = SString_Lit("false", str_type) in
+			let trueStr = SString_Lit("true") in
+			let falseStr = SString_Lit("false") in
 			let id = SId(tmp_var, str_type) in 
-			ignore(codegen_stmt llbuilder (SLocal(str_type, tmp_var, noop)));
+			ignore(codegen_stmt llbuilder (SLocal(str_type, tmp_var, SNoexpr)));
 			ignore(codegen_stmt llbuilder (SIf(expr, 
 											SExpr(SAssign(id, trueStr, str_type), str_type), 
 											SExpr(SAssign(id, falseStr, str_type), str_type)
@@ -226,7 +225,7 @@ and codegen_print el llbuilder =
 		| 	_ 						-> raise (Exceptions.InvalidTypePassedToPrintf)
 	in 
 	let const_str = List.fold_left (fun s t -> s ^ map_param_to_string t) "" param_types in
-	let s = codegen_sexpr llbuilder (SString_Lit(const_str, Arraytype(Char_t, 1))) in
+	let s = codegen_sexpr llbuilder (SString_Lit(const_str)) in
 	let zero = const_int i32_t 0 in 
 	let s = build_in_bounds_gep s [| zero |] "tmp" llbuilder in
 	build_call printf (Array.of_list (s :: params)) "" llbuilder
@@ -474,15 +473,15 @@ and codegen_delete e llbuilder =
 	build_free ce llbuilder
 
 and codegen_sexpr llbuilder = function
-		SInt_Lit(i, d)            	-> const_int i32_t i
-	|   SBoolean_Lit(b, d)        	-> if b then const_int i1_t 1 else const_int i1_t 0
-	|   SFloat_Lit(f, d)          	-> const_float f_t f 
-	|   SString_Lit(s, d)         	-> codegen_string_lit s llbuilder
-	|   SChar_Lit(c, d)           	-> const_int i8_t (Char.code c)
+		SInt_Lit(i)            		-> const_int i32_t i
+	|   SBoolean_Lit(b)        		-> if b then const_int i1_t 1 else const_int i1_t 0
+	|   SFloat_Lit(f)          		-> const_float f_t f 
+	|   SString_Lit(s)         		-> codegen_string_lit s llbuilder
+	|   SChar_Lit(c)           		-> const_int i8_t (Char.code c)
 	|   SId(id, d)                	-> codegen_id true false id d llbuilder
 	|   SBinop(e1, op, e2, d)     	-> handle_binop e1 op e2 d llbuilder
 	|   SAssign(e1, e2, d)        	-> codegen_assign e1 e2 d llbuilder
-	|   SNoexpr d                 	-> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
+	|   SNoexpr                 	-> build_add (const_int i32_t 0) (const_int i32_t 0) "nop" llbuilder
 	|   SArrayCreate(t, el, d)    	-> codegen_array_create llbuilder t d el
 	|   SArrayAccess(e, el, d)    	-> codegen_array_access false e el d llbuilder
 	|   SObjAccess(e1, e2, d)     	-> codegen_obj_access true e1 e2 d llbuilder
@@ -490,7 +489,7 @@ and codegen_sexpr llbuilder = function
 	|   SObjectCreate(id, el, d)  	-> codegen_obj_create id el d llbuilder
 	|   SArrayPrimitive(el, d)    	-> codegen_array_prim d el llbuilder 
 	|   SUnop(op, e, d)           	-> handle_unop op e d llbuilder
-	|   SNull d                   	-> const_null (get_type d)
+	|   SNull          	        	-> const_null i32_t
 	| 	SDelete e 				 	-> codegen_delete e llbuilder
 
 and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
@@ -585,7 +584,7 @@ and codegen_for init_ cond_ inc_ body_ llbuilder =
 	const_null f_t
 
 and codegen_while cond_ body_ llbuilder = 
-	let null_sexpr = SInt_Lit(0, Datatype(Int_t)) in
+	let null_sexpr = SInt_Lit(0) in
 	codegen_for null_sexpr cond_ null_sexpr body_ llbuilder
 
 and codegen_alloca datatype var_name expr llbuilder = 
@@ -597,7 +596,7 @@ and codegen_alloca datatype var_name expr llbuilder =
 	Hashtbl.add named_values var_name alloca;
 	let lhs = SId(var_name, datatype) in
 	match expr with 
-		SNoexpr(_) -> alloca
+		SNoexpr -> alloca
 	|  	_ -> codegen_assign lhs expr datatype llbuilder
 
 and codegen_ret d expr llbuilder =  
