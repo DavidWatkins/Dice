@@ -470,11 +470,12 @@ and codegen_array_create llbuilder t expr_type el =
 		
 	    let arr = build_array_malloc t size_real "tmp" llbuilder in
 		let arr = build_pointercast arr (pointer_type t) "tmp" llbuilder in
+
 		let arr_len_ptr = build_pointercast arr (pointer_type i32_t) "tmp" llbuilder in
 
 		(* Store length at this position *)
 		ignore(build_store size_real arr_len_ptr llbuilder); 
-		initialise_array arr size_real (const_int i32_t 0) 1 llbuilder;
+		initialise_array arr_len_ptr size_real (const_int i32_t 0) 1 llbuilder;
 		arr
 
 and codegen_array_prim d el llbuilder =
@@ -495,7 +496,11 @@ and codegen_array_prim d el llbuilder =
     arr
 
 and codegen_delete e llbuilder =
-	let ce = codegen_sexpr llbuilder e in
+	let t = Analyzer.get_type_from_sexpr e in
+	let ce = match e with
+		SId(id, d) -> codegen_id false false id d llbuilder
+	| 	_ -> codegen_sexpr llbuilder e
+	in
 	build_free ce llbuilder
 
 and codegen_sexpr llbuilder = function
