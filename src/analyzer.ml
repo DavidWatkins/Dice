@@ -171,7 +171,8 @@ let get_name_without_class fdecl =
 	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
 	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
 	let name = Utils.string_of_fname fdecl.fname in
-    name ^ params
+    let ret_type = Utils.string_of_datatype fdecl.returnType in
+    ret_type ^ "." ^ name ^ "." ^ params
 
 (* Generate list of all classes to be used for semantic checking *)
 let build_class_maps reserved cdecls =
