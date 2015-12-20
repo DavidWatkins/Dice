@@ -32,6 +32,10 @@ let void_t = void_type context;;
 
 let str_type = Arraytype(Char_t, 1)
 
+let (br_block) = ref (block_of_value (const_int i32_t 0))
+let (cont_block) = ref (block_of_value (const_int i32_t 0))
+let is_loop = ref false
+
 let debug = fun s ->  
 	print_endline ("`````````````````````````````````````"^s);
 	dump_module the_module;
@@ -228,7 +232,7 @@ and codegen_print el llbuilder =
 	let s = codegen_sexpr llbuilder (SString_Lit(const_str)) in
 	let zero = const_int i32_t 0 in 
 	let s = build_in_bounds_gep s [| zero |] "tmp" llbuilder in
-	build_call printf (Array.of_list (s :: params)) "" llbuilder
+	build_call printf (Array.of_list (s :: params)) "tmp" llbuilder
 
 and codegen_func_call fname el d llbuilder = 
 	let f = func_lookup fname in
@@ -551,6 +555,8 @@ and codegen_if_stmt exp then_ (else_:Sast.sstmt) llbuilder =
 	else_bb_val (* phi *)
 
 and codegen_for init_ cond_ inc_ body_ llbuilder = 
+	let old_val = !is_loop in
+	is_loop := true;
 
 	let the_function = block_parent (insertion_block llbuilder) in
 
@@ -560,10 +566,21 @@ and codegen_for init_ cond_ inc_ body_ llbuilder =
 	(* Make the new basic block for the loop header, inserting after current
 	* block. *)
 	let loop_bb = append_block context "loop" the_function in
+	(* Insert maintenance block *)
+	let inc_bb = append_block context "inc" the_function in
+	(* Insert condition block *)
+	let cond_bb = append_block context "cond" the_function in
+	(* Create the "after loop" block and insert it. *)
+	let after_bb = append_block context "afterloop" the_function in
+
+	let _ = if not old_val then
+		cont_block := inc_bb;
+		br_block := after_bb;
+	in
 
 	(* Insert an explicit fall through from the current block to the
 	* loop_bb. *)
-	ignore (build_br loop_bb llbuilder);
+	ignore (build_br cond_bb llbuilder);
 
 	(* Start insertion in loop_bb. *)
 	position_at_end loop_bb llbuilder;
@@ -573,20 +590,27 @@ and codegen_for init_ cond_ inc_ body_ llbuilder =
 	* don't allow an error *)
 	ignore (codegen_stmt llbuilder body_);
 
-	(* Emit the step value. *)
+	let bb = insertion_block llbuilder in
+	move_block_after bb inc_bb;
+	move_block_after inc_bb cond_bb;
+	move_block_after cond_bb after_bb;
+	ignore(build_br inc_bb llbuilder);
+
+	(* Start insertion in loop_bb. *)
+	position_at_end inc_bb llbuilder;
+	(* Emit the step value. *)	
 	let _ = codegen_sexpr llbuilder inc_ in
+	ignore(build_br cond_bb llbuilder);
 
-	(* Compute the end condition. *)
+	position_at_end cond_bb llbuilder;
+
 	let cond_val = codegen_sexpr llbuilder cond_ in
-
-	(* Create the "after loop" block and insert it. *)
-	let after_bb = append_block context "afterloop" the_function in
-
-	(* Insert the conditional branch into the end of loop_end_bb. *)
 	ignore (build_cond_br cond_val loop_bb after_bb llbuilder);
 
 	(* Any new code will be inserted in after_bb. *)
 	position_at_end after_bb llbuilder;
+
+	is_loop := old_val;
 
 	(* for expr always returns 0.0. *)
 	const_null f_t
@@ -618,6 +642,14 @@ and codegen_ret d expr llbuilder =
 	in
 	build_ret e llbuilder
 
+and codegen_break llbuilder = 
+	let block = fun () -> !br_block in
+	build_br (block ()) llbuilder
+
+and codegen_continue llbuilder = 
+	let block = fun () -> !cont_block in
+	build_br (block ()) llbuilder
+
 and codegen_stmt llbuilder = function
 		SBlock sl        			-> List.hd(List.map (codegen_stmt llbuilder) sl)
 	|   SExpr(e, d)          		-> codegen_sexpr llbuilder e
@@ -625,8 +657,8 @@ and codegen_stmt llbuilder = function
 	|   SIf (e, s1, s2)       		-> codegen_if_stmt e s1 s2 llbuilder
 	|   SFor (e1, e2, e3, s)  		-> codegen_for e1 e2 e3 s llbuilder
 	|   SWhile (e, s)    			-> codegen_while e s llbuilder
-	|   SBreak           			-> build_global_stringptr "Hi" "tmp" llbuilder   
-	|   SContinue        			-> build_global_stringptr "Hi" "tmp" llbuilder
+	|   SBreak           			-> codegen_break llbuilder   
+	|   SContinue        			-> codegen_continue llbuilder
 	|   SLocal(d, s, e)  			-> codegen_alloca d s e llbuilder
 
 let codegen_funcstub sfdecl = 

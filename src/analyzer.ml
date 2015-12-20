@@ -665,7 +665,7 @@ and check_break env =
 		raise Exceptions.CannotCallBreakOutsideOfLoop
 
 and check_continue env = 
-	if env.env_in_for then
+	if env.env_in_for || env.env_in_while then
 		SContinue, env
 	else
 		raise Exceptions.CannotCallContinueOutsideOfLoop
