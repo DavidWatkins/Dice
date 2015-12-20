@@ -1113,15 +1113,20 @@ let build_func_map_inherited_lookup cdecls_inherited =
 	let add_class_func_map m cdecl = StringMap.add cdecl.cname (build_func_map cdecl) m in
 	List.fold_left add_class_func_map StringMap.empty cdecls_inherited
 
-let add_inherited_methods cmaps func_maps_inherited = 
+let add_inherited_methods cmaps cdecls func_maps_inherited = 
+	let find_cdecl cname = 
+		try List.find (fun cdecl -> cdecl.cname = cname) cdecls
+		with | Not_found -> raise Not_found
+	in
 	let update_with_inherited_methods cname cmap = 
 		let fmap = StringMap.find cname func_maps_inherited in
+		let cdecl = find_cdecl cname in
 		{
 			field_map = cmap.field_map;
 			func_map = fmap;
 			constructor_map = cmap.constructor_map;
 			reserved_map = cmap.reserved_map;
-			cdecl = cmap.cdecl;
+			cdecl = cdecl;
 		}
 	in
 	let add_updated_cmap cname cmap accum = StringMap.add cname (update_with_inherited_methods cname cmap) accum in
@@ -1133,7 +1138,7 @@ let handle_inheritance cdecls class_maps =
 	let func_maps_inherited = build_func_map_inherited_lookup cdecls_inherited in
 	ignore(check_cyclical_inheritance cdecls predecessors);
 	let cmaps_with_inherited_fields = inherit_fields class_maps predecessors in
-	let cmaps_inherited = add_inherited_methods cmaps_with_inherited_fields func_maps_inherited in
+	let cmaps_inherited = add_inherited_methods cmaps_with_inherited_fields cdecls_inherited func_maps_inherited in
 	cmaps_inherited, cdecls_inherited
 
 let generate_struct_indexes cdecls = 

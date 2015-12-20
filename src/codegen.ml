@@ -340,7 +340,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 	| 	_  	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc ("Need to print sexpr"))
 	in
 	(* Needs to be changed *)
-	let rec check_rhs parent_expr parent_type = 
+	let rec check_rhs isLHS parent_expr parent_type = 
 		let parent_str = Utils.string_of_object parent_type in
 		function
 			(* Check fields in parent *)
@@ -348,7 +348,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				let search_term = (parent_str ^ "." ^ field) in
 				let field_index = Hashtbl.find struct_field_indexes search_term in
 				let _val = build_struct_gep parent_expr field_index "tmp" llbuilder in
-				if isAssign then
+				if isAssign && isLHS then
 					build_load _val field llbuilder
 				else 
 					_val
@@ -361,12 +361,21 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				let fptr = build_call lookup [| c_index; index |] "fptr" llbuilder in
 				let f_ty = type_of (func_lookup fname) in
 				let fptr = build_pointercast fptr f_ty "fptr" llbuilder in
-				codegen_func_call fptr parent_expr el d llbuilder
+				let ret = codegen_func_call fptr parent_expr el d llbuilder in
+				let ret = match d with
+					Datatype(Objecttype(_)) -> 
+						(* if isAssign && isLHS then
+							build_load ret "tmp" llbuilder
+						else *)
+							ret
+					| _ -> ret
+				in
+				ret
 			(* Set parent, check if base is field *)
 		| 	SObjAccess(e1, e2, d) 	-> 
 				let e1_type = Analyzer.get_type_from_sexpr e1 in
-				let e1 = check_rhs parent_expr parent_type e1 in
-				let e2 = check_rhs e1 e1_type e2 in
+				let e1 = check_rhs true parent_expr parent_type e1 in
+				let e2 = check_rhs false e1 e1_type e2 in
 				e2
 		| 	_ -> raise (Exceptions.InvalidAccessLHS ("Need to print sexpr"))
 	in 
@@ -382,7 +391,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 			build_load _val "tmp" llbuilder 
 	| 	_ -> 
 		let lhs = check_lhs lhs in
-		let rhs = check_rhs lhs lhs_type rhs in
+		let rhs = check_rhs true lhs lhs_type rhs in
 		rhs
 
 and codegen_obj_create fname el d llbuilder = 
