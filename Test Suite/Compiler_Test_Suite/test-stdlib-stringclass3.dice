@@ -1,0 +1,14 @@
+include("stdlib");
+
+class test{
+	
+	private class String x;
+
+	public void main(char[][] args) {
+
+	class String a = new String("goodBye");
+	this.x = a;
+	print(this.x.string());
+	
+	}
+}

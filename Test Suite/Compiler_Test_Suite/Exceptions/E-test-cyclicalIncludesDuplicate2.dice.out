@@ -1,2 +1,1 @@
-include(Test Suite/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludesDuplicate2.dice);
 Exceptions.DuplicateClassName(test)

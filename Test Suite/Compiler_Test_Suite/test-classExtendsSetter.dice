@@ -19,8 +19,8 @@ class circle extends shape {
 class test {
   public void main(char[][] args) {
       class circle a = new circle(); 
-      a.setX() = 1;
-      a.setY() = 3;
+      a.setX(1);
+      a.setY(3);
       print(a.xCoord);
       print(a.yCoord);
   }
