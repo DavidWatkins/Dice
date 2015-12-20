@@ -38,6 +38,7 @@ type sfunc_decl = {
 	sformals : formal list;
 	sbody : sstmt list;
 	func_type : func_type;
+    overrides: bool;
 }
 
 type sclass_decl = {

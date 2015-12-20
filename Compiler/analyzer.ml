@@ -84,6 +84,14 @@ let process_includes filename includes classes =
 	in
 	iterate_includes classes (StringMap.add (Filepath.realpath filename) 1 StringMap.empty) includes
 
+
+let get_name_without_class fdecl = 
+	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
+	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
+	let name = Utils.string_of_fname fdecl.fname in
+    name ^ params
+
+
 let get_name cname fdecl = 
 	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
 	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
@@ -492,6 +500,7 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 		sformals 		= constructor.formals;
 		sbody 			= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
 		func_type		= Sast.User;
+        overrides       = constructor.overrides;
 	}
 
 let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl = 
@@ -515,6 +524,7 @@ let convert_fdecl_to_sfdecl class_maps reserved class_map cname fdecl =
 		sformals 		= class_formal :: fdecl.formals;
 		sbody 			= fbody;
 		func_type		= Sast.User;
+        overrides       = fdecl.overrides;
 	}
 
 let convert_cdecl_to_sast sfdecls (cdecl:Ast.class_decl) = 
@@ -526,6 +536,21 @@ let convert_cdecl_to_sast sfdecls (cdecl:Ast.class_decl) =
 
 let print_fields cdecl = List.iter (fun x -> print_string (Utils.string_of_field x)) cdecl.cbody.fields; print_string "\n\n\n"
 
+let replace_fdecl_in_base_methods base_methods child_fdecl = 
+(* Given a list of func_decls for the base class and a single func_decl
+for the child class, replaces func_decls for the base class if any of them 
+have the same method signature *)
+(*
+let replace base_fdecl accum = 
+if (get_name_without_class base_fdecl) = (get_name_without_class base_fdecl) 
+    then child_fdecl::accum else base_fdecl::accum
+List.fold_right replace base_methods [] in
+*)
+base_methods
+
+let merge_methods base_methods child_methods =
+child_methods
+
 let merge_cdecls base_cdecl child_cdecl = 
 (* return a cdecl in which cdecl.cbody.fields contains the fields of 
 the extended class, concatenated by the fields of the child class *)
@@ -533,7 +558,7 @@ the extended class, concatenated by the fields of the child class *)
         {
             fields = base_cdecl.cbody.fields @ child_cdecl.cbody.fields;
              constructors = child_cdecl.cbody.constructors;
-             methods = child_cdecl.cbody.methods
+             methods = merge_methods base_cdecl.cbody.methods child_cdecl.cbody.methods
         }
         in
         {
@@ -634,6 +659,7 @@ let add_reserved_functions =
 			sformals 		= formals;
 			sbody 			= [];
 			func_type		= Sast.Reserved;
+            overrides       = false;
 		}
 	in
 	let reserved = [] in
