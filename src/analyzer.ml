@@ -154,7 +154,6 @@ let process_includes filename includes classes =
 			else 
 				let result = processInclude realpath in 
 				match result with Program(i,c) ->
-				List.iter (fun x -> print_string(Utils.string_of_include x)) i;
 				iterate_includes (classes @ c) (StringMap.add realpath 1 m) (i @ t)
 	in
 	iterate_includes classes (StringMap.add (Filepath.realpath filename) 1 StringMap.empty) includes
@@ -771,6 +770,8 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	}
 
 let check_fbody fname fbody returnType =
+	let len = List.length fbody in
+	if len = 0 then () else 
 	let final_stmt = List.hd (List.rev fbody) in
 	match returnType, final_stmt with
 		Datatype(Void_t), _ -> ()
