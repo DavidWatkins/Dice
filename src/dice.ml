@@ -121,6 +121,7 @@ let _ =
 	|   Exceptions.AllNonVoidFunctionsMustEndWithReturn(str) -> print_endline("Exceptions.AllNonVoidFunctionsMustEndWithReturn("^str^")")
 	|   Exceptions.CannotUseReservedFuncName(str) -> print_endline("CannotUseReservedFuncName("^str^")")
 	|   Exceptions.UndefinedID(str)             -> print_endline("UndefinedID("^str^")")
+	|   Exceptions.CannotAccessPrivateFieldInNonProperScope(str,str2,str3) -> print_endline("CannotAccessPrivateFieldInNonProperScope("^str^","^str2^","^str3^")")
 
 	|  	Exceptions.InvalidNumberCompilerArguments i -> print_endline ("Invalid argument passed " ^ (string_of_int i)); print_string help_string
 	| 	Exceptions.InvalidCompilerArgument s 		-> print_endline ("Invalid argument passed " ^ s); print_string help_string
