@@ -50,6 +50,7 @@ exception CanOnlyDeleteObjectsOrArrays
 exception CannotAccessLengthOfCharArray
 exception AllNonVoidFunctionsMustEndWithReturn of string
 exception CyclicalDependencyBetween of string * string
+exception CannotAccessPrivateFieldInNonProperScope of string * string * string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

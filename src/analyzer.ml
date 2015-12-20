@@ -48,6 +48,18 @@ let construct_env cmaps cname cmap locals parameters returnType callStack reserv
 	env_reserved   = reserved;
 }
 
+let update_env_name env env_name = 
+{
+	env_class_maps = env.env_class_maps;
+	env_name       = env_name;
+	env_cmap 	   = env.env_cmap;
+	env_locals     = env.env_locals;
+	env_parameters = env.env_parameters;
+	env_returnType = env.env_returnType;
+	env_callStack  = env.env_callStack;
+	env_reserved   = env.env_reserved;
+}
+
 let append_code_to_constructor fbody cname ret_type =
 	let key = Hashtbl.find struct_indexes cname in 
 	let init_this = [SLocal(
@@ -322,29 +334,41 @@ and check_obj_access env lhs rhs =
 	|	Id s 			-> SId(s, get_ID_type env s)
 	| 	_ as e 	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc (Utils.string_of_expr e))
 	in
-	let rec check_rhs env parent_type = 
-		let ptype_name = match parent_type with
+	let ptype_name parent_type = match parent_type with
 			Datatype(Objecttype(name)) 	-> name
 		| 	_ as d						-> raise (Exceptions.ObjAccessMustHaveObjectType (Utils.string_of_datatype d))
-		in 
-		let get_id_type_from_object env id cname = 
+	in
+	let rec check_rhs (env) parent_type (top_level_env) = 
+		let pt_name = ptype_name parent_type in
+		let get_id_type_from_object env (id) cname tlenv = 
 			let cmap = StringMap.find cname env.env_class_maps in
-			try (function Field(_, d, _) -> d) (StringMap.find id cmap.field_map)
+			let match_field f = match f with
+				Field(scope, d, n) -> 
+					(* Have to update this with all parent classes checks *)
+					if scope = Ast.Private && tlenv.env_name <> env.env_name then
+						raise(Exceptions.CannotAccessPrivateFieldInNonProperScope(n, env.env_name, tlenv.env_name))
+					else d
+			in	
+			try match_field (StringMap.find id cmap.field_map)
 			with | Not_found -> raise (Exceptions.UnknownIdentifierForClass(id, cname))
 		in
 		function
 			(* Check fields in parent *)
-			Id s 				-> SId(s, get_id_type_from_object env s ptype_name), env
+			Id s 				-> SId(s, (get_id_type_from_object env s pt_name top_level_env)), env
 			(* Check functions in parent *)
 		| 	Call(fname, el) 	-> 
-				let env = construct_env env.env_class_maps ptype_name env.env_cmap env.env_locals env.env_parameters env.env_returnType env.env_callStack env.env_reserved in
+				let env = update_env_name env pt_name in
 				check_call_type true env fname el, env
 			(* Set parent, check if base is field *)
 		| 	ObjAccess(e1, e2) 	-> 
 				let old_env = env in
-				let lhs, env = check_rhs env parent_type e1 in
+				let lhs, env = check_rhs env parent_type top_level_env e1 in
 				let lhs_type = get_type_from_sexpr lhs in
-				let rhs, env = check_rhs env lhs_type e2 in
+
+				let pt_name = ptype_name lhs_type in
+				let lhs_env = update_env_name env pt_name in
+
+				let rhs, env = check_rhs lhs_env lhs_type top_level_env e2 in
 				let rhs_type = get_type_from_sexpr rhs in
 				SObjAccess(lhs, rhs, rhs_type), old_env
 		| 	_ as e				-> raise (Exceptions.InvalidAccessLHS (Utils.string_of_expr e))
@@ -362,7 +386,11 @@ and check_obj_access env lhs rhs =
 	| _ ->
 		let lhs = check_lhs lhs in
 		let lhs_type = get_type_from_sexpr lhs in 
-		let rhs, _ = check_rhs env lhs_type rhs in
+
+		let ptype_name = ptype_name lhs_type in
+		let lhs_env = update_env_name env ptype_name in
+
+		let rhs, _ = check_rhs lhs_env lhs_type env rhs in
 		let rhs_type = get_type_from_sexpr rhs in
 		SObjAccess(lhs, rhs, rhs_type)
 

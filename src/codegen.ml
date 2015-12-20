@@ -785,6 +785,5 @@ let codegen_sprogram sprogram =
 	let _ = linker Conf.bindings_path in
 	the_module
 
-(* Need to look at overrides flag and add implicity cast at the beginning *)
 (* Need to handle assignment of two different types *)
 (* Need to handle private/public access *)
