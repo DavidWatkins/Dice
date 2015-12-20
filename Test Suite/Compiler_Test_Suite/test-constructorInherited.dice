@@ -34,6 +34,6 @@ class test {
       class circle a = new circle(0,0,7); 
       print(a.xCoord);
       print(a.yCoord);
-      print(a.raduis);
+      print(a.radius);
   }
 }

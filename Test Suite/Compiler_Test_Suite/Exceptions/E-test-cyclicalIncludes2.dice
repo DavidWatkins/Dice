@@ -1,5 +1,0 @@
-include("Test Suite/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludes.dice");
-
-class test2 {
-	
-}

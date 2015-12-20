@@ -1,0 +1,10 @@
+include("Test Suite/Compiler_Test_Suite/test-cyclicalIncludes.dice");
+
+class test2 {
+	constructor(){
+		this.output2();
+	}
+	public void output2(){
+		print("b");
+	}
+}
