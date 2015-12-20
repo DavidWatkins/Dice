@@ -1,7 +1,10 @@
 class test {
   public void main(char[][] args) {
-      float a = 1.00000000000000000000000000000000000000000000000000000002;
+      float a = 0.01175494;
+      float b = 1010123.45;
       print(a);
+      print("\n");
+      print(b);
 
      }
 }

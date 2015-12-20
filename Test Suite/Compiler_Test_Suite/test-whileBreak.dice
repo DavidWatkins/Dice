@@ -1,0 +1,13 @@
+class test {
+	public void main(char[][] args) {
+	  int i;
+	  i = 5;
+	  while (i > 0) {
+	    print(i);
+	    if(i==3){
+	    	break;
+	    	}
+	    i = i - 1;
+	  }
+	}
+}
