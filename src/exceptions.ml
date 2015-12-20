@@ -53,6 +53,7 @@ exception CyclicalDependencyBetween of string * string
 exception CannotAccessPrivateFieldInNonProperScope of string * string * string
 exception CannotCallBreakOutsideOfLoop
 exception CannotCallContinueOutsideOfLoop
+exception CannotAccessPrivateFunctionInNonProperScope of string * string * string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

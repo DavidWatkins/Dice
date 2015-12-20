@@ -10,6 +10,7 @@ module StringMap = Map.Make (String)
 module StringSet = Set.Make (String)
 
 let struct_indexes:(string, int) Hashtbl.t = Hashtbl.create 10
+let predecessors:(string, string list) Hashtbl.t = Hashtbl.create 10
 
 module SS = Set.Make(
 	struct
@@ -361,7 +362,7 @@ and check_obj_access env lhs rhs =
 			(* Check functions in parent *)
 		| 	Call(fname, el) 	-> 
 				let env = update_env_name env pt_name in
-				check_call_type true env fname el, env
+				check_call_type top_level_env true env fname el, env
 			(* Set parent, check if base is field *)
 		| 	ObjAccess(e1, e2) 	-> 
 				let old_env = env in
@@ -397,45 +398,52 @@ and check_obj_access env lhs rhs =
 		let rhs_type = get_type_from_sexpr rhs in
 		SObjAccess(lhs, rhs, rhs_type)
 
-and check_call_type isObjAccess env fname el = 
+and check_call_type top_level_env isObjAccess env fname el = 
 	let sel, env = exprl_to_sexprl env el in
 	(* check that 'env.env_name' is in the list of defined classes *)
 	let cmap = 
 		try StringMap.find env.env_name env.env_class_maps
 		with | Not_found -> raise (Exceptions.UndefinedClass env.env_name)
 	in
+
+	(* Add a reference to the class in front of the function call *)
+	(* Must properly handle the case where this is a reserved function *)
+
 	(* get a list of the types of the actuals to match against defined function formals *)
 	let params = List.fold_left (fun s e -> s ^ "." ^ (Utils.string_of_datatype (get_type_from_sexpr e))) "" sel in
 	let sfname = env.env_name ^ "." ^ fname ^ params in
-	let (fname, ftype, func_type) = 
-		try (sfname, (StringMap.find sfname cmap.func_map).returnType, User)
-		with | Not_found -> 
-		if isObjAccess then raise (Exceptions.FunctionNotFound fname)
-		else 
-		try (fname, (StringMap.find fname cmap.reserved_map).sreturnType, Reserved)
-		with | Not_found -> raise (Exceptions.FunctionNotFound fname)
+
+	let index fdecl =
+		let cdecl = cmap.cdecl in
+		(* Have to update this with all parent classes checks *)
+		let _ = 
+			if fdecl.scope = Ast.Private && top_level_env.env_name <> env.env_name then
+			raise(Exceptions.CannotAccessPrivateFunctionInNonProperScope(get_name env.env_name fdecl, env.env_name, top_level_env.env_name))
+		in
+		(* Not exactly sure why there needs to be a list.rev *)
+		let fns = List.rev cdecl.cbody.methods in
+		let rec find x lst =
+		    match lst with
+		    | [] -> raise (Failure ("Could not find " ^ sfname))
+		    | fdecl :: t -> 
+		    	let search_name = (get_name env.env_name fdecl) in
+		    	if x = search_name then 0 
+		    	else if search_name = "main" then find x t 
+		    	else 1 + find x t
+		in
+		find sfname fns
 	in
-	(* Add a reference to the class in front of the function call *)
-	(* Must properly handle the case where this is a reserved function *)
-	let sel = if func_type = Sast.User then sel else sel in
-	let index = if func_type = Sast.User 
-		then 
-			let cdecl = cmap.cdecl in
-			(* Not exactly sure why there needs to be a list.rev *)
-			let fns = List.rev cdecl.cbody.methods in
-			let rec find x lst =
-			    match lst with
-			    | [] -> raise (Failure ("Could not find " ^ sfname))
-			    | fdecl :: t -> 
-			    	let search_name = (get_name env.env_name fdecl) in
-			    	if x = search_name then 0 
-			    	else if search_name = "main" then find x t 
-			    	else 1 + find x t
-			in
-			find sfname fns
-		else 0
-	in
-	SCall(fname, sel, ftype, index)
+
+	try let fdecl = (StringMap.find sfname cmap.func_map) in
+		let index = index fdecl in
+		SCall(sfname, sel, fdecl.returnType, index)
+	with | Not_found -> 
+	if isObjAccess then raise (Exceptions.FunctionNotFound fname)
+	else 
+	try 
+		let func = (StringMap.find fname cmap.reserved_map) in
+		SCall(fname, sel, func.sreturnType, 0)
+	with | Not_found -> raise (Exceptions.FunctionNotFound fname)	
 
 and check_object_constructor env s el = 
 	let sel, env = exprl_to_sexprl env el in
@@ -522,7 +530,7 @@ and expr_to_sexpr env = function
 
 	|   ObjAccess(e1, e2)   -> check_obj_access env e1 e2, env
 	|   ObjectCreate(s, el) -> check_object_constructor env s el, env
-	|   Call(s, el)         -> check_call_type false env s el, env
+	|   Call(s, el)         -> check_call_type env false env s el, env
 
 	|   ArrayCreate(d, el)  -> check_array_init env d el, env
 	|   ArrayAccess(e, el)  -> check_array_access env e el, env
@@ -994,10 +1002,13 @@ let build_inheritance_forest cdecls cmap =
 	let handler a cdecl =
 		match cdecl.extends with 
 			Parent(s) 	-> 
-				if (StringMap.mem s a) then 
-					(StringMap.add s (cdecl.cname::(StringMap.find s a)) a) 
+				let new_list = if (StringMap.mem s a) then
+					cdecl.cname::(StringMap.find s a)
 				else
-					StringMap.add s [cdecl.cname] a 
+					[cdecl.cname]
+				in
+				Hashtbl.add predecessors s new_list; 
+				(StringMap.add s new_list a) 
 		| 	NoParent 	-> a
 	in
 	let forest = List.fold_left handler StringMap.empty cdecls in
