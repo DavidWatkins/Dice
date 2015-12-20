@@ -77,14 +77,14 @@ class String {
 
    constructor(char[] input) {
 
-       this.my_string = this.copy(input);         
+       this.my_string = this.copy_internal(input);         
        
        this.length = this.length();
    }
 
    (* PRIVATE CLASSES -----------------------------------------   *)
     
-   private int length(char[] input) {
+   private int length_internal(char[] input) {
         int length = 0;
 
         while(input[length] != 0) {
@@ -94,9 +94,9 @@ class String {
         return length;
     }
 
-   private char[] copy(char[] input) {
+   private char[] copy_internal(char[] input) {
 
-        char[] newString = new char[this.length(input) + 1];
+        char[] newString = new char[this.length_internal(input) + 1];
 
         int i = 0;
         for (; input[i] != 0; i = i + 1) {
@@ -131,7 +131,7 @@ class String {
 
    public class String copy(class String input) {
 
-        char[] newArray = this.copy(input.string());
+        char[] newArray = this.copy_internal(input.string());
         class String newString = new String(newArray);
         return newString;
     }

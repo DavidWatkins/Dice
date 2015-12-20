@@ -55,6 +55,8 @@ exception CannotCallBreakOutsideOfLoop
 exception CannotCallContinueOutsideOfLoop
 exception CannotAccessPrivateFunctionInNonProperScope of string * string * string
 exception CannotPassNonInheritedClassesInPlaceOfOthers of string * string
+exception IncorrectTypePassedToFunction of string * string
+exception IncorrectNumberOfArguments of string * int * int
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

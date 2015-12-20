@@ -160,11 +160,16 @@ let process_includes filename includes classes =
 
 let get_name cname fdecl = 
 	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
-	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
+	(* let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in *)
 	let name = Utils.string_of_fname fdecl.fname in
 	if name = "main" 
 		then "main"
-		else cname ^ "." ^ name ^ params
+		else cname ^ "." ^ name(*  ^ params *)
+
+let get_constructor_name cname fdecl = 
+	let params = List.fold_left (fun s -> (function Formal(t, _) -> s ^ "." ^ Utils.string_of_datatype t | _ -> "" )) "" fdecl.formals in
+	let name = Utils.string_of_fname fdecl.fname in
+	cname ^ "." ^ name ^ params
 
 let get_name_without_class fdecl = 
 	(* We use '.' to separate types so llvm will recognize the function name and it won't conflict *)
@@ -185,7 +190,7 @@ let build_class_maps reserved cdecls =
 				then raise(Exceptions.CannotUseReservedFuncName(Utils.string_of_fname fdecl.fname))
 			else (StringMap.add (funcname fdecl) fdecl m)	
 		in
-		let constructor_name = get_name cdecl.cname in
+		let constructor_name = get_constructor_name cdecl.cname in
 		let constructorfun m fdecl = 
 			if fdecl.formals = [] then m
 			else if StringMap.mem (constructor_name fdecl) m 
@@ -193,7 +198,7 @@ let build_class_maps reserved cdecls =
 				else (StringMap.add (constructor_name fdecl) fdecl m)
 		in
 		let default_c = default_c cdecl.cname in
-		let constructor_map = StringMap.add (get_name cdecl.cname default_c) default_c StringMap.empty in
+		let constructor_map = StringMap.add (get_constructor_name cdecl.cname default_c) default_c StringMap.empty in
 		(if (StringMap.mem cdecl.cname m) then raise (Exceptions.DuplicateClassName(cdecl.cname)) else
 			StringMap.add cdecl.cname 
 			{ 	field_map = List.fold_left fieldfun StringMap.empty cdecl.cbody.fields; 
@@ -403,34 +408,6 @@ and check_call_type top_level_env isObjAccess env fname el =
 		with | Not_found -> raise (Exceptions.UndefinedClass env.env_name)
 	in
 
-	(* Add a reference to the class in front of the function call *)
-	(* Must properly handle the case where this is a reserved function *)
-
-	(* get a list of the types of the actuals to match against defined function formals *)
-	let params = List.fold_left (fun s e -> s ^ "." ^ (Utils.string_of_datatype (get_type_from_sexpr e))) "" sel in
-	let sfname = env.env_name ^ "." ^ fname ^ params in
-
-	let index fdecl =
-		let cdecl = cmap.cdecl in
-		(* Have to update this with all parent classes checks *)
-		let _ = 
-			if fdecl.scope = Ast.Private && top_level_env.env_name <> env.env_name then
-			raise(Exceptions.CannotAccessPrivateFunctionInNonProperScope(get_name env.env_name fdecl, env.env_name, top_level_env.env_name))
-		in
-		(* Not exactly sure why there needs to be a list.rev *)
-		let fns = List.rev cdecl.cbody.methods in
-		let rec find x lst =
-		    match lst with
-		    | [] -> raise (Failure ("Could not find " ^ sfname))
-		    | fdecl :: t -> 
-		    	let search_name = (get_name env.env_name fdecl) in
-		    	if x = search_name then 0 
-		    	else if search_name = "main" then find x t 
-		    	else 1 + find x t
-		in
-		find sfname fns
-	in
-
 	let handle_param formal param = 
 		let fty = match formal with Formal(d, _) -> d | _ -> Datatype(Void_t) in
 		let pty = get_type_from_sexpr param in
@@ -444,20 +421,55 @@ and check_call_type top_level_env isObjAccess env fname el =
 				let rt = Datatype(Objecttype(f)) in
 				SCall("cast", [param; SId("ignore", rt)], rt, 0)
 				else param
-		|	_ -> param
+		|	_ -> if fty = pty then param else raise(Exceptions.IncorrectTypePassedToFunction(fname, Utils.string_of_datatype pty))
 	in
-	try let fdecl = (StringMap.find sfname cmap.func_map) in
-		let index = index fdecl in
-		let sel = List.map2 handle_param fdecl.formals sel in 
-		SCall(sfname, sel, fdecl.returnType, index)
-	with | Not_found -> 
-	if isObjAccess then raise (Exceptions.FunctionNotFound fname)
-	else 
-	try 
-		let func = (StringMap.find fname cmap.reserved_map) in
-		SCall(fname, sel, func.sreturnType, 0)
-	with | Not_found -> raise (Exceptions.FunctionNotFound fname)	
 
+	let index fdecl fname =
+		let cdecl = cmap.cdecl in
+		(* Have to update this with all parent classes checks *)
+		let _ = 
+			if fdecl.scope = Ast.Private && top_level_env.env_name <> env.env_name then
+			raise(Exceptions.CannotAccessPrivateFunctionInNonProperScope(get_name env.env_name fdecl, env.env_name, top_level_env.env_name))
+		in
+		(* Not exactly sure why there needs to be a list.rev *)
+		let fns = List.rev cdecl.cbody.methods in
+		let rec find x lst =
+		    match lst with
+		    | [] -> raise (Failure ("Could not find " ^ fname))
+		    | fdecl :: t -> 
+		    	let search_name = (get_name env.env_name fdecl) in
+		    	if x = search_name then 0 
+		    	else if search_name = "main" then find x t 
+		    	else 1 + find x t
+		in
+		find fname fns
+	in
+
+	let handle_params (formals) params = 
+		match formals, params with 
+			[Many(Any)], _ -> params
+		| 	[], [] -> []
+		| 	[], _
+		| 	_, [] -> raise(Exceptions.IncorrectTypePassedToFunction(fname, Utils.string_of_datatype (Datatype(Void_t))))
+		| 	_ -> 
+			let len1 = List.length formals in
+			let len2 = List.length params in
+			if len1 <> len2 then raise(Exceptions.IncorrectNumberOfArguments(fname, len1, len2))
+			else
+			List.map2 handle_param formals sel
+	in
+
+	let sfname = env.env_name ^ "." ^ fname in
+	try let func = StringMap.find fname cmap.reserved_map in
+		let actuals = handle_params func.sformals sel in
+		SCall(fname, actuals, func.sreturnType, 0)
+	with | Not_found -> 
+	try let f = StringMap.find sfname cmap.func_map in
+		let actuals = handle_params f.formals sel in
+		let index = index f sfname in
+		SCall(sfname, actuals, f.returnType, index)
+	with | Not_found -> raise(Exceptions.FunctionNotFound(fname))
+	
 and check_object_constructor env s el = 
 	let sel, env = exprl_to_sexprl env el in
 	(* check that 'env.env_name' is in the list of defined classes *)
@@ -760,7 +772,7 @@ let convert_constructor_to_sfdecl class_maps reserved class_map cname constructo
 	} in 
 	let fbody = fst (convert_stmt_list_to_sstmt_list env constructor.body) in
 	{
-		sfname 		= Ast.FName (get_name cname constructor);
+		sfname 		= Ast.FName (get_constructor_name cname constructor);
 		sreturnType = Datatype(Objecttype(cname));
 		sformals 	= constructor.formals;
 		sbody 		= append_code_to_constructor fbody cname (Datatype(Objecttype(cname)));
@@ -1006,7 +1018,7 @@ let add_reserved_functions =
 		reserved_stub "sizeof" 	(i32_t) 	([mf Any "in"]);
 		reserved_stub "open" 	(i32_t) 	([mf str_t "path"; mf i32_t "flags"]);
 		reserved_stub "close" 	(i32_t) 	([mf i32_t "fd"]);
-		reserved_stub "read" 	(i32_t) 	([mf i32_t "fd"; mf str_t "buf"; mf i32_t "nbyte"; mf i32_t "offset"]);
+		reserved_stub "read" 	(i32_t) 	([mf i32_t "fd"; mf str_t "buf"; mf i32_t "nbyte"]);
 		reserved_stub "write" 	(i32_t) 	([mf i32_t "fd"; mf str_t "buf"; mf i32_t "nbyte"]);
 		reserved_stub "lseek" 	(i32_t) 	([mf i32_t "fd"; mf i32_t "offset"; mf i32_t "whence"]);
 		reserved_stub "exit" 	(void_t) 	([mf i32_t "status"]);

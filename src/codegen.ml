@@ -322,7 +322,7 @@ and deref ptr t llbuilder =
 	build_gep ptr (Array.of_list [ptr]) "tmp" llbuilder
 
 and codegen_obj_access isAssign lhs rhs d llbuilder = 
-	let codegen_func_call fptr parent_expr el d llbuilder = 
+	let codegen_func_call param_ty fptr parent_expr el d llbuilder = 
 		let match_sexpr se = match se with
 			SId(id, d) -> let isDeref = match d with
 				Datatype(Objecttype(_)) -> false
@@ -330,6 +330,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 			in codegen_id isDeref false id d llbuilder
 		| 	se -> codegen_sexpr llbuilder se
 		in
+		let parent_expr = build_pointercast parent_expr param_ty "tmp" llbuilder in
 		let params = List.map match_sexpr el in
 		match d with
 			Datatype(Void_t) -> build_call fptr (Array.of_list (parent_expr :: params)) "" llbuilder
@@ -359,9 +360,12 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				let c_index = build_load c_index "cindex" llbuilder in
 				let lookup = func_lookup "lookup" in
 				let fptr = build_call lookup [| c_index; index |] "fptr" llbuilder in
-				let f_ty = type_of (func_lookup fname) in
+				let fptr2 = func_lookup fname in
+				let f_ty = type_of fptr2 in
+				let param1 = param fptr2 0 in
+				let param_ty = type_of param1 in
 				let fptr = build_pointercast fptr f_ty "fptr" llbuilder in
-				let ret = codegen_func_call fptr parent_expr el d llbuilder in
+				let ret = codegen_func_call param_ty fptr parent_expr el d llbuilder in
 				let ret = match d with
 					Datatype(Objecttype(_)) -> 
 						(* if isAssign && isLHS then
@@ -377,7 +381,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				let e1 = check_rhs true parent_expr parent_type e1 in
 				let e2 = check_rhs false e1 e1_type e2 in
 				e2
-		| 	_ -> raise (Exceptions.InvalidAccessLHS ("Need to print sexpr"))
+		| 	_ as e -> raise (Exceptions.InvalidAccessLHS (Utils.string_of_sexpr e))
 	in 
 	let lhs_type = Analyzer.get_type_from_sexpr lhs in 
 	match lhs_type with
