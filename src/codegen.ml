@@ -259,39 +259,6 @@ and codegen_cast el d llbuilder =
 	let expr = codegen_sexpr llbuilder expr in
 	cast_malloc_to_objtype expr t d llbuilder
 
-and codegen_input el d llbuilder =
-	let malloc = func_lookup "malloc" in
-	let realloc = func_lookup "realloc" in
-
-	let SIZE = const_int i32_t 100 in
-	let init_size = build_alloca i32_t "init_size" llbuilder in
-	ignore(build_store SIZE init_size llbuilder);
-
-
-		let new_block label =
-		let f = block_parent (insertion_block llbuilder) in
-		append_block (global_context ()) label f
-	in
-	let bbcurr = insertion_block llbuilder in
-	let bbcond = new_block "read.cond" in
-	let bbbody = new_block "read.init" in
-	let bbdone = new_block "read.done" in
-	ignore (build_br bbcond llbuilder);
-	position_at_end bbcond llbuilder;
-
-	(* Counter into the length of the array *)
-	let counter = build_phi [const_int i32_t start_pos, bbcurr] "counter" llbuilder in
-	add_incoming ((build_add counter (const_int i32_t 1) "tmp" llbuilder), bbbody) counter;
-	let cmp = build_icmp Icmp.Slt counter arr_len "tmp" llbuilder in
-	ignore (build_cond_br cmp bbbody bbdone llbuilder);
-	position_at_end bbbody llbuilder;
-
-	(* Assign array position to init_val *)
-	let arr_ptr = build_gep arr [| counter |] "tmp" llbuilder in
-	ignore (build_store init_val arr_ptr llbuilder);
-	ignore (build_br bbcond llbuilder);
-	position_at_end bbdone llbuilder
-
 and codegen_call llbuilder d el = function
 		"print" 	-> codegen_print el llbuilder
 	| 	"sizeof"	-> codegen_sizeof el llbuilder
@@ -303,7 +270,8 @@ and codegen_call llbuilder d el = function
 	| 	"read" 		-> codegen_func_call "read" el d llbuilder
 	| 	"lseek" 	-> codegen_func_call "lseek" el d llbuilder
 	| 	"exit" 		-> codegen_func_call "exit" el d llbuilder
-	| 	"input" 	-> codegen_input el d llbuilder
+	| 	"input" 	-> codegen_func_call "input" el d llbuilder
+    |   "getchar"   -> codegen_func_call "getchar" el d llbuilder
 	| 	_ as fname 	-> raise (Exceptions.UnableToCallFunctionWithoutParent fname)(* codegen_func_call fname el llbuilder *)
 
 and codegen_id isDeref checkParam id d llbuilder = 
@@ -779,15 +747,11 @@ let codegen_vtbl scdecls =
 		build_ret fptr llbuilder 
 	
 let codegen_library_functions () = 
+	(* C Std lib functions *)
 	let printf_ty = var_arg_function_type i32_t [| pointer_type i8_t |] in
 	let _ = declare_function "printf" printf_ty the_module in
 	let malloc_ty = function_type (str_t) [| i32_t |] in
 	let _ = declare_function "malloc" malloc_ty the_module in
-	(* Not sure we need rec_init *)
-    let rec_init_ty = function_type void_t [| (pointer_type i64_t); i32_t; (pointer_type i32_t); (pointer_type i32_t); (pointer_type i32_t); i32_t; i32_t |] in
-    let _ = declare_function "rec_init" rec_init_ty the_module in
-    let init_arr_ty = function_type (pointer_type i64_t) [| (pointer_type i32_t); i32_t |] in
-    let _ = declare_function "init_arr" init_arr_ty the_module in 
     let open_ty = function_type i32_t [| (pointer_type i8_t); i32_t |] in 
     let _ = declare_function "open" open_ty the_module in
     let close_ty = function_type i32_t [| i32_t |] in
@@ -800,10 +764,20 @@ let codegen_library_functions () =
     let _ = declare_function "lseek" lseek_ty the_module in
     let exit_ty = function_type void_t [| i32_t |] in
     let _ = declare_function "exit" exit_ty the_module in
-    let fty = function_type (pointer_type i64_t) [| i32_t; i32_t |] in
-	let _ = define_function "lookup" fty the_module in
 	let realloc_ty = function_type str_t [| str_t; i32_t |] in
 	let _ = declare_function "realloc" realloc_ty the_module in
+    let getchar_ty = function_type (i32_t) [| |] in
+    let _ = declare_function "getchar" getchar_ty the_module in
+
+	(* Dice defined functions *)
+	let fty = function_type (pointer_type i64_t) [| i32_t; i32_t |] in
+	let _ = define_function "lookup" fty the_module in
+    let rec_init_ty = function_type void_t [| (pointer_type i64_t); i32_t; (pointer_type i32_t); (pointer_type i32_t); (pointer_type i32_t); i32_t; i32_t |] in
+    let _ = declare_function "rec_init" rec_init_ty the_module in
+    let init_arr_ty = function_type (pointer_type i64_t) [| (pointer_type i32_t); i32_t |] in
+    let _ = declare_function "init_arr" init_arr_ty the_module in
+    let input_ty = function_type str_t [||] in
+    let _ = declare_function "input" input_ty the_module in
     ()
 
 let codegen_struct_stub s =

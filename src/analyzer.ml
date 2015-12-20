@@ -995,6 +995,8 @@ let add_reserved_functions =
 		reserved_stub "write" 	(i32_t) 	([mf i32_t "fd"; mf str_t "buf"; mf i32_t "nbyte"]);
 		reserved_stub "lseek" 	(i32_t) 	([mf i32_t "fd"; mf i32_t "offset"; mf i32_t "whence"]);
 		reserved_stub "exit" 	(void_t) 	([mf i32_t "status"]);
+        reserved_stub "getchar" (i32_t)    	([]);
+        reserved_stub "input" 	(str_t) 	([]);
 	] in
 	reserved
 
