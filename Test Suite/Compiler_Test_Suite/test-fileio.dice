@@ -3,9 +3,9 @@ include("stdlib");
 class Two {
 
 	public void main(char[][] args) {
-        class File a = new File("test.txt", true);
-        char[] buf = a.readfile(5);
-        a.writefile("butts", -1);
+        class File a = new File("Test Suite/Compiler_Test_Suite/test-fileio.dice", true);
+        char[] buf = a.readfile(300);
+        a.writefile(buf, -1);
         a.closefile();
         print(buf);
 	}

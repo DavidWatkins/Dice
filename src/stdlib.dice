@@ -256,8 +256,6 @@ class File {
         if (this.fd < 0) {
             print("open failed");
             exit(1);
-        } else {
-            print("fd = ", this.fd);
         }
     }
 
