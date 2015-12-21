@@ -1,0 +1,114 @@
+include("stdlib");
+
+class Player {
+    public class LocationObj placeTile(bool retry)   {
+        return new LocationObj();
+    }
+
+    public void setResult(class Location move) {}
+}
+
+(**
+ * Implementation of Location that has horizontal and verticale coordinates
+ * 
+ * @author David Watkins
+ * @UNI djw2146
+ *)
+class LocationObj {
+ (* ================================== *)
+
+    private int horizontal;
+    private int vertical;
+    
+    (**
+     * Creates a LocationObj with horizontal and vertical coordinates
+     * 
+     * @param horizontal x coordinate
+     * @param vertical y coordinate
+     *)
+    constructor(int horizontal, int vertical){
+        this.horizontal = horizontal;
+        this.vertical = vertical;
+    }
+    
+    (* 
+     * @Return Horizontal coordinate
+     *)
+    (* @Override *) (* ================================== *)
+    public int getHorizontal() {
+        return this.horizontal;
+    }
+    
+    (* 
+     * @Return Vertical coordinate
+     *)
+    (* @Override *) (* ================================== *)
+    public int getVertical() {
+        return this.vertical;
+    }
+}
+
+class HumanPlayer extends Player {
+    private class Board board;
+    private int myPieceType;
+
+    constructor()   {
+        this.board = new Board();
+        this.myPieceType = 2;
+        class Board b = this.board;
+        b.initializeBoard();
+    }
+
+    public class LocationObj placeTile(bool retry)   {
+        if (this.myPieceType == 2)
+            this.myPieceType = 1;
+        if (retry)
+            print("Last move was invalid. Retry.\n");
+        print("It's your turn\n");
+        class Board b = this.board;
+        b.printBoard();
+
+        print("Please enter your move\n");
+        class LocationObj move = getLocationObjChoice();
+        b.setPlayerMove(move, this.myPieceType);
+        return move;
+    }
+
+    public void setResult(class LocationObj move) {
+        if (myType == 1 and not 
+            ((move.getHorizontal() == 3 or move.getHorizontal() == 4) and 
+                (move.getVertical() == 3 or move.getVertical() == 4)))
+            this.myPieceType = 0;
+
+        int opponentPieceType;
+        if (this.myPieceType = 0) 
+            opponentPieceType = 1;
+        else
+            oppponentPieceType = 0;
+        class Board b = this.board;
+        b.setPlayerMove(move, opponentPieceType);
+    }
+
+    private class LocationObj getLocationObjChoice()    { 
+        char[] userInput;
+        class String uInput;
+        class Board b = new Board();
+        class LocationObj move = null;    
+        while (not (b.isValid(move, this.myPieceType))) {
+            print("You are " , myPieceType , ". What is the x location of your next move?");
+            userInput = input();
+            uInput = new String(userInput);
+            int x = uInput.toInteger();
+            print("You are " , myPieceType , ". What is the y location of your next move?");
+            userInput = input();
+            uInput = new String(userInput);
+            int y = uInput.toInteger();
+            move = new LocationObj(x - 1, y - 1);
+            if (not ())
+                print("invalid move, try again.\n");
+        }
+        return move;
+    }
+
+    public void main(char[][] args) {}
+}
