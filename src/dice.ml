@@ -124,6 +124,7 @@ let _ =
 	|   Exceptions.CannotAccessPrivateFieldInNonProperScope(str,str2,str3) -> print_endline("CannotAccessPrivateFieldInNonProperScope("^str^","^str2^","^str3^")")
 	|   Exceptions.DuplicateClassName(str)      -> print_endline("Exceptions.DuplicateClassName("^str^")")
 	|   Exceptions.LocalAssignTypeMismatch(str,str2) -> print_endline("LocalAssignTypeMismatch("^str^","^str2^")" )
+	|   Exceptions.CannotAccessPrivateFunctionInNonProperScope(str,str2,str3) -> print_endline("CannotAccessPrivateFunctionInNonProperScope("^str^","^str2^","^str3^")")
 
 	|  	Exceptions.InvalidNumberCompilerArguments i -> print_endline ("Invalid argument passed " ^ (string_of_int i)); print_string help_string
 	| 	Exceptions.InvalidCompilerArgument s 		-> print_endline ("Invalid argument passed " ^ s); print_string help_string
