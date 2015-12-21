@@ -1,0 +1,137 @@
+include("stdlib");
+
+class Animal{
+	public int weight;
+	constructor(){
+		this.weight = 0;
+	}
+
+	constructor(int w){
+		this.weight = w;
+	}
+
+	public void move(){
+		print("Animals move in many ways");
+	}
+}
+
+class Bird extends Animal {
+	public int maxFlyingHeight;
+
+	constructor(){
+		this.weight = 0;
+		this.maxFlyingHeight = 0;
+	}
+
+	constructor(int w, int h){
+		this.weight = w;
+		this.maxFlyingHeight = h;
+	}
+
+	public void move(){
+		print("Birds fly!");
+	}
+	
+}
+
+class Dog extends Animal {
+	public int speed;
+
+	constructor(){
+		this.weight = 0;
+		this.speed = 0;
+	}
+
+	constructor(int w, int s){
+		this.weight = w;
+		this.speed = s;
+	}
+
+	public void move(){
+		print("Dogs run!");
+	}
+}
+
+class Snake extends Animal {
+	public int slitherSpeed;
+
+	constructor(){
+		this.weight = 0;
+		this.slitherSpeed = 0;
+	}
+
+	constructor(int w, int s){
+		this.weight = w;
+		this.slitherSpeed = s;
+	}
+
+	public void move(){
+		print("Snakes slither!");
+	}
+}
+
+class Marnie extends Dog {
+	public int cuteness;
+
+	constructor(){
+		this.weight = 0;
+		this.speed = 0;
+	}
+
+	constructor(int w, int s){
+		this.weight = w;
+		this.speed = s;
+	}
+
+	constructor(int w, int s, int c){
+		this.weight = w;
+		this.speed = s;
+		this.cuteness = c;
+	}
+
+	public void move(){
+		class File a = new File("marnie1.txt", true);
+        char[] buf = a.readfile(4500);
+        a.closefile();
+        print(buf);
+        print("\n");
+	}
+}
+
+class test {
+	public void main(char[][] args) {
+		this.logo();
+
+		bool keepGoing = true;
+		while(keepGoing){
+			this.animalsToChoose();
+			char[] buf = input();
+			print("\n");
+			print(buf);
+			print("\n");
+
+		}
+
+        class Marnie a = new Marnie();
+        a.move();
+	}
+
+	public void animalsToChoose(){
+		print("1-Bird\n2-Dog\n3-Snake\n4-Exit\nPlease choose an animal or exit(by selecting a number):");
+
+	}
+
+	public void logo(){
+		class File a = new File("logo.txt", true);
+        char[] buf = a.readfile(4500);
+        a.closefile();
+        print(buf);
+ 
+        int i;
+		for(i=0;i<3;i=i+1){
+		print("\n");
+		}
+
+		print("Welcome to the animal farm!\n\n");
+	}
+}
