@@ -5,7 +5,7 @@ class Two {
 	public void main(char[][] args) {
         class File a = new File("test.txt", true);
         char[] buf = a.readfile(5);
-        a.writefile("butts", 3);
+        a.writefile("butts", -1);
         a.closefile();
         print(buf);
 	}

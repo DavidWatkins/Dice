@@ -354,10 +354,17 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				let search_term = (parent_str ^ "." ^ field) in
 				let field_index = Hashtbl.find struct_field_indexes search_term in
 				let _val = build_struct_gep parent_expr field_index field llbuilder in
-				if isAssign then
-					build_load _val field llbuilder
-				else 
+				let _val = match d with 
+					Datatype(Objecttype(_)) -> 
+					if not isAssign then _val
+					else build_load _val field llbuilder
+				| _ ->
+				if not isAssign then
 					_val
+				else
+					build_load _val field llbuilder
+				in
+				_val
 
 		| 	SArrayAccess(e, el, d) ->
 
@@ -368,7 +375,7 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 			| 	_ -> build_add index (const_int i32_t 1) "tmp" llbuilder
 			in
 		    let _val = build_gep ce [| index |] "tmp" llbuilder in
-		    if isLHS
+		    if isLHS && isAssign
 		    	then _val
 		    	else build_load _val "tmp" llbuilder 
 
@@ -383,22 +390,20 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 				let f_ty = type_of fptr2 in
 				let param1 = param fptr2 0 in
 				let param_ty = type_of param1 in
-				let fptr = build_pointercast fptr f_ty "fptr" llbuilder in
+				let fptr = build_pointercast fptr f_ty fname llbuilder in
 				let ret = codegen_func_call param_ty fptr parent_expr el d llbuilder in
-				let ret = match d with
-					Datatype(Objecttype(_)) -> 
-						(* if isAssign && isLHS then
-							build_load ret "tmp" llbuilder
-						else *)
-							ret
-					| _ -> ret
+				let ret = ret
+					(* if not isLHS && not isAssign then
+						build_load ret "tmp" llbuilder
+					else
+						ret *)
 				in
 				ret
 			(* Set parent, check if base is field *)
 		| 	SObjAccess(e1, e2, d) 	-> 
 				let e1_type = Analyzer.get_type_from_sexpr e1 in
 				let e1 = check_rhs true parent_expr parent_type e1 in
-				let e2 = check_rhs false e1 e1_type e2 in
+				let e2 = check_rhs true e1 e1_type e2 in
 				e2
 		| 	_ as e -> raise (Exceptions.InvalidAccessLHS (Utils.string_of_sexpr e))
 	in 

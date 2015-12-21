@@ -251,10 +251,11 @@ class File {
         
         this.filePath = new String(path);
         this.isWriteEnabled = isWriteEnabled;
-        print(this.filePath.string());
-        this.fd = this.openfile(this.filePath, this.isWriteEnabled);
+        class String a = this.filePath;
+        this.fd = this.openfile(a, this.isWriteEnabled);
         if (this.fd < 0) {
             print("open failed");
+            exit(1);
         } else {
             print("fd = ", this.fd);
         }
@@ -265,7 +266,6 @@ class File {
     private int openfile(class String path, bool isWriteEnabled) {
         
         if (isWriteEnabled) {
-
             (* 2 is the value for O_RDWR *)
             return open(path.string(), 2);
         } 
