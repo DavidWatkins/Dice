@@ -27,7 +27,7 @@ def escape characters:
 String Literals:
 "(ascii | escape)*"
 
-ID (Variable/Class/Field names):
+Identifiers/ID (Variable/Class/Field names):
 ['a'-'z' 'A'-'Z'] ( ['a'-'z' 'A'-'Z'] | ['0'-'9'] | '_' )*
 
 Char Literal:
@@ -152,12 +152,27 @@ continue;
 { <statements> } 
 
 
+==Classes
 
-==Functions
+=Class body
+
+A class body consists of three parts: constructors, fields, and functions. Fields and functions must contain a scope (public or private); constructors are not inherited 
+
+=Constructors
+
+constructor ( <datatype ID> ,<datatype ID>* ) {statements}
+
+=Functions
 
 Function call:
 {this| class ID}.ID(<expression> ,<expression>*)
 
 Function declaration:
 
-{public | private} 
+{public | private} {datatype} {ID} ( <datatype ID> ,<datatype ID>* )
+
+
+STILL NEED TO FINISH 
+
+
+
