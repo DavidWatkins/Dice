@@ -107,13 +107,51 @@ class test {
 			this.animalsToChoose();
 			char[] buf = input();
 			print("\n");
-			print(buf);
-			print("\n");
 
+			int choice = this.getInt(buf[0]);
+
+			if(choice==4)
+				break;
+			else
+				this.printMovement(choice);
+
+			print("\n");
 		}
 
         class Marnie a = new Marnie();
         a.move();
+	}
+
+	public int getInt(char num){
+		if(num=='1')
+			return 1;
+		else if(num=='2')
+			return 2;
+		else if(num=='3')
+			return 3;
+		else if(num=='4')
+			return 4;
+
+		return 0;
+
+	}
+
+	public void printMovement(int choice){
+
+		class Bird b = new Bird();
+		class Dog d = new Dog();
+		class Snake s = new Snake();
+		
+		if(choice == 1)
+			b.move();
+		else if(choice == 2)
+			d.move();
+		else if(choice == 3)
+			s.move();
+		else
+			print("Animal not selected!\n");
+
+		print("\n");
 	}
 
 	public void animalsToChoose(){
