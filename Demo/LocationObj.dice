@@ -5,7 +5,7 @@
  * @author David Watkins
  * @UNI djw2146
  *)
-public class LocationObj implements Location{
+public class LocationObj {
  (* ================================== *)
 
     private int horizontal;

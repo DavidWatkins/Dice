@@ -22,8 +22,11 @@ public class OthelloGame implements Game {
     public void initialize(class Player p1, class Player p2) {
         this.p1 = p1;
         this.p2 = p2;
+        
         this.board = new Board();
-        this.board.initializeBoard();//Sets the initial four moves on the board
+       
+        class Board board = this.board;
+        board.initializeBoard();//Sets the initial four moves on the board
         
         class LocationObj move1 = new LocationObj(3, 3);
         class LocationObj move2 = new LocationObj(4, 4); (*//White moves *)
@@ -54,61 +57,63 @@ public class OthelloGame implements Game {
      *)
    (* @Override *)
     public Player playGame() {
-        class Piece turn = new Piece.black; (*//Black always goes first *)
+        class Piece turn = 1; (*//Black always goes first *)
         (* ================================== *)
         int moveSkip = 0;
+        class Board board = this.board; 
         
-        while(this.board.thereIsWinner() == null && moveSkip != 2){ (*//No winner yet and two moves weren't skipped *)
+        while(board.thereIsWinner() == null && moveSkip != 2){ (*//No winner yet and two moves weren't skipped *)
+
             bool retry = false;
             class LocationObj move = null;
             
             if(!board.userMoveAvailable(turn)){ (*//No valid moves available for user*)
                 (* //Switch turn *)
                 (* ================================== *)
-                if(turn == Piece.black) turn = Piece.white;
-                else turn = Piece.black;
+                if(turn == 1) turn = 0;
+                else turn = 1;
                 
                 moveSkip = moveSkip + 1;
             }   
             
-            else if(turn == Piece.black){ (*//p1 turn *)
-                while(!this.board.isValid(move, turn)){ (*//Get p1 move*)
+            else if(turn == 1){ (*//p1 turn *)
+                while(!board.isValid(move, turn)){ (*//Get p1 move*)
 
                     move = (LocationObj) p1.placeTile(retry);
                     (* ================================== *)
                     retry = true;
                 }
                 
-                this.board.setPlayerMove(move, turn);
+                board.setPlayerMove(move, turn);
                 p2.setResult(move);
-                turn = Piece.white;
+                turn = 0;
                 (* ================================== *)
                 moveSkip = 0;
             }
             else{ (*//p2 turn *)
-                while(!this.board.isValid(move, turn)) { (*//get p2 move *)
+                while(!board.isValid(move, turn)) { (*//get p2 move *)
                     move = (LocationObj) p2.placeTile(retry);
                     (* ================================== *)
                     retry = true;
                 }
                 
-                this.board.setPlayerMove(move, turn);
+                board.setPlayerMove(move, turn);
                 p1.setResult(move);
-                turn = Piece.black;
+                turn = 1;
                 moveSkip = 0;
             }
             
-            this.board.setPlayerMove(move, turn);
+            board.setPlayerMove(move, turn);
             retry = false;
         }
         
         (*//The winner of the game *)
-        class Piece winner = this.board.whoHasMore();
+        class Piece winner = board.whoHasMore();
         
         (* //Return winner *)
-        if(winner == Piece.black) (* ================================== *)
+        if(winner == 1) (* ================================== *)
             return p1;
-        else if(winner == Piece.white)
+        else if(winner == 0)
             return p2;
         else (*//Tie *)
             return null;
