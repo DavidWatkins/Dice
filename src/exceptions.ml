@@ -24,14 +24,14 @@ exception UnknownIdentifier of string
 exception InvalidBinopExpression of string
 exception InvalidIfStatementType
 exception InvalidForStatementType
-exception ReturnTypeMismatch
+exception ReturnTypeMismatch of string * string
 exception MainNotDefined
 exception MultipleMainsDefined
 exception InvalidWhileStatementType
 exception LocalAssignTypeMismatch of string * string
 exception InvalidUnaryOperation
 exception AssignmentTypeMismatch of string * string
-exception FunctionNotFound of string
+exception FunctionNotFound of string * string
 exception UndefinedID of string
 exception InvalidAccessLHS of string
 exception LHSofRootAccessMustBeIDorFunc of string
@@ -57,6 +57,7 @@ exception CannotAccessPrivateFunctionInNonProperScope of string * string * strin
 exception CannotPassNonInheritedClassesInPlaceOfOthers of string * string
 exception IncorrectTypePassedToFunction of string * string
 exception IncorrectNumberOfArguments of string * int * int
+exception ClassIsNotExtendedBy of string * string
 
 (* Codegen Exceptions *)
 exception InvalidTypePassedToPrintf

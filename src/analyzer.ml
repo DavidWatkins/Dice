@@ -210,6 +210,23 @@ let build_class_maps reserved cdecls =
 										 m) in
 	List.fold_left helper StringMap.empty cdecls
 
+let rec get_all_descendants cname accum = 
+    if Hashtbl.mem predecessors cname then
+        let direct_descendants = Hashtbl.find predecessors cname in
+        let add_childs_descendants desc_set direct_descendant = 
+        	get_all_descendants direct_descendant (StringSet.add direct_descendant desc_set)
+    in
+    List.fold_left add_childs_descendants accum direct_descendants
+    else accum
+    
+let inherited potential_predec potential_child = 
+    match potential_predec, potential_child with 
+    Datatype(Objecttype(predec_cname)), Datatype(Objecttype(child_cname)) -> 
+        let descendants = get_all_descendants predec_cname StringSet.empty in
+        if (predec_cname = child_cname) || (StringSet.mem child_cname descendants) then true 
+    	else raise (Exceptions.LocalAssignTypeMismatch(predec_cname, child_cname))
+    | _ , _ -> false
+
 let get_equality_binop_type type1 type2 se1 se2 op = 
 	(* Equality op not supported for float operands. The correct way to test floats 
 	   for equality is to check the difference between the operands in question *)
@@ -416,12 +433,13 @@ and check_call_type top_level_env isObjAccess env fname el =
 		match fty, pty with 
 			Datatype(Objecttype(f)), Datatype(Objecttype(p)) -> 
 				if f <> p then
-				let descendants = Hashtbl.find predecessors f in
+				try let descendants = Hashtbl.find predecessors f in
 				let _ = try List.find (fun d -> p = d) descendants
 						with | Not_found -> raise(Exceptions.CannotPassNonInheritedClassesInPlaceOfOthers(f, p))
 				in
 				let rt = Datatype(Objecttype(f)) in
 				SCall("cast", [param; SId("ignore", rt)], rt, 0)
+				with | Not_found -> raise(Exceptions.ClassIsNotExtendedBy(f, p))
 				else param
 		|	_ -> if fty = pty then param else raise(Exceptions.IncorrectTypePassedToFunction(fname, Utils.string_of_datatype pty))
 	in
@@ -454,11 +472,11 @@ and check_call_type top_level_env isObjAccess env fname el =
 		| 	[], _
 		| 	_, [] -> raise(Exceptions.IncorrectTypePassedToFunction(fname, Utils.string_of_datatype (Datatype(Void_t))))
 		| 	_ -> 
-			let len1 = List.length formals in
-			let len2 = List.length params in
-			if len1 <> len2 then raise(Exceptions.IncorrectNumberOfArguments(fname, len1, len2))
-			else
-			List.map2 handle_param formals sel
+		let len1 = List.length formals in
+		let len2 = List.length params in
+		if len1 <> len2 then raise(Exceptions.IncorrectNumberOfArguments(fname, len1, len2))
+		else
+		List.map2 handle_param formals sel
 	in
 
 	let sfname = env.env_name ^ "." ^ fname in
@@ -470,7 +488,7 @@ and check_call_type top_level_env isObjAccess env fname el =
 		let actuals = handle_params f.formals sel in
 		let index = index f sfname in
 		SCall(sfname, actuals, f.returnType, index)
-	with | Not_found -> raise(Exceptions.FunctionNotFound(fname))
+	with | Not_found -> raise(Exceptions.FunctionNotFound(env.env_name, sfname)) | _ as ex -> raise ex
 	
 and check_object_constructor env s el = 
 	let sel, env = exprl_to_sexprl env el in
@@ -503,6 +521,11 @@ and check_assign env e1 e2 =
 	match type1, type2 with
 		Datatype(Char_t), Datatype(Int_t)
 	| 	Datatype(Int_t), Datatype(Char_t) -> SAssign(se1, se2, type1)
+	| 	Datatype(Objecttype(d)), Datatype(Objecttype(t)) ->
+		if d = t then SAssign(se1, se2, type1)
+		else if inherited type1 type2 then
+			SAssign(se1, SCall("cast", [se2; SId("ignore", type1)], type1, 0), type1)  
+		else raise (Exceptions.AssignmentTypeMismatch(Utils.string_of_datatype type1, Utils.string_of_datatype type2))
 	| _ -> 
 	if type1 = type2 
 		then SAssign(se1, se2, type1)
@@ -599,22 +622,6 @@ and exprl_to_sexprl env el =
 	| [] -> []
   in (helper el), !env_ref
 
-let rec get_all_descendants cname accum = 
-    if Hashtbl.mem predecessors cname then
-        let direct_descendants = Hashtbl.find predecessors cname in
-        let add_childs_descendants desc_set direct_descendant = get_all_descendants direct_descendant (StringSet.add direct_descendant desc_set)
-    in
-    List.fold_left add_childs_descendants accum direct_descendants
-    else accum
-    
-let inherited potential_predec potential_child = 
-    match potential_predec, potential_child with 
-    Datatype(Objecttype(predec_cname)), Datatype(Objecttype(child_cname)) -> 
-        let descendants = get_all_descendants predec_cname StringSet.empty in
-        if (predec_cname = child_cname) || (StringSet.mem child_cname descendants) then true else raise (Exceptions.LocalAssignTypeMismatch(predec_cname, child_cname))
-    | _ , _ -> false
-
-
 let rec local_handler d s e env = 
 	if StringMap.mem s env.env_locals 
 		then raise (Exceptions.DuplicateLocal s)
@@ -663,9 +670,13 @@ and check_expr_stmt e env =
 and check_return e env = 
 	let se, _ = expr_to_sexpr env e in
 	let t = get_type_from_sexpr se in
+	match t, env.env_returnType with 
+		Datatype(Null_t), Datatype(Objecttype(_)) 
+	| 	Datatype(Null_t), Arraytype(_, _) -> SReturn(se, t), env
+	| 	_ -> 
 	if t = env.env_returnType 
 		then SReturn(se, t), env
-		else raise Exceptions.ReturnTypeMismatch
+		else raise (Exceptions.ReturnTypeMismatch(Utils.string_of_datatype t, Utils.string_of_datatype env.env_returnType))
 
 and check_if e s1 s2 env = 
 	let se, _ = expr_to_sexpr env e in

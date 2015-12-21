@@ -52,6 +52,28 @@ class Dog extends Animal {
 	}
 }
 
+class Stephen extends Animal {
+	private bool isDone;
+
+	constructor() {
+		this.isDone = true;
+	}
+
+	constructor(bool isDone) {
+		this.isDone = isDone;
+	}
+
+	public void move() {
+		if(not this.isDone) {
+			print("I am a techer!");
+		} else {
+			print("Also my favorite number is 42");
+		}
+		this.isDone = true;
+	}
+
+}
+
 class Snake extends Animal {
 	public int slitherSpeed;
 
@@ -99,8 +121,10 @@ class Marnie extends Dog {
 }
 
 class test {
+	private bool isDone;
 	public void main(char[][] args) {
 		this.logo();
+		this.isDone = false;
 
 		bool keepGoing = true;
 		while(keepGoing){
@@ -110,7 +134,7 @@ class test {
 
 			int choice = this.getInt(buf[0]);
 
-			if(choice==4)
+			if(choice==5)
 				break;
 			else
 				this.printMovement(choice);
@@ -131,6 +155,8 @@ class test {
 			return 3;
 		else if(num=='4')
 			return 4;
+		else if(num=='5')
+			return 5;
 
 		return 0;
 
@@ -138,9 +164,10 @@ class test {
 
 	public void printMovement(int choice){
 
-		class Bird b = new Bird();
-		class Dog d = new Dog();
-		class Snake s = new Snake();
+		class Animal b = new Bird();
+		class Animal d = new Dog();
+		class Animal s = new Snake();
+		class Animal stephen = new Stephen(this.isDone);
 		
 		if(choice == 1)
 			b.move();
@@ -148,6 +175,10 @@ class test {
 			d.move();
 		else if(choice == 3)
 			s.move();
+		else if(choice == 4) {
+			stephen.move();
+			this.isDone = true;
+		}
 		else
 			print("Animal not selected!\n");
 
@@ -155,7 +186,7 @@ class test {
 	}
 
 	public void animalsToChoose(){
-		print("1-Bird\n2-Dog\n3-Snake\n4-Exit\nPlease choose an animal or exit(by selecting a number):");
+		print("1-Bird\n2-Dog\n3-Snake\n4-Stephen\n5-Exit\nPlease choose an animal or exit(by selecting a number):");
 
 	}
 

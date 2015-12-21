@@ -8,8 +8,8 @@ class Player {
         return new LocationObj();
     }
 
-    public void setResult(class Location move) { 
-        }
+    public void setResult(class LocationObj move) { 
+    }
 }
 
 (*******************************************************************)
@@ -612,12 +612,14 @@ class OthelloGame {
         (*//Both p1 and p2 need to be initialized on initial state
         //p1 initialization*)
 
+        class Player p1 = this.p1;
         p1.setResult(move1);
         p1.setResult(move2);
         p1.setResult(move3);
         p1.setResult(move4);
         
         (*//p2 initialization*)
+        class Player p2 = this.p2;
         p2.setResult(move1);
         p2.setResult(move2);
         p2.setResult(move3);

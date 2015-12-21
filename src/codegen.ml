@@ -679,15 +679,14 @@ and codegen_alloca datatype var_name expr llbuilder =
 	|  	_ -> codegen_assign lhs expr datatype llbuilder
 
 and codegen_ret d expr llbuilder =  
-	let e = match expr with
+	match expr with
 		SId(name, d) ->
 			(match d with 
-			| Datatype(Objecttype(_)) -> codegen_id false false name d llbuilder
-			| _ -> codegen_id true true name d llbuilder)
-		| SObjAccess(e1, e2, d) -> codegen_obj_access true e1 e2 d llbuilder
-		| _ -> codegen_sexpr llbuilder expr 
-	in
-	build_ret e llbuilder
+			| Datatype(Objecttype(_)) -> build_ret (codegen_id false false name d llbuilder) llbuilder
+			| _ -> build_ret (codegen_id true true name d llbuilder) llbuilder)
+		| SObjAccess(e1, e2, d) -> build_ret (codegen_obj_access true e1 e2 d llbuilder) llbuilder
+		| SNoexpr -> build_ret_void llbuilder
+		| _ -> build_ret (codegen_sexpr llbuilder expr) llbuilder
 
 and codegen_break llbuilder = 
 	let block = fun () -> !br_block in

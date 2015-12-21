@@ -109,7 +109,6 @@ let _ =
 	| 	Exceptions.InvalidBinopExpression(str)	-> print_string ("InvalidBinopExpression: " ^ str ^ "\n")
 	| 	Exceptions.InvalidIfStatementType		-> print_string "InvalidIfStatementType \n"
 	| 	Exceptions.InvalidForStatementType		-> print_string "InvalidForStatementType \n"
-	| 	Exceptions.ReturnTypeMismatch			-> print_string "ReturnTypeMismatch \n"
 	| 	Exceptions.MainNotDefined				-> print_string "MainNotDefined \n"
 	| 	Exceptions.MultipleMainsDefined			-> print_string "MultipleMainsDefined \n"
 	| 	Exceptions.InvalidWhileStatementType	-> print_string "InvalidWhileStatementType \n"
