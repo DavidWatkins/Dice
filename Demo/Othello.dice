@@ -1,0 +1,719 @@
+include("stdlib");
+
+
+class Player {
+
+
+    public class LocationObj placeTile(bool retry)   {
+        return new LocationObj();
+    }
+
+    public void setResult(class LocationObj move) { 
+    }
+}
+
+(*******************************************************************)
+
+class HumanPlayer extends Player {
+    private class Board board;
+    public int myPieceType;
+
+    constructor()   {
+        this.board = new Board();
+        this.myPieceType = 2;
+        class Board b = this.board;
+        b.initializeBoard();
+    }
+
+    public class LocationObj placeTile(bool retry)   {
+        if (this.myPieceType == 2)
+            this.myPieceType = 1;
+        if (retry){
+            print("Last move was invalid. Retry.\n"); }
+        print("It's your turn\n");
+        class Board b = this.board;
+        b.printBoard();
+
+        print("Please enter your move\n");
+        class LocationObj move = this.getLocationObjChoice();
+        int temp = this.myPieceType;
+        b.setPlayerMove(move, temp);
+        return move;
+    }
+
+   public void setResult(class LocationObj move) {
+        int temp = this.myPieceType;
+        if (temp == 1) {
+            bool one = (move.getHorizontal() == 3);
+            bool two = (move.getHorizontal() == 4);
+            bool three = (move.getVertical() == 3);
+            bool four = (move.getVertical() == 4);
+            bool five = ((one or two ) and (three or four)); 
+             if(not five){
+                this.myPieceType = 0;
+                }
+        }
+
+        int opponentPieceType;
+        int temp2 = this.myPieceType;
+        if (temp2 == 0){
+            opponentPieceType = 1; }
+        else {
+            opponentPieceType = 0;}
+
+        class Board b = this.board;
+        b.setPlayerMove(move, opponentPieceType);
+    }
+
+    private class LocationObj getLocationObjChoice(){ 
+        char[] userInput;
+        class String uInput;
+        class Board b = new Board();
+        class LocationObj move = null;
+        int temp = this.myPieceType;    
+        while (not (b.isValid(move, temp))) { 
+            print("You are " , this.myPieceType , ". What is the x location of your next move?");
+            userInput = input();
+            uInput = new String(userInput);
+            int x = uInput.toInteger();
+            print("You are " , this.myPieceType , ". What is the y location of your next move?");
+            userInput = input();
+            uInput = new String(userInput);
+            int y = uInput.toInteger();
+            move = new LocationObj(x - 1, y - 1);
+            bool one = b.isValid(move,temp);
+            if (not one){
+                print("invalid move, try again.\n"); }
+        } 
+        return move;
+    }
+}
+
+
+
+(*******************************************************************)
+
+
+class ComputerPlayer extends Player {
+
+    private class Board board;
+    public int myType;
+    
+    constructor(){
+        this.board = new Board();
+        class Board board = this.board;
+        board.initializeBoard();
+        this.myType = 2;
+    }
+    
+    public class LocationObj placeTile(bool retry) {
+        class Board board = this.board;
+        if(this.myType == 2){
+            this.myType = 1; 
+        }
+        
+        
+        class LocationObj move = this.getBestMove(this.myType);
+        int temp = this.myType;
+        board.setPlayerMove(move, temp);
+        return move;
+    }
+
+    public void setResult(class LocationObj move) {
+        class Board board = this.board;
+        if(this.myType == 2 and 
+                (((move.getHorizontal() == 3 or move.getHorizontal() == 4) == false) and
+                        (move.getVertical() == 3 or move.getVertical() == 4))){
+            this.myType = 0; 
+        }
+        
+        int opponent;
+        if(this.myType == 1)
+            opponent = 0;
+        else
+            opponent = 1;
+        
+        board.setPlayerMove(move, opponent);
+    }
+   
+    private int[] createPointArray(){
+        int[] points = new int[64];
+        int i;
+        int j;
+        for(i = 0; i < 8; i = i + 1)
+        {
+           for(j = 0; j < 8; j = j + 1)
+           {
+               points[j*8+i] = 1;
+           }
+        }
+(*        
+        //[4*8+2*8+3*8+2*8+2*8+3*8+2*8+4]
+        //[2*8+3*8+1*8+1*8+1*8+1*8+3*8+2]
+        //[3*8+1*8+2*8+1*8+1*8+2*8+1*8+3]
+        //[2*8+1*8+1*8+0*8+0*8+1*8+1*8+2]
+        //[2*8+1*8+1*8+0*8+0*8+1*8+1*8+2]
+        //[3*8+1*8+2*8+1*8+1*8+2*8+1*8+3]
+        //[2*8+3*8+1*8+1*8+1*8+1*8+3*8+2]
+        //[4*8+2*8+3*8+2*8+2*8+3*8+2*8+4]
+*)        
+        points[(0*8)+0] = points[(7*8)+0] = points[(0*8)+7] = points[(7*8)+7] = 4;
+        
+        points[2] = points[2*8] = points[2*8+7] = points[7*8+2] = 3;
+        points[1*8+1] = points[6*8+6] = points[1*8+6] = points[6*8+1] = 3;
+        points[5] = points[5*8+0] = points[5*8+7] = points[7*8+5] = 3;
+           
+        points[0*8+1] = points[0*8+3] = points[0*8+4] = points[0*8+6] = 2;
+        points[1*8+0] = points[0*8+7] = 2;
+        points[2*8+2] = points[2*8+5] = 2;
+        points[3*8+0] = points[3*8+7] = 2;
+        points[4*8+0] = points[4*8+7] = 2;
+        points[5*8+2] = points[5*8+5] = 2;
+        points[6*8+0] = points[6*8+7] = 2;
+        points[7*8+1] = points[7*8+3] = points[7*8+4] = points[7*8+6] = 2;
+        
+        points[4*8+4] = points[4*8+5] = points[5*8+4] = points[5*8+5] = 0;  
+        
+        return points;
+    }
+       
+    private class LocationObj getBestMove(int turn){
+        class LocationObj best = null;
+        int currentValue = -2147483647;
+        int[] pointArray = createPointArray();
+        class Board board = this.board;
+        int i;
+        int j;
+        for(i = 0; i < 8; i = i + 1) {
+            for(j = 0; j < 8; j = j + 1){
+                class LocationObj l = new LocationObj(i,j);
+                if(board.isValid(l, turn) and pointArray[i*8+j] > currentValue){
+                    currentValue = pointArray[i*8+j];
+                    best = l;
+                }
+            }
+        }
+        return best;
+    }
+
+}
+
+
+
+(**
+ * Implementation of Location that has horizontal and verticale coordinates
+ * 
+ * @author David Watkins
+ * @UNI djw2146
+ *)
+(**
+ * Implementation of Location that has horizontal and verticale coordinates
+ * 
+ * @author David Watkins
+ * @UNI djw2146
+ *)
+
+
+
+class LocationObj {
+
+public void main(char[][] args) {}
+ (* ================================== *)
+
+    private int horizontal;
+    private int vertical;
+    
+    (**
+     * Creates a LocationObj with horizontal and vertical coordinates
+     * 
+     * @param horizontal x coordinate
+     * @param vertical y coordinate
+     *)
+    constructor(int horizontal, int vertical){
+        this.horizontal = horizontal;
+        this.vertical = vertical;
+    }
+    
+    (* 
+     * @Return Horizontal coordinate
+     *)
+    (* @Override *) (* ================================== *)
+    public int getHorizontal() {
+        return this.horizontal;
+    }
+    
+    (* 
+     * @Return Vertical coordinate
+     *)
+    (* @Override *) (* ================================== *)
+    public int getVertical() {
+        return this.vertical;
+    }
+}
+
+
+(**
+ * Maintains and operates on the board.
+ * Has methods for checking if particular moves are valid and initializing the board.
+ * 
+ * @author David Watkins
+ * UNI djw2146
+ *)
+
+
+
+class Board {
+    private int[] board;
+    
+    (**
+     * Initializes a new board with size Game.SIZE x Game.SIZE
+     *)
+
+    constructor(){
+        this.board = new int[64];
+        this.initializeBoard();
+    }
+    
+    (**
+     * Initializes the board to have the center most four pieces in the correct formation
+     * 
+     * @param type The type of player, as the user of the Board could differ
+     *)
+    public void initializeBoard(){
+        int i;
+        int j; 
+        int[] board = this.board;
+        for (i = 0 ; i < 8 ; i = i + 1) {
+            for (j = 0 ; j < 8 ; j = j + 1) {
+                board[i+j]=2;
+            }
+        }
+
+        board[(3*8)+4] = 1;
+        board[(4*8)+3] = 1;
+        board[(3*8)+3] = 0;
+        board[(4*8)+4] = 0;
+    }
+
+    (**
+     * Prints out a formatted version of the board to the console.
+     *)
+    public void printBoard() {
+        print("-----------------------------------------------------------------");
+        int i;
+        int j;
+        int[] board = this.board;
+
+        for(i = 0; i < 7; i=i+1){  
+        (* Prints out each line individually *)
+            for( j = 0; j < 7; j = j + 1){
+            
+            (*//Prints out each section of a line of the board*)
+                if(board[(j*8+i)] == 0) {  (*//SELF player*)
+                    print("|(WHITE)");
+              }  else if(board[(8*j)+i] == 1) { (*//OPPONENT player*)
+                    print("|(BLACK)");
+              }  else { (*//No piece in location*)
+                    print("|(", (j+1), ",  ", (i+1), ")");
+              }
+            }
+            print("|"); (*//Finishes the line*)
+            print("\n");
+        }
+        print("-----------------------------------------------------------------");
+        print("\n");
+    }
+
+    (**
+     * Checks all possible indices of the board to determine whether or not a winner has been determined
+     * Counts the number of each piece and returns the type of winner
+     * 
+     * @return The winner if there is a winner, null if no winner is determined yet
+     *)
+    public int thereIsWinner(){
+        int[] temp = this.totalCount();
+        
+        if(temp[0] + temp[1] == 64){ (*//If the total number of pieces equals the entire board *)
+            return this.whoHasMore();
+        } else { (*//If no winner yet *)
+            return -1;
+        }
+        return 9;
+    }
+    
+    (**
+     * A method for determining which player has more pieces on the board. 
+     * 
+     * @return Which PIece has more positins in the board
+     *)
+    public int whoHasMore(){
+        int[] temp = this.totalCount();
+        
+        if(temp[0] > temp[1]) {
+            return  0;
+      }  else if(temp[1] > temp[0]) {
+            return 1;
+      }  else { (* //If there is a tie *)
+            return 2;
+      }
+        (* default return *)
+        return 9;
+    }
+    
+    (**
+     * Private helper metod for determining the current count of a particular type of player
+     * 
+     * @return A size two vector containing whiteCount is [0] and blackCount in [1]
+     *)
+    private int[] totalCount(){
+        int whiteCount = 0;
+        int blackCount = 0;
+        int i;
+        int j;
+        int[] board = this.board;
+        for(i = 0; i < 8; i = i + 1) {  
+            for(j = 0; j < 8; j = j + 1) { 
+                if(board[(i*8)+j] == 0) {
+                    whiteCount = whiteCount + 1;
+               } else if(board[(i*8)+j] == 1) {
+                    blackCount = blackCount + 1;
+               }
+            }
+        }
+        int[] temp = new int[2];
+        temp[0] = blackCount;
+        temp[1] = whiteCount;
+        return temp;
+    }
+    
+    (**
+     * Will check to see if the particular direction is a valid move
+     * If bool updateBoard is true, will also update any pieces appropriately modified by a particular player move.
+     * Is only privately used by isValid and setPlayerMove to make sure a move is valid
+     * Returns 0 if the direction is invalid
+     * 
+     * @param move The player's new move
+     * @param incx The coefficient of x
+     * @param incy The coefficient of y
+     * @param player The current player playing the new move
+     * @param updateBoard Whether or not to update pieces
+     * @return Whether the move is valid or not
+     *)
+
+
+    private bool checkDir(class LocationObj move, int incx, int incy, int player , bool updateBoard)  {
+
+        int[] board = this.board;
+        int opponent; (*//The opposite color of player*)
+        int x = move.getHorizontal();
+        int y = move.getVertical();
+        
+        (*//Current player's move *)
+        if (player == 1) { 
+            opponent=0; 
+       } else {
+            opponent=1;
+        }
+        (* /Modify the position by one *)
+        int dist = 0;
+        x = x + incx; 
+        y = y + incy;
+        
+        (*//While x and y are in bounds and the current position is an opponent piece *)
+        while ((x < 8) and (x >= 0) and (y < 8) and (y >= 0) and (board[(x*8)+y] == opponent)) { 
+            x = x + incx; 
+            y = y + incy; 
+            dist = dist + 1;
+        }
+
+        (* //If x and y are still in bounds and the final position is a player piece, will *)
+        if ((dist != 0) and (x < 8) and (x >= 0) and (y < 8) and (y >= 0) and (board[(x*8)+y]==player)) { 
+             if (updateBoard) { (* //Will update the board if true *)
+                 int j;
+                 for (j = 1 ; j <= dist ; j = j+1) {
+                    x = x - incx; (*//Decrease x by one*)
+                    y = y - incy; (*//Decrease y by one*)
+                    class LocationObj l = new LocationObj(x,y);
+                    this.setLoc(l,player); (*//Update location to player piece *)
+                 }
+            return true; (* //The current distance from the initial position *)
+             } else {
+                return false; (*//Not a valid direction *)
+            }
+        }
+        return false; (* default return *)
+    }
+
+    (**
+     * Will set the location defined by move to the type player
+     * 
+     * @param move The position to be modified
+     * @param player The player's type
+     *)
+
+    private void setLoc(class LocationObj move, int player){
+        
+        this.board[(move.getHorizontal()*8)+move.getVertical()] = player;
+    }
+    
+    (**
+     * Sets the location of a particular player (c)'s move. Returns false
+     * if move is invalid.
+     * 
+     * @param move Location object containing horizontal and vertical
+     * coordinates
+     * @param c The type of player currently placing tile
+     * @return False if invalid move
+     *)
+
+
+    public bool setPlayerMove(class LocationObj move, int player) {
+        bool valid = false;
+        int yinc = 0;
+        int xinc = 0;
+        int[] board = this.board;
+ 
+        (* //If move is null or move space is taken up *)
+        if(move == null or board[(move.getHorizontal()*8)+move.getVertical()] != 2) { 
+            return false;
+        }
+        int i;
+        for(i = 0; i < 8; i = i + 1){ (*//For the length of potential neighbors*)
+            (*//Linear Directions *)
+           if(i == 0){xinc = 1; yinc = 0;} (*//E *)
+           else if(i == 1){xinc = -1; yinc = 0;} (* //W *)
+           else if(i == 2){xinc = 0; yinc = 1;} (* //S *)
+           else if(i == 3){xinc = 0; yinc = -1;} (* //N *)
+           
+           (*//Diagonals*)
+           else if(i == 4){xinc = 1; yinc = 1;}(*//SE*)
+           else if(i == 5){xinc = -1; yinc = 1;}(*//SW*)
+           else if(i == 6){xinc = 1; yinc = -1;}(*//NE*)
+           else if(i == 7){xinc = -1; yinc = -1;}(*//NW*)
+           
+           (*//Change all potential old markers*)
+           if(this.checkDir(move, xinc, yinc, player, true)) {
+               valid = true;
+            }
+        }
+        
+        if (valid) { (*//Valid move*)
+            this.setLoc(move, player);
+            return true;
+        }
+        return false; (*//Invalid move*)
+    }
+    
+    (**
+     * Checks all possible directions to determine whether or not a move is valid
+     * Uses the private method checkDir to make sure that the move is valid
+     * 
+     * @param move The current move to be checked
+     * @param kind The current type of player's move
+     * @return Whether or not the move was valid
+     *)
+    public bool isValid(class LocationObj move, int kind) {
+        int yinc = 0;
+        int xinc = 0;
+        int[] board = this.board;
+        (*//If move is null, within the boundaries of the array, or move space is taken up *)
+        if(move == null or 
+                ((move.getHorizontal() > 0 and move.getHorizontal()< 8
+                and move.getVertical() > 0 and move.getVertical() < 8) == false) or
+                
+                this.board[(move.getHorizontal()*8)+move.getVertical()] != 2) {
+            return false;
+        }
+        int i;
+        for(i = 0; i < 8; i = i +1){ (*//For the length of potential neighbors*)
+            (*//Linear Directions*)
+           if(i == 0){xinc = 1; yinc = 0;}(*//E*)
+           else if(i == 1){xinc = -1; yinc = 0;}(*//W*)
+           else if(i == 2){xinc = 0; yinc = 1;}(*//S*)
+           else if(i == 3){xinc = 0; yinc = -1;}(*//N*)
+           
+           (*//Diagonals*)
+           else if(i == 4){xinc = 1; yinc = 1;}(*//SE*)
+           else if(i == 5){xinc = -1; yinc = 1;}(*//SW*)
+           else if(i == 6){xinc = 1; yinc = -1;}(*//NE*)
+           else if(i == 7){xinc = -1; yinc = -1;}(*//NW*)
+
+           (*//Move is valid*)
+           if (this.checkDir(move, xinc, yinc, kind, false)) { 
+               return true;
+            }
+        }
+        (*//Move was invalid for all directions*)
+        return false;
+    }
+    
+    (**
+     * Determines whether or not there is a valid move available for a particular player
+     * 
+     * @param player The current player's color
+     * @return Whether or not the particular player can play
+     *)
+    public bool userMoveAvailable(int player)  {
+        int i;
+        int j;
+        int[] board = this.board;
+        for (i = 0 ; i < 8 ; i=i+1) {
+            for (j = 0 ; j < 8 ; j=j+1) {
+                (*//If the potential position is not occupied and is a valid move*)
+                class LocationObj l = new LocationObj(j,i);
+                if ((board[(j*8)+i] == 2) and this.isValid(l,player)) { 
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+}
+
+
+(**
+ * OthelloGame implementation of Game that appropriately defines initialize and playGame()
+ * Utilizes a Board object for maintaining and managing the board and the pieces on it
+ * 
+ * 
+ * @author David Watkins
+ * UNI djw2146
+ *)
+
+ (*******************************************************************)
+
+class OthelloGame {
+
+    private class Player p1;
+    private class Player p2;
+    private class Board board;
+    
+    (* 
+     * Initializes the boards and the players to begin a new game. 
+     * Also gives p1 and p2 the initial four positions
+     * @see Game#initialize(Player, Player)
+     *)
+    public void initialize(class Player pl1, class Player pl2) {
+        this.p1 = pl1;
+        this.p2 = pl2;
+        this.board = new Board();
+        class Board b = this.board;
+        b.initializeBoard();
+        
+        class LocationObj move1 = new LocationObj(3, 3);
+        class LocationObj move2 = new LocationObj(4, 4); (*//White moves *)
+
+        class LocationObj move3 = new LocationObj(4, 3);
+        class LocationObj move4 = new LocationObj(3, 4); (*//Black moves*)
+        
+        
+
+        (*//Both p1 and p2 need to be initialized on initial state
+        //p1 initialization*)
+
+        class Player p1 = this.p1;
+        p1.setResult(move1);
+        p1.setResult(move2);
+        p1.setResult(move3);
+        p1.setResult(move4);
+        
+        (*//p2 initialization*)
+        class Player p2 = this.p2;
+        p2.setResult(move1);
+        p2.setResult(move2);
+        p2.setResult(move3);
+        p2.setResult(move4);
+
+        
+    }
+
+
+    (* 
+     * Main playGame method for the Othello game
+     * Continuously calls the various placeTile methods until a winner is found
+     * Returns the winner of the game in type Player
+     * 
+     * @see Game#playGame()
+     *)
+   (* @Override *)
+
+
+    public class Player playGame() {
+        int turn = 1; (*//Black always goes first *)
+        (* ================================== *)
+        int moveSkip = 0;
+        class Board b = this.board;
+        while( (b.thereIsWinner() == -1 and moveSkip != 2) ){ (* //No winner yet and two moves weren't skipped *)
+            bool retry = false;
+            class LocationObj move = null;
+            
+            if (not (b.userMoveAvailable(turn))) { (*//No valid moves available for user*)
+                (* //Switch turn *)
+                (* ================================== *)
+                if (turn == 1) {turn = 0;}
+                else {turn = 1;}
+                
+                moveSkip = moveSkip + 1;
+            }   
+            
+            else if (turn == 1) { (*//p1 turn *)
+                while(not (b.isValid(move, turn))) { (*//Get p1 move*)
+                    class Player temp = this.p1;
+                    move = temp.placeTile(retry);
+                    retry = true;
+                }
+                
+                b.setPlayerMove(move, turn);
+               
+                class Player temp2 = new Player();
+              (*)  temp2.setResult(move); *)
+              (*============================================*)
+                this.p1 = temp2;
+                
+                turn = 0;
+                
+                moveSkip = 0;
+            }
+
+            else{    (*//p2 turn *)
+                class Player temp3 = new Player();
+                while (not b.isValid(move, turn)) { (*//get p2 move *)
+                    temp3 = this.p2;
+                    move = temp3.placeTile(retry);
+                    
+                    retry = true;
+                }
+                
+                b.setPlayerMove(move, turn);
+                class Player temp4 = new Player();
+                temp4 = this.p1;
+               (*) temp4.setResult(move); *)
+               (*============================================*)
+                this.p1 = temp4;
+                turn = 1;
+                moveSkip = 0;
+            }
+            
+            
+            b.setPlayerMove(move, turn);
+            retry = false;
+        }       
+
+        (*//The winner of the game *)
+        int winner = b.whoHasMore();
+        
+        (* //Return winner *)
+        if(winner == 1) 
+            return this.p1;
+        else if(winner == 0)
+            return this.p2;
+        else (*//Tie *)
+            return null;
+
+        class Player toReturn = new Player();
+        return toReturn; (* Default return, should never get called *)
+    }
+
+
+}
