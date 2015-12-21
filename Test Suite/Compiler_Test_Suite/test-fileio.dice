@@ -4,8 +4,7 @@ class Two {
 
 	public void main(char[][] args) {
         class File a = new File("Test Suite/Compiler_Test_Suite/test-fileio.dice", true);
-        char[] buf = a.readfile(300);
-        a.writefile(buf, -1);
+        char[] buf = a.readfile(243);
         a.closefile();
         print(buf);
 	}

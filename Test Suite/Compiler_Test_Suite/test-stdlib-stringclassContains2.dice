@@ -1,0 +1,9 @@
+include("stdlib");
+
+class Two {
+	public void main(char[][] args) {
+        class String b = new String("philkhal");
+        class String c = new String("butts");
+        print(b.contains(c));
+	}
+}

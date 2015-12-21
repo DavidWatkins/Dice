@@ -1,0 +1,15 @@
+class shape {
+}
+
+class something {
+	
+	private void hi(){
+	}
+}
+
+ class test {
+	 public void main(char[][] args) {
+		 class something a = new something();
+		 a.hi();		 
+		 }
+ }
