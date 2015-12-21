@@ -2,9 +2,6 @@ include("stdlib");
 
 (**
  * Main method for Othello game. Manages Game class and initializes players
- * 
- * @author David Watkins
- * UNI DJW2146
  *)
 
 class OthelloRunner {
@@ -12,71 +9,69 @@ class OthelloRunner {
      * Plays the game for the user. Prints out who is the winner.
      * Asks the user if they would like to continue. 
      *)
-    public static void main(String[] args){
-        class OthelloGame game = new OthelloGame();
+    public void main(char[][] args){
+        (* class OthelloGame game = new OthelloGame(); *)
         bool stillPlaying = true;
+        class String n = new String("N");
+        class String y = new String("Y");
         
         while(stillPlaying){
-            class Player p1 = this.getPlayerType("player 1");
+            (* class Player p1 = this.getPlayerType("player 1");
             class Player p2 = this.getPlayerType("player 2");
             game.initialize(p1, p2);
             
-            class Player winner = game.playGame(); (*//Play the main game and get winner *)
+            class Player winner = game.playGame(); *) (*//Play the main game and get winner *)
             
             (* //Report who the winner is *)
-            if(winner.equals(p1)) (* ================================== *)
-                print("Player 1 wins!");
-                print("\n");
-            else if(winner.equals(p2)) (* ================================== *)
-                print("Player 2 wins!");
-                print("\n");
+            (* if(winner.equals(p1))
+                print("Player 1 wins!\n");
+            else if(winner.equals(p2))
+                print("Player 2 wins!\n");
             else
-                print("Its a tie!");
-                print("\n");
+                print("Its a tie!\n"); *)
             
             (* //Would use like to continue, will not stop until Y or N is entered *)
-            String response = new String("");
-            while(!response.equalsIgnoreCase("N") && !response.equalsIgnoreCase("Y")){(* ================================== *)
+            char[] response = input();
+            class String i = new String(response);
+            while(not i.compare(n) and not i.compare(y)) {
 
-                print("Would you like to continue? (Y/N)");
-                print("\n");
+                print("Would you like to continue? (Y/N)\n");
                 response = input();
-                (* ================================== *)
-
-                if(response.equalsIgnoreCase("N"))
+                i = new String(response);
+                if(i.compare(n))
                     stillPlaying = false;
-                else if(!response.equalsIgnoreCase("Y"))
-                    print("Input must be Y or N");
+                else if(not i.compare(y))
+                    print("Input must be Y or N\n");
             }
         }
     }
     
-    (**
+    (*(**
      * Requests user input to decide which type of player will be playing for the 
      * playerNumber choice. 
      * 
      * @param playerNumber The player currently being defined by the function
      * @return Returns the type of player the user wants
      *)
-    private class Player getPlayerType(String playerNumber){
+    private class Player getPlayerType(char[] pname){
         class Player newPlayer = null;
+        class String AI = new String("AI");
+        class String Human = new String("Human");
+
+        print("What type is ", pname, "? (Human/AI)\n");
         
-        print("What type is " + playerNumber + "? (Human/AI)");
-        (*//Trys user input, and does not stop until appropriate input *)
-        while(newPlayer == null){
-            String input = new String();
-            input  =  input(NEXTLINE);
-            (* ================================== *)
-            if(input.equalsIgnoreCase("AI"))
-            (* ================================== *)
+        while(newPlayer == null) {
+            char[] input = input();
+            class String i = new String(input);
+
+            if(i.compare(AI))
                 newPlayer = new ComputerPlayer();
             else if(input.equalsIgnoreCase("Human"))
-            (* ================================== *)
                 newPlayer = new HumanPlayer();
             else
-                print("Not a valid input, try again");
+                print("Not a valid input, try again\n");
         }
         
         return newPlayer;  
-    }
+    } *)
 }
