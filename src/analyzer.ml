@@ -597,14 +597,29 @@ and exprl_to_sexprl env el =
 	| [] -> []
   in (helper el), !env_ref
 
+let rec get_all_descendants cname accum = 
+    if Hashtbl.mem predecessors cname then
+        let direct_descendants = Hashtbl.find predecessors cname in
+        let add_childs_descendants desc_set direct_descendant = get_all_descendants direct_descendant (StringSet.add direct_descendant desc_set)
+    in
+    List.fold_left add_childs_descendants accum direct_descendants
+    else accum
+    
+let inherited potential_predec potential_child = 
+    match potential_predec, potential_child with 
+    Datatype(Objecttype(predec_cname)), Datatype(Objecttype(child_cname)) -> 
+        let descendants = get_all_descendants predec_cname StringSet.empty in
+        if (predec_cname = child_cname) || (StringSet.mem child_cname descendants) then true else raise (Exceptions.LocalAssignTypeMismatch(predec_cname, child_cname))
+    | _ , _ -> false
+
+
 let rec local_handler d s e env = 
 	if StringMap.mem s env.env_locals 
 		then raise (Exceptions.DuplicateLocal s)
 		else
 			let se, env = expr_to_sexpr env e in
 			let t = get_type_from_sexpr se in
-(* TODO allow class Foo someObj = new Goo() if class Goo extends Foo *)
-			if t = Datatype(Void_t) || t = Datatype(Null_t) || t = d 
+			if t = Datatype(Void_t) || t = Datatype(Null_t) || t = d || (inherited d t) 
 				then
 				let new_env = {
 					env_class_maps = env.env_class_maps;
@@ -622,8 +637,10 @@ let rec local_handler d s e env =
 					Datatype(Objecttype(x)) -> 
 						(if not (StringMap.mem (Utils.string_of_object d) env.env_class_maps) 
 							then raise (Exceptions.UndefinedClass (Utils.string_of_object d)) 
-							else SLocal(d, s, se), new_env)
-				| 	_ -> SLocal(d, s, se), new_env) 
+							else
+                                let local = if inherited d t then SLocal(t, s, se) else SLocal(d, s, se)
+                                in local, new_env)
+				| _ -> SLocal(d, s, se), new_env)
 			else 
 				(let type1 = (Utils.string_of_datatype t) in
 				let type2 = (Utils.string_of_datatype d) in
