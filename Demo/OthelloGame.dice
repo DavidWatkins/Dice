@@ -1,0 +1,116 @@
+
+(**
+ * OthelloGame implementation of Game that appropriately defines initialize and playGame()
+ * Utilizes a Board object for maintaining and managing the board and the pieces on it
+ * 
+ * 
+ * @author David Watkins
+ * UNI djw2146
+ *)
+public class OthelloGame implements Game {
+
+    private class Player p1;
+    private class Player p2;
+    private class Board board;
+    
+    @Override
+    (* 
+     * Initializes the boards and the players to begin a new game. 
+     * Also gives p1 and p2 the initial four positions
+     * @see Game#initialize(Player, Player)
+     *)
+    public void initialize(class Player p1, class Player p2) {
+        this.p1 = p1;
+        this.p2 = p2;
+        this.board = new Board();
+        this.board.initializeBoard();//Sets the initial four moves on the board
+        
+        class LocationObj move1 = new LocationObj(3, 3);
+        class LocationObj move2 = new LocationObj(4, 4); (*//White moves *)
+
+        class LocationObj move3 = new LocationObj(4, 3);
+        class LocationObj move4 = new LocationObj(3, 4); (*//Black moves*)
+        
+        (*//Both p1 and p2 need to be initialized on initial state
+        //p1 initialization*)
+        p1.setResult(move1);
+        p1.setResult(move2);
+        p1.setResult(move3);
+        p1.setResult(move4);
+        
+        (*//p2 initialization*)
+        p2.setResult(move1);
+        p2.setResult(move2);
+        p2.setResult(move3);
+        p2.setResult(move4);
+    }
+
+    (* 
+     * Main playGame method for the Othello game
+     * Continuously calls the various placeTile methods until a winner is found
+     * Returns the winner of the game in type Player
+     * 
+     * @see Game#playGame()
+     *)
+   (* @Override *)
+    public Player playGame() {
+        class Piece turn = new Piece.black; (*//Black always goes first *)
+        (* ================================== *)
+        int moveSkip = 0;
+        
+        while(this.board.thereIsWinner() == null && moveSkip != 2){ (*//No winner yet and two moves weren't skipped *)
+            bool retry = false;
+            class LocationObj move = null;
+            
+            if(!board.userMoveAvailable(turn)){ (*//No valid moves available for user*)
+                (* //Switch turn *)
+                (* ================================== *)
+                if(turn == Piece.black) turn = Piece.white;
+                else turn = Piece.black;
+                
+                moveSkip = moveSkip + 1;
+            }   
+            
+            else if(turn == Piece.black){ (*//p1 turn *)
+                while(!this.board.isValid(move, turn)){ (*//Get p1 move*)
+
+                    move = (LocationObj) p1.placeTile(retry);
+                    (* ================================== *)
+                    retry = true;
+                }
+                
+                this.board.setPlayerMove(move, turn);
+                p2.setResult(move);
+                turn = Piece.white;
+                (* ================================== *)
+                moveSkip = 0;
+            }
+            else{ (*//p2 turn *)
+                while(!this.board.isValid(move, turn)) { (*//get p2 move *)
+                    move = (LocationObj) p2.placeTile(retry);
+                    (* ================================== *)
+                    retry = true;
+                }
+                
+                this.board.setPlayerMove(move, turn);
+                p1.setResult(move);
+                turn = Piece.black;
+                moveSkip = 0;
+            }
+            
+            this.board.setPlayerMove(move, turn);
+            retry = false;
+        }
+        
+        (*//The winner of the game *)
+        class Piece winner = this.board.whoHasMore();
+        
+        (* //Return winner *)
+        if(winner == Piece.black) (* ================================== *)
+            return p1;
+        else if(winner == Piece.white)
+            return p2;
+        else (*//Tie *)
+            return null;
+    }
+}

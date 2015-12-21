@@ -1,0 +1,284 @@
+(**
+ * Maintains and operates on the board.
+ * Has methods for checking if particular moves are valid and initializing the board.
+ * 
+ * @author David Watkins
+ * UNI djw2146
+ *)
+class Board {
+    private class Piece[] board;
+    
+    (**
+     * Initializes a new board with size Game.SIZE x Game.SIZE
+     *)
+
+    constructor(){
+        board = new class Piece[Game.SIZE*Game.SIZE];
+        this.initializeBoard();
+    }
+    
+    (**
+     * Initializes the board to have the center most four pieces in the correct formation
+     * 
+     * @param type The type of player, as the user of the Board could differ
+     *)
+    public void initializeBoard(){
+        int i;
+        int j; (* =========================== * )
+        for (i = 0 ; i < 8 ; i++)
+            for (j = 0 ; j < 8 ; j++)
+                board[i+j]=Piece.none;
+        board[3][4] = Piece.black;
+        board[4][3] = Piece.black;
+        board[3][3] = Piece.white;
+        board[4][4] = Piece.white;
+    }
+
+    (**
+     * Prints out a formatted version of the board to the console.
+     *)
+    public void printBoard() {
+        print("-----------------------------------------------------------------");
+        int i;
+        int j;
+        for(i = 0; i < board.length; i=i+1){  (* =========================== * )
+        (* Prints out each line individually *)
+            for(int j = 0; j < board[i].length; j++){
+            (* =========================== * )
+            (*//Prints out each section of a line of the board*)
+                if(board[j][i] == Piece.white)  (*//SELF player*)
+                    print("|(WHITE)");
+                else if(board[j][i] == Piece.black) (*//OPPONENT player*)
+                    print("|(BLACK)");
+                else (*//No piece in location*)
+                    print("|(" + (j+1) + ",  " + (i+1) + ")");
+            }
+            print("|"); (*//Finishes the line*)
+            print("\n");
+        }
+        print("-----------------------------------------------------------------");
+        print("\n");
+    }
+
+    (**
+     * Checks all possible indices of the board to determine whether or not a winner has been determined
+     * Counts the number of each piece and returns the type of winner
+     * 
+     * @return The winner if there is a winner, null if no winner is determined yet
+     *)
+    public class Piece thereIsWinner(){
+        int[] temp = new this.totalCount();
+        
+        if(temp[0] + temp[1] == 64){ (*//If the total number of pieces equals the entire board *)
+            return this.whoHasMore();
+        }
+        else (*//If no winner yet *)
+            return null;
+    }
+    
+    (**
+     * A method for determining which player has more pieces on the board. 
+     * 
+     * @return Which PIece has more positins in the board
+     *)
+    public class Piece whoHasMore(){
+        int[] temp = new this.totalCount();
+        
+        if(temp[0] > temp[1])
+            return new Piece.white;
+        else if(temp[1] > temp[0])
+            return new Piece.black;
+        else (* //If there is a tie *)
+            return new Piece.none;
+    }
+    
+    (**
+     * Private helper metod for determining the current count of a particular type of player
+     * 
+     * @return A size two vector containing whiteCount is [0] and blackCount in [1]
+     *)
+    private int[] totalCount(){
+        int whiteCount = 0;
+        int blackCount = 0;
+        int i;
+        int j;
+        for(i = 0; i < this.board.length; i++)   (* =========================== * )
+            for(j = 0; j < this.board.length; j++) (* =========================== * )
+                if(board[i][j] == Piece.white)
+                    whiteCount++;
+                else if(board[i][j] == Piece.black)
+                    blackCount++;
+        
+        int[] temp = new int[2];
+        temp[0] = blackCount;
+        temp[1] = whiteCount;
+        return temp;
+    }
+    
+    (**
+     * Will check to see if the particular direction is a valid move
+     * If boolean updateBoard is true, will also update any pieces appropriately modified by a particular player move.
+     * Is only privately used by isValid and setPlayerMove to make sure a move is valid
+     * Returns 0 if the direction is invalid
+     * 
+     * @param move The player's new move
+     * @param incx The coefficient of x
+     * @param incy The coefficient of y
+     * @param player The current player playing the new move
+     * @param updateBoard Whether or not to update pieces
+     * @return Whether the move is valid or not
+     *)
+
+
+    private boolean checkDir(class Location move, int incx, int incy, class Piece player , boolean updateBoard)  {
+        Piece opponent; (*//The opposite color of player*)
+        int x = move.getHorizontal();
+        int y = move.getVertical();
+        
+        (*//Current player's move *)
+        if (player == Piece.black) (* =========================== * )
+            opponent=Piece.white; 
+        else
+            opponent=Piece.black;
+        
+        (* /Modify the position by one *)
+        int dist = 0;
+        x = x + incx; 
+        y = y + incy;
+        
+        (*//While x and y are in bounds and the current position is an opponent piece *)
+        while ((x < this.board.length) && (x >= 0) && (y < this.board.length) && (y >= 0) && (this.board[x][y] == opponent)) { (* =========================== * )
+            x = x + incx; 
+            y = y + incy; 
+            dist = dist + 1;
+        }
+        
+        (* //If x and y are still in bounds and the final position is a player piece, will *)
+        if ((dist != 0) && (x < this.board.length) && (x >= 0) && (y < this.board.length) && (y >= 0) && (this.board[x][y]==player)) { (* =========================== * )
+             if (updateBoard) (* //Will update the board if true *)
+                 int j;
+                 for (j = 1 ; j <= dist ; j = j+1) {
+                    x = x - incx; (*//Decrease x by one*)
+                    y = y - incy; (*//Decrease y by one*)
+                    this.setLoc(new LocationObj(x,y),player); (*//Update location to player piece *)
+                 }
+            return true; (* //The current distance from the initial position *)
+        }
+        else 
+            return false; (*//Not a valid direction *)
+    }
+    
+    (**
+     * Will set the location defined by move to the type player
+     * 
+     * @param move The position to be modified
+     * @param player The player's type
+     *)
+    private void setLoc(class Location move, class Piece player){
+        (* =========================== * )
+        this.board[move.getHorizontal()][move.getVertical()] = player;
+    }
+    
+    (**
+     * Sets the location of a particular player (c)'s move. Returns false
+     * if move is invalid.
+     * 
+     * @param move Location object containing horizontal and vertical
+     * coordinates
+     * @param c The type of player currently placing tile
+     * @return False if invalid move
+     *)
+
+
+    public boolean setPlayerMove(class Location move, class Piece player) {
+        boolean isValid = false;
+        int yinc = 0;
+        int xinc = 0;
+        
+        (* //If move is null or move space is taken up *)
+        if(move == null || this.board[move.getHorizontal()][move.getVertical()] != Piece.none) (* =========================== * )
+            return false;
+        int i;
+        for(i = 0; i < 8; i++){ (*//For the length of potential neighbors*)
+            (*//Linear Directions *)
+           if(i == 0){xinc = 1; yinc = 0;} (*//E *)
+           else if(i == 1){xinc = -1; yinc = 0;} (* //W *)
+           else if(i == 2){xinc = 0; yinc = 1;} (* //S *)
+           else if(i == 3){xinc = 0; yinc = -1;} (* //N *)
+           
+           (*//Diagonals*)
+           else if(i == 4){xinc = 1; yinc = 1;}(*//SE*)
+           else if(i == 5){xinc = -1; yinc = 1;}(*//SW*)
+           else if(i == 6){xinc = 1; yinc = -1;}(*//NE*)
+           else if(i == 7){xinc = -1; yinc = -1;}(*//NW*)
+           
+           (*//Change all potential old markers*)
+           if(this.checkDir(move, xinc, yinc, player, true))
+               isValid = true;
+        }
+        
+        if (isValid) { (*//Valid move*)
+            setLoc(move, player);
+            return true;
+        }
+        return false; (*//Invalid move*)
+    }
+    
+    (**
+     * Checks all possible directions to determine whether or not a move is valid
+     * Uses the private method checkDir to make sure that the move is valid
+     * 
+     * @param move The current move to be checked
+     * @param kind The current type of player's move
+     * @return Whether or not the move was valid
+     *)
+    public boolean isValid(class Location move, class Piece kind) {
+        int yinc = 0;
+        int xinc = 0;
+        
+        (*//If move is null, within the boundaries of the array, or move space is taken up *)
+        if(move == null || 
+                !(move.getHorizontal() > 0 && move.getHorizontal()< this.board.length 
+                && move.getVertical() > 0 && move.getVertical() < this.board.length) ||
+                (* =========================== * )
+                this.board[move.getHorizontal()][move.getVertical()] != Piece.none)
+            return false;
+        int i;
+        for(i = 0; i < 8; i = i +1){ (*//For the length of potential neighbors*)
+            (*//Linear Directions*)
+           if(i == 0){xinc = 1; yinc = 0;}(*//E*)
+           else if(i == 1){xinc = -1; yinc = 0;}(*//W*)
+           else if(i == 2){xinc = 0; yinc = 1;}(*//S*)
+           else if(i == 3){xinc = 0; yinc = -1;}(*//N*)
+           
+           (*//Diagonals*)
+           else if(i == 4){xinc = 1; yinc = 1;}(*//SE*)
+           else if(i == 5){xinc = -1; yinc = 1;}(*//SW*)
+           else if(i == 6){xinc = 1; yinc = -1;}(*//NE*)
+           else if(i == 7){xinc = -1; yinc = -1;}(*//NW*)
+
+           (*//Move is valid*)
+           if (this.checkDir(move, xinc, yinc, kind, false)) 
+               return true;
+        }
+        (*//Move was invalid for all directions*)
+        return false;
+    }
+    
+    (**
+     * Determines whether or not there is a valid move available for a particular player
+     * 
+     * @param player The current player's color
+     * @return Whether or not the particular player can play
+     *)
+    public boolean userMoveAvailable(class Piece player)  {
+        int i;
+        int j;
+        for (i = 0 ; i < this.board.length ; i=i+1)
+            for (j = 0 ; j < this.board.length ; j=j+1)
+                (*//If the potential position is not occupied and is a valid move*)
+                if ((board[j][i] == Piece.none) && this.isValid(new LocationObj(j,i),player)) (* =========================== * )
+                    return true;
+        return false;
+    }
+}

@@ -1,0 +1,82 @@
+include("stdlib");
+
+(**
+ * Main method for Othello game. Manages Game class and initializes players
+ * 
+ * @author David Watkins
+ * UNI DJW2146
+ *)
+
+class OthelloRunner {
+    (**
+     * Plays the game for the user. Prints out who is the winner.
+     * Asks the user if they would like to continue. 
+     *)
+    public static void main(String[] args){
+        class OthelloGame game = new OthelloGame();
+        bool stillPlaying = true;
+        
+        while(stillPlaying){
+            class Player p1 = this.getPlayerType("player 1");
+            class Player p2 = this.getPlayerType("player 2");
+            game.initialize(p1, p2);
+            
+            class Player winner = game.playGame(); (*//Play the main game and get winner *)
+            
+            (* //Report who the winner is *)
+            if(winner.equals(p1)) (* ================================== *)
+                print("Player 1 wins!");
+                print("\n");
+            else if(winner.equals(p2)) (* ================================== *)
+                print("Player 2 wins!");
+                print("\n");
+            else
+                print("Its a tie!");
+                print("\n");
+            
+            (* //Would use like to continue, will not stop until Y or N is entered *)
+            String response = new String("");
+            while(!response.equalsIgnoreCase("N") && !response.equalsIgnoreCase("Y")){(* ================================== *)
+
+                print("Would you like to continue? (Y/N)");
+                print("\n");
+                response = input();
+                (* ================================== *)
+
+                if(response.equalsIgnoreCase("N"))
+                    stillPlaying = false;
+                else if(!response.equalsIgnoreCase("Y"))
+                    print("Input must be Y or N");
+            }
+        }
+    }
+    
+    (**
+     * Requests user input to decide which type of player will be playing for the 
+     * playerNumber choice. 
+     * 
+     * @param playerNumber The player currently being defined by the function
+     * @return Returns the type of player the user wants
+     *)
+    private class Player getPlayerType(String playerNumber){
+        class Player newPlayer = null;
+        
+        print("What type is " + playerNumber + "? (Human/AI)");
+        (*//Trys user input, and does not stop until appropriate input *)
+        while(newPlayer == null){
+            String input = new String();
+            input  =  input(NEXTLINE);
+            (* ================================== *)
+            if(input.equalsIgnoreCase("AI"))
+            (* ================================== *)
+                newPlayer = new ComputerPlayer();
+            else if(input.equalsIgnoreCase("Human"))
+            (* ================================== *)
+                newPlayer = new HumanPlayer();
+            else
+                print("Not a valid input, try again");
+        }
+        
+        return newPlayer;  
+    }
+}
