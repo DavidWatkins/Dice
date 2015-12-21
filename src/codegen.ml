@@ -301,7 +301,11 @@ and codegen_assign lhs rhs d llbuilder =
 	| _ -> raise Exceptions.AssignLHSMustBeAssignable
 	in
 	(* Codegen the rhs. *)
-	let rhs = codegen_sexpr llbuilder rhs in
+	let rhs = match rhs with 
+	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder
+	|  	SObjAccess(e1, e2, d) -> codegen_obj_access true e1 e2 d llbuilder
+	| _ -> codegen_sexpr llbuilder rhs 
+	in
 	let rhs = match d with 
 			Datatype(Objecttype(_))	-> 
 				if isObjAccess then rhs
@@ -349,8 +353,8 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 			SId(field, d) -> 
 				let search_term = (parent_str ^ "." ^ field) in
 				let field_index = Hashtbl.find struct_field_indexes search_term in
-				let _val = build_struct_gep parent_expr field_index "tmp" llbuilder in
-				if isAssign && isLHS then
+				let _val = build_struct_gep parent_expr field_index field llbuilder in
+				if isAssign then
 					build_load _val field llbuilder
 				else 
 					_val
