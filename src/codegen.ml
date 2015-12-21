@@ -256,8 +256,13 @@ and codegen_cast el d llbuilder =
 	in
 	let expr = List.hd el in
 	let t = Analyzer.get_type_from_sexpr expr in
-	let expr = codegen_sexpr llbuilder expr in
-	cast_malloc_to_objtype expr t d llbuilder
+	let lhs = match expr with
+	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder
+	|  	SObjAccess(e1, e2, d) -> codegen_obj_access false e1 e2 d llbuilder
+	| 	SArrayAccess(se, sel, d) -> codegen_array_access true se sel d llbuilder
+	| _ -> codegen_sexpr llbuilder expr
+	in
+	cast_malloc_to_objtype lhs t d llbuilder
 
 and codegen_call llbuilder d el = function
 		"print" 	-> codegen_print el llbuilder
@@ -297,7 +302,7 @@ and codegen_assign lhs rhs d llbuilder =
 	let lhs, isObjAccess = match lhs with
 	| 	Sast.SId(id, d) -> codegen_id false false id d llbuilder, false
 	|  	SObjAccess(e1, e2, d) -> codegen_obj_access false e1 e2 d llbuilder, true
-	| 	SArrayAccess(se, sel, d) -> codegen_array_access true se sel d llbuilder, false
+	| 	SArrayAccess(se, sel, d) -> codegen_array_access true se sel d llbuilder, true
 	| _ -> raise Exceptions.AssignLHSMustBeAssignable
 	in
 	(* Codegen the rhs. *)
@@ -341,9 +346,9 @@ and codegen_obj_access isAssign lhs rhs d llbuilder =
 		| 	_ -> build_call fptr (Array.of_list (parent_expr :: params)) "tmp" llbuilder
 	in
 	let check_lhs = function
-		SId(s, d)			-> codegen_id false false s d llbuilder
-	| 	SArrayAccess(e, el, d) -> codegen_array_access false e el d llbuilder
-	| 	_  	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc ("Need to print sexpr"))
+		SId(s, d)				-> codegen_id false false s d llbuilder
+	| 	SArrayAccess(e, el, d)	-> codegen_array_access false e el d llbuilder
+	| 	se 	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc (Utils.string_of_sexpr se))
 	in
 	(* Needs to be changed *)
 	let rec check_rhs isLHS parent_expr parent_type = 
@@ -499,7 +504,7 @@ and codegen_array_create llbuilder t expr_type el =
 
 		(* Store length at this position *)
 		ignore(build_store size_real arr_len_ptr llbuilder); 
-		initialise_array arr_len_ptr size_real (const_int i32_t 0) 1 llbuilder;
+		initialise_array arr_len_ptr size_real (const_int i32_t 0) 0 llbuilder;
 		arr
 
 and codegen_array_prim d el llbuilder =
@@ -511,7 +516,7 @@ and codegen_array_prim d el llbuilder =
 	let arr = build_pointercast arr t "tmp" llbuilder in
 	let size_casted = build_bitcast size t "tmp" llbuilder in
 	ignore(if d = Arraytype(Char_t, 1) then ignore(build_store size_casted arr llbuilder);); (* Store length at this position *)
-	initialise_array arr size_real (const_int i32_t 0) 1 llbuilder;
+	(* initialise_array arr size_real (const_int i32_t 0) 1 llbuilder; *)
 
     let llvalues = List.map (codegen_sexpr llbuilder) el in
     List.iteri (fun i llval -> 

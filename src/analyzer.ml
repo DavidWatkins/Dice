@@ -339,6 +339,7 @@ and check_obj_access env lhs rhs =
 	let check_lhs = function
 		This 			-> SId("this", Datatype(Objecttype(env.env_name)))
 	|	Id s 			-> SId(s, get_ID_type env s)
+	| 	ArrayAccess(e, el)	-> check_array_access env e el
 	| 	_ as e 	-> raise (Exceptions.LHSofRootAccessMustBeIDorFunc (Utils.string_of_expr e))
 	in
 	let ptype_name parent_type = match parent_type with
