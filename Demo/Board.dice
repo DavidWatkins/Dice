@@ -1,3 +1,4 @@
+include("stdlib");
 
 (**
  * Implementation of Location that has horizontal and verticale coordinates
