@@ -1,0 +1,24 @@
+\begin{homeworkProblem}
+	\chapter{Test Plan}
+	\section{Testing Phases}
+	\subsection{Unit Testing}
+	We hand tested the scanner and parser to make sure it worked. We also printed out the AST and tokens using custom written code. 
+	\subsection{Integration Testing}
+	Discuss how we ensured the outputted code was correct and some of the thought that went behind different testers
+	\section{Automation}
+	Testing was very simple using ./tester.sh. We can verify that a test works individually by running lli on the outputted ll file
+	\section{Test Suites}
+	EDIT MEEEEEE
+	There are two folders with our tests. should\_pass with test cases that should pass and should\_fail with
+	test cases that should fail. Testing specific for components can be found in /src/backend/compile\_test/ for
+	backend testing and /src/front\_end/regression\_test/ for frontend. These are manually run using the "main"
+	binary produced by make.\\
+	
+	We tested the following features of our language. For example: Arrays, control flow, classes, inheritance, etc. Please list as many as possible.\\
+	
+	\section{Dice to LL IR}
+	Please provide an example Dice program and the corresponding LLVM IR (DemoAnimals.dice?)
+	
+	\section{Testing Roles}
+	Khal was the brains behind testing. Everyone contributed by making github issues
+\end{homeworkProblem}
