@@ -40,7 +40,7 @@ for f in full_file_paths:
 			begin_str = "\\begin{minted}[breaklines,linenos]{bash}\n"
 
 		new_file = 'Final Report/Tests/' + basename + ".tex"
-		tex_name = 'Test/' + basename + '.tex'
+		tex_name = 'Tests/' + basename + '.tex'
 		with open(f, 'r') as content_file:
 			with open(new_file, 'w') as new_file_f:
 				basename = basename.replace('_', '\\_')
