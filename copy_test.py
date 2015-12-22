@@ -40,6 +40,7 @@ for f in full_file_paths:
 			begin_str = "\\begin{minted}[breaklines,linenos]{bash}\n"
 
 		new_file = 'Final Report/Tests/' + basename + ".tex"
+		tex_name = 'Test/' + basename + '.tex'
 		with open(f, 'r') as content_file:
 			with open(new_file, 'w') as new_file_f:
 				basename = basename.replace('_', '\\_')
@@ -48,7 +49,7 @@ for f in full_file_paths:
 				content = title + begin_str + content + end_str
 				new_file_f.write(content)
 				new_file_f.close()
-				total_str += "\input{" + new_file + "}\n" + page_break
+				total_str += "\input{" + tex_name + "}\n" + page_break
 
 
 f = open('Final Report/Code/tests.tex', 'w')
