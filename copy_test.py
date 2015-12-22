@@ -31,7 +31,7 @@ total_str = "\\section{Test Suite Code}\n"
 
 for f in full_file_paths:
 	basename = os.path.basename(f)
-	if not f.endswith(".ll") and (not f.endswith('.DS_Store')) and (not f.endswith('.log')) and basename != 'dice':
+	if not f.endswith(".ll") and (not f.endswith('.DS_Store')) and (not f.endswith('.log')) and basename != 'dice' and ("Hello_World_Demo" not in f):
 		if f.endswith(".out"):
 			begin_str = "\\begin{minted}[breaklines,linenos]{text}\n"
 		elif f.endswith(".dice"):
