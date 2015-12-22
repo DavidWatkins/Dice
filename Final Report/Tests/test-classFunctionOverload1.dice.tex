@@ -1,0 +1,48 @@
+\subsection{test-classFunctionOverload1.dice}
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+  public int xCoord;
+  public int yCoord;
+
+  constructor(){
+  this.xCoord = 0;
+  this.yCoord = 0;
+  }
+
+  constructor(int x, int y){
+  this.xCoord = x;
+  this.yCoord = y;
+  }
+
+  public int getArea(){
+    return 10;
+  }
+}
+
+class circle extends shape {
+  public int radius;
+
+  constructor(){
+  	this.radius = 0;
+  }
+  constructor(int r){
+  	this.radius = r;
+  }
+  constructor(int x, int y){
+  	this.radius = 0;
+  	this.xCoord = x;
+  	this.yCoord = y;
+  }
+
+  public int getArea(){
+    return 3*this.radius*this.radius;
+  }
+}
+
+class test {
+  public void main(char[][] args) {
+      class shape a = new shape(0,0); 
+      print(a.getArea());
+  }
+}
+\end{minted}

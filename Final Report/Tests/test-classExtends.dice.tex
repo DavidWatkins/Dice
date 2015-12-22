@@ -1,0 +1,19 @@
+\subsection{test-classExtends.dice}
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+  public float xCoord;
+  public float yCoord;
+}
+
+class circle extends shape {
+  public float radius;
+}
+
+class test {
+  public void main(char[][] args) {
+      class circle a = new circle(); 
+      a.xCoord = 1.5;
+      print(a.xCoord);
+  }
+}
+\end{minted}

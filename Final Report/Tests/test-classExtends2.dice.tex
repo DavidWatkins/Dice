@@ -1,0 +1,27 @@
+\subsection{test-classExtends2.dice}
+\begin{minted}[breaklines,linenos]{java}
+class person {
+  public int ssn;
+}
+
+class worker extends person {
+  public int workid;
+}
+
+class programmer extends worker {
+	public int nerdCred;
+}
+
+class test {
+  public void main(char[][] args) {
+      class programmer david = new programmer();
+      david.ssn = 123456789;
+      david.workid = 57;
+      david.nerdCred = 99;
+
+      print(david.ssn);
+      print(david.workid);
+      print(david.nerdCred);
+  }
+}
+\end{minted}

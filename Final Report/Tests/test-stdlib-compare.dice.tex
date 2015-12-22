@@ -1,0 +1,15 @@
+\subsection{test-stdlib-compare.dice}
+\begin{minted}[breaklines,linenos]{java}
+include("stdlib");
+
+class Two {
+	public void main(char[][] args) {
+        class String b = new String("phil");
+        class String c = new String("khal");
+        class String d = c.copy(c);
+        print(b.string(), " == ", c.string(), " is ", b.compare(c));
+        print(c.string(), " == ", d.string(), " is ", c.compare(d));
+	}
+}
+
+\end{minted}

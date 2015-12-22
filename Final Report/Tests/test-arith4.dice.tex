@@ -1,0 +1,24 @@
+\subsection{test-arith4.dice}
+\begin{minted}[breaklines,linenos]{java}
+(* Test side-effect sequence in a series of statement *)
+
+class test {
+	public int g;
+
+	public void main(char[][] args) {
+
+	  int l;
+	  l = 1;
+	  print(l);
+	  
+	  this.g = 3;
+	  print(this.g);
+	  
+	  l = 5;
+	  print(l+100);
+	  
+	  this.g = 7;
+	  print(this.g+100);
+	}
+}
+\end{minted}

@@ -1,0 +1,20 @@
+\subsection{test-applicative.dice}
+\begin{minted}[breaklines,linenos]{java}
+class test {
+	
+	public int p(int i){ 
+		print(i); 
+		return i; 
+	}
+
+	public void q(int a, int b, int c){ 
+		int total = a ; 
+		print(b); 
+		total = total + c ; 
+	}
+	
+	public void main(char[][] args) {
+		this.q( this.p(1), 2, this.p(3));
+	}
+}
+\end{minted}

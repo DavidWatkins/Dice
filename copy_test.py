@@ -24,7 +24,8 @@ full_file_paths = get_filepaths("Test Suite/")
 begin_str = "\\begin{minted}[breaklines,linenos]{java}\n"
 title_str = "\\subsection{"
 end_title = "}\n"
-end_str = "\n\\end{minted}\n\\pagebreak\n"
+end_str = "\n\\end{minted}"
+page_break = "\\pagebreak\n"
 
 total_str = "\\section{Test Suite Code}\n"
 
@@ -38,12 +39,18 @@ for f in full_file_paths:
 		elif f.endswith(".sh"):
 			begin_str = "\\begin{minted}[breaklines,linenos]{bash}\n"
 
+		new_file = 'Final Report/Tests/' + basename + ".tex"
 		with open(f, 'r') as content_file:
-			basename = basename.replace('_', '\\_')
-			content = content_file.read()
-			title = title_str + basename + end_title
-			total_str += title + begin_str + content + end_str
+			with open(new_file, 'w') as new_file_f:
+				basename = basename.replace('_', '\\_')
+				content = content_file.read()
+				title = title_str + basename + end_title
+				content = title + begin_str + content + end_str
+				new_file_f.write(content)
+				new_file_f.close()
+				total_str += "\input{" + new_file + "}\n" + page_break
 
 
 f = open('Final Report/Code/tests.tex', 'w')
 f.write(total_str)
+f.close()

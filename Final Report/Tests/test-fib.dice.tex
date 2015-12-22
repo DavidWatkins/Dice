@@ -1,0 +1,20 @@
+\subsection{test-fib.dice}
+\begin{minted}[breaklines,linenos]{java}
+class test {
+	
+	public int fib(int x) {
+  		if (x < 2) 
+  			return 1;
+  		return this.fib(x-1) + this.fib(x-2);
+	}
+
+	public void main(char[][] args) {
+		print(this.fib(0));
+		print(this.fib(1));
+		print(this.fib(2));
+		print(this.fib(3));
+		print(this.fib(4));
+		print(this.fib(5));
+	}
+}
+\end{minted}
