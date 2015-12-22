@@ -24,17 +24,25 @@ full_file_paths = get_filepaths("Test Suite/")
 begin_str = "\\begin{minted}[breaklines,linenos]{java}\n"
 title_str = "\\subsection{"
 end_title = "}\n"
-end_str = "\n\\end{minted}\\pagebreak"
+end_str = "\n\\end{minted}\n\\pagebreak\n"
 
 total_str = "\\section{Test Suite Code}\n"
 
 for f in full_file_paths:
 	basename = os.path.basename(f)
 	if not f.endswith(".ll") and (not f.endswith('.DS_Store')) and (not f.endswith('.log')) and basename != 'dice':
+		if f.endswith(".out"):
+			begin_str = "\\begin{minted}[breaklines,linenos]{text}\n"
+		elif f.endswith(".dice"):
+			begin_str = "\\begin{minted}[breaklines,linenos]{java}\n"
+		elif f.endswith(".sh"):
+			begin_str = "\\begin{minted}[breaklines,linenos]{bash}\n"
+
 		with open(f, 'r') as content_file:
 			content = content_file.read()
 			title = title_str + os.path.basename(f) + end_title
 			total_str += title + begin_str + content + end_str
 
 
-print total_str
+f = open('Final Report/Code/tests.tex', 'w')
+f.write(total_str)

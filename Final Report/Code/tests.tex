@@ -1,6 +1,6 @@
 \section{Test Suite Code}
 \subsection{tester.sh}
-\begin{minted}[breaklines,linenos]{java}
+\begin{minted}[breaklines,linenos]{bash}
 #!/bin/bash
 # This script must reside in the "Test Suite" directory of the project
 # Make sure the "dice" executable is in the "Compiler" directory
@@ -233,13 +233,19 @@ if [ "$testOption" != "-s" ]; then
 fi
 
 exit 0
-\end{minted}\pagebreak\subsection{test-var1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-var1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 42
-\end{minted}\pagebreak\subsection{test-stdlib-stringclass.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclass.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 hi
-\end{minted}\pagebreak\subsection{test-stdlib-integerclass1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-integerclass1.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -250,7 +256,9 @@ class Two {
       }
 }
 
-\end{minted}\pagebreak\subsection{test-constructorInherited.dice}
+\end{minted}
+\pagebreak
+\subsection{test-constructorInherited.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -291,13 +299,19 @@ class test {
       print(a.radius);
   }
 }
-\end{minted}\pagebreak\subsection{test-ifEmptyBlock2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-ifEmptyBlock2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 17
-\end{minted}\pagebreak\subsection{test-global1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-global1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 42214322
-\end{minted}\pagebreak\subsection{test-if7.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if7.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -319,7 +333,9 @@ class test {
 		}
 	}
 }
-\end{minted}\pagebreak\subsection{test-var3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-var3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -337,10 +353,14 @@ class test {
 	  this.print2(this.a + b * 3, 77);
 	}
 }
-\end{minted}\pagebreak\subsection{test-classFunctionOverload1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classFunctionOverload1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 10
-\end{minted}\pagebreak\subsection{test-applicative.dice}
+\end{minted}
+\pagebreak
+\subsection{test-applicative.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	
@@ -359,7 +379,9 @@ class test {
 		this.q( this.p(1), 2, this.p(3));
 	}
 }
-\end{minted}\pagebreak\subsection{test-forEmptyBlock2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-forEmptyBlock2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -370,7 +392,9 @@ class test {
 	  print(1);
 	}
 }
-\end{minted}\pagebreak\subsection{test-if1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -379,7 +403,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-func5.dice}
+\end{minted}
+\pagebreak
+\subsection{test-func5.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -398,7 +424,9 @@ class test {
 
 }
 
-\end{minted}\pagebreak\subsection{test-arith5.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith5.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -406,7 +434,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-bool5.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool5.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -414,7 +444,9 @@ class test {
 		print(1==1);
 	}
 }
-\end{minted}\pagebreak\subsection{test-constructor2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-constructor2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 	public int xCoord;
@@ -438,10 +470,14 @@ class shape {
 		 print (a.yCoord);
 	 }
  }
-\end{minted}\pagebreak\subsection{test-arithSigned2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 -3-3-3.000000-3.000000
-\end{minted}\pagebreak\subsection{test-classExtends2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classExtends2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class person {
   public int ssn;
@@ -467,10 +503,14 @@ class test {
       print(david.nerdCred);
   }
 }
-\end{minted}\pagebreak\subsection{test-arithSigned1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 -5-5-5.000000-5.000000
-\end{minted}\pagebreak\subsection{test-forEmptyBlock.dice}
+\end{minted}
+\pagebreak
+\subsection{test-forEmptyBlock.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -481,20 +521,30 @@ class test {
 	  print(1);
 	}
 }
-\end{minted}\pagebreak\subsection{test-func5.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-func5.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 113
-\end{minted}\pagebreak\subsection{test-float.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-float.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1.500000
-\end{minted}\pagebreak\subsection{test-stdlib-integerclass1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-integerclass1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 128
 
-\end{minted}\pagebreak\subsection{test-for2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-for2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 5432142
-\end{minted}\pagebreak\subsection{test-if4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -506,7 +556,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arith7.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith7.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -514,7 +566,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-if5.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if5.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -531,7 +585,9 @@ class test {
 		}
 }
 
-\end{minted}\pagebreak\subsection{test-arithSigned3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -541,13 +597,19 @@ class test {
 		print(1.0+-3.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-if7.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if7.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 else
-\end{minted}\pagebreak\subsection{test-classGetter.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classGetter.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 13
-\end{minted}\pagebreak\subsection{test-stdlib-compare.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-compare.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -561,13 +623,19 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-class.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-class.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 13
-\end{minted}\pagebreak\subsection{test-for1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-for1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 0123442
-\end{minted}\pagebreak\subsection{test-classInheritanceArgument.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classInheritanceArgument.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -590,7 +658,9 @@ class test {
   }
 
 }
-\end{minted}\pagebreak\subsection{test-whileBreak.dice}
+\end{minted}
+\pagebreak
+\subsection{test-whileBreak.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -605,7 +675,9 @@ class test {
 	  }
 	}
 }
-\end{minted}\pagebreak\subsection{test-while1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-while1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -618,8 +690,10 @@ class test {
 	  print(42);
 	}
 }
-\end{minted}\pagebreak\subsection{test-fileio.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-fileio.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 include("stdlib");
 
 class Two {
@@ -631,13 +705,19 @@ class Two {
         print(buf);
 	}
 }
-\end{minted}\pagebreak\subsection{test-classExtends2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classExtends2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1234567895799
-\end{minted}\pagebreak\subsection{test-forContinue.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-forContinue.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 23420
-\end{minted}\pagebreak\subsection{test-fib.dice}
+\end{minted}
+\pagebreak
+\subsection{test-fib.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	
@@ -656,7 +736,9 @@ class test {
 		print(this.fib(5));
 	}
 }
-\end{minted}\pagebreak\subsection{test-bool1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -666,7 +748,9 @@ class test {
 		print(1.0<2.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-forBreak.dice}
+\end{minted}
+\pagebreak
+\subsection{test-forBreak.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -682,7 +766,9 @@ class test {
 }
 
 
-\end{minted}\pagebreak\subsection{test-bool6.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool6.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -690,10 +776,14 @@ class test {
 		print(1!=1);
 	}
 }
-\end{minted}\pagebreak\subsection{test-bool4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 truetruetruefalse
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassContains2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassContains2.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -705,7 +795,9 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-classGetter.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classGetter.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -729,10 +821,14 @@ class test {
       print(a.getY());
   }
 }
-\end{minted}\pagebreak\subsection{test-var3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-var3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 21377
-\end{minted}\pagebreak\subsection{test-forContinue.dice}
+\end{minted}
+\pagebreak
+\subsection{test-forContinue.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -747,13 +843,19 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassReverse.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassReverse.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 olleh
-\end{minted}\pagebreak\subsection{test-while1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-while1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 5432142
-\end{minted}\pagebreak\subsection{test-float.dice}
+\end{minted}
+\pagebreak
+\subsection{test-float.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -762,10 +864,14 @@ class test {
 
      }
 }
-\end{minted}\pagebreak\subsection{test-arith5.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith5.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 10
-\end{minted}\pagebreak\subsection{test-array4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-array4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 	public int x;
@@ -787,7 +893,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arithSigned1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -797,10 +905,14 @@ class test {
 		print(15.0/-3.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-if2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 4217
-\end{minted}\pagebreak\subsection{test-stdlib-concat.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-concat.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -815,10 +927,14 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-classReturnObjects.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classReturnObjects.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 12
-\end{minted}\pagebreak\subsection{test-if8.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if8.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -840,7 +956,9 @@ class test {
 		}
 	}
 }
-\end{minted}\pagebreak\subsection{test-stmts1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stmts1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -859,16 +977,24 @@ class test {
 	  return j;  
 	}  
 }
-\end{minted}\pagebreak\subsection{test-if6.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if6.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 42278
-\end{minted}\pagebreak\subsection{test-classExtendsGetter.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classExtendsGetter.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 13
-\end{minted}\pagebreak\subsection{test-ops1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-ops1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 3-125099falsetrue99truefalse99truefalse99truetruefalse99falsetrue99falsetruetrue
-\end{minted}\pagebreak\subsection{test-arith4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith4.dice}
 \begin{minted}[breaklines,linenos]{java}
 (* Test side-effect sequence in a series of statement *)
 
@@ -891,10 +1017,14 @@ class test {
 	  print(this.g+100);
 	}
 }
-\end{minted}\pagebreak\subsection{test-func3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-func3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 42171928
-\end{minted}\pagebreak\subsection{test-class.dice}
+\end{minted}
+\pagebreak
+\subsection{test-class.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -913,21 +1043,31 @@ class test {
       print(a.yCoord);
   }
 }
-\end{minted}\pagebreak\subsection{test-bool9.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool9.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 truetruetruefalsefalsetruetruefalse
 
-\end{minted}\pagebreak\subsection{test-whileContinue.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-whileContinue.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 543
-\end{minted}\pagebreak\subsection{test-stdlib-copy.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-copy.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 philkhalkhal
-\end{minted}\pagebreak\subsection{test-stdlib-integerclass2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-integerclass2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 128
 
-\end{minted}\pagebreak\subsection{test-classExtends.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classExtends.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public float xCoord;
@@ -945,7 +1085,9 @@ class test {
       print(a.xCoord);
   }
 }
-\end{minted}\pagebreak\subsection{test-if3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {	
@@ -955,14 +1097,20 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-bool8.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool8.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 falsetrue
 falsefalse
-\end{minted}\pagebreak\subsection{test-scope.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-scope.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 12321
-\end{minted}\pagebreak\subsection{test-constructor1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-constructor1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 	public int xCoord;
@@ -989,37 +1137,57 @@ class shape {
 		 print (b.yCoord);
 	 }
  }
-\end{minted}\pagebreak\subsection{test-stdlib-concat.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-concat.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 phil
 khal
 philkhal
 
-\end{minted}\pagebreak\subsection{test-forEmptyBlock2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-forEmptyBlock2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1
-\end{minted}\pagebreak\subsection{test-if4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 817
-\end{minted}\pagebreak\subsection{test-array.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-array.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 04
-\end{minted}\pagebreak\subsection{test-array2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-array2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1.5000004.500000
-\end{minted}\pagebreak\subsection{test-objectDeclarationInheritance.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-objectDeclarationInheritance.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 pass
-\end{minted}\pagebreak\subsection{test-if5.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if5.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 5
-\end{minted}\pagebreak\subsection{test-forEmptyBlock.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-forEmptyBlock.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1
-\end{minted}\pagebreak\subsection{test-var4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-var4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1242
-\end{minted}\pagebreak\subsection{test-whileContinue.dice}
+\end{minted}
+\pagebreak
+\subsection{test-whileContinue.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1038,7 +1206,9 @@ class test {
 }
 
 
-\end{minted}\pagebreak\subsection{test-array3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-array3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1051,10 +1221,14 @@ class test {
 		print(a[9]);
 	}
 }
-\end{minted}\pagebreak\subsection{test-if3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 17
-\end{minted}\pagebreak\subsection{test-arith6.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith6.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1062,25 +1236,35 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-helloTwice.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-helloTwice.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 Hello, World!
 Professor Edwards favorite number is: 42!
 
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassLength.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassLength.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 9
-\end{minted}\pagebreak\subsection{test-bool3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 falsetruefalsetrue
-\end{minted}\pagebreak\subsection{test-hello.dice}
+\end{minted}
+\pagebreak
+\subsection{test-hello.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
 		print("Hello, World!");
 	}
 }
-\end{minted}\pagebreak\subsection{test-array.dice}
+\end{minted}
+\pagebreak
+\subsection{test-array.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1090,7 +1274,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-exit.dice}
+\end{minted}
+\pagebreak
+\subsection{test-exit.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	 public void main(char[][] args) {
@@ -1101,7 +1287,9 @@ class test {
 
  	}
  }
-\end{minted}\pagebreak\subsection{test-helloTwice.dice}
+\end{minted}
+\pagebreak
+\subsection{test-helloTwice.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1109,7 +1297,9 @@ class test {
 		print("Professor Edwards favorite number is: 42!\n");
 	}
 }
-\end{minted}\pagebreak\subsection{test-arithSigned2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1119,7 +1309,9 @@ class test {
 		print(1.0*-3.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-cyclicalIncludes2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-cyclicalIncludes2.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("Test Suite/Compiler_Test_Suite/test-cyclicalIncludes.dice");
 
@@ -1132,7 +1324,9 @@ class test2 {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-if2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1142,7 +1336,9 @@ class test {
   	}
 }
 
-\end{minted}\pagebreak\subsection{test-constructorDefault.dice}
+\end{minted}
+\pagebreak
+\subsection{test-constructorDefault.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 	public int xCoord;
@@ -1157,7 +1353,9 @@ class shape {
 		 print (a.xCoord);
 	 }
  }
-\end{minted}\pagebreak\subsection{test-var1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-var1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1168,26 +1366,40 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arithSigned4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 -44-4.0000004.000000
-\end{minted}\pagebreak\subsection{test-ifEmptyBlock.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-ifEmptyBlock.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 17
-\end{minted}\pagebreak\subsection{test-stdlib-compare.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-compare.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 phil == khal is falsekhal == khal is true
-\end{minted}\pagebreak\subsection{test-cyclicalIncludes.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-cyclicalIncludes.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 ba
-\end{minted}\pagebreak\subsection{test-bool7.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool7.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 truefalsefalsefalse
 truetruetruefalse
-\end{minted}\pagebreak\subsection{test-classSetter.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classSetter.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 13
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassReverse.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassReverse.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1200,7 +1412,9 @@ class Test {
     }   
 }
 
-\end{minted}\pagebreak\subsection{test-factorialRecursive.dice}
+\end{minted}
+\pagebreak
+\subsection{test-factorialRecursive.dice}
 \begin{minted}[breaklines,linenos]{java}
 class Factorial {
 
@@ -1216,13 +1430,19 @@ class Factorial {
    }
 }
 
-\end{minted}\pagebreak\subsection{test-classInheritanceArgument.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classInheritanceArgument.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 pass
-\end{minted}\pagebreak\subsection{test-constructorInherited.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-constructorInherited.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 007
-\end{minted}\pagebreak\subsection{test-bool8.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool8.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1233,7 +1453,9 @@ class test {
 		print(not (true and true));
 	}
 }
-\end{minted}\pagebreak\subsection{test-classFunctionOverload.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classFunctionOverload.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -1280,10 +1502,14 @@ class test {
       print(a.getArea());
   }
 }
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassContains.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassContains.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 true
-\end{minted}\pagebreak\subsection{test-arith8.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith8.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1293,10 +1519,14 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-array4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-array4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 2
-\end{minted}\pagebreak\subsection{test-stdlib-copy.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-copy.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1310,10 +1540,14 @@ class Two {
         print(d.string());
 	}
 }
-\end{minted}\pagebreak\subsection{test-arith7.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith7.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 3
-\end{minted}\pagebreak\subsection{test-classFunctionOverload1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classFunctionOverload1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -1360,7 +1594,9 @@ class test {
       print(a.getArea());
   }
 }
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassContains.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassContains.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1372,10 +1608,14 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-factorialRecursive.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-factorialRecursive.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 120
-\end{minted}\pagebreak\subsection{test-stdlib-integerclass2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-integerclass2.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1387,10 +1627,14 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-bool6.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool6.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 truefalse
-\end{minted}\pagebreak\subsection{test-cyclicalIncludes.dice}
+\end{minted}
+\pagebreak
+\subsection{test-cyclicalIncludes.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("Test Suite/Compiler_Test_Suite/test-cyclicalIncludes2.dice");
 
@@ -1405,10 +1649,14 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-bool1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 truetruetruetrue
-\end{minted}\pagebreak\subsection{test-stdlib-stringclass3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclass3.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1424,7 +1672,9 @@ class test{
 	
 	}
 }
-\end{minted}\pagebreak\subsection{test-arith3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith3.dice}
 \begin{minted}[breaklines,linenos]{java}
 (* Test left-to-right evaluation of expressions *)
 
@@ -1443,7 +1693,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-emptyBlock.dice}
+\end{minted}
+\pagebreak
+\subsection{test-emptyBlock.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1455,22 +1707,34 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-intOverflow.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-intOverflow.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 passpass
-\end{minted}\pagebreak\subsection{test-stdlib.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 hi
-\end{minted}\pagebreak\subsection{test-classFunctionOverload.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classFunctionOverload.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 12
-\end{minted}\pagebreak\subsection{test-exit.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-exit.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1
-\end{minted}\pagebreak\subsection{test-if1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 4217
-\end{minted}\pagebreak\subsection{test-stdlib-stringclass2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclass2.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1481,10 +1745,14 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arith6.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith6.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 50
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassLength.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassLength.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1495,10 +1763,14 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-stdlib-stringclassContains2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclassContains2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 false
-\end{minted}\pagebreak\subsection{test-ops1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-ops1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -1529,7 +1801,9 @@ class test {
   }
 }
 
-\end{minted}\pagebreak\subsection{test-stdlib-stringclass.dice}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclass.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1540,7 +1814,9 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arith2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1548,7 +1824,9 @@ class test {
 	}
 } 
 
-\end{minted}\pagebreak\subsection{test-float-max.dice}
+\end{minted}
+\pagebreak
+\subsection{test-float-max.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -1560,17 +1838,23 @@ class test {
 
      }
 }
-\end{minted}\pagebreak\subsection{test-arith1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arith1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
 		print(5+15);
 	}
 }
-\end{minted}\pagebreak\subsection{test-stdlib-stringclass3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclass3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 goodBye
-\end{minted}\pagebreak\subsection{test-ifEmptyBlock2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-ifEmptyBlock2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1580,10 +1864,14 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-array3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-array3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1102
-\end{minted}\pagebreak\subsection{test-arithSigned4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1593,7 +1881,9 @@ class test {
 		print(1.0--3.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-classSetter.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classSetter.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -1617,7 +1907,9 @@ class test {
       print(a.yCoord);
   }
 }
-\end{minted}\pagebreak\subsection{test-classExtendsSetter.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classExtendsSetter.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -1646,7 +1938,9 @@ class test {
       print(a.yCoord);
   }
 }
-\end{minted}\pagebreak\subsection{test-gcd.dice}
+\end{minted}
+\pagebreak
+\subsection{test-gcd.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -1669,7 +1963,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-bool7.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool7.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1684,7 +1980,9 @@ class test {
 		print(false or false);
 	}
 }
-\end{minted}\pagebreak\subsection{test-classExtendsGetter.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classExtendsGetter.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -1713,19 +2011,29 @@ class test {
       print(a.getY());
   }
 }
-\end{minted}\pagebreak\subsection{test-func4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-func4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 371
-\end{minted}\pagebreak\subsection{test-constructor1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-constructor1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 00510
-\end{minted}\pagebreak\subsection{test-fib.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-fib.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 112358
-\end{minted}\pagebreak\subsection{test-forBreak.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-forBreak.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 012100
-\end{minted}\pagebreak\subsection{test-func3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-func3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1740,7 +2048,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-scope.dice}
+\end{minted}
+\pagebreak
+\subsection{test-scope.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1760,7 +2070,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-objectDeclarationInheritance.dice}
+\end{minted}
+\pagebreak
+\subsection{test-objectDeclarationInheritance.dice}
 \begin{minted}[breaklines,linenos]{java}
 class A {}
 class B extends A {}
@@ -1773,20 +2085,28 @@ class test {
 		print("pass");
 	 }
  }
-\end{minted}\pagebreak\subsection{test-bool9.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool9.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
     public void main(char[][] args) {
         print(true, true, true, false, false, true, true, false, "\n");
     }
 }
-\end{minted}\pagebreak\subsection{test-if8.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-if8.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 elseif
-\end{minted}\pagebreak\subsection{test-hello.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-hello.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 Hello, World!
-\end{minted}\pagebreak\subsection{test-fileio.dice}
+\end{minted}
+\pagebreak
+\subsection{test-fileio.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("stdlib");
 
@@ -1800,14 +2120,20 @@ class Two {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arith3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 86
-\end{minted}\pagebreak\subsection{test-float-max.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-float-max.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 0.011755
 1010123.450000
-\end{minted}\pagebreak\subsection{test-var4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-var4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public int a;
@@ -1825,13 +2151,19 @@ class test {
 	  this.foo(42);
 	}
 }
-\end{minted}\pagebreak\subsection{test-cyclicalIncludes2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-cyclicalIncludes2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 ba
-\end{minted}\pagebreak\subsection{test-classExtendsSetter.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classExtendsSetter.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 13
-\end{minted}\pagebreak\subsection{test-bool4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1841,7 +2173,9 @@ class test {
 		print(2.1<=2.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-bool2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1851,16 +2185,24 @@ class test {
 		print(1.0>2.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-classExtends.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-classExtends.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1.500000
-\end{minted}\pagebreak\subsection{test-gcd.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-gcd.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 2311
-\end{minted}\pagebreak\subsection{test-bool2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 falsefalsefalsefalse
-\end{minted}\pagebreak\subsection{test-func4.dice}
+\end{minted}
+\pagebreak
+\subsection{test-func4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public int a;
@@ -1882,13 +2224,19 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-emptyBlock.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-emptyBlock.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 1
-\end{minted}\pagebreak\subsection{test-constructor2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-constructor2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 510
-\end{minted}\pagebreak\subsection{test-for2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-for2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1899,7 +2247,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-array2.dice}
+\end{minted}
+\pagebreak
+\subsection{test-array2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1909,16 +2259,24 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-constructorDefault.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-constructorDefault.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 5
-\end{minted}\pagebreak\subsection{test-applicative.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-applicative.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 132
-\end{minted}\pagebreak\subsection{test-stmts1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stmts1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 4562
-\end{minted}\pagebreak\subsection{test-global1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-global1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public int a;
@@ -1948,7 +2306,9 @@ class test {
   }
 }
 
-\end{minted}\pagebreak\subsection{test-intOverflow.dice}
+\end{minted}
+\pagebreak
+\subsection{test-intOverflow.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -1969,7 +2329,9 @@ class test {
       }
      }
 }
-\end{minted}\pagebreak\subsection{test-if6.dice}
+\end{minted}
+\pagebreak
+\subsection{test-if6.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -1992,7 +2354,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-ifEmptyBlock.dice}
+\end{minted}
+\pagebreak
+\subsection{test-ifEmptyBlock.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -2001,16 +2365,24 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test-arith1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 20
-\end{minted}\pagebreak\subsection{test-arith4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 13105107
-\end{minted}\pagebreak\subsection{test-whileBreak.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-whileBreak.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 543
-\end{minted}\pagebreak\subsection{test-classReturnObjects.dice}
+\end{minted}
+\pagebreak
+\subsection{test-classReturnObjects.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
   public int xCoord;
@@ -2035,17 +2407,25 @@ class test {
     return b;
   }
 }
-\end{minted}\pagebreak\subsection{test-stdlib-stringclass2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-stdlib-stringclass2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 StringDoesn'tStartWithH
-\end{minted}\pagebreak\subsection{test-intMax.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-intMax.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 2147483647
 -2147483648
-\end{minted}\pagebreak\subsection{test-arith2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 11
-\end{minted}\pagebreak\subsection{test-for1.dice}
+\end{minted}
+\pagebreak
+\subsection{test-for1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -2056,7 +2436,9 @@ class test {
 	  print(42);
 	}
 }
-\end{minted}\pagebreak\subsection{test-bool3.dice}
+\end{minted}
+\pagebreak
+\subsection{test-bool3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -2066,14 +2448,20 @@ class test {
 		print(2.0>=2.0);
 	}
 }
-\end{minted}\pagebreak\subsection{test-arithSigned3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arithSigned3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 2-22.000000-2.000000
-\end{minted}\pagebreak\subsection{test-arith8.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-arith8.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 20.000000
 2.500000
-\end{minted}\pagebreak\subsection{test-intMax.dice}
+\end{minted}
+\pagebreak
+\subsection{test-intMax.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -2084,13 +2472,19 @@ class test {
       print(b);
      }
 }
-\end{minted}\pagebreak\subsection{test-bool5.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-bool5.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 falsetrue
-\end{minted}\pagebreak\subsection{test-args.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{test-args.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 davidemilyphil4
-\end{minted}\pagebreak\subsection{test-args.dice}
+\end{minted}
+\pagebreak
+\subsection{test-args.dice}
 \begin{minted}[breaklines,linenos]{java}
 
 class test {
@@ -2101,14 +2495,20 @@ class test {
       print(args.length);
   }
 }
-\end{minted}\pagebreak\subsection{E-test-cyclicalIncludesDuplicate.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-cyclicalIncludesDuplicate.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 Exceptions.DuplicateClassName(test)
 
-\end{minted}\pagebreak\subsection{E-test-objectCreation2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 
-\end{minted}\pagebreak\subsection{E-test-scope3.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-scope3.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -2121,7 +2521,9 @@ class test {
 		print(y);
 	}
 }
-\end{minted}\pagebreak\subsection{E-test-objectCreation2.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class Bar {
 constructor(char c, float f) {}
@@ -2140,30 +2542,44 @@ class Bar myb = new Bar(myc, myf);
 class Foo myFooObj = new Foo(5, true, myc, myf);
 }
 }
-\end{minted}\pagebreak\subsection{E-test-objectAssignMistmatch.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectAssignMistmatch.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 LocalAssignTypeMismatch(B,C)
 
-\end{minted}\pagebreak\subsection{E-test-cyclicalIncludes.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-cyclicalIncludes.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 Exceptions.DuplicateClassName(test)
 
-\end{minted}\pagebreak\subsection{E-test-scope1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-scope1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 UndefinedID(x)
 
-\end{minted}\pagebreak\subsection{E-test-objectCreation1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 
-\end{minted}\pagebreak\subsection{E-test-scope2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-scope2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 UndefinedID(x)
 
-\end{minted}\pagebreak\subsection{E-test-assignMismatch.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-assignMismatch.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 AssignmentTypeMismatch (float,int)
 
-\end{minted}\pagebreak\subsection{E-test-duplicate.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-duplicate.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 public void main(char[][] args) {
@@ -2172,11 +2588,15 @@ int myc = 2;
 float myf = 4.5;
 }
 }
-\end{minted}\pagebreak\subsection{E-test-scope3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-scope3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 UndefinedID(y)
 
-\end{minted}\pagebreak\subsection{E-test-objectCreation4.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation4.dice}
 \begin{minted}[breaklines,linenos]{java}
 class Bar {
 constructor(char c, float f) {}
@@ -2193,7 +2613,9 @@ constructor(int a, bool b, char c, float f) {}
  class Foo myFooObj = new Foo(5, true, myc, myf);
  }
  }
-\end{minted}\pagebreak\subsection{E-test-constructor.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-constructor.dice}
 \begin{minted}[breaklines,linenos]{java}
 class Foo {
 constructor(char c, float f) {}
@@ -2210,7 +2632,9 @@ class Foo myFooObj = new Foo(mya, myb, myc, myf);
 }
 }
 
-\end{minted}\pagebreak\subsection{E-test-scope2.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-scope2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -2222,11 +2646,15 @@ class test {
 		print(x);
 	}
 }
-\end{minted}\pagebreak\subsection{E-test-constructor.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-constructor.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 ConstructorNotFound: Foo.constructor.int.bool.char.float
 
-\end{minted}\pagebreak\subsection{E-test-noReturn.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-noReturn.dice}
 \begin{minted}[breaklines,linenos]{java}
  class test {
 
@@ -2237,11 +2665,15 @@ ConstructorNotFound: Foo.constructor.int.bool.char.float
 		int x = this.increment(5);
  	}
  }
-\end{minted}\pagebreak\subsection{E-test-cyclicalIncludesDuplicate2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-cyclicalIncludesDuplicate2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 Exceptions.DuplicateClassName(test)
 
-\end{minted}\pagebreak\subsection{E-test-objectCreation1.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class Bar {
 constructor(char c, float f) {}
@@ -2262,7 +2694,9 @@ constructor(int a, bool b, char c, float f) {}
  class Foo myFooObj = new Foo(mya, myb, myc, myf);
  }
  }
-\end{minted}\pagebreak\subsection{E-test-cyclicalIncludes.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-cyclicalIncludes.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("Test Suite/Compiler_Test_Suite/test-cyclicalIncludes.dice");
 
@@ -2276,7 +2710,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{E-test-undefinedClass2.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-undefinedClass2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class Foo {}
 
@@ -2288,12 +2724,16 @@ class Baz b;
 }
 }
 
-\end{minted}\pagebreak\subsection{E-test-mainClassNotDefined.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-mainClassNotDefined.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test{
 	
 }
-\end{minted}\pagebreak\subsection{E-test-privateFieldsAccess.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-privateFieldsAccess.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 	private int area;
@@ -2319,19 +2759,27 @@ class shape {
 		 
 		 }
  }
-\end{minted}\pagebreak\subsection{E-test-duplicate.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-duplicate.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 DuplicateLocal: myc
 
-\end{minted}\pagebreak\subsection{E-test-stdlib-overload.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-stdlib-overload.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 CannotUseReservedFuncName(print)
 
-\end{minted}\pagebreak\subsection{E-test-noReturn.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-noReturn.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 Exceptions.AllNonVoidFunctionsMustEndWithReturn(test.increment)
 
-\end{minted}\pagebreak\subsection{E-test-undefinedClass.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-undefinedClass.dice}
 \begin{minted}[breaklines,linenos]{java}
 class D {
   public void main(char[][] args) {}
@@ -2341,7 +2789,9 @@ class B extends C {}
 class C extends D {}
 class G extends H {}
 class I extends H {}
-\end{minted}\pagebreak\subsection{E-test-objectAssignMistmatch.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectAssignMistmatch.dice}
 \begin{minted}[breaklines,linenos]{java}
 class A {}
 class B extends A {}
@@ -2352,14 +2802,20 @@ class A myBObj = new B();
  class B mySecondBObj = new C();
  }
  }
-\end{minted}\pagebreak\subsection{E-test-privateFunctionAccess.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-privateFunctionAccess.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 CannotAccessPrivateFunctionInNonProperScope(something.hi,something,test)
 
-\end{minted}\pagebreak\subsection{E-test-objectCreation3.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation3.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 
-\end{minted}\pagebreak\subsection{E-test-objectCreation3.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation3.dice}
 \begin{minted}[breaklines,linenos]{java}
 
 
@@ -2373,15 +2829,21 @@ class Baz b;
 }
 }
 
-\end{minted}\pagebreak\subsection{E-test-privateFieldsAccess.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-privateFieldsAccess.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 CannotAccessPrivateFieldInNonProperScope(area,shape,test)
 
-\end{minted}\pagebreak\subsection{E-test-assignMismatch2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-assignMismatch2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 AssignmentTypeMismatch (int,float)
 
-\end{minted}\pagebreak\subsection{E-test-scope1.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-scope1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -2393,7 +2855,9 @@ class test {
 		print(x);
 	}
 }
-\end{minted}\pagebreak\subsection{E-test-stdlib-overload.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-stdlib-overload.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 
@@ -2405,10 +2869,14 @@ class test {
      
   }
 }
-\end{minted}\pagebreak\subsection{E-test-objectCreation4.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-objectCreation4.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 
-\end{minted}\pagebreak\subsection{E-test-cyclicalIncludesDuplicate.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-cyclicalIncludesDuplicate.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("Test Suite/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludesDuplicate2.dice");
 
@@ -2418,11 +2886,15 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{E-test-undefinedClass2.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-undefinedClass2.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 UndefinedClass: Baz
 
-\end{minted}\pagebreak\subsection{E-test-cyclicalIncludesDuplicate2.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-cyclicalIncludesDuplicate2.dice}
 \begin{minted}[breaklines,linenos]{java}
 include("Test Suite/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludesDuplicate.dice");
 
@@ -2430,7 +2902,9 @@ class test {
 	
 }
 
-\end{minted}\pagebreak\subsection{E-test-assignMismatch2.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-assignMismatch2.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -2439,7 +2913,9 @@ class test {
       print(a);
   }
 }
-\end{minted}\pagebreak\subsection{E-test-privateFunctionAccess.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-privateFunctionAccess.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 }
@@ -2456,7 +2932,9 @@ class something {
 		 a.hi();		 
 		 }
  }
-\end{minted}\pagebreak\subsection{E-test-constructor1.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-constructor1.dice}
 \begin{minted}[breaklines,linenos]{java}
 class shape {
 	public int xCoord;
@@ -2478,7 +2956,9 @@ class shape {
 		 (* Constructor clash *)
 	 }
  }
-\end{minted}\pagebreak\subsection{E-test-assignMismatch.dice}
+\end{minted}
+\pagebreak
+\subsection{E-test-assignMismatch.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
   public void main(char[][] args) {
@@ -2487,19 +2967,27 @@ class test {
       print(a);
   }
 }
-\end{minted}\pagebreak\subsection{E-test-mainClassNotDefined.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-mainClassNotDefined.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 MainNotDefined 
 
-\end{minted}\pagebreak\subsection{E-test-undefinedClass.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-undefinedClass.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 UndefinedClass: H
 
-\end{minted}\pagebreak\subsection{E-test-constructor1.dice.out}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{E-test-constructor1.dice.out}
+\begin{minted}[breaklines,linenos]{text}
 DuplicateConstructor 
 
-\end{minted}\pagebreak\subsection{test_pretty.dice}
+\end{minted}
+\pagebreak
+\subsection{test_pretty.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test  {
 	public void main (char[][] args) {
@@ -2507,14 +2995,18 @@ class test  {
 	}
 }
 
-\end{minted}\pagebreak\subsection{test.dice}
+\end{minted}
+\pagebreak
+\subsection{test.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
 		print("Hello World");
 	}
 }
-\end{minted}\pagebreak\subsection{primitives.dice}
+\end{minted}
+\pagebreak
+\subsection{primitives.dice}
 \begin{minted}[breaklines,linenos]{java}
 class testPrims {
 	public int a;
@@ -2536,7 +3028,9 @@ class testPrims {
 	h = false;
 	}
 }
-\end{minted}\pagebreak\subsection{test_pretty.dice.ManualTokens}
+\end{minted}
+\pagebreak
+\subsection{test_pretty.dice.ManualTokens}
 \begin{minted}[breaklines,linenos]{java}
 
 1. CLASS ID(test) LBRACE
@@ -2546,7 +3040,9 @@ class testPrims {
 5. RBRACE
 6. EOF
 
-\end{minted}\pagebreak\subsection{primitives.dice.ManualTokens}
+\end{minted}
+\pagebreak
+\subsection{primitives.dice.ManualTokens}
 \begin{minted}[breaklines,linenos]{java}
 1. CLASS ID(testPrims) LBRACE
 2. PUBLIC INT ID(a) SEMI
@@ -2569,7 +3065,9 @@ class testPrims {
 19. RBRACE
 20. RBRACE EOF
 
-\end{minted}\pagebreak\subsection{test.dice.ManualTokens}
+\end{minted}
+\pagebreak
+\subsection{test.dice.ManualTokens}
 \begin{minted}[breaklines,linenos]{java}
 
 1. CLASS ID(test) LBRACE
@@ -2578,8 +3076,10 @@ class testPrims {
 4. RBRACE
 5. RBRACE EOF
 
-\end{minted}\pagebreak\subsection{helloworlddemo.sh}
-\begin{minted}[breaklines,linenos]{java}
+\end{minted}
+\pagebreak
+\subsection{helloworlddemo.sh}
+\begin{minted}[breaklines,linenos]{bash}
 #/usr/bin/sh
 read -p "Press [Enter] key to start Hello World Demo"
 echo "Compiling source"
@@ -2614,14 +3114,18 @@ make clean 2>&1 > /dev/null
 cd ../Test\ Suite/Hello_World_Demo
 
 echo "Presentation done"
-\end{minted}\pagebreak\subsection{edwardsnum.dice}
+\end{minted}
+\pagebreak
+\subsection{edwardsnum.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
 		print("Professor Edwards favorite number is: 42!\n");
 	}
 }
-\end{minted}\pagebreak\subsection{shakespeare.dice}
+\end{minted}
+\pagebreak
+\subsection{shakespeare.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -2629,7 +3133,9 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak\subsection{helloworld.dice}
+\end{minted}
+\pagebreak
+\subsection{helloworld.dice}
 \begin{minted}[breaklines,linenos]{java}
 class test {
 	public void main(char[][] args) {
@@ -2637,4 +3143,5 @@ class test {
 	}
 }
 
-\end{minted}\pagebreak
+\end{minted}
+\pagebreak
