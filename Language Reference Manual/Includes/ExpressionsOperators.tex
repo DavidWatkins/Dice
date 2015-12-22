@@ -1,80 +1,133 @@
 \begin{homeworkProblem}
 	\chapter{Expressions and Operators}
+    \subsection{Syntax Notation}
+    In the syntax notation used in this manual, syntactic categories are indicated by \textit{italic} type.\\
+    \textit{ $\left\{ expression \right\}$ }
+    indicates a required expression in braces.
+    \\
+    \\
+    An optional terminal or non-terminal symbol has the subscript \textsubscript{opt} appended, so that
+    \textit{ $\left\{ expression\textsubscript{opt}\right\}$ }
+    indicates an optional expression in braces.
+    
+    \subsection{Operator Precedence}
     The precedence of expression operators is the same as the order of the major subsections of this section (highest precedence first). Within each subsection, the operators have the same precedence. Left- or right-associativity is specified in each subsection for the operators discussed therein.
 	\section{Primary Expressions}
 	Primary expressions involving . , subscripting, and function calls group left to right.
-	
-	\subsection{Identifier}
+    \newline	
+    \newline
+    \textit{identifier}
+    \newline
     An identifier is a primary expression, provided it has been suitably declared as discussed below. Its type is specified by its declaration.
-    
-	\subsection{Literal}
-    Any of the literal types discussed in Chapter 3 is a primary expression, which evaluates to the type of the literal.
-
-    \subsection{( expression )}
+   \newline
+   \newline
+	\textit{constant}
+    \newline
+    A constant of any of the primitive types discussed in Chapter 3 is a primary expression.
+    \newline
+    \newline
+    ( \textit{expression} )
+    \newline
     A parenthesized expression is a primary expression whose type and value are identical to those of the unadorned expression. The presence of parentheses does not affect whether the expression is an lvalue.
+    
+    \subsection{Array Literal}
+    \textit{$|$ expression\textsubscript{opt} $|$ }
+    \newline
+    \textit{$|$ expression-list $|$ }
+    \newline
+    A string, which originally has the type "array of char", is a primary expresion. An array literal storing another type is also a primary expression.
 
-    \subsection{primary-expression [ expression ]}
+    \subsection{Array Access}
+
+    \textit{primary-expression}[ \textit{expression} ]
+    \newline
     A primary expression followed by an expression in square brackets is a primary expression. The intuitive meaning is that of a subscript. The primary expression has type ‘‘$array$ of . . .’’ and the type of the result is ‘‘. . . ’’. The type of the subscript expression must be a type that is convertible to an integral type, or a compile-time error occurs.
 
-    \subsection{primary-expression ( expression-list-opt )}
+    \subsection{Function Call}
+    \textit{primary-expression} ( \textit{expression-list\textsubscript{opt}} )
+    \newline
     A function call is a primary expression followed by parentheses containing a possibly empty, comma-separated
     list of expressions which constitute the actual arguments to the function. The result of the function call is the function's return type. Recursive calls to any function are permissible.
 
-    \subsection{primary-lvalue . member-of-structure}
+    \subsection{Object Member Access}
+    \textit{primary-lvalue} . \textit{r-value}
+    \newline
+    \textit{primary-lvalue}: \textit{identifier} $|$ this $|$ ( \textit{expression} ) $|$ \textit{primary-expression}[ \textit{expression} ]
+    \newline
+    \textit{primary-rvalue}: \textit{identifier} $|$ \textit{primary-expression} ( \textit{expression-list\textsubscript{opt}} )
+    \newline
 	An lvalue expression followed by a dot followed by the name of a class member is a primary expression. The object referred to by the lvalue is assumed to be an instance of the class defining the class member. The given lvalue can be an instance of any user-defined class.
 
-    \section{Unary operators}
-    Expressions with unary operators group right-to-left.
+    \section{Unary Operations}
+    \textit{unary-operator expression}
+    \newline
+    \textit{unary-operator}: not $|$ -
+     \newline
+     Expressions with unary operators group right-to-left.
 
-    \subsection{− expression}
-    The result is the negative of the expression, and has the same type. The type of the expression must be $char$, $int$, or $float$.
-
-    \subsection{not expression}
+    \subsection{Logical Not}
+    not \textit{expression}
+    \newline
     The result of the logical negation operator $not$ is $true$ if the value of the expression is $false$, $false$ if the value of the expression is $true$. The type of the result is $bool$. This operator is applicable only to operands that evaluate to $bool$.
 
-    \section{Multiplicative operators}
-    The multiplicative operators * and / group left-to-right.
+    \subsection{Negation}
+    -\textit{constant} $|$ -(\textit{expression})
+    \newline
+    The result is the negative of the expression, and has the same type. The type of the expression must be $char$, $int$, or $float$.
 
-    \subsection{expression * expression}
-    The binary * operator indicates multiplication. Operands of $int$, $float$, and $char$ types are allowed. If both operands are of type ..., the result is type .... If the operands are of two different types of the ones listed above, the result is the type of the left-most operand.
+    \section{Dynamic Memory Management}
+    The \textit{new} operator is used to allocate dynamic memory in two scenarios: array creation and object creation.
+    \subsection{Array Creation}
+    new \textit{type}[\textit{expression}]
+    \subsection{Object Creation}
+    new \textit{identifier}(\textit{expression\textsubscript{opt}})
+    \newline
+    new \textit{identifier}(\textit{expression-list})
 
-    \subsection{expression / expression}
-    The binary / operator indicates division. The same type considerations as for multiplication apply.
+    \subsection{Memory Deallocation}
+    delete \textit{r-value}
+    \newline
+    The \textit{delete} operator is used to deallocate heap memory. The \textit{r-value} can be either an l-value or r-value of either an array creation or object creation expression.
 
-    \section{Additive operators}
-    The additive operators + and − group left-to-right.
+    \section{Multiplicative Operations}
+    \textit{expression multiplicative-operator expression}
+    \newline
+    \textit{multiplicative-operator}: * $|$ $/$ $|$ $\bmod$
+    \newline
+The multiplicative operators group left-to-right. They operate on numeric types ($int$, $char$, $float$). If both operands are of type $int$, the result is of type $int$. If either operand is of type $float$, then the result is of type $float$. If either operand if of type $char$, then the result is of type $char$.
 
-    \subsection{expression + expression}
-    The value of the result is the sum of the expressions. The same type considerations as for multiplication apply. Overflow of a $char$ type during an addition operation results in wraparound.
+    \section{Additive Operations}
+    \textit{expression additive-operator expression}
+    \newline
+    \textit{additive-operator}: + $|$ $-$
+    \newline
+The additive operators + and − group left-to-right. They operate on numeric operands ($int$, $char$, $float$). The same type considerations as for multiplication apply. Overflow of a $char$ type during an addition operation results in wraparound.
 
-    \subsection{expression - expression}
-    The value of the result is the difference of the expressions. The same type considerations as for multiplication apply.
+    \section{Relational Operations}
+        \textit{expression relational-operator expression}
+    \newline
+    \textit{relational-operator}: $<$ $|$ $>$ $|$ $<=$ $|$ $>=$
+    \newline
+The relational operators group left-to-right. They operate on numeric operands ($int$, $char$, $float$). The relational operators all yield $true$ if the specified relation is true and $false$ otherwise.
 
-    \section{Relational operators}
-    The relational operators group left-to-right.
-    
-    \subsection{expression $<$ expression}
-    \subsection{expression $>$ expression}
-    \subsection{expression $<=$ expression}
-    \subsection{expression $>=$ expression}
-    The operators $<$ (less than), $>$ (greater than), $<=$ (less than or equal to) and $>=$ (greater than or equal to) all yield $true$ is the specified relation is true and $false$ otherwise. The same type considerations as for multiplication apply.
+    \section{Equality Operations}
+    \textit{expression equality-operator expression}
+    \newline
+    \textit{equality-operator}: == $|$ != 
 
-    \section{Equality operators}
-
-    \subsection{expression == expression}
-    \subsection{expression != expression}
     The == (equal to) and the != (not equal to) operators are exactly analogous to the relational operators except for their lower precedence.
 
-    \section{Logical operators}
+    \section{Logical Operations}
+\textit{expression logical-operator expression}
+    \newline
+    \textit{logical-operator}: and $|$ or
 
-    \subsection{expression and expression}
-    Both operands must evaluate to a value of type $bool$. The $and$ operator returns $true$ if both its operands evaluate to $true$, $false$ otherwise. The second expression is not evaluated if the first evaluates to $false$.
+    Both operands must evaluate to a value of type $bool$. The $and$ operator returns $true$ if both its operands evaluate to $true$, $false$ otherwise. The second expression is not evaluated if the first evaluates to $false$. The $or$ operator returns $true$ if either of its operands evaluate to $true$, and $false$ otherwise. The second operand is not evaluated if the value of the first operand evaluates to $true$.
 
-    \subsection{expression or expression}
-    Both operands must evaluate to a value of type $bool$. The $or$ operator returns $true$ if either of its operands evaluate to $true$, and $false$ otherwise. The second operand is not evaluated if the value of the first operand evaluates to $true$.
+    \section{Assignment Operation}
+    \textit{lvalue = expression}
+    \newline
+    \textit{primary-lvalue}: \textit{identifier} $|$ $\left\{this | \textit{identifier} \right\}$ . \textit{expression} $|$ \textit{primary-expression}[ \textit{expression} ]
 
-    \section{Assignment operators}
-
-    \subsection{lvalue = expression}
     The value of the expression replaces that of the object referred to by the lvalue. Both operands must have the same type.
     \end{homeworkProblem}
