@@ -26,7 +26,7 @@ title_str = "\\subsection{"
 end_title = "}\n"
 end_str = "\n\\end{minted}\\pagebreak"
 
-total_str = ""
+total_str = "\\section{Test Suite Code}\n"
 
 for f in full_file_paths:
 	basename = os.path.basename(f)
