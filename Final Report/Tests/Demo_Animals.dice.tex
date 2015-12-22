@@ -1,0 +1,210 @@
+\subsection{Demo\_Animals.dice}
+\begin{minted}[breaklines,linenos]{java}
+include("stdlib");
+
+class Animal{
+	public int weight;
+	constructor(){
+		this.weight = 0;
+	}
+
+	constructor(int w){
+		this.weight = w;
+	}
+
+	public void move(){
+		print("Animals move in many ways");
+	}
+}
+
+class Bird extends Animal {
+	public int maxFlyingHeight;
+
+	constructor(){
+		this.weight = 0;
+		this.maxFlyingHeight = 0;
+	}
+
+	constructor(int w, int h){
+		this.weight = w;
+		this.maxFlyingHeight = h;
+	}
+
+	public void move(){
+		print("Birds fly!");
+	}
+	
+}
+
+class Dog extends Animal {
+	public int speed;
+
+	constructor(){
+		this.weight = 0;
+		this.speed = 0;
+	}
+
+	constructor(int w, int s){
+		this.weight = w;
+		this.speed = s;
+	}
+
+	public void move(){
+		print("Dogs run!");
+	}
+}
+
+class Stephen extends Animal {
+	private bool isDone;
+
+	constructor() {
+		this.isDone = true;
+	}
+
+	constructor(bool isDone) {
+		this.isDone = isDone;
+	}
+
+	public void move() {
+		if(not this.isDone) {
+			print("I am a techer!");
+		} else {
+			print("Also my favorite number is 42");
+		}
+		this.isDone = true;
+	}
+
+}
+
+class Snake extends Animal {
+	public int slitherSpeed;
+
+	constructor(){
+		this.weight = 0;
+		this.slitherSpeed = 0;
+	}
+
+	constructor(int w, int s){
+		this.weight = w;
+		this.slitherSpeed = s;
+	}
+
+	public void move(){
+		print("Snakes slither!");
+	}
+}
+
+class Marnie extends Dog {
+	public int cuteness;
+
+	constructor(){
+		this.weight = 0;
+		this.speed = 0;
+	}
+
+	constructor(int w, int s){
+		this.weight = w;
+		this.speed = s;
+	}
+
+	constructor(int w, int s, int c){
+		this.weight = w;
+		this.speed = s;
+		this.cuteness = c;
+	}
+
+	public void move(){
+		class File a = new File("Demo/marnie1.txt", true);
+        char[] buf = a.readfile(4500);
+        a.closefile();
+        print(buf);
+        print("\n");
+	}
+}
+
+class test {
+	private bool isDone;
+	public void main(char[][] args) {
+		this.logo();
+		this.isDone = false;
+
+		bool keepGoing = true;
+		while(keepGoing){
+			this.animalsToChoose();
+			char[] buf = input();
+			print("\n");
+
+			int choice = this.getInt(buf[0]);
+
+			if(choice==5)
+				break;
+			else
+				this.printMovement(choice);
+
+			print("\n");
+		}
+
+        class Marnie a = new Marnie();
+        a.move();
+	}
+
+	public int getInt(char num){
+		if(num=='1')
+			return 1;
+		else if(num=='2')
+			return 2;
+		else if(num=='3')
+			return 3;
+		else if(num=='4')
+			return 4;
+		else if(num=='5')
+			return 5;
+
+		return 0;
+
+	}
+
+	public void printMovement(int choice){
+
+		class Animal b = new Bird();
+		class Animal d = new Dog();
+		class Animal s = new Snake();
+		class Animal stephen = new Stephen(this.isDone);
+		
+		if(choice == 1)
+			b.move();
+		else if(choice == 2)
+			d.move();
+		else if(choice == 3)
+			s.move();
+		else if(choice == 4) {
+			stephen.move();
+			this.isDone = true;
+		}
+		else
+			print("Animal not selected!\n");
+
+		print("\n");
+	}
+
+	public void animalsToChoose(){
+		print("1-Bird\n2-Dog\n3-Snake\n4-Stephen\n5-Exit\nPlease choose an animal or exit(by selecting a number):");
+
+	}
+
+	public void logo(){
+		class File a = new File("Demo/logo.txt", true);
+        char[] buf = a.readfile(4500);
+        a.closefile();
+        print(buf);
+ 
+        int i;
+		for(i=0;i<3;i=i+1){
+		print("\n");
+		}
+
+		print("Welcome to the animal farm!\n\n");
+	}
+}
+
+\end{minted}

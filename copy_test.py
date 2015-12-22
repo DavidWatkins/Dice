@@ -20,6 +20,7 @@ def get_filepaths(directory):
 
 # Run the above function and store its results in a variable.   
 full_file_paths = get_filepaths("Test Suite/")
+full_file_paths = full_file_paths + ["Demo/Demo_Animals.dice"]
 
 begin_str = "\\begin{minted}[breaklines,linenos]{java}\n"
 title_str = "\\subsection{"
