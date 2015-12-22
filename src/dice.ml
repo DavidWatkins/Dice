@@ -87,7 +87,9 @@ let _ =
 				"In \"" ^ filename ^ "\", Illegal Character, '" ^
 				Char.escaped c ^ "', line " ^ string_of_int ln ^ "\n"
 			)
-	| 	Exceptions.UnmatchedQuotation(ln) -> print_string("Unmatched Quotation, line " ^ string_of_int ln ^ "\n")
+	| 	Exceptions.UnmatchedQuotation(ln) 	-> print_endline("Unmatched Quotation, line " ^ string_of_int ln)
+	| 	Exceptions.IllegalToken(tok) 		-> print_endline("Illegal token " ^ tok)
+	| 	Exceptions.MissingEOF 				-> print_endline("Missing EOF")
 	| 	Parsing.Parse_error ->
 			print_string
 			(
@@ -97,35 +99,72 @@ let _ =
 				"Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
 			)
 
-	| 	Exceptions.NoFileArgument 				-> print_string ("Must include file argument\n" ^ help_string)
-	|   Exceptions.ConstructorNotFound(str)     -> print_string ("ConstructorNotFound: " ^ str ^ "\n")
-	| 	Exceptions.DuplicateField				-> print_string "DuplicateField \n"
-	| 	Exceptions.DuplicateFunction(str)		-> print_string ("DuplicateFunction: " ^ str ^ "\n")
-	| 	Exceptions.DuplicateConstructor			-> print_string "DuplicateConstructor \n"
-	|   Exceptions.DuplicateLocal(str)          -> print_string ("DuplicateLocal: " ^ str ^ "\n")
-	|   Exceptions.UndefinedClass(str)        	-> print_string("UndefinedClass: " ^ str ^ "\n")
-
-	|   Exceptions.UnknownIdentifier(str)       -> print_string("UnknownIdentifier: " ^ str ^ "\n")
-	| 	Exceptions.InvalidBinopExpression(str)	-> print_string ("InvalidBinopExpression: " ^ str ^ "\n")
-	| 	Exceptions.InvalidIfStatementType		-> print_string "InvalidIfStatementType \n"
-	| 	Exceptions.InvalidForStatementType		-> print_string "InvalidForStatementType \n"
-	| 	Exceptions.MainNotDefined				-> print_string "MainNotDefined \n"
-	| 	Exceptions.MultipleMainsDefined			-> print_string "MultipleMainsDefined \n"
-	| 	Exceptions.InvalidWhileStatementType	-> print_string "InvalidWhileStatementType \n"
-	|   Exceptions.InvalidUnaryOperation 		-> print_string "InvalidUnaryOperation\n" 
-	|   Exceptions.InvalidTypePassedToPrintf 	-> print_string "InvalidTypePassedToPrintf\n" 
-	|   Exceptions.InvalidBinaryOperator 		-> print_string "InvalidBinaryOperator\n"
-	|   Exceptions.AssignmentTypeMismatch(str, str2) -> print_endline ("AssignmentTypeMismatch ("^str^","^str2^")" )     
-	|   Exceptions.UnableToCallFunctionWithoutParent(str) -> print_endline("UnableToCallFunctionWithoutParent( "^str^" )")
-	|   Exceptions.AllNonVoidFunctionsMustEndWithReturn(str) -> print_endline("Exceptions.AllNonVoidFunctionsMustEndWithReturn("^str^")")
-	|   Exceptions.CannotUseReservedFuncName(str) -> print_endline("CannotUseReservedFuncName("^str^")")
-	|   Exceptions.UndefinedID(str)             -> print_endline("UndefinedID("^str^")")
-	|   Exceptions.CannotAccessPrivateFieldInNonProperScope(str,str2,str3) -> print_endline("CannotAccessPrivateFieldInNonProperScope("^str^","^str2^","^str3^")")
-	|   Exceptions.DuplicateClassName(str)      -> print_endline("Exceptions.DuplicateClassName("^str^")")
-	|   Exceptions.LocalAssignTypeMismatch(str,str2) -> print_endline("LocalAssignTypeMismatch("^str^","^str2^")" )
-	|   Exceptions.CannotAccessPrivateFunctionInNonProperScope(str,str2,str3) -> print_endline("CannotAccessPrivateFunctionInNonProperScope("^str^","^str2^","^str3^")")
-
 	|  	Exceptions.InvalidNumberCompilerArguments i -> print_endline ("Invalid argument passed " ^ (string_of_int i)); print_string help_string
 	| 	Exceptions.InvalidCompilerArgument s 		-> print_endline ("Invalid argument passed " ^ s); print_string help_string
+	| 	Exceptions.NoFileArgument 					-> print_string ("Must include file argument\n" ^ help_string)
 
-	(* | 	_ -> Printexc.print_backtrace stdout; print_string "Something went horribly wrong\n" *)
+	| 	Exceptions.IncorrectNumberOfArgumentsException 			-> print_endline("Incorrect number of arguments passed to function")
+	| 	Exceptions.ConstructorNotFound(cname) 					-> print_endline("Constructor" ^ cname ^ " not found")
+	| 	Exceptions.DuplicateClassName(cname) 					-> print_endline("Class " ^ cname ^ " not found")
+	| 	Exceptions.DuplicateField 								-> print_endline("Duplicate field defined")
+	| 	Exceptions.DuplicateFunction(fname) 					-> print_endline("Duplicate function defined " ^ fname)
+	| 	Exceptions.DuplicateConstructor 						-> print_endline("Duplicate constructor found")
+	| 	Exceptions.DuplicateLocal(lname) 						-> print_endline("Duplicate local variable defined " ^ lname)
+	| 	Exceptions.UndefinedClass(cname) 						-> print_endline("Undefined class " ^ cname)
+	| 	Exceptions.UnknownIdentifier(id) 						-> print_endline("Unkown identifier " ^ id)
+	| 	Exceptions.InvalidBinopExpression(binop) 				-> print_endline("Invalid binary expression " ^ binop)
+	| 	Exceptions.InvalidIfStatementType 						-> print_endline("Invalid type passed to if statement, must be bool")
+	| 	Exceptions.InvalidForStatementType 						-> print_endline("Invalid type passed to for loop, must be bool")
+	| 	Exceptions.ReturnTypeMismatch(t1, t2)					-> print_endline("Incorrect return type " ^ t1 ^ " expected " ^ t2)
+	| 	Exceptions.MainNotDefined 								-> print_endline("Main not found in program")
+	| 	Exceptions.MultipleMainsDefined							-> print_endline("Multiple mains defined, can only define 1")
+	| 	Exceptions.InvalidWhileStatementType 					-> print_endline("Invalid type passed to while loop, must be bool")
+	| 	Exceptions.LocalAssignTypeMismatch(t1, t2) 				-> print_endline("Invalid assignment of " ^ t1 ^ " to " ^ t2)
+	| 	Exceptions.InvalidUnaryOperation 						-> print_endline("Invalid unary operator")
+	| 	Exceptions.AssignmentTypeMismatch(t1, t2) 				-> print_endline("Invalid assignment of " ^ t1 ^ " to " ^ t2)
+	| 	Exceptions.FunctionNotFound(fname, scope) 				-> print_endline("function " ^ fname ^ " not found in scope " ^ scope)
+	| 	Exceptions.UndefinedID(id) 								-> print_endline("Undefined id " ^ id)
+	| 	Exceptions.InvalidAccessLHS(t) 							-> print_endline("Invalid LHS expression of dot operator with " ^ t)
+	| 	Exceptions.LHSofRootAccessMustBeIDorFunc(lhs) 			-> print_endline("Dot operator expects ID, not " ^ lhs)
+	| 	Exceptions.ObjAccessMustHaveObjectType(t) 				-> print_endline("Can only dereference objects, not " ^ t)
+	| 	Exceptions.UnknownIdentifierForClass(c, id) 			-> print_endline("Unknown id " ^ id ^ " for class " ^ c)
+	| 	Exceptions.CannotUseReservedFuncName(f) 				-> print_endline("Cannot use name " ^ f ^ " because it is reserved")
+	| 	Exceptions.InvalidArrayPrimitiveConsecutiveTypes(t1,t2)	-> print_endline("Array primitive types must be equal, not " ^ t1 ^ " " ^ t2)
+	| 	Exceptions.InvalidArrayPrimitiveType(t) 				-> print_endline("Array primitive type invalid, " ^ t)
+	| 	Exceptions.MustPassIntegerTypeToArrayCreate				-> print_endline("Only integer types can be passed to an array initializer")
+	| 	Exceptions.ArrayInitTypeInvalid(t) 						-> print_endline("Only integer types can be passed to an array initializer, not " ^ t)
+	| 	Exceptions.MustPassIntegerTypeToArrayAccess 			-> print_endline("Only integer types can be passed to an array access")
+	| 	Exceptions.ArrayAccessInvalidParamLength(o,a) 			-> print_endline("Only arrays can have access to length, not " ^ o ^ " " ^ a)
+	| 	Exceptions.ArrayAccessExpressionNotArray(a) 			-> print_endline("This expression is not an array " ^ a)
+	| 	Exceptions.CanOnlyAccessLengthOfArray 					-> print_endline("Can only access the length of an array")
+	| 	Exceptions.CanOnlyDeleteObjectsOrArrays 				-> print_endline("Can only delete objects or arrays")
+	| 	Exceptions.CannotAccessLengthOfCharArray 				-> print_endline("Cannot access the length of a char array")
+	| 	Exceptions.AllNonVoidFunctionsMustEndWithReturn(f) 		-> print_endline("Non-void function " ^ f ^ " does not end in return")
+	| 	Exceptions.CyclicalDependencyBetween(c1, c2) 			-> print_endline("Class " ^ c1 ^ " and " ^ c2 ^ " have a cylical dependence")
+	| 	Exceptions.CannotAccessPrivateFieldInNonProperScope(f, cp, cc) -> print_endline("Cannot access private field " ^ f ^ " in scope " ^ cp ^ " from object " ^ cc)
+	| 	Exceptions.CannotCallBreakOutsideOfLoop 				-> print_endline("Cannot call break outside of loop")
+	| 	Exceptions.CannotCallContinueOutsideOfLoop				-> print_endline("Cannot call continue outside of loop")
+	| 	Exceptions.CannotAccessPrivateFunctionInNonProperScope(f, cp, cc) -> print_endline("Cannot access private function " ^ f ^ " in scope " ^ cp ^ " from object " ^ cc)
+	| 	Exceptions.CannotPassNonInheritedClassesInPlaceOfOthers(c1, c2) 	-> print_endline("Cannot pass non-inherited classe" ^ c1 ^ " to parameter " ^ c2)
+	| 	Exceptions.IncorrectTypePassedToFunction(id, t) 					-> print_endline("Canot pass type " ^ t ^ " to " ^ id)
+	| 	Exceptions.IncorrectNumberOfArguments(f, a1, a2) -> print_endline("Cannot pass " ^ string_of_int a1 ^ " args when expecting " ^ string_of_int a2 ^ " in " ^f)
+	| 	Exceptions.ClassIsNotExtendedBy(c1, c2) 			-> print_endline("Class " ^ c1 ^ " not extended by " ^ c2)
+
+	| 	Exceptions.InvalidTypePassedToPrintf				-> print_endline("Invalid type passed to print")
+	| 	Exceptions.InvalidBinaryOperator					-> print_endline("Invalid binary operator")
+	| 	Exceptions.UnknownVariable(id) 						-> print_endline("Unknown variable " ^ id)
+	| 	Exceptions.AssignLHSMustBeAssignable 				-> print_endline("Assignment lhs must be assignable")
+	| 	Exceptions.CannotCastTypeException(t1, t2) 			-> print_endline("Cannot cast " ^ t1 ^ " to " ^ t2)
+	| 	Exceptions.InvalidBinopEvaluationType 				-> print_endline("Invalid binary expression evaluation type")
+	| 	Exceptions.FloatOpNotSupported 						-> print_endline("Float operation not supported")
+	| 	Exceptions.IntOpNotSupported 						-> print_endline("Integer operation not supported")
+	| 	Exceptions.LLVMFunctionNotFound(f)  				-> print_endline("LLVM function " ^ f ^ " not found")
+	| 	Exceptions.InvalidStructType(t) 					-> print_endline("Invalid structure type " ^ t)
+	| 	Exceptions.UnableToCallFunctionWithoutParent(f) 	-> print_endline("Unable to call function " ^ f ^ " without parent")
+	| 	Exceptions.CannotAssignParam(p) 					-> print_endline("Cannot assign to param " ^ p)
+	| 	Exceptions.InvalidUnopEvaluationType 				-> print_endline("Invalid unary expression evaluation type")
+	| 	Exceptions.UnopNotSupported 						-> print_endline("Unary operator not supported")
+	| 	Exceptions.ArrayLargerThan1Unsupported 				-> print_endline("Array dimensions greater than 1 not supported")
+	| 	Exceptions.CanOnlyCompareObjectsWithNull(e1, e2) 	-> print_endline("Can only compare objects with null " ^ e1 ^ " " ^ e2)
+	| 	Exceptions.ObjOpNotSupported(op) 					-> print_endline("Object operator not supported " ^ op)
+	| 	Exceptions.CanOnlyCompareArraysWithNull(e1, e2) 	-> print_endline("Can only compare arrays with null " ^ e1 ^ " " ^ e2)
