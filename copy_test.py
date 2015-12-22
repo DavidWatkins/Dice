@@ -39,8 +39,9 @@ for f in full_file_paths:
 			begin_str = "\\begin{minted}[breaklines,linenos]{bash}\n"
 
 		with open(f, 'r') as content_file:
+			basename = basename.replace('_', '\\_')
 			content = content_file.read()
-			title = title_str + os.path.basename(f) + end_title
+			title = title_str + basename + end_title
 			total_str += title + begin_str + content + end_str
 
 
