@@ -1,0 +1,376 @@
+\section{stdlibe.dice}
+\begin{minted}[breaklines,linenos]{java}
+class Integer {
+	
+	private int my_int;
+	
+	constructor(int input) {
+		this.my_int = input;
+	}
+	
+	public int num() {
+		return this.my_int;
+	}
+	
+	
+	public char toChar(int digit) {
+		
+		if (digit == 0) {
+			return '0';
+		} else if (digit == 1) {
+			return '1';
+		} else if (digit == 2) {
+			return '2';
+		} else if (digit == 3) {
+		return '3';
+		} else if (digit == 4) {
+		return '4';
+		} else if (digit == 5) {
+		return '5';
+		} else if (digit == 6) {
+		return '6';
+		} else if (digit == 7) {
+		return '7';
+		} else if (digit == 8) {
+		return '8';
+		} else if (digit == 9) {
+		return '9';
+		}
+
+	return 'z';
+}
+
+
+
+
+
+public class String toString() {
+	
+	(* integer cannot be greater than 10 digits in 32 bit *)
+	int temp = this.my_int;
+	int i = 0;
+	char[] str = new char[9];        
+	
+	int digit = temp % 10;
+	str[i] = this.toChar(digit);
+	i = i + 1;
+	temp = temp / 10;
+	while (temp > 0) {
+		
+		digit = temp % 10;
+		str[i] = this.toChar(digit);
+		temp = temp / 10;
+		i = i + 1;
+	}
+	
+	str[i] = 0;
+	class String newString = new String(str);
+	class String a = newString.reverse();
+	return newString.reverse();
+}
+}
+
+
+
+class String {
+	
+	private char[] my_string; 
+	private int length;
+	
+	constructor(char[] input) {
+		
+		this.my_string = this.copy_internal(input);         
+		
+		this.length = this.length();
+	}
+	
+	(* PRIVATE CLASSES -----------------------------------------   *)
+	
+	private int length_internal(char[] input) {
+		int length = 0;
+		
+		while(input[length] != 0) {
+			length = length + 1;
+		}
+		
+		return length;
+	}
+	
+	private char[] copy_internal(char[] input) {
+		
+		char[] newString = new char[this.length_internal(input) + 1];
+		
+		int i = 0;
+		for (; input[i] != 0; i = i + 1) {
+			newString[i] = input[i];
+		}
+		
+		newString[i] = 0;
+		return newString;
+	}
+	
+	(* PUBLIC CLASSES -----------------------------------------   *)
+	
+	public char[] string() {
+		return this.my_string;
+	}
+	
+	public char getChar(int index) {
+		
+		return this.my_string[index];
+	}
+	
+	public int length() {
+		
+		int length = 0;
+		
+		while(this.my_string[length] != 0){
+			length = length + 1;
+		}
+		
+		return length;
+	}
+	
+	public int toInteger() {
+		
+		char[] temp = this.string();
+		int ndigit = 0;
+		int i;
+		int j;
+		for (i = 0; i < this.length; i = i + 1) {
+			
+			int exp = 1;
+			int xdigit = this.toDigit(temp[i]);
+			for (j = 0; j < (this.length-i-1); j = j + 1) {
+				exp = exp * 10;
+			}
+			xdigit = xdigit * exp;
+			ndigit = ndigit + xdigit;
+		}
+		
+		return ndigit;
+	}
+	
+	public int toDigit(char digit) {
+		
+		if (digit == '0') {
+			return 0;
+		} else if (digit == '1') {
+		return 1;
+	} else if (digit == '2') {
+	return 2;
+} else if (digit == '3') {
+return 3;
+} else if (digit == '4') {
+return 4;
+} else if (digit == '5') { 
+return 5;
+} else if (digit == '6') {
+return 6;
+} else if (digit == '7') {
+return 7;
+} else if (digit == '8') {
+return 8;
+} else if (digit == '9') {
+return 9;
+}
+
+return -1;
+}
+
+
+public class String copy(class String input) {
+	
+	char[] newArray = this.copy_internal(input.string());
+	class String newString = new String(newArray);
+	return newString;
+}
+
+public int indexOf(char x) {
+	
+	int i = 0;
+	for (; this.getChar(i) != x and this.getChar(i) != 0; i = i + 1) {
+	}
+	
+	(* If the char was not found, return -1 *)
+	if (i == this.length()) {
+		return -1;
+	}   
+	
+	return i;
+}
+
+public class String reverse() {
+	
+	class String newString;
+	
+	char[] temp = new char[this.length + 1];
+	int i = this.length;
+	for (; i > 0; i = i - 1) {
+		
+		temp[this.length - i] = this.getChar(i-1);
+	}
+	temp[this.length] = 0;
+	newString = new String(temp);
+	return newString;
+}
+
+public class String concat(class String temp) {
+	
+	char[] temparray = new char[this.length() + temp.length() + 1];
+	
+	(* Copy over the current string into a new char array *)
+	int i = 0;
+	for (; this.getChar(i) != 0; i = i + 1) {
+		temparray[i] = this.getChar(i);
+	}
+	
+	(* Append the new string *)
+	int j = 0;
+	for (; temp.getChar(j) != 0; j = j + 1) {
+		temparray[i+j] = temp.getChar(j);
+	}
+	
+	temparray[this.length() + temp.length()] = 0;
+	class String newString = new String(temparray);
+	return newString;
+}
+
+public bool compare(class String check) {
+	
+	if (check.length != this.length) {
+		return false;
+	}    
+	
+	int i = 0;
+	
+	for (; i < check.length(); i = i + 1) {
+		
+		if (check.getChar(i) != this.getChar(i)) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+public bool contains(class String check) {
+	
+	
+	if (this.length < check.length) {
+		return false;
+	} else if (this.compare(check)) {
+	return true;
+} else {
+
+int diff = this.length - check.length + 1;
+int i;
+int j;
+for ( i = 0; i < diff; i = i + 1)     
+
+for ( j = 0; j < check.length; j = j + 1) {
+	
+	if (this.getChar(i+j) != check.getChar(j)) {
+		break;
+	} 
+	
+	if (j == check.length - 1) {
+		return true;
+	}
+}    
+}
+return false;
+}
+
+public void free() {
+	
+	delete(this.my_string);
+}
+
+}
+
+
+
+class File {
+	
+	private class String filePath;
+	private bool isWriteEnabled;
+	private int fd;
+	
+	constructor(char[] path, bool isWriteEnabled) {
+		
+		this.filePath = new String(path);
+		this.isWriteEnabled = isWriteEnabled;
+		class String a = this.filePath;
+		this.fd = this.openfile(a, this.isWriteEnabled);
+		if (this.fd < 0) {
+			print("open failed");
+			exit(1);
+		}
+	}
+	
+	(* PRIVATE CLASSES -----------------------------------------   *)
+	
+	private int openfile(class String path, bool isWriteEnabled) {
+		
+		if (isWriteEnabled) {
+			(* 2 is the value for O_RDWR *)
+			return open(path.string(), 2);
+		} 
+		
+		(* 0 is the value for O_RDONLY *)
+		return open(path.string(), 0);
+	}
+	
+	(* PUBLIC CLASSES -----------------------------------------   *)
+	
+	public void closefile() {
+		
+		if (close(this.fd) < 0) {
+			print("close failed");
+		}
+	}
+	
+	public char[] readfile(int bytes) {
+		
+		char[] buf = new char[bytes];
+		
+		int ret = read(this.fd, buf, bytes);
+		
+		if (ret < 0) {
+			print("read failed");
+		}
+		
+		return buf;
+	}
+	
+	public int writefile(char[] buf, int offset) {
+		
+		class String temp = new String(buf);
+		int err;
+		(* seek to desired offset from beginning of file *)
+		if (offset > 0) {
+			err = lseek(this.fd, offset, 0);
+		} else if (offset == -1) {
+		err = lseek(this.fd, 0, 0);
+	} else {
+	(* Seek to the end of the file by default *)
+	err = lseek(this.fd, 0, 2);
+}
+
+if (err < 0) {
+	print("seek failed");
+}
+
+err = write(this.fd, temp.string(), temp.length());
+if (err < 0) {
+	print("write failed");
+}
+return err;
+}
+
+}    
+
+
+
+\end{minted}	

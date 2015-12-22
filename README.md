@@ -28,8 +28,8 @@ Java, but worse
 ```
 - Then go into the Compiler directory and run the build script
 ```bash
->cd Dice/Compiler
->./build.sh
+>cd Dice
+>make
 ```
 
 - Write a small Dice program
@@ -52,7 +52,7 @@ Hello World!
 - cd into Test Suite and run tester.sh after having compiled the compiler
 ```bash
 >cd Dice/'Test Suite'
->./tester.sh -c
+>./tester.sh
 ```
 
 ###If you get an error: "error: expected value token" from lli
