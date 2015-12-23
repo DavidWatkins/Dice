@@ -31,26 +31,355 @@
 	The Scanner scans through the input file and tokenizes the input, discarding characters which are no longer need such as whitespace.
 	
 	\subsection{The Parser}
-	The parser scans the tokens passed to it by the scanner and constructs an abstract syntax tree based on the definitions provided and the input tokens. The top level of the abstract syntax tree is a structure containing all classes and a structure containing all include statements.
-	 
+	The parser scans the tokens passed to it by the scanner and constructs an abstract syntax tree based on the definitions provided and the input tokens. The top level of the abstract syntax tree is a structure containing all classes and a structure containing all include statements. The Parser produces the following layout: 
+	 \begin{figure}[!ht]
+	 	\centering
+	 	\includegraphics[width=4.5in]{Includes/ast}
+	 	\caption{AST program representation.}
+	 \end{figure}
 	\subsection{The Semantic Analyzer}
 	The first job of the Analyzer is to run the Scanner and Parser on any files contained in the includes statements of the given abstract syntax tree. The process of building an abstract syntax tree is the same for these files as for the originally compiled file. If any of these new abstract syntax trees contain include statements, the same process is run until there are no more includes. Similarly, each time a new included file's abstract syntax tree is passed to the Analyzer, all classes contained in the class structure of the new abstract syntax tree are appended to the original class list contained in the original class structure which was in the original abstract syntax tree. Once this process is complete, the analyzer is left with a class structure which contains every class defined in every file which was included with the originally compiled file.\\
 	Next, the Analyzer performs an inheritance analysis by looking through the class list contained in the class structure and performs an analysis to determine whether any classes are children or parents of other classes. If there are any such relationships, the fields of each parent class are added to the front of its child's fields list, and the methods of each parent class are added to the child's method's list. However, if the child has declared a method or field which shares the same name as the parent's field or method, the child's field or method is not overwritten by the parent. As the inheritance analysis is performed, the list of fields for each class is also assigned a integer key beginning with 0 which will serve as the key to a lookup table which, at runtime, contains pointers to every function for each class.\\
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=4.5in]{Includes/sast}
+		\caption{SAST representation.}
+	\end{figure}
 	Once the inheritance analysis is performed, semantic analysis is performed on each statement and expression in each block of code in every method for every class. This semantic analysis consists of making sure that types are consistent in every expression, making sure variables are declared and in the proper scope, and making sure that variables are only declared once. For instance, if an integer x is declared and x is assigned to the return of a method, the analyzer checks that the called method returns the type of x, namely an integer.\\
 	As this analysis is performed, the analyzer is simultaneously constructing a semantic abstract syntax tree. The purpose of this new data structure is to provide the code generator with data that is organized more similarly to the LLVM code that it will eventually produce. Thus, instead of classes containing methods and fields, the top level program structure now contains separate sections for methods and fields. This is useful for the code generator because the LLVM code that is produced uses structs to store the fields of a class and functions to store the code within a class's methods. Thus, there is no inherent connection between the functions and the structs in LLVM. However, the analyzer modifies each method so that an instance of the structure containing the fields of the given class is passed in as the first argument to every function for that class. In this way, functions can access each field of a given class by accessing the data inside of the structure. 
 	
 	\subsection{The Code Generator}
     
-    The code generator uses the semantic abstract syntax tree passed to it by the analyzer to construct the LLVM IR file which contains the final instructions for the program. Along with the code produced from the semantic abstract syntax tree, the code generator also output boiler-plate code for Dice's built-in functions and the virtual table. Definitions for built-in functions are hard-coded in the code generator. The codegen uses those definitions to write the declarations that LLVM needs to call those built in functions from the C standard library. The virtual table is an LLVM function called lookup(). Every time a user function is called in the semantic abstract syntax tree, the code generator instead produces a call to the lookup function, which constructs the virtual table and indexes into it in order to find the desired function. When this is found, the corresponding function pointer is returned. \\
+    The code generator uses the semantic abstract syntax tree passed to it by the analyzer to construct the LLVM IR file which contains the final instructions for the program. \\
     
-    Once the boiler-plate code is generated, the code generator iterates through the entire semantic abstract syntax tree and produces the necessary LLVM code for each function, statement, and expression. This code generation is done using the llvm.moe library, which uses ocaml functions to produce the desired LLVM code. 
     \subsubsection{Structs and Inheritance}
-    All structs are given an integer key at the beginning of their definition which will allow them to directly get their own virtual function table. Even if a subclass inherits from a parent class
+    All structs are given an integer key at the beginning of their definition which will allow them to directly get their own virtual function table. Even if a subclass inherits from a parent class, it will be initialized with a specific key that is unique to the class at the beginning of each struct. For inherited fields they are organized in the order they were inherited, allowing multiple levels of inheritance. However it was too complex of a problem to solve multiple inheritance so we chose not to implement it. 
     \subsubsection{The Virtual Function Table}
-	At compile time, an intermediate representation of the virtual function table is produced in LLVM IR. It is a function defined as "lookup" that is able to lookup a classes virtual function array by its class index and a 
+	At compile time, an intermediate representation of the virtual function table is produced in LLVM IR. It is a function defined as "lookup" that is able to lookup a classes virtual function array by its class index and a function index unique to that function. The function index is generated from the Func\_decl list of a struct in the SAST. This way all subclasses have the same index for referring to the same function.
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=4.5in]{Includes/vft}
+		\caption{Virtual Function Table Example.}
+	\end{figure}
+	Take for example a class Nerd which has a subclass Techer, which itself has a subclass Stephen. Nerd has an isNerd method defined, Techer then inherits that method. Stephen would inherit that method but instead overrides them with its own implementation. But if a Nerd type variable is assigned to a Stephen type variable, the casted struct would still have the corresponding key to the Stephen class, and the function call would receive the correct index of 1 if isNerd were called. 
+	\subsubsection{Expressions and Bindings}
+	Once the inheritance code is generated, the code generator iterates through the entire semantic abstract syntax tree and produces the necessary LLVM code for each function, statement, and expression. This code generation is done using the OCaml LLVM library, which uses OCaml functions to produce the desired LLVM code.  We then link the resulting LLVM module with a precompiled bindings.bc which allows for the custom C functions we wrote to be incorporated into a user program in LLVM. 
 
 	\subsection{The Utilities}
-	Pretty printing, token printing, JSON printing
+	Using the utils.ml module we were able to pretty print, print to JSON for AST and SAST, and print out the tokens for any given program. This made debugging the semantic analyzer much easier as we were able to see what went into it and what it produces at any time. The following is an example of what the SAST looks like in JSON.
+	
+	\begin{minted}[breaklines,linenos]{json}
+{
+	"sprogram": {
+		"classes": [
+		{ "scdecl": { "scname": "test", "sfields": [], "sfuncs": [] } }
+		],
+		"functions": [
+		{
+			"sfdecl": {
+				"sfname": "test.constructor",
+				"sreturnType": "class test",
+				"sformals": [],
+				"sbody": [
+				{
+					"slocal": {
+						"datatype": "class test",
+						"name": "this",
+						"val": {
+							"call": {
+								"name": "cast",
+								"params": [
+								{
+									"call": {
+										"name": "malloc",
+										"params": [
+										{
+											"call": {
+												"name": "sizeof",
+												"params": [
+												{
+													"id": {
+														"name": "ignore",
+														"datatype": "class test"
+													}
+												}
+												],
+												"index": 0,
+												"datatype": "int"
+											}
+										}
+										],
+										"index": 0,
+										"datatype": "char[]"
+									}
+								}
+								],
+								"index": 0,
+								"datatype": "class test"
+							}
+						}
+					}
+				},
+				{
+					"sexpr": {
+						"expr": {
+							"assign": {
+								"lhs": {
+									"objaccess": {
+										"lhs": {
+											"id": { "name": "this", "datatype": "class test" }
+										},
+										"op": ".",
+										"rhs": {
+											"id": { "name": ".key", "datatype": "int" }
+										},
+										"datatype": "int"
+									}
+								},
+								"op": "=",
+								"rhs": { "int_lit": { "val": 0, "datatype": "int" } },
+								"datatype": "int"
+							}
+						},
+						"datatype": "int"
+					}
+				},
+				{
+					"sreturn": {
+						"return": {
+							"id": { "name": "this", "datatype": "class test" }
+						},
+						"datatype": "class test"
+					}
+				}
+				],
+				"func_type": "user"
+			}
+		}
+		],
+		"main": {
+			"sfdecl": {
+				"sfname": "main",
+				"sreturnType": "void",
+				"sformals": [
+				{ "name": "this", "datatype": "class test" },
+				{ "name": "args", "datatype": "char[][]" }
+				],
+				"sbody": [
+				{
+					"slocal": {
+						"datatype": "class test",
+						"name": "this",
+						"val": {
+							"call": {
+								"name": "cast",
+								"params": [
+								{
+									"call": {
+										"name": "malloc",
+										"params": [
+										{
+											"call": {
+												"name": "sizeof",
+												"params": [
+												{
+													"id": {
+														"name": "ignore",
+														"datatype": "class test"
+													}
+												}
+												],
+												"index": 0,
+												"datatype": "int"
+											}
+										}
+										],
+										"index": 0,
+										"datatype": "char[]"
+									}
+								}
+								],
+								"index": 0,
+								"datatype": "class test"
+							}
+						}
+					}
+				},
+				{
+					"sexpr": {
+						"expr": {
+							"assign": {
+								"lhs": {
+									"objaccess": {
+										"lhs": {
+											"id": { "name": "this", "datatype": "class test" }
+										},
+										"op": ".",
+										"rhs": { "id": { "name": ".key", "datatype": "int" } },
+										"datatype": "int"
+									}
+								},
+								"op": "=",
+								"rhs": { "int_lit": { "val": 0, "datatype": "int" } },
+								"datatype": "int"
+							}
+						},
+						"datatype": "int"
+					}
+				},
+				{
+					"sexpr": {
+						"expr": {
+							"call": {
+								"name": "print",
+								"params": [
+								{
+									"string_lit": {
+										"val": "Hello, World!",
+										"datatype": "char[]"
+									}
+								}
+								],
+								"index": 0,
+								"datatype": "void"
+							}
+						},
+						"datatype": "void"
+					}
+				}
+				],
+				"func_type": "user"
+			}
+		},
+		"reserved": [
+		{
+			"sfdecl": {
+				"sfname": "print",
+				"sreturnType": "void",
+				"sformals": [ { "Many": "Any" } ],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "malloc",
+				"sreturnType": "char[]",
+				"sformals": [ { "name": "size", "datatype": "int" } ],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "cast",
+				"sreturnType": "Any",
+				"sformals": [ { "name": "in", "datatype": "Any" } ],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "sizeof",
+				"sreturnType": "int",
+				"sformals": [ { "name": "in", "datatype": "Any" } ],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "open",
+				"sreturnType": "int",
+				"sformals": [
+				{ "name": "path", "datatype": "char[]" },
+				{ "name": "flags", "datatype": "int" }
+				],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "close",
+				"sreturnType": "int",
+				"sformals": [ { "name": "fd", "datatype": "int" } ],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "read",
+				"sreturnType": "int",
+				"sformals": [
+				{ "name": "fd", "datatype": "int" },
+				{ "name": "buf", "datatype": "char[]" },
+				{ "name": "nbyte", "datatype": "int" }
+				],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "write",
+				"sreturnType": "int",
+				"sformals": [
+				{ "name": "fd", "datatype": "int" },
+				{ "name": "buf", "datatype": "char[]" },
+				{ "name": "nbyte", "datatype": "int" }
+				],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "lseek",
+				"sreturnType": "int",
+				"sformals": [
+				{ "name": "fd", "datatype": "int" },
+				{ "name": "offset", "datatype": "int" },
+				{ "name": "whence", "datatype": "int" }
+				],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "exit",
+				"sreturnType": "void",
+				"sformals": [ { "name": "status", "datatype": "int" } ],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "getchar",
+				"sreturnType": "int",
+				"sformals": [],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		},
+		{
+			"sfdecl": {
+				"sfname": "input",
+				"sreturnType": "char[]",
+				"sformals": [],
+				"sbody": [],
+				"func_type": "reserved"
+			}
+		}
+		]
+	}
+}
+	\end{minted}
+	
 	\section{Supplementary Code}
 	\subsection{The Standard Library}
 	The standard library was written in order to provide the user with a solid foundation on which to start writing interesting programs. To that end we provide for basic file i/o and string and integer manipulation.
