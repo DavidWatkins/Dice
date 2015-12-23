@@ -84,18 +84,22 @@
     \subsection{Instance Field Declaration}
 	A field declaration statement declares an instance field of a class and has the following form:
     \newline
-    \textit{scope} \textit{type} \textit{identifier} ;
+    \textit{scope} \textit{type-specifier} \textit{identifier} ;
     \newline
     \textit{scope}: \textbf{public} $|$ \textbf{private}
 	\newline
-    \textit{type}: any primitive or non-primitive type in Dice
+    \textit{type-specifier}: \textit{type} $|$ \textbf{class} \textit{identifier} $|$ \textbf{class} \textit{identifier}[] | \textit{type}[]
+    \newline
+    \textit{type}: any primitive type in Dice
     \newline
     Note that this is the only legal format of a field declaration statement; assignment statements are not a valid way to declare instance fields in Dice.
 
     \subsection{Local Variable Declaration}
-    \textit{type} \textit{identifier} ;
+    \textit{type-specifier} \textit{identifier} ;
     \newline
-    \textit{type}: any primitive or non-primitive type in Dice
+    \textit{type-specifier}: \textit{type} $|$ \textbf{class} \textit{identifier} $|$ \textbf{class} \textit{identifier}[] | \textit{type}[]
+    \newline
+    \textit{type}: any primitive type in Dice
 
     \subsection{Instance Method Declaration}
     A method declaration statement declares an instance method of a class and has the following form:
@@ -103,6 +107,8 @@
     \textit{scope} \textit{type} \textit{name} (\textit{formal-list\textsubscript{opt}}) $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
     \newline
     \textit{scope}: \textbf{public} $|$ \textbf{private}
+    \newline
+    \textit{type-specifier}: \textit{type} $|$ \textbf{class} \textit{identifier} $|$ \textbf{class} \textit{identifier}[] | \textit{type}[]
     \newline
     \textit{type}: Any primitive or non-primitive type in Dice, or \textbf{void}. If the \textit{type} is \textbf{void}, then the method being declared returns no value.
     \newline
@@ -119,7 +125,7 @@
     \textbf{exit} & \textbf{realloc} & \textbf{getchar}
     \end{tabular}
     \end{center}
-    \textit{formal}: \textit{type} \textit{identifier}
+    \textit{formal}: \textit{type-specifier} \textit{identifier}
     \newline
     \textit{statement}: \textit{local-variable-declaration} $|$ \textit{expression-statement}
     \newline
@@ -130,9 +136,11 @@
     \newline
     \textbf{constructor} (\textit{formal-list\textsubscript{opt}}) $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
     \newline
-    \textit{formal}: \textit{type} \textit{identifier}
+    \textit{formal}: \textit{type-specifier} \textit{identifier}
+\newline
+    \textit{type-specifier}: \textit{type} $|$ \textbf{class} \textit{identifier} $|$ \textbf{class} \textit{identifier}[] | \textit{type}[]
     \newline
-    \textit{type}: any primitive or non-primitive type in Dice
+    \textit{type}: any primitive type in Dice
     \newline
     \textit{statement}: \textit{local-variable-declaration} $|$ \textit{expression-statement}
     \newline
