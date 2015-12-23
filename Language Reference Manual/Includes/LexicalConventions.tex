@@ -7,7 +7,7 @@
 	An identifier cannot have the same spelling (character sequence) as a keyword, boolean or null literal, a compile-time error occurs. Lowercase letters and uppercase letters are distinct, such that foo and Foo are two different identifiers.
 	
 	\begin{minted}{java}
-	ID = "['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z']|['0'-'9']|'\textunderscore')*"
+	ID = "['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z']|['0'-'9']|'\_')*"
 	\end{minted}
 	
 	\section{Keywords}
@@ -92,9 +92,9 @@
 	The following operators are reserved lexical elements in the language. See the expression and operators section for more detail on their defined behavior.
 	\begin{center}
 		\begin{tabular}{ccccc}
-			+ & - & * & / & = \\
-			== & != & \textless & \textless= & \textgreater \\
-			\textgreater= 
+			+ & - & * & / & $\mod$ \\
+			= & == & != \\
+			\textless & \textless=    \textgreater & \textgreater= 
 		\end{tabular}
 	\end{center}
  	
@@ -106,31 +106,13 @@
 		\item the ASCII FF character, also known as "form feed"
 		\item LineTerminator
 	\end{itemize}
-	White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional. Hence, the following two snippets of source code are equivalent.
-	
-	\begin{minted}{java}
-	public int foo()
-	{
-		print( "hello, world\n" );
-		return 0;
-	}
-	
-	public int foo(){print("hello, world\n"); return 0;}
-	\end{minted}
-	
-	\begin{minted}{java}
+	White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional.
+    \begin{minted}{java}
 				WHITESPACE = "[' ' '\t' '\r' '\n']"
  	\end{minted}
 	
 	\section{Comments}
-    The characters $(*$ introduce a comment, which terminates with the characters $*)$.
-	Multiline comments can be distinguished from code by preceding each line of the comment with a * similar to the following:
-	\begin{minted}{ocaml}
-	(* This is a long comment 
-	* that spans multiple lines because
-	* there is a lot to say. *)
-	\end{minted}
-
+    The characters $(*$ introduce a comment, which terminates with the characters $*)$. Comments may be nested within each other.
 	\begin{minted}{java}
 				COMMENT = "(\* [^ \*)]* \*)"
 	\end{minted}
