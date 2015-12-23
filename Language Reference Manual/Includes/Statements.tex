@@ -1,242 +1,139 @@
 \begin{homeworkProblem}
 	\chapter{Statements}
-	A statement forms a complete unit of execution. 
+	A statement forms a complete unit of execution. Most statements are expression statements and have the form \newline
+    \textit{expression ;}
+    \newline
+    \newline
+    So that several statements can be used where one is expected, the compound statement is provided:
+    \newline
+    \textit{compound-statement:}\newline
+        \textit{ $\left\{ statement-list \right\}$ }
+    \newline
+    \newline
+    \textit{statement-list}:\newline
+    \textit{statement statement-list}
 	
-	\section{Include Statement}
-	If a .dice file contains a statement of the following form:
-	\begin{minted}{java}
-	include(mylib)
-	\end{minted}
-	then all classes defined in \textit{mylib} are available to be used in definitions of classes in 
-	the .dice file in which the include statement appears.	
+    \section{Control Flow Statements}
+	The statements inside source files are generally executed from top to bottom, in the order that they appear. Control flow statements, however, break up the flow of execution by employing decision making, looping, and branching, enabling your program to conditionally execute particular blocks of code. This section describes the conditional statements (if-then, if-then-else), looping statements (for, while), and branching statements (break, continue, return) supported by the Dice programming language.
 
-	\section{Expression Statements}
-	An expression statement consists of an expression followed by a semicolon. The execution of such a statement causes the associated expression to be evaluated. The following types of expressions can be made into a statement by terminating the expression with a semicolon (;):
-	\begin{minted}{java}
-	(* Assignment expressions *)
-	aValue = 8933.234;
-	(* Method invocations *)
-	game.updateScore(Player1, 5);
-	(* Object creation expressions *)
-	Bicycle myBike = Bicycle();
-	\end{minted}
+	\subsection{Conditional Statement}
+    The forms of the conditional statement are:\newline
+    \textbf{if} ( \textit{expression} ) \textit{statement}
+    \newline
+    \textbf{if} ( \textit{expression} ) \textit{statement} (\textbf{else if} \textit{statement})* \textbf{else} \textit{statement}
+    \newline
+    \newline
+	The expression enclosed in balanced parentheses is evaluated and if it is \textbf{true}, the first substatement is executed. In the second case, if the expression evaluates to \textbf{false} and there is an \textbf{else-if} clause, then the substatement in the \textbf{else-if} clause is executed. If the expression evaluates to \textbf{false} and no \textbf{else-if} clause exists, then the substatement in the \textbf{else} clause is executed. As usual, the \textbf{else} ambiguity is resolved by connecting an else with the last encountered elseless if.
+		
+	\subsection{Looping}
+    The while statement has the form
+    \newline
+    \textbf{while} ( \textit{expression} ) \textit{statement}
+    \newline
+    The substatement is executed repeatedly so long as the value of the expression remains non-zero. The test takes place before each execution of the statement.
+    \newline
+    \newline
+    The \textbf{for} statement has the form:
+    \newline
+    \textbf{for} (\textit{expression\textsubscript{opt}} ; \textit{expression\textsubscript{opt}} ; \textit{expression\textsubscript{opt}}) \textit{expression}
+    \newline
+    This statement is equivalent to:
+    \begin{minted}{java}
+    while (expression-2) {
+        statement
+        expression-3 ;
+    }
+    \end{minted}
+    Thus the first expression specifies initialization for the loop; the second specifies a test, made before each iteration, such that the loop is exited when the expression becomes \textbf{false}; the third expression typically specifies an incrementation which is performed after each iteration.
+    Any or all of the expressions may be dropped. A missing expression-2 makes the implied while clause equiva- lent to ‘‘while( \textbf{true} )’’; other missing expressions are simply dropped from the expansion above.
+
+	\subsection{Branching}
+    The statement
+    \newline
+    \newline
+	\textbf{break};
+    \newline
+    \newline
+    causes termination of the outermost enclosing \textbf{while} or \textbf{for} statement; control passes to the statement following the terminated statement.
+
+    The statement 
+    \newline
+    \newline
+    \textbf{continue};
+    \newline
+    \newline
+    causes control to pass to the loop-continuation portion of the outermost enclosing \textbf{while} or \textbf{for} statement; that is to the end of the loop.
+
+    A function returns to its caller by means of the return statement, which has one of the forms:
+    \newline
+    \newline
+		\textbf{return};
+    \newline
+    \textbf{return} ( \textit{expression} );
+
+        In the first case no value is returned. In the second case, the value of the expression is returned to the caller of the function. If a function has no \textbf{return} statement, then it returns with no returned value. 
+
+	\section{File Inclusion}
+	If a .dice file contains a statement of the following form:
+    \newline
+	\textbf{include}(\textit{expression});
+	\newline
+    where the expression is a string literal that specifies the path to another .dice file, then all classes defined in that file are available to be used in definitions of classes in the .dice file in which the include statement appears. Include statements must appear before other types of statements in a .dice file.
 	
 	\section{Declaration Statements}
-	A declaration statement declares a variable by specifying its data type and name.
-	\begin{minted}{java}
-	float aValue;
-	\end{minted}
-	
-	\section{Control Flow Statements}
-	The statements inside source files are generally executed from top to bottom, in the order that they appear. Control flow statements, however, break up the flow of execution by employing decision making, looping, and branching, enabling your program to conditionally execute particular blocks of code. This section describes the decision-making statements (if-then, if-then-else), the looping statements (for, while), and the branching statements (break, continue, return) supported by the Dice programming language.
+    \subsection{Instance Field Declaration}
+	A field declaration statement declares an instance field of a class and has the following form:
+    \newline
+    \textit{scope} \textit{type} \textit{identifier} ;
+    \newline
+    \textit{scope}: \textbf{public} $|$ \textbf{private}
+	\newline
+    \textit{type}: any primitive or non-primitive type in Dice
+    \newline
+    Note that this is the only legal format of a field declaration statement; assignment statements are not a valid way to declare instance fields in Dice.
 
-	\subsection{if-then, if-then-else}
-	The 'if-then' statement tells the program to execute a certain section of code only if a particular test evaluates to true. The conditional expression that is evaluated is enclosed in balanced parentheses. The section of code that is conditionally executed is specified as a sequence of statements enclosed in balanced braces. If the conditional expression evaluates to false, control jumps to the end of the if-then statement.
-	\begin{minted}{java} 
-	if (condition) {
-		<stmt>
-	}
-	
-	if (not condition) {
-		<stmt>
-	} (* if statement is skipped *)
-	\end{minted}
-	
-	The 'if-then-else' statement provides an alternate path of execution when "if" clause evaluates to false. This alternate path of execution is denoted by a sequence of statements enclosed in balanced braces, in the same format as the path of execution to take if the conditional evaluates to true, prefixed by the keyword "else".
-	\begin{minted}{java} 
-	if (condition) {
-		<stmt>
-	} else {
-		<stmt2>
-	} (* <stmt2> executed when not condition *)
-	\end{minted}
-		
-	\subsection{Looping: for, while}
-	The 'for' statement allows the programmer the iterate over a range of values. The 'for' statement has the following format:
-	\begin{minted}{java} 
-	for (initialization; termination; update) { <stmt> }
-	\end{minted}
-	
-	\begin{itemize}
-		\item The 'initialization' expression initializes the loop counter. It is executed once at the beginning of the 'for' statement
-		\item When the 'termination' expression evaluates to false, the loop terminates.
-		\item The 'update' expression is invoked after each iteration and can either increment or decrement the value of the loop counter.
-	\end{itemize}
+    \subsection{Local Variable Declaration}
+    \textit{type} \textit{identifier} ;
+    \newline
+    \textit{type}: any primitive or non-primitive type in Dice
 
-	
-	The following example uses a `for` statement to print the numbers from 1 to 10:
-	\begin{minted}{java} 
-	int loopCounter;
-	for (loopCounter=1; loopCounter<11; loopCounter++) {
-		print(loopCounter);
-	}
-	\end{minted}
-	
-	The 'while' statement executes a user-defined block of statements as long as a particular conditional expression evaluates to true. The syntax of a 'while' statement is:
-	\begin{minted}{java} 
-	while (expression) {
-		<stmt>
-	}
-	\end{minted}
-	The following example uses a 'while' statement to print the numbers from 1 to 10:
-	\begin{minted}{java} 
-	int loopCounter;
-	loopCounter = 1;
-	while (loopCounter < 11) {
-		print(loopCounter);
-		loopCounter = loopCounter + 1;
-	}
-	\end{minted}
-	
-	\subsection{Branching: break, continue, return}
-	If a 'break' statement is included within either a 'for' or 'while' statement, then it  terminates execution of the innermost looping statement it is nested within. All break statements have the same syntax:
-	\begin{minted}{java} 
-	break;
-	\end{minted}
-	
-	In the following example, the 'break' statement terminates execution of the inner 'while' statement and does not prevent the 'for' statement from executing its block of statements for all iterations of i from 1 to 10. This results in the the values of j from 100 to 110 being printed, in each of the 10 iterations of the 'for' loop.
-	\begin{minted}{java} 
-	int i;
-	int j;
-	for (i=1; i<11; i++) {
-		j = 100;
-		while (j<120) {
-			if (j>110) {
-				break;
-			}
-			print(j);
-			j = j + 1;
-		}
-	}
-	\end{minted}
-	
-	In the following example, the 'break' statement terminates execution of the inner 'for' statement and does not prevent the 'while' statement from executing its block of statements for all iterations of i from 1 to 1000. This results in the the values of j from 100 to 110 being printed, in each of the 1000 iterations of the 'while' loop.
-	\begin{minted}{java} 
-	int i;
-	int j;
+    \subsection{Instance Method Declaration}
+    A method declaration statement declares an instance method of a class and has the following form:
+    \newline
+    \textit{scope} \textit{type} \textit{identifier} (\textit{formal-list\textsubscript{opt}}) $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
+    \newline
+    \textit{scope}: \textbf{public} $|$ \textbf{private}
+    \newline
+    \textit{formal}: \textit{type} \textit{identifier}
+    \newline
+    \textit{type}: any primitive or non-primitive type in Dice, or \textbf{void}
+    \newline
+    If the \textit{type} is \textbf{void}, then the method being declared returns non value.
+    \newline
+    \textit{statement}: \textit{local-variable-declaration} $|$ \textit{expression-statement}
+    \newline
+    \textit{expression-statement}: \textit{assignment-expression-statement} $|$ \textit{function-call-expression-statement}
 
-	i = 1;
-	while (i<1001) {
-		for (j=100; j<120; j++) {
-			if (j>110) {
-				break;
-			}
-		}
-		i = i + 1;
-	}
-	\end{minted}
-	
-	The continue statement skips the current iteration of a 'for' or 'while' statement, causing the flow of execution to skip to the end of the innermost loop's body and evaluate the conditional expression that controls the loop.
-	The following example uses a 'continue' statement within a 'for' loop to print only the odd integers between 1 and 10. The code prints "hello" 1000 times and on each of the 1000 'while' loop iterations, prints the odd integers.
-	
-	\begin{minted}{java} 
-	int i;
-	int counter;
-	counter = 1;
-	while (counter < 1001) {
-		print("hello");
-		for (i=1; i<11; i++) {
-			if (i - 2*(i/2) == 0) {
-				continue;
-			} else {
-				print(i);
-			}
-		}
-		counter = counter + 1;
-	}
-	\end{minted}
-	
-	
-	The 'return' statement exits from the current method, and control flow returns to where the method was invoked. To return a value, simply put the value (or an expression that calculates the value) after the return keyword:
-	\begin{minted}{java} 
-	return count + 4;
-	\end{minted}
-	
-	The data type of the returned value must match the type of the method's declared return value. When a method is declared void, either no return statement is needed or the following 'return' statement is used:
-	
-	\begin{minted}{java} 
-	return;
-	\end{minted}
-	
-	\section{Blocks}
-	
-	A block is a group of zero or more statements between balanced braces and can be used anywhere a single statement is allowed. The following example, BlockDemo, illustrates the use of blocks:
-	
-	\begin{minted}{java} 
-	class BlockDemo {
-		public void main(char[,] args) {
-			bool condition;
-			condition = true;
-			if (condition) { (* begin block 1 *)
-				print("Condition is true.");
-			} (* end block one *)
-			else { (* begin block 2 *)
-				print("Condition is false.");
-			} (* end block 2 *)
-		}
-	}
-	\end{minted}
-	
-	\section{Dice Functions}
-	
-	There are several reserved functions in Dice that cannot be overridden and follow a particular syntax and return type.
-	
-	\subsection{File I/O}
-	
-	Manipulating files is an important aspect of any programming languages. Open files are denoted by a particular $int fd;$ that can be used to read or write from a file. A file must be closed by the end of a program or else undefined behavior may occur. 
-	\subsubsection{int fopen(char[] filename, bool isWriteEnabled)}
-	Accepts a filename and a flag to determine whether the file will be written to. If the file exists, it will be opened in append mode, otherwise a new file will be created. If it is in read mode, it will return a file descriptor as normal, or if the file doesn't exist will return '-1'. Likewise for write enabled, if there is an error it will return -1. 
-	\begin{minted}{java} 
-	int fd;
-	fd = fopen("hello.txt", false);
-	\end{minted}
-		
-	\subsubsection{bool fwrite(int fd, char[] values, int num, int offset)}
-	Accepts an array of values to be written to a file, the number of characters it should write, and the offset into the value array it should write from. If there is an error, returns false, otherwise returns true. 
-	\begin{minted}{java} 
-	bool success;
-	success = fwrite(fd, "This should work", 4, 1); (* Writes "his " to a file *)
-	\end{minted}
-	
-	\subsubsection{bool fread(int fd, char[] storage, int num)}
-	Accepts an array to store values from the file that are to be read, and will read in num bytes. Returns true on success and false on error.
-	\begin{minted}{java} 
-	char[] a;
-	bool success;
+    \subsection{Constructor Declaration}
+    A constructor declaration statement has the following form:
+    \newline
+    \textbf{constructor} (\textit{formal-list\textsubscript{opt}}) $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
+    \newline
+    \textit{formal}: \textit{type} \textit{identifier}
+    \newline
+    \textit{type}: any primitive or non-primitive type in Dice
+    \newline
+    \textit{statement}: \textit{local-variable-declaration} $|$ \textit{expression-statement}
+    \newline
+    \textit{expression-statement}: \textit{assignment-expression-statement} $|$ \textit{function-call-expression-statement}
 
-	a = char[100];
-	success = fread(fd, a, 20);
-	\end{minted}
-	
-	\subsubsection{bool fclose(int fd)}
-	Closes a file. Returns true on success, false on error.
-	\begin{minted}{java} 
-	bool success;
-	success = fclose(fd);
-	\end{minted}
-	
-	\subsection{Reading and Writing from Console}
-	
-	Reading and writing to the console is defined by two simple to use functions that cannot be overriden.
-	
-	\subsubsection{void print(char[] string)}
-	Accepts a char array and prints the string to the console.
-	\begin{minted}{java} 
-	print("hello world");
-	\end{minted}
-	
-	\subsubsection{void print(int num)}
-	Accepts an int and prints the int to the console.
-	\begin{minted}{java} 
-	print(1);
-	\end{minted}
-	
-	\subsubsection{void input(char[] buf)}
-	Accepts a buf that will hold read bytes from the console. Then it will write those bytes to the array passed. Terminates when a user enters a newline or an EOF. 
-	\begin{minted}{java} 
-	char[] a;
-	a = char[100];
-	input(a);
-	\end{minted}
+    \subsection{Class Declaration}
+    A class declaration statement has the following form:
+    \newline
+    \textbf{class} \textit{identifier} $\left\{ \textit{cbody} \right\}$
+    \newline
+    \textit{cbody}: $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
+    \newline
+    \textit{statement}: \textit{instance-field-declaration} $|$ \textit{instance-method-declaration} $|$ \textit{constructor-declaration}
 	
 \end{homeworkProblem}

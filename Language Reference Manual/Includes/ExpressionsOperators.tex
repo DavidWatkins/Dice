@@ -1,7 +1,7 @@
 \begin{homeworkProblem}
 	\chapter{Expressions and Operators}
     \subsection{Syntax Notation}
-    In the syntax notation used in this manual, syntactic categories are indicated by \textit{italic} type.\\
+    In the syntax notation used in this manual, syntactic categories are indicated by \textit{italic} type and literal words are indicated in \textbf{bold} type.\\
     \textit{ $\left\{ expression \right\}$ }
     indicates a required expression in braces.
     \\
@@ -35,13 +35,13 @@
     \newline
     \textit{$|$ expression-list $|$ }
     \newline
-    A string, which originally has the type "array of char", is a primary expresion. An array literal storing another type is also a primary expression.
+    A string, which originally has the type "array of \textbf{char}", is a primary expresion. An array literal storing another type is also a primary expression.
 
     \subsection{Array Access}
 
     \textit{primary-expression}[ \textit{expression} ]
     \newline
-    A primary expression followed by an expression in square brackets is a primary expression. The intuitive meaning is that of a subscript. The primary expression has type ‘‘$array$ of . . .’’ and the type of the result is ‘‘. . . ’’. The type of the subscript expression must be a type that is convertible to an integral type, or a compile-time error occurs.
+    A primary expression followed by an expression in square brackets is a primary expression. The intuitive meaning is that of a subscript. The primary expression has type ‘‘array of . . .’’ and the type of the result is ‘‘. . . ’’. The type of the subscript expression must be a type that is convertible to an integral type, or a compile-time error occurs.
 
     \subsection{Function Call}
     \textit{primary-expression} ( \textit{expression-list\textsubscript{opt}} )
@@ -52,7 +52,7 @@
     \subsection{Object Member Access}
     \textit{primary-lvalue} . \textit{r-value}
     \newline
-    \textit{primary-lvalue}: \textit{identifier} $|$ this $|$ ( \textit{expression} ) $|$ \textit{primary-expression}[ \textit{expression} ]
+    \textit{primary-lvalue}: \textit{identifier} $|$ \textbf{this} $|$ ( \textit{expression} ) $|$ \textit{primary-expression}[ \textit{expression} ]
     \newline
     \textit{primary-rvalue}: \textit{identifier} $|$ \textit{primary-expression} ( \textit{expression-list\textsubscript{opt}} )
     \newline
@@ -61,54 +61,54 @@
     \section{Unary Operations}
     \textit{unary-operator expression}
     \newline
-    \textit{unary-operator}: not $|$ -
+    \textit{unary-operator}: \textbf{not} $|$ \textbf{-}
      \newline
      Expressions with unary operators group right-to-left.
 
     \subsection{Logical Not}
-    not \textit{expression}
+    \textbf{not} \textit{expression}
     \newline
-    The result of the logical negation operator $not$ is $true$ if the value of the expression is $false$, $false$ if the value of the expression is $true$. The type of the result is $bool$. This operator is applicable only to operands that evaluate to $bool$.
+    The result of the logical negation operator \textbf{not} is \textbf{true} if the value of the expression is \textbf{false}, \textbf{false} if the value of the expression is \textbf{true}. The type of the result is \textbf{bool}. This operator is applicable only to operands that evaluate to \textbf{bool}.
 
     \subsection{Negation}
-    -\textit{constant} $|$ -(\textit{expression})
+    \textbf{-}\textit{constant} $|$ \textbf{-}(\textit{expression})
     \newline
-    The result is the negative of the expression, and has the same type. The type of the expression must be $char$, $int$, or $float$.
+    The result is the negative of the expression, and has the same type. The type of the expression must be \textbf{char}, \textbf{int}, or \textbf{float}.
 
     \section{Dynamic Memory Management}
-    The \textit{new} operator is used to allocate dynamic memory in two scenarios: array creation and object creation.
+    The \textbf{new} operator is used to allocate dynamic memory in two scenarios: array creation and object creation.
     \subsection{Array Creation}
-    new \textit{type}[\textit{expression}]
+    \textbf{new} \textit{type}[\textit{expression}]
     \subsection{Object Creation}
-    new \textit{identifier}(\textit{expression\textsubscript{opt}})
+    \textbf{new} \textit{identifier}(\textit{expression\textsubscript{opt}})
     \newline
-    new \textit{identifier}(\textit{expression-list})
+    \textbf{new} \textit{identifier}(\textit{expression-list})
 
     \subsection{Memory Deallocation}
-    delete \textit{r-value}
+    \textbf{delete} \textit{r-value}
     \newline
-    The \textit{delete} operator is used to deallocate heap memory. The \textit{r-value} can be either an l-value or r-value of either an array creation or object creation expression.
+    The \textbf{delete} operator is used to deallocate heap memory. The \textit{r-value} can be either an l-value or r-value of either an array creation or object creation expression.
 
     \section{Multiplicative Operations}
     \textit{expression multiplicative-operator expression}
     \newline
     \textit{multiplicative-operator}: * $|$ $/$ $|$ $\bmod$
     \newline
-The multiplicative operators group left-to-right. They operate on numeric types ($int$, $char$, $float$). If both operands are of type $int$, the result is of type $int$. If either operand is of type $float$, then the result is of type $float$. If either operand if of type $char$, then the result is of type $char$.
+The multiplicative operators group left-to-right. They operate on numeric types (\textbf{int}, \textbf{char}, \textbf{float}). If both operands are of type \textbf{int}, the result is of type \textbf{int}. If either operand is of type \textbf{float}, then the result is of type \textbf{float}. If either operand if of type \textbf{char}, then the result is of type \textbf{char}.
 
     \section{Additive Operations}
     \textit{expression additive-operator expression}
     \newline
     \textit{additive-operator}: + $|$ $-$
     \newline
-The additive operators + and − group left-to-right. They operate on numeric operands ($int$, $char$, $float$). The same type considerations as for multiplication apply. Overflow of a $char$ type during an addition operation results in wraparound.
+The additive operators + and − group left-to-right. They operate on numeric operands (\textbf{int}, \textbf{char}, \textbf{float}). The same type considerations as for multiplication apply. Overflow of a \textbf{char} type during an addition operation results in wraparound.
 
     \section{Relational Operations}
         \textit{expression relational-operator expression}
     \newline
     \textit{relational-operator}: $<$ $|$ $>$ $|$ $<=$ $|$ $>=$
     \newline
-The relational operators group left-to-right. They operate on numeric operands ($int$, $char$, $float$). The relational operators all yield $true$ if the specified relation is true and $false$ otherwise.
+The relational operators group left-to-right. They operate on numeric operands (\textbf{int}, \textbf{char}, \textbf{float}). The relational operators all yield \textbf{true} if the specified relation is true and \textbf{false} otherwise.
 
     \section{Equality Operations}
     \textit{expression equality-operator expression}
@@ -120,14 +120,14 @@ The relational operators group left-to-right. They operate on numeric operands (
     \section{Logical Operations}
 \textit{expression logical-operator expression}
     \newline
-    \textit{logical-operator}: and $|$ or
+    \textit{logical-operator}: \textbf{and} $|$ \textbf{or}
 
-    Both operands must evaluate to a value of type $bool$. The $and$ operator returns $true$ if both its operands evaluate to $true$, $false$ otherwise. The second expression is not evaluated if the first evaluates to $false$. The $or$ operator returns $true$ if either of its operands evaluate to $true$, and $false$ otherwise. The second operand is not evaluated if the value of the first operand evaluates to $true$.
+    Both operands must evaluate to a value of type \textbf{bool}. The \textbf{and} operator returns \textbf{true} if both its operands evaluate to \textbf{true}, \textbf{false} otherwise. The second expression is not evaluated if the first evaluates to \textbf{false}. The \textbf{or} operator returns \textbf{true} if either of its operands evaluate to \textbf{true}, and \textbf{false} otherwise. The second operand is not evaluated if the value of the first operand evaluates to \textbf{true}.
 
     \section{Assignment Operation}
     \textit{lvalue = expression}
     \newline
-    \textit{primary-lvalue}: \textit{identifier} $|$ $\left\{this | \textit{identifier} \right\}$ . \textit{expression} $|$ \textit{primary-expression}[ \textit{expression} ]
+    \textit{primary-lvalue}: \textit{identifier} $|$ $\left\{\textbf{this} | \textit{identifier} \right\}$ . \textit{expression} $|$ \textit{primary-expression}[ \textit{expression} ]
 
     The value of the expression replaces that of the object referred to by the lvalue. Both operands must have the same type.
     \end{homeworkProblem}
