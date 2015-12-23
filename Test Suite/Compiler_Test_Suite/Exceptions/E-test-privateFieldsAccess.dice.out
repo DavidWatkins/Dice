@@ -1,1 +1,1 @@
-CannotAccessPrivateFieldInNonProperScope(area,shape,test)
+Cannot access private field area in scope shape from object test

@@ -1,1 +1,1 @@
-Exceptions.AllNonVoidFunctionsMustEndWithReturn(test.increment)
+Non-void function test.increment does not end in return

@@ -1,1 +1,1 @@
-CannotUseReservedFuncName(print)
+Cannot use name print because it is reserved
