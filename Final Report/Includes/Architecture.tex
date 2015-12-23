@@ -3,7 +3,14 @@
 	\section{The Compiler}
 	To give a quick overview of our compiler, we have a total of 8 modules:
 	\begin{itemize}
-		\item \textbf{Analyzer} - Analyzes incoming AST representation 
+		\item \textbf{analyzer.ml} - Semantically checks incoming AST representation to make sure that it includes existing files, adheres to the rules of inheritance, and expressions are properly type-checked
+		\item \textbf{codegen.ml} - Converts a semantically checked AST into a working LLVM code by producing LLVM IR. 
+		\item \textbf{dice.ml} - Main module that calls on all the other modules depending on compiler flags passed to it
+		\item \textbf{filepath.ml} - Uses system calls to determine the absolute path to any file in the system. Useful for uniquely checking if an include statement refers to the same files
+		\item \textbf{parser.mly} - Reads in tokens from the scanner to produce an AST representation of the program
+		\item \textbf{processor.ml} - Handles communication between scanner and parser so that error messages regarding invalid input can be handled better
+		\item \textbf{scanner.mll} - Reads a source file and tokenizes it to the corresponding token output. 
+		\item \textbf{utils.ml} - Contains several functions for printing out the string representation of various intermediate representations in our language. Most critically used for debugging. 
 	\end{itemize}
 	
 	and we have 4 interfaces
@@ -14,6 +21,12 @@
 		\item \textbf{sast.ml} - The semantically checked representation of the language
 	\end{itemize}
 	
+	and we have 2 library files
+	\begin{itemize}
+		\item \textbf{bindings.c} - A c file containing critical functions written in c that are usable in the language. This is compiled to LLVM bitcode and then linked with all source files compiled in our language
+		\item \textbf{stdlib.dice} - A file containing user defined classes written in dice that are usable by the user
+	\end{itemize}
+	
 	\subsection{The Scanner}
 	The Scanner scans through the input file and tokenizes the input, discarding characters which are no longer need such as whitespace.
 	
@@ -21,15 +34,20 @@
 	The parser scans the tokens passed to it by the scanner and constructs an abstract syntax tree based on the definitions provided and the input tokens. The top level of the abstract syntax tree is a structure containing all classes and a structure containing all include statements.
 	 
 	\subsection{The Semantic Analyzer}
-	The first job of the Analyzer is to run the Scanner and Parser on any files contained in the includes structure of the given abstract syntax tree. The process of building an abstract syntax tree is the same for these files as for the originally compiled file. If any of these new abstract syntax trees contain include statements, the same process is run until there are no more includes. Similarly, each time a new included file's abstract syntax tree is passed to the Analyzer, all classes contained in the class structure of the new abstract syntax tree are appended to the original class list contained in the original class structure which was in the original abstract syntax tree. Once this process is complete, the analyzer is left with a class structure which contains every class defined in every file which was included with the originally compiled file.
-	Next, the Analyzer performs an inheritance analysis by looking through the class list contained in the class structure and performs an analysis to determine whether any class' are children or parents of other classes. If there are any such relationships, the fields of each parent class are added to the front of its child's fields list, and the methods of each parent class are added to the child's method's list. However, if the child has declared a method or field which shares the same name as the parent's field or method, the child's field or method is not overwritten by the parent. As the inheritance analysis is performed, the list of fields for each class is also assigned a integer key beginning with 0 which will serve as the key to a lookup table which, at runtime, contains pointers to every function for each class.
-	Once the inheritance analysis is performed, semantic analysis is performed on each statement and expression in each block of code in every method for every class. This semantic analysis consists of making sure that types are consistent in every expression, making sure variables are declared and in the proper scope, and making sure that variables are only declared once. For instance, if an integer x is declared and x is assigned to the return of a method, the analyzer checks that the called method returns the type of x, namely an integer.
+	The first job of the Analyzer is to run the Scanner and Parser on any files contained in the includes statements of the given abstract syntax tree. The process of building an abstract syntax tree is the same for these files as for the originally compiled file. If any of these new abstract syntax trees contain include statements, the same process is run until there are no more includes. Similarly, each time a new included file's abstract syntax tree is passed to the Analyzer, all classes contained in the class structure of the new abstract syntax tree are appended to the original class list contained in the original class structure which was in the original abstract syntax tree. Once this process is complete, the analyzer is left with a class structure which contains every class defined in every file which was included with the originally compiled file.\\
+	Next, the Analyzer performs an inheritance analysis by looking through the class list contained in the class structure and performs an analysis to determine whether any classes are children or parents of other classes. If there are any such relationships, the fields of each parent class are added to the front of its child's fields list, and the methods of each parent class are added to the child's method's list. However, if the child has declared a method or field which shares the same name as the parent's field or method, the child's field or method is not overwritten by the parent. As the inheritance analysis is performed, the list of fields for each class is also assigned a integer key beginning with 0 which will serve as the key to a lookup table which, at runtime, contains pointers to every function for each class.\\
+	Once the inheritance analysis is performed, semantic analysis is performed on each statement and expression in each block of code in every method for every class. This semantic analysis consists of making sure that types are consistent in every expression, making sure variables are declared and in the proper scope, and making sure that variables are only declared once. For instance, if an integer x is declared and x is assigned to the return of a method, the analyzer checks that the called method returns the type of x, namely an integer.\\
 	As this analysis is performed, the analyzer is simultaneously constructing a semantic abstract syntax tree. The purpose of this new data structure is to provide the code generator with data that is organized more similarly to the LLVM code that it will eventually produce. Thus, instead of classes containing methods and fields, the top level program structure now contains separate sections for methods and fields. This is useful for the code generator because the LLVM code that is produced uses structs to store the fields of a class and functions to store the code within a class's methods. Thus, there is no inherent connection between the functions and the structs in LLVM. However, the analyzer modifies each method so that an instance of the structure containing the fields of the given class is passed in as the first argument to every function for that class. In this way, functions can access each field of a given class by accessing the data inside of the structure. 
+	
 	\subsection{The Code Generator}
     
-    The code generator uses the semantic abstract syntax tree passed to it by the analyzer to construct the LLVM IR file which contains the final instructions for the program. Along with the code produced from the semantic abstract syntax tree, the code generator also output boiler-plate code for Dice's built-in functions and the virutual table. Definitions for built-in functions are hard-coded in the code generator. The codegen uses those definitions to write the declarations that LLVM needs to call those built in functions from the C standard library. The virtual table is an LLVM function called lookup(). Every time a user function is called in the semantic abstract syntax tree, the code generator instead produces a call to the lookup function, which constructs the virtual table and indexes into it in order to find the desired function. When this is found, the corresponding function pointer is returned. 
+    The code generator uses the semantic abstract syntax tree passed to it by the analyzer to construct the LLVM IR file which contains the final instructions for the program. Along with the code produced from the semantic abstract syntax tree, the code generator also output boiler-plate code for Dice's built-in functions and the virtual table. Definitions for built-in functions are hard-coded in the code generator. The codegen uses those definitions to write the declarations that LLVM needs to call those built in functions from the C standard library. The virtual table is an LLVM function called lookup(). Every time a user function is called in the semantic abstract syntax tree, the code generator instead produces a call to the lookup function, which constructs the virtual table and indexes into it in order to find the desired function. When this is found, the corresponding function pointer is returned. \\
+    
     Once the boiler-plate code is generated, the code generator iterates through the entire semantic abstract syntax tree and produces the necessary LLVM code for each function, statement, and expression. This code generation is done using the llvm.moe library, which uses ocaml functions to produce the desired LLVM code. 
-
+    \subsubsection{Structs and Inheritance}
+    All structs are given an integer key at the beginning of their definition which will allow them to directly get their own virtual function table. Even if a subclass inherits from a parent class
+    \subsubsection{The Virtual Function Table}
+	At compile time, an intermediate representation of the virtual function table is produced in LLVM IR. It is a function defined as "lookup" that is able to lookup a classes virtual function array by its class index and a 
 
 	\subsection{The Utilities}
 	Pretty printing, token printing, JSON printing
