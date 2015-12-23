@@ -1,0 +1,1847 @@
+\section{Test Plan}
+Test Plan
+
+We implemented a “Test Driven Development” approach while creating our programming language. This process entailed writing tests for specific features of our language before starting to implement them. Every test should start by failing in an automated script and then the script should be executed after every modification to any portion of the compiler  (from scanner to code generation). This way the team members would know if any modifications made resulted in other tests failing that had previously passed. 
+
+In addition to running the test suite routinely, we streamlined creation of new test cases by allowing any member of the team to create a git issue (labeled with "Testing") whenever a test case idea came to mind. The testing wizard would then screen all the open testing issues and add/modify the test according to schedule set by the manager.
+
+In the beginning of the testing process, we set out to thoroughly check the scanner and parser; however, the course instructor suggested we focus on the meat of the project (codegen) because most of the issues will result from that portion. To simplify checking of the Abstract Syntax Tree (AST) and the semantically checked AST (SAST), our manager created a pretty printer that would output the trees in a Javascript Object Notation (JSON) format for quick visual confirmation of their structure. In addition to quick visual feedback JSON objects provide, we also considered using a Javascript data visualization package to render a visual tree of the data, but it wasn't going to be any more useful than the text version. 
+
+During the development process, we also realized that in addition to checking proper output from our programs, we should also check if our analyzer was correctly identifying semantically invalid code. For example, if trying to assign a float type number to an integer variable (a feature we do not support), the analyzer should throw the proper exception. We accounted for these cases and placed all the tests in a separate folder with an identifying prefix to easily determine the category of test case.
+
+The majority of the test cases in our suite check the code generation through a comparison of print statement outputs from the code and our expected output. We created a test for every component of our language from basic variable declaration and assignment to class inheritance and method overriding. If it's in our language, there's a test case for it.
+
+\pagebreak
+
+
+\subsection{Dice Test Examples}
+The following "Hello, World!" program is the first program we got running in our language.
+
+test-hello.dice
+\begin{minted}[breaklines,linenos]{java}
+class test {
+	public void main(char[][] args) {
+		print("Hello, World!");
+	}
+\end{minted}
+
+
+
+test-hello.ll
+\begin{minted}[breaklines,linenos]{java}
+; ModuleID = 'Dice Codegen'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+%test = type <{ i32 }>
+
+@tmp = private unnamed_addr constant [14 x i8] c"Hello, World!\00"
+@tmp.1 = private unnamed_addr constant [3 x i8] c"%s\00"
+
+declare i32 @printf(i8*, ...)
+
+declare noalias i8* @malloc(i32)
+
+declare i32 @open(i8*, i32)
+
+declare i32 @close(i32)
+
+declare i32 @read(i32, i8*, i32)
+
+declare i32 @write(i32, i8*, i32)
+
+declare i32 @lseek(i32, i32, i32)
+
+declare void @exit(i32)
+
+declare i8* @realloc(i8*, i32)
+
+declare i32 @getchar()
+
+define i64* @lookup(i32 %c_index, i32 %f_index) {
+entry:
+  %tmp = alloca i64**
+  %tmp1 = alloca i64*, i32 0
+  %tmp2 = getelementptr i64**, i64*** %tmp, i32 0
+  store i64** %tmp1, i64*** %tmp2
+  ret i64* null
+}
+
+define %test* @test.constructor() {
+entry:
+  %this = alloca %test
+  %tmp = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp1 = bitcast i8* %tmp to %test*
+  %tmp2 = load %test, %test* %tmp1
+  store %test %tmp2, %test* %this
+  %.key = getelementptr inbounds %test, %test* %this, i32 0, i32 0
+  store i32 0, i32* %.key
+  ret %test* %this
+}
+
+define i32 @main(i32 %argc, i8** %argv) {
+entry:
+  %arr_size = add i32 %argc, 1
+  %mallocsize = mul i32 %arr_size, ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32)
+  %malloccall = tail call i8* @malloc(i32 %mallocsize)
+  %args = bitcast i8* %malloccall to i8***
+  %args1 = bitcast i8*** %args to i8**
+  %argc_len = bitcast i8** %args1 to i32*
+  %arr_1 = getelementptr i8*, i8** %args1, i32 1
+  store i32 %argc, i32* %argc_len
+  br label %args.cond
+
+args.cond:                                        ; preds = %args.init, %entry
+  %counter = phi i32 [ 0, %entry ], [ %tmp, %args.init ]
+  %tmp = add i32 %counter, 1
+  %tmp2 = icmp slt i32 %counter, %argc
+  br i1 %tmp2, label %args.init, label %args.done
+
+args.init:                                        ; preds = %args.cond
+  %tmp3 = getelementptr i8*, i8** %arr_1, i32 %counter
+  %tmp4 = getelementptr i8*, i8** %argv, i32 %counter
+  %tmp5 = load i8*, i8** %tmp4
+  store i8* %tmp5, i8** %tmp3
+  br label %args.cond
+
+args.done:                                        ; preds = %args.cond
+  %this = alloca %test
+  %tmp6 = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp7 = bitcast i8* %tmp6 to %test*
+  %tmp8 = load %test, %test* %tmp7
+  store %test %tmp8, %test* %this
+  %.key = getelementptr inbounds %test, %test* %this, i32 0, i32 0
+  store i32 0, i32* %.key
+  %tmp9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @tmp.1, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @tmp, i32 0, i32 0))
+  ret i32 0
+}
+
+; Function Attrs: nounwind uwtable
+define i8* @input() #0 {
+  %initial_size = alloca i32, align 4
+  %str = alloca i8*, align 8
+  %index = alloca i32, align 4
+  %tmp = alloca i8, align 1
+  store i32 100, i32* %initial_size, align 4
+  %1 = load i32, i32* %initial_size, align 4
+  %2 = sext i32 %1 to i64
+  %3 = call noalias i8* bitcast (i8* (i32)* @malloc to i8* (i64)*)(i64 %2) #1
+  store i8* %3, i8** %str, align 8
+  store i32 0, i32* %index, align 4
+  store i8 48, i8* %tmp, align 1
+  br label %4
+
+; <label>:4                                       ; preds = %20, %0
+  %5 = call i32 @getchar()
+  %6 = trunc i32 %5 to i8
+  store i8 %6, i8* %tmp, align 1
+  %7 = sext i8 %6 to i32
+  %8 = icmp ne i32 %7, 10
+  br i1 %8, label %9, label %27
+
+; <label>:9                                       ; preds = %4
+  %10 = load i32, i32* %index, align 4
+  %11 = load i32, i32* %initial_size, align 4
+  %12 = sub nsw i32 %11, 1
+  %13 = icmp sge i32 %10, %12
+  br i1 %13, label %14, label %20
+
+; <label>:14                                      ; preds = %9
+  %15 = load i8*, i8** %str, align 8
+  %16 = load i32, i32* %initial_size, align 4
+  %17 = mul nsw i32 %16, 2
+  store i32 %17, i32* %initial_size, align 4
+  %18 = sext i32 %17 to i64
+  %19 = call i8* bitcast (i8* (i8*, i32)* @realloc to i8* (i8*, i64)*)(i8* %15, i64 %18) #1
+  store i8* %19, i8** %str, align 8
+  br label %20
+
+; <label>:20                                      ; preds = %14, %9
+  %21 = load i8, i8* %tmp, align 1
+  %22 = load i32, i32* %index, align 4
+  %23 = add nsw i32 %22, 1
+  store i32 %23, i32* %index, align 4
+  %24 = sext i32 %22 to i64
+  %25 = load i8*, i8** %str, align 8
+  %26 = getelementptr inbounds i8, i8* %25, i64 %24
+  store i8 %21, i8* %26, align 1
+  br label %4
+
+; <label>:27                                      ; preds = %4
+  %28 = load i32, i32* %index, align 4
+  %29 = sext i32 %28 to i64
+  %30 = load i8*, i8** %str, align 8
+  %31 = getelementptr inbounds i8, i8* %30, i64 %29
+  store i8 0, i8* %31, align 1
+  %32 = load i8*, i8** %str, align 8
+  ret i8* %32
+}
+
+; Function Attrs: nounwind uwtable
+define void @rec_init(i64* %arr, i32 %curr_offset, i32* %static_offsets, i32* %indexes, i32* %dims, i32 %dimc, i32 %dim_curr) #0 {
+  %1 = alloca i64*, align 8
+  %2 = alloca i32, align 4
+  %3 = alloca i32*, align 8
+  %4 = alloca i32*, align 8
+  %5 = alloca i32*, align 8
+  %6 = alloca i32, align 4
+  %7 = alloca i32, align 4
+  %static_offset = alloca i32, align 4
+  %dynamic_offset = alloca i32, align 4
+  %i = alloca i32, align 4
+  %tmp = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i1 = alloca i32, align 4
+  %offset = alloca i32, align 4
+  %sub = alloca i64*, align 8
+  store i64* %arr, i64** %1, align 8
+  store i32 %curr_offset, i32* %2, align 4
+  store i32* %static_offsets, i32** %3, align 8
+  store i32* %indexes, i32** %4, align 8
+  store i32* %dims, i32** %5, align 8
+  store i32 %dimc, i32* %6, align 4
+  store i32 %dim_curr, i32* %7, align 4
+  %8 = load i32, i32* %7, align 4
+  %9 = sext i32 %8 to i64
+  %10 = load i32*, i32** %5, align 8
+  %11 = getelementptr inbounds i32, i32* %10, i64 %9
+  %12 = load i32, i32* %11, align 4
+  %13 = sext i32 %12 to i64
+  %14 = load i32, i32* %2, align 4
+  %15 = sext i32 %14 to i64
+  %16 = load i64*, i64** %1, align 8
+  %17 = getelementptr inbounds i64, i64* %16, i64 %15
+  store i64 %13, i64* %17, align 8
+  %18 = load i32, i32* %7, align 4
+  %19 = add nsw i32 %18, 1
+  %20 = load i32, i32* %6, align 4
+  %21 = icmp sge i32 %19, %20
+  br i1 %21, label %22, label %23
+
+; <label>:22                                      ; preds = %0
+  br label %115
+
+; <label>:23                                      ; preds = %0
+  %24 = load i32, i32* %7, align 4
+  %25 = sext i32 %24 to i64
+  %26 = load i32*, i32** %3, align 8
+  %27 = getelementptr inbounds i32, i32* %26, i64 %25
+  %28 = load i32, i32* %27, align 4
+  store i32 %28, i32* %static_offset, align 4
+  store i32 0, i32* %dynamic_offset, align 4
+  store i32 0, i32* %i, align 4
+  br label %29
+
+; <label>:29                                      ; preds = %60, %23
+  %30 = load i32, i32* %i, align 4
+  %31 = load i32, i32* %7, align 4
+  %32 = icmp slt i32 %30, %31
+  br i1 %32, label %33, label %63
+
+; <label>:33                                      ; preds = %29
+  %34 = load i32, i32* %i, align 4
+  %35 = sext i32 %34 to i64
+  %36 = load i32*, i32** %4, align 8
+  %37 = getelementptr inbounds i32, i32* %36, i64 %35
+  %38 = load i32, i32* %37, align 4
+  store i32 %38, i32* %tmp, align 4
+  %39 = load i32, i32* %i, align 4
+  %40 = add nsw i32 %39, 1
+  store i32 %40, i32* %j, align 4
+  br label %41
+
+; <label>:41                                      ; preds = %53, %33
+  %42 = load i32, i32* %j, align 4
+  %43 = load i32, i32* %7, align 4
+  %44 = icmp sle i32 %42, %43
+  br i1 %44, label %45, label %56
+
+; <label>:45                                      ; preds = %41
+  %46 = load i32, i32* %j, align 4
+  %47 = sext i32 %46 to i64
+  %48 = load i32*, i32** %5, align 8
+  %49 = getelementptr inbounds i32, i32* %48, i64 %47
+  %50 = load i32, i32* %49, align 4
+  %51 = load i32, i32* %tmp, align 4
+  %52 = mul nsw i32 %51, %50
+  store i32 %52, i32* %tmp, align 4
+  br label %53
+
+; <label>:53                                      ; preds = %45
+  %54 = load i32, i32* %j, align 4
+  %55 = add nsw i32 %54, 1
+  store i32 %55, i32* %j, align 4
+  br label %41
+
+; <label>:56                                      ; preds = %41
+  %57 = load i32, i32* %tmp, align 4
+  %58 = load i32, i32* %dynamic_offset, align 4
+  %59 = add nsw i32 %58, %57
+  store i32 %59, i32* %dynamic_offset, align 4
+  br label %60
+
+; <label>:60                                      ; preds = %56
+  %61 = load i32, i32* %i, align 4
+  %62 = add nsw i32 %61, 1
+  store i32 %62, i32* %i, align 4
+  br label %29
+
+; <label>:63                                      ; preds = %29
+  store i32 0, i32* %i1, align 4
+  br label %64
+
+; <label>:64                                      ; preds = %112, %63
+  %65 = load i32, i32* %i1, align 4
+  %66 = load i32, i32* %7, align 4
+  %67 = sext i32 %66 to i64
+  %68 = load i32*, i32** %5, align 8
+  %69 = getelementptr inbounds i32, i32* %68, i64 %67
+  %70 = load i32, i32* %69, align 4
+  %71 = icmp slt i32 %65, %70
+  br i1 %71, label %72, label %115
+
+; <label>:72                                      ; preds = %64
+  %73 = load i32, i32* %static_offset, align 4
+  %74 = load i32, i32* %dynamic_offset, align 4
+  %75 = load i32, i32* %i1, align 4
+  %76 = add nsw i32 %74, %75
+  %77 = load i32, i32* %7, align 4
+  %78 = add nsw i32 %77, 1
+  %79 = sext i32 %78 to i64
+  %80 = load i32*, i32** %5, align 8
+  %81 = getelementptr inbounds i32, i32* %80, i64 %79
+  %82 = load i32, i32* %81, align 4
+  %83 = add nsw i32 %82, 1
+  %84 = mul nsw i32 %76, %83
+  %85 = add nsw i32 %73, %84
+  store i32 %85, i32* %offset, align 4
+  %86 = load i64*, i64** %1, align 8
+  %87 = load i32, i32* %offset, align 4
+  %88 = sext i32 %87 to i64
+  %89 = getelementptr inbounds i64, i64* %86, i64 %88
+  store i64* %89, i64** %sub, align 8
+  %90 = load i64*, i64** %sub, align 8
+  %91 = ptrtoint i64* %90 to i64
+  %92 = load i32, i32* %2, align 4
+  %93 = add nsw i32 %92, 1
+  %94 = load i32, i32* %i1, align 4
+  %95 = add nsw i32 %93, %94
+  %96 = sext i32 %95 to i64
+  %97 = load i64*, i64** %1, align 8
+  %98 = getelementptr inbounds i64, i64* %97, i64 %96
+  store i64 %91, i64* %98, align 8
+  %99 = load i32, i32* %i1, align 4
+  %100 = load i32, i32* %7, align 4
+  %101 = sext i32 %100 to i64
+  %102 = load i32*, i32** %4, align 8
+  %103 = getelementptr inbounds i32, i32* %102, i64 %101
+  store i32 %99, i32* %103, align 4
+  %104 = load i64*, i64** %1, align 8
+  %105 = load i32, i32* %offset, align 4
+  %106 = load i32*, i32** %3, align 8
+  %107 = load i32*, i32** %4, align 8
+  %108 = load i32*, i32** %5, align 8
+  %109 = load i32, i32* %6, align 4
+  %110 = load i32, i32* %7, align 4
+  %111 = add nsw i32 %110, 1
+  call void @rec_init(i64* %104, i32 %105, i32* %106, i32* %107, i32* %108, i32 %109, i32 %111)
+  br label %112
+
+; <label>:112                                     ; preds = %72
+  %113 = load i32, i32* %i1, align 4
+  %114 = add nsw i32 %113, 1
+  store i32 %114, i32* %i1, align 4
+  br label %64
+
+; <label>:115                                     ; preds = %22, %64
+  ret void
+}
+
+; Function Attrs: nounwind uwtable
+define i64* @init_arr(i32* %dims, i32 %dimc) #0 {
+  %1 = alloca i32*, align 8
+  %2 = alloca i32, align 4
+  %3 = alloca i8*
+  %total = alloca i32, align 4
+  %i = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i1 = alloca i32, align 4
+  %length = alloca i32, align 4
+  %i2 = alloca i32, align 4
+  %tmp = alloca i32, align 4
+  %j3 = alloca i32, align 4
+  %arr = alloca i64*, align 8
+  %i4 = alloca i32, align 4
+  store i32* %dims, i32** %1, align 8
+  store i32 %dimc, i32* %2, align 4
+  %4 = load i32, i32* %2, align 4
+  %5 = zext i32 %4 to i64
+  %6 = call i8* @llvm.stacksave()
+  store i8* %6, i8** %3
+  %7 = alloca i32, i64 %5, align 16
+  store i32 0, i32* %total, align 4
+  store i32 0, i32* %i, align 4
+  br label %8
+
+; <label>:8                                       ; preds = %56, %0
+  %9 = load i32, i32* %i, align 4
+  %10 = load i32, i32* %2, align 4
+  %11 = icmp slt i32 %9, %10
+  br i1 %11, label %12, label %59
+
+; <label>:12                                      ; preds = %8
+  %13 = load i32, i32* %i, align 4
+  %14 = sext i32 %13 to i64
+  %15 = getelementptr inbounds i32, i32* %7, i64 %14
+  store i32 1, i32* %15, align 4
+  store i32 0, i32* %j, align 4
+  br label %16
+
+; <label>:16                                      ; preds = %31, %12
+  %17 = load i32, i32* %j, align 4
+  %18 = load i32, i32* %i, align 4
+  %19 = icmp slt i32 %17, %18
+  br i1 %19, label %20, label %34
+
+; <label>:20                                      ; preds = %16
+  %21 = load i32, i32* %j, align 4
+  %22 = sext i32 %21 to i64
+  %23 = load i32*, i32** %1, align 8
+  %24 = getelementptr inbounds i32, i32* %23, i64 %22
+  %25 = load i32, i32* %24, align 4
+  %26 = load i32, i32* %i, align 4
+  %27 = sext i32 %26 to i64
+  %28 = getelementptr inbounds i32, i32* %7, i64 %27
+  %29 = load i32, i32* %28, align 4
+  %30 = mul nsw i32 %29, %25
+  store i32 %30, i32* %28, align 4
+  br label %31
+
+; <label>:31                                      ; preds = %20
+  %32 = load i32, i32* %j, align 4
+  %33 = add nsw i32 %32, 1
+  store i32 %33, i32* %j, align 4
+  br label %16
+
+; <label>:34                                      ; preds = %16
+  %35 = load i32, i32* %i, align 4
+  %36 = sext i32 %35 to i64
+  %37 = load i32*, i32** %1, align 8
+  %38 = getelementptr inbounds i32, i32* %37, i64 %36
+  %39 = load i32, i32* %38, align 4
+  %40 = add nsw i32 %39, 1
+  %41 = load i32, i32* %i, align 4
+  %42 = sext i32 %41 to i64
+  %43 = getelementptr inbounds i32, i32* %7, i64 %42
+  %44 = load i32, i32* %43, align 4
+  %45 = mul nsw i32 %44, %40
+  store i32 %45, i32* %43, align 4
+  %46 = load i32, i32* %total, align 4
+  %47 = load i32, i32* %i, align 4
+  %48 = sext i32 %47 to i64
+  %49 = getelementptr inbounds i32, i32* %7, i64 %48
+  %50 = load i32, i32* %49, align 4
+  %51 = add nsw i32 %50, %46
+  store i32 %51, i32* %49, align 4
+  %52 = load i32, i32* %i, align 4
+  %53 = sext i32 %52 to i64
+  %54 = getelementptr inbounds i32, i32* %7, i64 %53
+  %55 = load i32, i32* %54, align 4
+  store i32 %55, i32* %total, align 4
+  br label %56
+
+; <label>:56                                      ; preds = %34
+  %57 = load i32, i32* %i, align 4
+  %58 = add nsw i32 %57, 1
+  store i32 %58, i32* %i, align 4
+  br label %8
+
+; <label>:59                                      ; preds = %8
+  %60 = load i32, i32* %2, align 4
+  %61 = zext i32 %60 to i64
+  %62 = alloca i32, i64 %61, align 16
+  store i32 0, i32* %i1, align 4
+  br label %63
+
+; <label>:63                                      ; preds = %71, %59
+  %64 = load i32, i32* %i1, align 4
+  %65 = load i32, i32* %2, align 4
+  %66 = icmp slt i32 %64, %65
+  br i1 %66, label %67, label %74
+
+; <label>:67                                      ; preds = %63
+  %68 = load i32, i32* %i1, align 4
+  %69 = sext i32 %68 to i64
+  %70 = getelementptr inbounds i32, i32* %62, i64 %69
+  store i32 0, i32* %70, align 4
+  br label %71
+
+; <label>:71                                      ; preds = %67
+  %72 = load i32, i32* %i1, align 4
+  %73 = add nsw i32 %72, 1
+  store i32 %73, i32* %i1, align 4
+  br label %63
+
+; <label>:74                                      ; preds = %63
+  store i32 0, i32* %length, align 4
+  store i32 0, i32* %i2, align 4
+  br label %75
+
+; <label>:75                                      ; preds = %108, %74
+  %76 = load i32, i32* %i2, align 4
+  %77 = load i32, i32* %2, align 4
+  %78 = icmp slt i32 %76, %77
+  br i1 %78, label %79, label %111
+
+; <label>:79                                      ; preds = %75
+  store i32 1, i32* %tmp, align 4
+  %80 = load i32, i32* %i2, align 4
+  %81 = sub nsw i32 %80, 1
+  store i32 %81, i32* %j3, align 4
+  br label %82
+
+; <label>:82                                      ; preds = %93, %79
+  %83 = load i32, i32* %j3, align 4
+  %84 = icmp sge i32 %83, 0
+  br i1 %84, label %85, label %96
+
+; <label>:85                                      ; preds = %82
+  %86 = load i32, i32* %j3, align 4
+  %87 = sext i32 %86 to i64
+  %88 = load i32*, i32** %1, align 8
+  %89 = getelementptr inbounds i32, i32* %88, i64 %87
+  %90 = load i32, i32* %89, align 4
+  %91 = load i32, i32* %tmp, align 4
+  %92 = mul nsw i32 %91, %90
+  store i32 %92, i32* %tmp, align 4
+  br label %93
+
+; <label>:93                                      ; preds = %85
+  %94 = load i32, i32* %j3, align 4
+  %95 = add nsw i32 %94, -1
+  store i32 %95, i32* %j3, align 4
+  br label %82
+
+; <label>:96                                      ; preds = %82
+  %97 = load i32, i32* %i2, align 4
+  %98 = sext i32 %97 to i64
+  %99 = load i32*, i32** %1, align 8
+  %100 = getelementptr inbounds i32, i32* %99, i64 %98
+  %101 = load i32, i32* %100, align 4
+  %102 = add nsw i32 %101, 1
+  %103 = load i32, i32* %tmp, align 4
+  %104 = mul nsw i32 %103, %102
+  store i32 %104, i32* %tmp, align 4
+  %105 = load i32, i32* %tmp, align 4
+  %106 = load i32, i32* %length, align 4
+  %107 = add nsw i32 %106, %105
+  store i32 %107, i32* %length, align 4
+  br label %108
+
+; <label>:108                                     ; preds = %96
+  %109 = load i32, i32* %i2, align 4
+  %110 = add nsw i32 %109, 1
+  store i32 %110, i32* %i2, align 4
+  br label %75
+
+; <label>:111                                     ; preds = %75
+  %112 = load i32, i32* %length, align 4
+  %113 = sext i32 %112 to i64
+  %114 = call noalias i8* bitcast (i8* (i32)* @malloc to i8* (i64)*)(i64 %113) #1
+  %115 = bitcast i8* %114 to i64*
+  store i64* %115, i64** %arr, align 8
+  store i32 0, i32* %i4, align 4
+  br label %116
+
+; <label>:116                                     ; preds = %125, %111
+  %117 = load i32, i32* %i4, align 4
+  %118 = load i32, i32* %length, align 4
+  %119 = icmp slt i32 %117, %118
+  br i1 %119, label %120, label %128
+
+; <label>:120                                     ; preds = %116
+  %121 = load i32, i32* %i4, align 4
+  %122 = sext i32 %121 to i64
+  %123 = load i64*, i64** %arr, align 8
+  %124 = getelementptr inbounds i64, i64* %123, i64 %122
+  store i64 0, i64* %124, align 8
+  br label %125
+
+; <label>:125                                     ; preds = %120
+  %126 = load i32, i32* %i4, align 4
+  %127 = add nsw i32 %126, 1
+  store i32 %127, i32* %i4, align 4
+  br label %116
+
+; <label>:128                                     ; preds = %116
+  %129 = load i64*, i64** %arr, align 8
+  %130 = load i32*, i32** %1, align 8
+  %131 = load i32, i32* %2, align 4
+  call void @rec_init(i64* %129, i32 0, i32* %7, i32* %62, i32* %130, i32 %131, i32 0)
+  %132 = load i64*, i64** %arr, align 8
+  %133 = load i8*, i8** %3
+  call void @llvm.stackrestore(i8* %133)
+  ret i64* %132
+}
+
+; Function Attrs: nounwind
+declare i8* @llvm.stacksave() #1
+
+; Function Attrs: nounwind
+declare void @llvm.stackrestore(i8*) #1
+
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind }
+
+!llvm.ident = !{!0}
+
+!0 = !{!"Ubuntu clang version 3.7.0-2ubuntu1 (tags/RELEASE_370/final) (based on LLVM 3.7.0)"}
+\end{minted}
+\pagebreak
+
+The following test checks if a child class inherits the parent's fields:
+
+test-classExtends.dice
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+  public float xCoord;
+  public float yCoord;
+}
+
+class circle extends shape {
+  public float radius;
+}
+
+class test {
+  public void main(char[][] args) {
+      class circle a = new circle(); 
+      a.xCoord = 1.5;
+      print(a.xCoord);
+  }
+
+\end{minted}
+
+test-classExtends.ll
+
+\begin{minted}[breaklines,linenos]{java}
+; ModuleID = 'Dice Codegen'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+%test = type <{ i32 }>
+%circle = type <{ i32, double, double, double }>
+%shape = type <{ i32, double, double }>
+
+@tmp = private unnamed_addr constant [3 x i8] c"%f\00"
+
+declare i32 @printf(i8*, ...)
+
+declare noalias i8* @malloc(i32)
+
+declare i32 @open(i8*, i32)
+
+declare i32 @close(i32)
+
+declare i32 @read(i32, i8*, i32)
+
+declare i32 @write(i32, i8*, i32)
+
+declare i32 @lseek(i32, i32, i32)
+
+declare void @exit(i32)
+
+declare i8* @realloc(i8*, i32)
+
+declare i32 @getchar()
+
+define i64* @lookup(i32 %c_index, i32 %f_index) {
+entry:
+  %tmp = alloca i64**, i32 3
+  %tmp1 = alloca i64*, i32 0
+  %tmp2 = getelementptr i64**, i64*** %tmp, i32 2
+  store i64** %tmp1, i64*** %tmp2
+  %tmp3 = alloca i64*, i32 0
+  %tmp4 = getelementptr i64**, i64*** %tmp, i32 1
+  store i64** %tmp3, i64*** %tmp4
+  %tmp5 = alloca i64*, i32 0
+  %tmp6 = getelementptr i64**, i64*** %tmp, i32 0
+  store i64** %tmp5, i64*** %tmp6
+  ret i64* null
+}
+
+define %test* @test.constructor() {
+entry:
+  %this = alloca %test
+  %tmp = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp1 = bitcast i8* %tmp to %test*
+  %tmp2 = load %test, %test* %tmp1
+  store %test %tmp2, %test* %this
+  %.key = getelementptr inbounds %test, %test* %this, i32 0, i32 0
+  store i32 2, i32* %.key
+  ret %test* %this
+}
+
+define %circle* @circle.constructor() {
+entry:
+  %this = alloca %circle
+  %tmp = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp1 = bitcast i8* %tmp to %circle*
+  %tmp2 = load %circle, %circle* %tmp1
+  store %circle %tmp2, %circle* %this
+  %.key = getelementptr inbounds %circle, %circle* %this, i32 0, i32 0
+  store i32 1, i32* %.key
+  ret %circle* %this
+}
+
+define %shape* @shape.constructor() {
+entry:
+  %this = alloca %shape
+  %tmp = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp1 = bitcast i8* %tmp to %shape*
+  %tmp2 = load %shape, %shape* %tmp1
+  store %shape %tmp2, %shape* %this
+  %.key = getelementptr inbounds %shape, %shape* %this, i32 0, i32 0
+  store i32 0, i32* %.key
+  ret %shape* %this
+}
+
+define i32 @main(i32 %argc, i8** %argv) {
+entry:
+  %arr_size = add i32 %argc, 1
+  %mallocsize = mul i32 %arr_size, ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32)
+  %malloccall = tail call i8* @malloc(i32 %mallocsize)
+  %args = bitcast i8* %malloccall to i8***
+  %args1 = bitcast i8*** %args to i8**
+  %argc_len = bitcast i8** %args1 to i32*
+  %arr_1 = getelementptr i8*, i8** %args1, i32 1
+  store i32 %argc, i32* %argc_len
+  br label %args.cond
+
+args.cond:                                        ; preds = %args.init, %entry
+  %counter = phi i32 [ 0, %entry ], [ %tmp, %args.init ]
+  %tmp = add i32 %counter, 1
+  %tmp2 = icmp slt i32 %counter, %argc
+  br i1 %tmp2, label %args.init, label %args.done
+
+args.init:                                        ; preds = %args.cond
+  %tmp3 = getelementptr i8*, i8** %arr_1, i32 %counter
+  %tmp4 = getelementptr i8*, i8** %argv, i32 %counter
+  %tmp5 = load i8*, i8** %tmp4
+  store i8* %tmp5, i8** %tmp3
+  br label %args.cond
+
+args.done:                                        ; preds = %args.cond
+  %this = alloca %test
+  %tmp6 = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp7 = bitcast i8* %tmp6 to %test*
+  %tmp8 = load %test, %test* %tmp7
+  store %test %tmp8, %test* %this
+  %.key = getelementptr inbounds %test, %test* %this, i32 0, i32 0
+  store i32 2, i32* %.key
+  %a = alloca %circle
+  %tmp9 = call %circle* @circle.constructor()
+  %tmp10 = load %circle, %circle* %tmp9
+  store %circle %tmp10, %circle* %a
+  %xCoord = getelementptr inbounds %circle, %circle* %a, i32 0, i32 2
+  store double 1.500000e+00, double* %xCoord
+  %xCoord11 = getelementptr inbounds %circle, %circle* %a, i32 0, i32 2
+  %xCoord12 = load double, double* %xCoord11
+  %tmp13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @tmp, i32 0, i32 0), double %xCoord12)
+  ret i32 0
+}
+
+; Function Attrs: nounwind uwtable
+define i8* @input() #0 {
+  %initial_size = alloca i32, align 4
+  %str = alloca i8*, align 8
+  %index = alloca i32, align 4
+  %tmp = alloca i8, align 1
+  store i32 100, i32* %initial_size, align 4
+  %1 = load i32, i32* %initial_size, align 4
+  %2 = sext i32 %1 to i64
+  %3 = call noalias i8* bitcast (i8* (i32)* @malloc to i8* (i64)*)(i64 %2) #1
+  store i8* %3, i8** %str, align 8
+  store i32 0, i32* %index, align 4
+  store i8 48, i8* %tmp, align 1
+  br label %4
+
+; <label>:4                                       ; preds = %20, %0
+  %5 = call i32 @getchar()
+  %6 = trunc i32 %5 to i8
+  store i8 %6, i8* %tmp, align 1
+  %7 = sext i8 %6 to i32
+  %8 = icmp ne i32 %7, 10
+  br i1 %8, label %9, label %27
+
+; <label>:9                                       ; preds = %4
+  %10 = load i32, i32* %index, align 4
+  %11 = load i32, i32* %initial_size, align 4
+  %12 = sub nsw i32 %11, 1
+  %13 = icmp sge i32 %10, %12
+  br i1 %13, label %14, label %20
+
+; <label>:14                                      ; preds = %9
+  %15 = load i8*, i8** %str, align 8
+  %16 = load i32, i32* %initial_size, align 4
+  %17 = mul nsw i32 %16, 2
+  store i32 %17, i32* %initial_size, align 4
+  %18 = sext i32 %17 to i64
+  %19 = call i8* bitcast (i8* (i8*, i32)* @realloc to i8* (i8*, i64)*)(i8* %15, i64 %18) #1
+  store i8* %19, i8** %str, align 8
+  br label %20
+
+; <label>:20                                      ; preds = %14, %9
+  %21 = load i8, i8* %tmp, align 1
+  %22 = load i32, i32* %index, align 4
+  %23 = add nsw i32 %22, 1
+  store i32 %23, i32* %index, align 4
+  %24 = sext i32 %22 to i64
+  %25 = load i8*, i8** %str, align 8
+  %26 = getelementptr inbounds i8, i8* %25, i64 %24
+  store i8 %21, i8* %26, align 1
+  br label %4
+
+; <label>:27                                      ; preds = %4
+  %28 = load i32, i32* %index, align 4
+  %29 = sext i32 %28 to i64
+  %30 = load i8*, i8** %str, align 8
+  %31 = getelementptr inbounds i8, i8* %30, i64 %29
+  store i8 0, i8* %31, align 1
+  %32 = load i8*, i8** %str, align 8
+  ret i8* %32
+}
+
+; Function Attrs: nounwind uwtable
+define void @rec_init(i64* %arr, i32 %curr_offset, i32* %static_offsets, i32* %indexes, i32* %dims, i32 %dimc, i32 %dim_curr) #0 {
+  %1 = alloca i64*, align 8
+  %2 = alloca i32, align 4
+  %3 = alloca i32*, align 8
+  %4 = alloca i32*, align 8
+  %5 = alloca i32*, align 8
+  %6 = alloca i32, align 4
+  %7 = alloca i32, align 4
+  %static_offset = alloca i32, align 4
+  %dynamic_offset = alloca i32, align 4
+  %i = alloca i32, align 4
+  %tmp = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i1 = alloca i32, align 4
+  %offset = alloca i32, align 4
+  %sub = alloca i64*, align 8
+  store i64* %arr, i64** %1, align 8
+  store i32 %curr_offset, i32* %2, align 4
+  store i32* %static_offsets, i32** %3, align 8
+  store i32* %indexes, i32** %4, align 8
+  store i32* %dims, i32** %5, align 8
+  store i32 %dimc, i32* %6, align 4
+  store i32 %dim_curr, i32* %7, align 4
+  %8 = load i32, i32* %7, align 4
+  %9 = sext i32 %8 to i64
+  %10 = load i32*, i32** %5, align 8
+  %11 = getelementptr inbounds i32, i32* %10, i64 %9
+  %12 = load i32, i32* %11, align 4
+  %13 = sext i32 %12 to i64
+  %14 = load i32, i32* %2, align 4
+  %15 = sext i32 %14 to i64
+  %16 = load i64*, i64** %1, align 8
+  %17 = getelementptr inbounds i64, i64* %16, i64 %15
+  store i64 %13, i64* %17, align 8
+  %18 = load i32, i32* %7, align 4
+  %19 = add nsw i32 %18, 1
+  %20 = load i32, i32* %6, align 4
+  %21 = icmp sge i32 %19, %20
+  br i1 %21, label %22, label %23
+
+; <label>:22                                      ; preds = %0
+  br label %115
+
+; <label>:23                                      ; preds = %0
+  %24 = load i32, i32* %7, align 4
+  %25 = sext i32 %24 to i64
+  %26 = load i32*, i32** %3, align 8
+  %27 = getelementptr inbounds i32, i32* %26, i64 %25
+  %28 = load i32, i32* %27, align 4
+  store i32 %28, i32* %static_offset, align 4
+  store i32 0, i32* %dynamic_offset, align 4
+  store i32 0, i32* %i, align 4
+  br label %29
+
+; <label>:29                                      ; preds = %60, %23
+  %30 = load i32, i32* %i, align 4
+  %31 = load i32, i32* %7, align 4
+  %32 = icmp slt i32 %30, %31
+  br i1 %32, label %33, label %63
+
+; <label>:33                                      ; preds = %29
+  %34 = load i32, i32* %i, align 4
+  %35 = sext i32 %34 to i64
+  %36 = load i32*, i32** %4, align 8
+  %37 = getelementptr inbounds i32, i32* %36, i64 %35
+  %38 = load i32, i32* %37, align 4
+  store i32 %38, i32* %tmp, align 4
+  %39 = load i32, i32* %i, align 4
+  %40 = add nsw i32 %39, 1
+  store i32 %40, i32* %j, align 4
+  br label %41
+
+; <label>:41                                      ; preds = %53, %33
+  %42 = load i32, i32* %j, align 4
+  %43 = load i32, i32* %7, align 4
+  %44 = icmp sle i32 %42, %43
+  br i1 %44, label %45, label %56
+
+; <label>:45                                      ; preds = %41
+  %46 = load i32, i32* %j, align 4
+  %47 = sext i32 %46 to i64
+  %48 = load i32*, i32** %5, align 8
+  %49 = getelementptr inbounds i32, i32* %48, i64 %47
+  %50 = load i32, i32* %49, align 4
+  %51 = load i32, i32* %tmp, align 4
+  %52 = mul nsw i32 %51, %50
+  store i32 %52, i32* %tmp, align 4
+  br label %53
+
+; <label>:53                                      ; preds = %45
+  %54 = load i32, i32* %j, align 4
+  %55 = add nsw i32 %54, 1
+  store i32 %55, i32* %j, align 4
+  br label %41
+
+; <label>:56                                      ; preds = %41
+  %57 = load i32, i32* %tmp, align 4
+  %58 = load i32, i32* %dynamic_offset, align 4
+  %59 = add nsw i32 %58, %57
+  store i32 %59, i32* %dynamic_offset, align 4
+  br label %60
+
+; <label>:60                                      ; preds = %56
+  %61 = load i32, i32* %i, align 4
+  %62 = add nsw i32 %61, 1
+  store i32 %62, i32* %i, align 4
+  br label %29
+
+; <label>:63                                      ; preds = %29
+  store i32 0, i32* %i1, align 4
+  br label %64
+
+; <label>:64                                      ; preds = %112, %63
+  %65 = load i32, i32* %i1, align 4
+  %66 = load i32, i32* %7, align 4
+  %67 = sext i32 %66 to i64
+  %68 = load i32*, i32** %5, align 8
+  %69 = getelementptr inbounds i32, i32* %68, i64 %67
+  %70 = load i32, i32* %69, align 4
+  %71 = icmp slt i32 %65, %70
+  br i1 %71, label %72, label %115
+
+; <label>:72                                      ; preds = %64
+  %73 = load i32, i32* %static_offset, align 4
+  %74 = load i32, i32* %dynamic_offset, align 4
+  %75 = load i32, i32* %i1, align 4
+  %76 = add nsw i32 %74, %75
+  %77 = load i32, i32* %7, align 4
+  %78 = add nsw i32 %77, 1
+  %79 = sext i32 %78 to i64
+  %80 = load i32*, i32** %5, align 8
+  %81 = getelementptr inbounds i32, i32* %80, i64 %79
+  %82 = load i32, i32* %81, align 4
+  %83 = add nsw i32 %82, 1
+  %84 = mul nsw i32 %76, %83
+  %85 = add nsw i32 %73, %84
+  store i32 %85, i32* %offset, align 4
+  %86 = load i64*, i64** %1, align 8
+  %87 = load i32, i32* %offset, align 4
+  %88 = sext i32 %87 to i64
+  %89 = getelementptr inbounds i64, i64* %86, i64 %88
+  store i64* %89, i64** %sub, align 8
+  %90 = load i64*, i64** %sub, align 8
+  %91 = ptrtoint i64* %90 to i64
+  %92 = load i32, i32* %2, align 4
+  %93 = add nsw i32 %92, 1
+  %94 = load i32, i32* %i1, align 4
+  %95 = add nsw i32 %93, %94
+  %96 = sext i32 %95 to i64
+  %97 = load i64*, i64** %1, align 8
+  %98 = getelementptr inbounds i64, i64* %97, i64 %96
+  store i64 %91, i64* %98, align 8
+  %99 = load i32, i32* %i1, align 4
+  %100 = load i32, i32* %7, align 4
+  %101 = sext i32 %100 to i64
+  %102 = load i32*, i32** %4, align 8
+  %103 = getelementptr inbounds i32, i32* %102, i64 %101
+  store i32 %99, i32* %103, align 4
+  %104 = load i64*, i64** %1, align 8
+  %105 = load i32, i32* %offset, align 4
+  %106 = load i32*, i32** %3, align 8
+  %107 = load i32*, i32** %4, align 8
+  %108 = load i32*, i32** %5, align 8
+  %109 = load i32, i32* %6, align 4
+  %110 = load i32, i32* %7, align 4
+  %111 = add nsw i32 %110, 1
+  call void @rec_init(i64* %104, i32 %105, i32* %106, i32* %107, i32* %108, i32 %109, i32 %111)
+  br label %112
+
+; <label>:112                                     ; preds = %72
+  %113 = load i32, i32* %i1, align 4
+  %114 = add nsw i32 %113, 1
+  store i32 %114, i32* %i1, align 4
+  br label %64
+
+; <label>:115                                     ; preds = %22, %64
+  ret void
+}
+
+; Function Attrs: nounwind uwtable
+define i64* @init_arr(i32* %dims, i32 %dimc) #0 {
+  %1 = alloca i32*, align 8
+  %2 = alloca i32, align 4
+  %3 = alloca i8*
+  %total = alloca i32, align 4
+  %i = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i1 = alloca i32, align 4
+  %length = alloca i32, align 4
+  %i2 = alloca i32, align 4
+  %tmp = alloca i32, align 4
+  %j3 = alloca i32, align 4
+  %arr = alloca i64*, align 8
+  %i4 = alloca i32, align 4
+  store i32* %dims, i32** %1, align 8
+  store i32 %dimc, i32* %2, align 4
+  %4 = load i32, i32* %2, align 4
+  %5 = zext i32 %4 to i64
+  %6 = call i8* @llvm.stacksave()
+  store i8* %6, i8** %3
+  %7 = alloca i32, i64 %5, align 16
+  store i32 0, i32* %total, align 4
+  store i32 0, i32* %i, align 4
+  br label %8
+
+; <label>:8                                       ; preds = %56, %0
+  %9 = load i32, i32* %i, align 4
+  %10 = load i32, i32* %2, align 4
+  %11 = icmp slt i32 %9, %10
+  br i1 %11, label %12, label %59
+
+; <label>:12                                      ; preds = %8
+  %13 = load i32, i32* %i, align 4
+  %14 = sext i32 %13 to i64
+  %15 = getelementptr inbounds i32, i32* %7, i64 %14
+  store i32 1, i32* %15, align 4
+  store i32 0, i32* %j, align 4
+  br label %16
+
+; <label>:16                                      ; preds = %31, %12
+  %17 = load i32, i32* %j, align 4
+  %18 = load i32, i32* %i, align 4
+  %19 = icmp slt i32 %17, %18
+  br i1 %19, label %20, label %34
+
+; <label>:20                                      ; preds = %16
+  %21 = load i32, i32* %j, align 4
+  %22 = sext i32 %21 to i64
+  %23 = load i32*, i32** %1, align 8
+  %24 = getelementptr inbounds i32, i32* %23, i64 %22
+  %25 = load i32, i32* %24, align 4
+  %26 = load i32, i32* %i, align 4
+  %27 = sext i32 %26 to i64
+  %28 = getelementptr inbounds i32, i32* %7, i64 %27
+  %29 = load i32, i32* %28, align 4
+  %30 = mul nsw i32 %29, %25
+  store i32 %30, i32* %28, align 4
+  br label %31
+
+; <label>:31                                      ; preds = %20
+  %32 = load i32, i32* %j, align 4
+  %33 = add nsw i32 %32, 1
+  store i32 %33, i32* %j, align 4
+  br label %16
+
+; <label>:34                                      ; preds = %16
+  %35 = load i32, i32* %i, align 4
+  %36 = sext i32 %35 to i64
+  %37 = load i32*, i32** %1, align 8
+  %38 = getelementptr inbounds i32, i32* %37, i64 %36
+  %39 = load i32, i32* %38, align 4
+  %40 = add nsw i32 %39, 1
+  %41 = load i32, i32* %i, align 4
+  %42 = sext i32 %41 to i64
+  %43 = getelementptr inbounds i32, i32* %7, i64 %42
+  %44 = load i32, i32* %43, align 4
+  %45 = mul nsw i32 %44, %40
+  store i32 %45, i32* %43, align 4
+  %46 = load i32, i32* %total, align 4
+  %47 = load i32, i32* %i, align 4
+  %48 = sext i32 %47 to i64
+  %49 = getelementptr inbounds i32, i32* %7, i64 %48
+  %50 = load i32, i32* %49, align 4
+  %51 = add nsw i32 %50, %46
+  store i32 %51, i32* %49, align 4
+  %52 = load i32, i32* %i, align 4
+  %53 = sext i32 %52 to i64
+  %54 = getelementptr inbounds i32, i32* %7, i64 %53
+  %55 = load i32, i32* %54, align 4
+  store i32 %55, i32* %total, align 4
+  br label %56
+
+; <label>:56                                      ; preds = %34
+  %57 = load i32, i32* %i, align 4
+  %58 = add nsw i32 %57, 1
+  store i32 %58, i32* %i, align 4
+  br label %8
+
+; <label>:59                                      ; preds = %8
+  %60 = load i32, i32* %2, align 4
+  %61 = zext i32 %60 to i64
+  %62 = alloca i32, i64 %61, align 16
+  store i32 0, i32* %i1, align 4
+  br label %63
+
+; <label>:63                                      ; preds = %71, %59
+  %64 = load i32, i32* %i1, align 4
+  %65 = load i32, i32* %2, align 4
+  %66 = icmp slt i32 %64, %65
+  br i1 %66, label %67, label %74
+
+; <label>:67                                      ; preds = %63
+  %68 = load i32, i32* %i1, align 4
+  %69 = sext i32 %68 to i64
+  %70 = getelementptr inbounds i32, i32* %62, i64 %69
+  store i32 0, i32* %70, align 4
+  br label %71
+
+; <label>:71                                      ; preds = %67
+  %72 = load i32, i32* %i1, align 4
+  %73 = add nsw i32 %72, 1
+  store i32 %73, i32* %i1, align 4
+  br label %63
+
+; <label>:74                                      ; preds = %63
+  store i32 0, i32* %length, align 4
+  store i32 0, i32* %i2, align 4
+  br label %75
+
+; <label>:75                                      ; preds = %108, %74
+  %76 = load i32, i32* %i2, align 4
+  %77 = load i32, i32* %2, align 4
+  %78 = icmp slt i32 %76, %77
+  br i1 %78, label %79, label %111
+
+; <label>:79                                      ; preds = %75
+  store i32 1, i32* %tmp, align 4
+  %80 = load i32, i32* %i2, align 4
+  %81 = sub nsw i32 %80, 1
+  store i32 %81, i32* %j3, align 4
+  br label %82
+
+; <label>:82                                      ; preds = %93, %79
+  %83 = load i32, i32* %j3, align 4
+  %84 = icmp sge i32 %83, 0
+  br i1 %84, label %85, label %96
+
+; <label>:85                                      ; preds = %82
+  %86 = load i32, i32* %j3, align 4
+  %87 = sext i32 %86 to i64
+  %88 = load i32*, i32** %1, align 8
+  %89 = getelementptr inbounds i32, i32* %88, i64 %87
+  %90 = load i32, i32* %89, align 4
+  %91 = load i32, i32* %tmp, align 4
+  %92 = mul nsw i32 %91, %90
+  store i32 %92, i32* %tmp, align 4
+  br label %93
+
+; <label>:93                                      ; preds = %85
+  %94 = load i32, i32* %j3, align 4
+  %95 = add nsw i32 %94, -1
+  store i32 %95, i32* %j3, align 4
+  br label %82
+
+; <label>:96                                      ; preds = %82
+  %97 = load i32, i32* %i2, align 4
+  %98 = sext i32 %97 to i64
+  %99 = load i32*, i32** %1, align 8
+  %100 = getelementptr inbounds i32, i32* %99, i64 %98
+  %101 = load i32, i32* %100, align 4
+  %102 = add nsw i32 %101, 1
+  %103 = load i32, i32* %tmp, align 4
+  %104 = mul nsw i32 %103, %102
+  store i32 %104, i32* %tmp, align 4
+  %105 = load i32, i32* %tmp, align 4
+  %106 = load i32, i32* %length, align 4
+  %107 = add nsw i32 %106, %105
+  store i32 %107, i32* %length, align 4
+  br label %108
+
+; <label>:108                                     ; preds = %96
+  %109 = load i32, i32* %i2, align 4
+  %110 = add nsw i32 %109, 1
+  store i32 %110, i32* %i2, align 4
+  br label %75
+
+; <label>:111                                     ; preds = %75
+  %112 = load i32, i32* %length, align 4
+  %113 = sext i32 %112 to i64
+  %114 = call noalias i8* bitcast (i8* (i32)* @malloc to i8* (i64)*)(i64 %113) #1
+  %115 = bitcast i8* %114 to i64*
+  store i64* %115, i64** %arr, align 8
+  store i32 0, i32* %i4, align 4
+  br label %116
+
+; <label>:116                                     ; preds = %125, %111
+  %117 = load i32, i32* %i4, align 4
+  %118 = load i32, i32* %length, align 4
+  %119 = icmp slt i32 %117, %118
+  br i1 %119, label %120, label %128
+
+; <label>:120                                     ; preds = %116
+  %121 = load i32, i32* %i4, align 4
+  %122 = sext i32 %121 to i64
+  %123 = load i64*, i64** %arr, align 8
+  %124 = getelementptr inbounds i64, i64* %123, i64 %122
+  store i64 0, i64* %124, align 8
+  br label %125
+
+; <label>:125                                     ; preds = %120
+  %126 = load i32, i32* %i4, align 4
+  %127 = add nsw i32 %126, 1
+  store i32 %127, i32* %i4, align 4
+  br label %116
+
+; <label>:128                                     ; preds = %116
+  %129 = load i64*, i64** %arr, align 8
+  %130 = load i32*, i32** %1, align 8
+  %131 = load i32, i32* %2, align 4
+  call void @rec_init(i64* %129, i32 0, i32* %7, i32* %62, i32* %130, i32 %131, i32 0)
+  %132 = load i64*, i64** %arr, align 8
+  %133 = load i8*, i8** %3
+  call void @llvm.stackrestore(i8* %133)
+  ret i64* %132
+}
+
+; Function Attrs: nounwind
+declare i8* @llvm.stacksave() #1
+
+; Function Attrs: nounwind
+declare void @llvm.stackrestore(i8*) #1
+
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind }
+
+!llvm.ident = !{!0}
+
+!0 = !{!"Ubuntu clang version 3.7.0-2ubuntu1 (tags/RELEASE_370/final) (based on LLVM 3.7.0)"}
+
+\end{minted}
+\pagebreak
+
+The following test is the first of several for loop checks. This one ensures that the correct amount of iterations are complete for the specified block within the curly braces:
+
+test-for1.dice
+\begin{minted}[breaklines,linenos]{java}
+class test {
+	public void main(char[][] args) {
+	  int i;
+	  for (i = 0 ; i < 5 ; i = i + 1) {
+	    print(i);
+	  }
+	  print(42);
+	}
+}
+\end{minted}
+
+test-for1.ll
+\begin{minted}[breaklines,linenos]{llvm}
+; ModuleID = 'Dice Codegen'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+%test = type <{ i32 }>
+
+@tmp = private unnamed_addr constant [3 x i8] c"%d\00"
+@tmp.1 = private unnamed_addr constant [3 x i8] c"%d\00"
+
+declare i32 @printf(i8*, ...)
+
+declare noalias i8* @malloc(i32)
+
+declare i32 @open(i8*, i32)
+
+declare i32 @close(i32)
+
+declare i32 @read(i32, i8*, i32)
+
+declare i32 @write(i32, i8*, i32)
+
+declare i32 @lseek(i32, i32, i32)
+
+declare void @exit(i32)
+
+declare i8* @realloc(i8*, i32)
+
+declare i32 @getchar()
+
+define i64* @lookup(i32 %c_index, i32 %f_index) {
+entry:
+  %tmp = alloca i64**
+  %tmp1 = alloca i64*, i32 0
+  %tmp2 = getelementptr i64**, i64*** %tmp, i32 0
+  store i64** %tmp1, i64*** %tmp2
+  ret i64* null
+}
+
+define %test* @test.constructor() {
+entry:
+  %this = alloca %test
+  %tmp = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp1 = bitcast i8* %tmp to %test*
+  %tmp2 = load %test, %test* %tmp1
+  store %test %tmp2, %test* %this
+  %.key = getelementptr inbounds %test, %test* %this, i32 0, i32 0
+  store i32 0, i32* %.key
+  ret %test* %this
+}
+
+define i32 @main(i32 %argc, i8** %argv) {
+entry:
+  %arr_size = add i32 %argc, 1
+  %mallocsize = mul i32 %arr_size, ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32)
+  %malloccall = tail call i8* @malloc(i32 %mallocsize)
+  %args = bitcast i8* %malloccall to i8***
+  %args1 = bitcast i8*** %args to i8**
+  %argc_len = bitcast i8** %args1 to i32*
+  %arr_1 = getelementptr i8*, i8** %args1, i32 1
+  store i32 %argc, i32* %argc_len
+  br label %args.cond
+
+args.cond:                                        ; preds = %args.init, %entry
+  %counter = phi i32 [ 0, %entry ], [ %tmp, %args.init ]
+  %tmp = add i32 %counter, 1
+  %tmp2 = icmp slt i32 %counter, %argc
+  br i1 %tmp2, label %args.init, label %args.done
+
+args.init:                                        ; preds = %args.cond
+  %tmp3 = getelementptr i8*, i8** %arr_1, i32 %counter
+  %tmp4 = getelementptr i8*, i8** %argv, i32 %counter
+  %tmp5 = load i8*, i8** %tmp4
+  store i8* %tmp5, i8** %tmp3
+  br label %args.cond
+
+args.done:                                        ; preds = %args.cond
+  %this = alloca %test
+  %tmp6 = call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %tmp7 = bitcast i8* %tmp6 to %test*
+  %tmp8 = load %test, %test* %tmp7
+  store %test %tmp8, %test* %this
+  %.key = getelementptr inbounds %test, %test* %this, i32 0, i32 0
+  store i32 0, i32* %.key
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %cond
+
+loop:                                             ; preds = %cond
+  %i9 = load i32, i32* %i
+  %tmp10 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @tmp, i32 0, i32 0), i32 %i9)
+  br label %inc
+
+inc:                                              ; preds = %loop
+  %i11 = load i32, i32* %i
+  %addtmp = add i32 %i11, 1
+  store i32 %addtmp, i32* %i
+  br label %cond
+
+cond:                                             ; preds = %inc, %args.done
+  %i12 = load i32, i32* %i
+  %lesstmp = icmp slt i32 %i12, 5
+  br i1 %lesstmp, label %loop, label %afterloop
+
+afterloop:                                        ; preds = %cond
+  %tmp13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @tmp.1, i32 0, i32 0), i32 42)
+  ret i32 0
+}
+
+; Function Attrs: nounwind uwtable
+define i8* @input() #0 {
+  %initial_size = alloca i32, align 4
+  %str = alloca i8*, align 8
+  %index = alloca i32, align 4
+  %tmp = alloca i8, align 1
+  store i32 100, i32* %initial_size, align 4
+  %1 = load i32, i32* %initial_size, align 4
+  %2 = sext i32 %1 to i64
+  %3 = call noalias i8* bitcast (i8* (i32)* @malloc to i8* (i64)*)(i64 %2) #1
+  store i8* %3, i8** %str, align 8
+  store i32 0, i32* %index, align 4
+  store i8 48, i8* %tmp, align 1
+  br label %4
+
+; <label>:4                                       ; preds = %20, %0
+  %5 = call i32 @getchar()
+  %6 = trunc i32 %5 to i8
+  store i8 %6, i8* %tmp, align 1
+  %7 = sext i8 %6 to i32
+  %8 = icmp ne i32 %7, 10
+  br i1 %8, label %9, label %27
+
+; <label>:9                                       ; preds = %4
+  %10 = load i32, i32* %index, align 4
+  %11 = load i32, i32* %initial_size, align 4
+  %12 = sub nsw i32 %11, 1
+  %13 = icmp sge i32 %10, %12
+  br i1 %13, label %14, label %20
+
+; <label>:14                                      ; preds = %9
+  %15 = load i8*, i8** %str, align 8
+  %16 = load i32, i32* %initial_size, align 4
+  %17 = mul nsw i32 %16, 2
+  store i32 %17, i32* %initial_size, align 4
+  %18 = sext i32 %17 to i64
+  %19 = call i8* bitcast (i8* (i8*, i32)* @realloc to i8* (i8*, i64)*)(i8* %15, i64 %18) #1
+  store i8* %19, i8** %str, align 8
+  br label %20
+
+; <label>:20                                      ; preds = %14, %9
+  %21 = load i8, i8* %tmp, align 1
+  %22 = load i32, i32* %index, align 4
+  %23 = add nsw i32 %22, 1
+  store i32 %23, i32* %index, align 4
+  %24 = sext i32 %22 to i64
+  %25 = load i8*, i8** %str, align 8
+  %26 = getelementptr inbounds i8, i8* %25, i64 %24
+  store i8 %21, i8* %26, align 1
+  br label %4
+
+; <label>:27                                      ; preds = %4
+  %28 = load i32, i32* %index, align 4
+  %29 = sext i32 %28 to i64
+  %30 = load i8*, i8** %str, align 8
+  %31 = getelementptr inbounds i8, i8* %30, i64 %29
+  store i8 0, i8* %31, align 1
+  %32 = load i8*, i8** %str, align 8
+  ret i8* %32
+}
+
+; Function Attrs: nounwind uwtable
+define void @rec_init(i64* %arr, i32 %curr_offset, i32* %static_offsets, i32* %indexes, i32* %dims, i32 %dimc, i32 %dim_curr) #0 {
+  %1 = alloca i64*, align 8
+  %2 = alloca i32, align 4
+  %3 = alloca i32*, align 8
+  %4 = alloca i32*, align 8
+  %5 = alloca i32*, align 8
+  %6 = alloca i32, align 4
+  %7 = alloca i32, align 4
+  %static_offset = alloca i32, align 4
+  %dynamic_offset = alloca i32, align 4
+  %i = alloca i32, align 4
+  %tmp = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i1 = alloca i32, align 4
+  %offset = alloca i32, align 4
+  %sub = alloca i64*, align 8
+  store i64* %arr, i64** %1, align 8
+  store i32 %curr_offset, i32* %2, align 4
+  store i32* %static_offsets, i32** %3, align 8
+  store i32* %indexes, i32** %4, align 8
+  store i32* %dims, i32** %5, align 8
+  store i32 %dimc, i32* %6, align 4
+  store i32 %dim_curr, i32* %7, align 4
+  %8 = load i32, i32* %7, align 4
+  %9 = sext i32 %8 to i64
+  %10 = load i32*, i32** %5, align 8
+  %11 = getelementptr inbounds i32, i32* %10, i64 %9
+  %12 = load i32, i32* %11, align 4
+  %13 = sext i32 %12 to i64
+  %14 = load i32, i32* %2, align 4
+  %15 = sext i32 %14 to i64
+  %16 = load i64*, i64** %1, align 8
+  %17 = getelementptr inbounds i64, i64* %16, i64 %15
+  store i64 %13, i64* %17, align 8
+  %18 = load i32, i32* %7, align 4
+  %19 = add nsw i32 %18, 1
+  %20 = load i32, i32* %6, align 4
+  %21 = icmp sge i32 %19, %20
+  br i1 %21, label %22, label %23
+
+; <label>:22                                      ; preds = %0
+  br label %115
+
+; <label>:23                                      ; preds = %0
+  %24 = load i32, i32* %7, align 4
+  %25 = sext i32 %24 to i64
+  %26 = load i32*, i32** %3, align 8
+  %27 = getelementptr inbounds i32, i32* %26, i64 %25
+  %28 = load i32, i32* %27, align 4
+  store i32 %28, i32* %static_offset, align 4
+  store i32 0, i32* %dynamic_offset, align 4
+  store i32 0, i32* %i, align 4
+  br label %29
+
+; <label>:29                                      ; preds = %60, %23
+  %30 = load i32, i32* %i, align 4
+  %31 = load i32, i32* %7, align 4
+  %32 = icmp slt i32 %30, %31
+  br i1 %32, label %33, label %63
+
+; <label>:33                                      ; preds = %29
+  %34 = load i32, i32* %i, align 4
+  %35 = sext i32 %34 to i64
+  %36 = load i32*, i32** %4, align 8
+  %37 = getelementptr inbounds i32, i32* %36, i64 %35
+  %38 = load i32, i32* %37, align 4
+  store i32 %38, i32* %tmp, align 4
+  %39 = load i32, i32* %i, align 4
+  %40 = add nsw i32 %39, 1
+  store i32 %40, i32* %j, align 4
+  br label %41
+
+; <label>:41                                      ; preds = %53, %33
+  %42 = load i32, i32* %j, align 4
+  %43 = load i32, i32* %7, align 4
+  %44 = icmp sle i32 %42, %43
+  br i1 %44, label %45, label %56
+
+; <label>:45                                      ; preds = %41
+  %46 = load i32, i32* %j, align 4
+  %47 = sext i32 %46 to i64
+  %48 = load i32*, i32** %5, align 8
+  %49 = getelementptr inbounds i32, i32* %48, i64 %47
+  %50 = load i32, i32* %49, align 4
+  %51 = load i32, i32* %tmp, align 4
+  %52 = mul nsw i32 %51, %50
+  store i32 %52, i32* %tmp, align 4
+  br label %53
+
+; <label>:53                                      ; preds = %45
+  %54 = load i32, i32* %j, align 4
+  %55 = add nsw i32 %54, 1
+  store i32 %55, i32* %j, align 4
+  br label %41
+
+; <label>:56                                      ; preds = %41
+  %57 = load i32, i32* %tmp, align 4
+  %58 = load i32, i32* %dynamic_offset, align 4
+  %59 = add nsw i32 %58, %57
+  store i32 %59, i32* %dynamic_offset, align 4
+  br label %60
+
+; <label>:60                                      ; preds = %56
+  %61 = load i32, i32* %i, align 4
+  %62 = add nsw i32 %61, 1
+  store i32 %62, i32* %i, align 4
+  br label %29
+
+; <label>:63                                      ; preds = %29
+  store i32 0, i32* %i1, align 4
+  br label %64
+
+; <label>:64                                      ; preds = %112, %63
+  %65 = load i32, i32* %i1, align 4
+  %66 = load i32, i32* %7, align 4
+  %67 = sext i32 %66 to i64
+  %68 = load i32*, i32** %5, align 8
+  %69 = getelementptr inbounds i32, i32* %68, i64 %67
+  %70 = load i32, i32* %69, align 4
+  %71 = icmp slt i32 %65, %70
+  br i1 %71, label %72, label %115
+
+; <label>:72                                      ; preds = %64
+  %73 = load i32, i32* %static_offset, align 4
+  %74 = load i32, i32* %dynamic_offset, align 4
+  %75 = load i32, i32* %i1, align 4
+  %76 = add nsw i32 %74, %75
+  %77 = load i32, i32* %7, align 4
+  %78 = add nsw i32 %77, 1
+  %79 = sext i32 %78 to i64
+  %80 = load i32*, i32** %5, align 8
+  %81 = getelementptr inbounds i32, i32* %80, i64 %79
+  %82 = load i32, i32* %81, align 4
+  %83 = add nsw i32 %82, 1
+  %84 = mul nsw i32 %76, %83
+  %85 = add nsw i32 %73, %84
+  store i32 %85, i32* %offset, align 4
+  %86 = load i64*, i64** %1, align 8
+  %87 = load i32, i32* %offset, align 4
+  %88 = sext i32 %87 to i64
+  %89 = getelementptr inbounds i64, i64* %86, i64 %88
+  store i64* %89, i64** %sub, align 8
+  %90 = load i64*, i64** %sub, align 8
+  %91 = ptrtoint i64* %90 to i64
+  %92 = load i32, i32* %2, align 4
+  %93 = add nsw i32 %92, 1
+  %94 = load i32, i32* %i1, align 4
+  %95 = add nsw i32 %93, %94
+  %96 = sext i32 %95 to i64
+  %97 = load i64*, i64** %1, align 8
+  %98 = getelementptr inbounds i64, i64* %97, i64 %96
+  store i64 %91, i64* %98, align 8
+  %99 = load i32, i32* %i1, align 4
+  %100 = load i32, i32* %7, align 4
+  %101 = sext i32 %100 to i64
+  %102 = load i32*, i32** %4, align 8
+  %103 = getelementptr inbounds i32, i32* %102, i64 %101
+  store i32 %99, i32* %103, align 4
+  %104 = load i64*, i64** %1, align 8
+  %105 = load i32, i32* %offset, align 4
+  %106 = load i32*, i32** %3, align 8
+  %107 = load i32*, i32** %4, align 8
+  %108 = load i32*, i32** %5, align 8
+  %109 = load i32, i32* %6, align 4
+  %110 = load i32, i32* %7, align 4
+  %111 = add nsw i32 %110, 1
+  call void @rec_init(i64* %104, i32 %105, i32* %106, i32* %107, i32* %108, i32 %109, i32 %111)
+  br label %112
+
+; <label>:112                                     ; preds = %72
+  %113 = load i32, i32* %i1, align 4
+  %114 = add nsw i32 %113, 1
+  store i32 %114, i32* %i1, align 4
+  br label %64
+
+; <label>:115                                     ; preds = %22, %64
+  ret void
+}
+
+; Function Attrs: nounwind uwtable
+define i64* @init_arr(i32* %dims, i32 %dimc) #0 {
+  %1 = alloca i32*, align 8
+  %2 = alloca i32, align 4
+  %3 = alloca i8*
+  %total = alloca i32, align 4
+  %i = alloca i32, align 4
+  %j = alloca i32, align 4
+  %i1 = alloca i32, align 4
+  %length = alloca i32, align 4
+  %i2 = alloca i32, align 4
+  %tmp = alloca i32, align 4
+  %j3 = alloca i32, align 4
+  %arr = alloca i64*, align 8
+  %i4 = alloca i32, align 4
+  store i32* %dims, i32** %1, align 8
+  store i32 %dimc, i32* %2, align 4
+  %4 = load i32, i32* %2, align 4
+  %5 = zext i32 %4 to i64
+  %6 = call i8* @llvm.stacksave()
+  store i8* %6, i8** %3
+  %7 = alloca i32, i64 %5, align 16
+  store i32 0, i32* %total, align 4
+  store i32 0, i32* %i, align 4
+  br label %8
+
+; <label>:8                                       ; preds = %56, %0
+  %9 = load i32, i32* %i, align 4
+  %10 = load i32, i32* %2, align 4
+  %11 = icmp slt i32 %9, %10
+  br i1 %11, label %12, label %59
+
+; <label>:12                                      ; preds = %8
+  %13 = load i32, i32* %i, align 4
+  %14 = sext i32 %13 to i64
+  %15 = getelementptr inbounds i32, i32* %7, i64 %14
+  store i32 1, i32* %15, align 4
+  store i32 0, i32* %j, align 4
+  br label %16
+
+; <label>:16                                      ; preds = %31, %12
+  %17 = load i32, i32* %j, align 4
+  %18 = load i32, i32* %i, align 4
+  %19 = icmp slt i32 %17, %18
+  br i1 %19, label %20, label %34
+
+; <label>:20                                      ; preds = %16
+  %21 = load i32, i32* %j, align 4
+  %22 = sext i32 %21 to i64
+  %23 = load i32*, i32** %1, align 8
+  %24 = getelementptr inbounds i32, i32* %23, i64 %22
+  %25 = load i32, i32* %24, align 4
+  %26 = load i32, i32* %i, align 4
+  %27 = sext i32 %26 to i64
+  %28 = getelementptr inbounds i32, i32* %7, i64 %27
+  %29 = load i32, i32* %28, align 4
+  %30 = mul nsw i32 %29, %25
+  store i32 %30, i32* %28, align 4
+  br label %31
+
+; <label>:31                                      ; preds = %20
+  %32 = load i32, i32* %j, align 4
+  %33 = add nsw i32 %32, 1
+  store i32 %33, i32* %j, align 4
+  br label %16
+
+; <label>:34                                      ; preds = %16
+  %35 = load i32, i32* %i, align 4
+  %36 = sext i32 %35 to i64
+  %37 = load i32*, i32** %1, align 8
+  %38 = getelementptr inbounds i32, i32* %37, i64 %36
+  %39 = load i32, i32* %38, align 4
+  %40 = add nsw i32 %39, 1
+  %41 = load i32, i32* %i, align 4
+  %42 = sext i32 %41 to i64
+  %43 = getelementptr inbounds i32, i32* %7, i64 %42
+  %44 = load i32, i32* %43, align 4
+  %45 = mul nsw i32 %44, %40
+  store i32 %45, i32* %43, align 4
+  %46 = load i32, i32* %total, align 4
+  %47 = load i32, i32* %i, align 4
+  %48 = sext i32 %47 to i64
+  %49 = getelementptr inbounds i32, i32* %7, i64 %48
+  %50 = load i32, i32* %49, align 4
+  %51 = add nsw i32 %50, %46
+  store i32 %51, i32* %49, align 4
+  %52 = load i32, i32* %i, align 4
+  %53 = sext i32 %52 to i64
+  %54 = getelementptr inbounds i32, i32* %7, i64 %53
+  %55 = load i32, i32* %54, align 4
+  store i32 %55, i32* %total, align 4
+  br label %56
+
+; <label>:56                                      ; preds = %34
+  %57 = load i32, i32* %i, align 4
+  %58 = add nsw i32 %57, 1
+  store i32 %58, i32* %i, align 4
+  br label %8
+
+; <label>:59                                      ; preds = %8
+  %60 = load i32, i32* %2, align 4
+  %61 = zext i32 %60 to i64
+  %62 = alloca i32, i64 %61, align 16
+  store i32 0, i32* %i1, align 4
+  br label %63
+
+; <label>:63                                      ; preds = %71, %59
+  %64 = load i32, i32* %i1, align 4
+  %65 = load i32, i32* %2, align 4
+  %66 = icmp slt i32 %64, %65
+  br i1 %66, label %67, label %74
+
+; <label>:67                                      ; preds = %63
+  %68 = load i32, i32* %i1, align 4
+  %69 = sext i32 %68 to i64
+  %70 = getelementptr inbounds i32, i32* %62, i64 %69
+  store i32 0, i32* %70, align 4
+  br label %71
+
+; <label>:71                                      ; preds = %67
+  %72 = load i32, i32* %i1, align 4
+  %73 = add nsw i32 %72, 1
+  store i32 %73, i32* %i1, align 4
+  br label %63
+
+; <label>:74                                      ; preds = %63
+  store i32 0, i32* %length, align 4
+  store i32 0, i32* %i2, align 4
+  br label %75
+
+; <label>:75                                      ; preds = %108, %74
+  %76 = load i32, i32* %i2, align 4
+  %77 = load i32, i32* %2, align 4
+  %78 = icmp slt i32 %76, %77
+  br i1 %78, label %79, label %111
+
+; <label>:79                                      ; preds = %75
+  store i32 1, i32* %tmp, align 4
+  %80 = load i32, i32* %i2, align 4
+  %81 = sub nsw i32 %80, 1
+  store i32 %81, i32* %j3, align 4
+  br label %82
+
+; <label>:82                                      ; preds = %93, %79
+  %83 = load i32, i32* %j3, align 4
+  %84 = icmp sge i32 %83, 0
+  br i1 %84, label %85, label %96
+
+; <label>:85                                      ; preds = %82
+  %86 = load i32, i32* %j3, align 4
+  %87 = sext i32 %86 to i64
+  %88 = load i32*, i32** %1, align 8
+  %89 = getelementptr inbounds i32, i32* %88, i64 %87
+  %90 = load i32, i32* %89, align 4
+  %91 = load i32, i32* %tmp, align 4
+  %92 = mul nsw i32 %91, %90
+  store i32 %92, i32* %tmp, align 4
+  br label %93
+
+; <label>:93                                      ; preds = %85
+  %94 = load i32, i32* %j3, align 4
+  %95 = add nsw i32 %94, -1
+  store i32 %95, i32* %j3, align 4
+  br label %82
+
+; <label>:96                                      ; preds = %82
+  %97 = load i32, i32* %i2, align 4
+  %98 = sext i32 %97 to i64
+  %99 = load i32*, i32** %1, align 8
+  %100 = getelementptr inbounds i32, i32* %99, i64 %98
+  %101 = load i32, i32* %100, align 4
+  %102 = add nsw i32 %101, 1
+  %103 = load i32, i32* %tmp, align 4
+  %104 = mul nsw i32 %103, %102
+  store i32 %104, i32* %tmp, align 4
+  %105 = load i32, i32* %tmp, align 4
+  %106 = load i32, i32* %length, align 4
+  %107 = add nsw i32 %106, %105
+  store i32 %107, i32* %length, align 4
+  br label %108
+
+; <label>:108                                     ; preds = %96
+  %109 = load i32, i32* %i2, align 4
+  %110 = add nsw i32 %109, 1
+  store i32 %110, i32* %i2, align 4
+  br label %75
+
+; <label>:111                                     ; preds = %75
+  %112 = load i32, i32* %length, align 4
+  %113 = sext i32 %112 to i64
+  %114 = call noalias i8* bitcast (i8* (i32)* @malloc to i8* (i64)*)(i64 %113) #1
+  %115 = bitcast i8* %114 to i64*
+  store i64* %115, i64** %arr, align 8
+  store i32 0, i32* %i4, align 4
+  br label %116
+
+; <label>:116                                     ; preds = %125, %111
+  %117 = load i32, i32* %i4, align 4
+  %118 = load i32, i32* %length, align 4
+  %119 = icmp slt i32 %117, %118
+  br i1 %119, label %120, label %128
+
+; <label>:120                                     ; preds = %116
+  %121 = load i32, i32* %i4, align 4
+  %122 = sext i32 %121 to i64
+  %123 = load i64*, i64** %arr, align 8
+  %124 = getelementptr inbounds i64, i64* %123, i64 %122
+  store i64 0, i64* %124, align 8
+  br label %125
+
+; <label>:125                                     ; preds = %120
+  %126 = load i32, i32* %i4, align 4
+  %127 = add nsw i32 %126, 1
+  store i32 %127, i32* %i4, align 4
+  br label %116
+
+; <label>:128                                     ; preds = %116
+  %129 = load i64*, i64** %arr, align 8
+  %130 = load i32*, i32** %1, align 8
+  %131 = load i32, i32* %2, align 4
+  call void @rec_init(i64* %129, i32 0, i32* %7, i32* %62, i32* %130, i32 %131, i32 0)
+  %132 = load i64*, i64** %arr, align 8
+  %133 = load i8*, i8** %3
+  call void @llvm.stackrestore(i8* %133)
+  ret i64* %132
+}
+
+; Function Attrs: nounwind
+declare i8* @llvm.stacksave() #1
+
+; Function Attrs: nounwind
+declare void @llvm.stackrestore(i8*) #1
+
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind }
+
+!llvm.ident = !{!0}
+
+!0 = !{!"Ubuntu clang version 3.7.0-2ubuntu1 (tags/RELEASE_370/final) (based on LLVM 3.7.0)"}
+
+\end{minted}
+\pagebreak
+
+
+
