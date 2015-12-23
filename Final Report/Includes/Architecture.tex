@@ -4,13 +4,13 @@
 	To give a quick overview of our compiler, we have a total of 8 modules:
 	\begin{itemize}
 		\item \textbf{analyzer.ml} - Semantically checks incoming AST representation to make sure that it includes existing files, adheres to the rules of inheritance, and expressions are properly type-checked
-		\item \textbf{codegen.ml} - Converts a semantically checked AST into a working LLVM code by producing LLVM IR. 
+		\item \textbf{codegen.ml} - Converts a semantically checked AST into a working LLVM code by producing LLVM IR
 		\item \textbf{dice.ml} - Main module that calls on all the other modules depending on compiler flags passed to it
 		\item \textbf{filepath.ml} - Uses system calls to determine the absolute path to any file in the system. Useful for uniquely checking if an include statement refers to the same files
 		\item \textbf{parser.mly} - Reads in tokens from the scanner to produce an AST representation of the program
 		\item \textbf{processor.ml} - Handles communication between scanner and parser so that error messages regarding invalid input can be handled better
-		\item \textbf{scanner.mll} - Reads a source file and tokenizes it to the corresponding token output. 
-		\item \textbf{utils.ml} - Contains several functions for printing out the string representation of various intermediate representations in our language. Most critically used for debugging. 
+		\item \textbf{scanner.mll} - Reads a source file and tokenizes it to the corresponding token output
+		\item \textbf{utils.ml} - Contains several functions for printing out the string representation of various intermediate representations in our language. Most critically used for debugging
 	\end{itemize}
 	
 	and we have 4 interfaces
@@ -54,6 +54,12 @@
     
     \subsubsection{Structs and Inheritance}
     All structs are given an integer key at the beginning of their definition which will allow them to directly get their own virtual function table. Even if a subclass inherits from a parent class, it will be initialized with a specific key that is unique to the class at the beginning of each struct. For inherited fields they are organized in the order they were inherited, allowing multiple levels of inheritance. However it was too complex of a problem to solve multiple inheritance so we chose not to implement it. 
+    \begin{figure}[!ht]
+    	\centering
+    	\includegraphics[width=4.5in]{Includes/structs}
+    	\caption{Structs example with inheritance.}
+    \end{figure}
+    \pagebreak
     \subsubsection{The Virtual Function Table}
 	At compile time, an intermediate representation of the virtual function table is produced in LLVM IR. It is a function defined as "lookup" that is able to lookup a classes virtual function array by its class index and a function index unique to that function. The function index is generated from the Func\_decl list of a struct in the SAST. This way all subclasses have the same index for referring to the same function.
 	\begin{figure}[!ht]
@@ -70,313 +76,313 @@
 	
 	\begin{minted}[breaklines,linenos]{json}
 {
-	"sprogram": {
-		"classes": [
-		{ "scdecl": { "scname": "test", "sfields": [], "sfuncs": [] } }
-		],
-		"functions": [
-		{
-			"sfdecl": {
-				"sfname": "test.constructor",
-				"sreturnType": "class test",
-				"sformals": [],
-				"sbody": [
+"sprogram": {
+	"classes": [
+	{ "scdecl": { "scname": "test", "sfields": [], "sfuncs": [] } }
+	],
+	"functions": [
+	{
+		"sfdecl": {
+			"sfname": "test.constructor",
+			"sreturnType": "class test",
+			"sformals": [],
+			"sbody": [
+			{
+			"slocal": {
+			"datatype": "class test",
+			"name": "this",
+			"val": {
+				"call": {
+				"name": "cast",
+				"params": [
 				{
-					"slocal": {
-						"datatype": "class test",
-						"name": "this",
-						"val": {
-							"call": {
-								"name": "cast",
-								"params": [
-								{
-									"call": {
-										"name": "malloc",
-										"params": [
-										{
-											"call": {
-												"name": "sizeof",
-												"params": [
-												{
-													"id": {
-														"name": "ignore",
-														"datatype": "class test"
-													}
-												}
-												],
-												"index": 0,
-												"datatype": "int"
-											}
-										}
-										],
-										"index": 0,
-										"datatype": "char[]"
-									}
-								}
-								],
-								"index": 0,
+				"call": {
+				"name": "malloc",
+				"params": [
+				{
+					"call": {
+						"name": "sizeof",
+						"params": [
+						{
+							"id": {
+								"name": "ignore",
 								"datatype": "class test"
 							}
 						}
+						],
+						"index": 0,
+						"datatype": "int"
 					}
-				},
-				{
-					"sexpr": {
-						"expr": {
-							"assign": {
+				}
+				],
+				"index": 0,
+				"datatype": "char[]"
+				}
+				}
+				],
+				"index": 0,
+				"datatype": "class test"
+				}
+			}
+			}
+			},
+			{
+			"sexpr": {
+				"expr": {
+					"assign": {
+						"lhs": {
+							"objaccess": {
 								"lhs": {
-									"objaccess": {
-										"lhs": {
-											"id": { "name": "this", "datatype": "class test" }
-										},
-										"op": ".",
-										"rhs": {
-											"id": { "name": ".key", "datatype": "int" }
-										},
-										"datatype": "int"
-									}
+									"id": { "name": "this", "datatype": "class test" }
 								},
-								"op": "=",
-								"rhs": { "int_lit": { "val": 0, "datatype": "int" } },
+								"op": ".",
+								"rhs": {
+									"id": { "name": ".key", "datatype": "int" }
+								},
 								"datatype": "int"
 							}
 						},
+						"op": "=",
+						"rhs": { "int_lit": { "val": 0, "datatype": "int" } },
 						"datatype": "int"
 					}
 				},
-				{
-					"sreturn": {
-						"return": {
+				"datatype": "int"
+			}
+			},
+			{
+			"sreturn": {
+				"return": {
+					"id": { "name": "this", "datatype": "class test" }
+				},
+				"datatype": "class test"
+			}
+			}
+			],
+			"func_type": "user"
+		}
+	}
+	],
+	"main": {
+		"sfdecl": {
+			"sfname": "main",
+			"sreturnType": "void",
+			"sformals": [
+			{ "name": "this", "datatype": "class test" },
+			{ "name": "args", "datatype": "char[][]" }
+			],
+			"sbody": [
+			{
+			"slocal": {
+			"datatype": "class test",
+			"name": "this",
+			"val": {
+				"call": {
+					"name": "cast",
+					"params": [
+					{
+						"call": {
+							"name": "malloc",
+							"params": [
+							{
+								"call": {
+									"name": "sizeof",
+									"params": [
+									{
+										"id": {
+											"name": "ignore",
+											"datatype": "class test"
+										}
+									}
+									],
+									"index": 0,
+									"datatype": "int"
+								}
+							}
+							],
+							"index": 0,
+							"datatype": "char[]"
+						}
+					}
+					],
+					"index": 0,
+					"datatype": "class test"
+				}
+			}
+			}
+			},
+			{
+			"sexpr": {
+			"expr": {
+				"assign": {
+				"lhs": {
+					"objaccess": {
+						"lhs": {
 							"id": { "name": "this", "datatype": "class test" }
 						},
-						"datatype": "class test"
-					}
-				}
-				],
-				"func_type": "user"
-			}
-		}
-		],
-		"main": {
-			"sfdecl": {
-				"sfname": "main",
-				"sreturnType": "void",
-				"sformals": [
-				{ "name": "this", "datatype": "class test" },
-				{ "name": "args", "datatype": "char[][]" }
-				],
-				"sbody": [
-				{
-					"slocal": {
-						"datatype": "class test",
-						"name": "this",
-						"val": {
-							"call": {
-								"name": "cast",
-								"params": [
-								{
-									"call": {
-										"name": "malloc",
-										"params": [
-										{
-											"call": {
-												"name": "sizeof",
-												"params": [
-												{
-													"id": {
-														"name": "ignore",
-														"datatype": "class test"
-													}
-												}
-												],
-												"index": 0,
-												"datatype": "int"
-											}
-										}
-										],
-										"index": 0,
-										"datatype": "char[]"
-									}
-								}
-								],
-								"index": 0,
-								"datatype": "class test"
-							}
-						}
-					}
-				},
-				{
-					"sexpr": {
-						"expr": {
-							"assign": {
-								"lhs": {
-									"objaccess": {
-										"lhs": {
-											"id": { "name": "this", "datatype": "class test" }
-										},
-										"op": ".",
-										"rhs": { "id": { "name": ".key", "datatype": "int" } },
-										"datatype": "int"
-									}
-								},
-								"op": "=",
-								"rhs": { "int_lit": { "val": 0, "datatype": "int" } },
-								"datatype": "int"
-							}
-						},
+						"op": ".",
+						"rhs": { "id": { "name": ".key", "datatype": "int" } },
 						"datatype": "int"
 					}
 				},
-				{
-					"sexpr": {
-						"expr": {
-							"call": {
-								"name": "print",
-								"params": [
-								{
-									"string_lit": {
-										"val": "Hello, World!",
-										"datatype": "char[]"
-									}
-								}
-								],
-								"index": 0,
-								"datatype": "void"
-							}
-						},
-						"datatype": "void"
-					}
+				"op": "=",
+				"rhs": { "int_lit": { "val": 0, "datatype": "int" } },
+				"datatype": "int"
 				}
-				],
-				"func_type": "user"
+			},
+			"datatype": "int"
 			}
-		},
-		"reserved": [
-		{
-			"sfdecl": {
-				"sfname": "print",
-				"sreturnType": "void",
-				"sformals": [ { "Many": "Any" } ],
-				"sbody": [],
-				"func_type": "reserved"
+			},
+			{
+			"sexpr": {
+			"expr": {
+				"call": {
+					"name": "print",
+					"params": [
+					{
+						"string_lit": {
+							"val": "Hello, World!",
+							"datatype": "char[]"
+						}
+					}
+					],
+					"index": 0,
+					"datatype": "void"
+				}
+			},
+			"datatype": "void"
 			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "malloc",
-				"sreturnType": "char[]",
-				"sformals": [ { "name": "size", "datatype": "int" } ],
-				"sbody": [],
-				"func_type": "reserved"
 			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "cast",
-				"sreturnType": "Any",
-				"sformals": [ { "name": "in", "datatype": "Any" } ],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "sizeof",
-				"sreturnType": "int",
-				"sformals": [ { "name": "in", "datatype": "Any" } ],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "open",
-				"sreturnType": "int",
-				"sformals": [
-				{ "name": "path", "datatype": "char[]" },
-				{ "name": "flags", "datatype": "int" }
-				],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "close",
-				"sreturnType": "int",
-				"sformals": [ { "name": "fd", "datatype": "int" } ],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "read",
-				"sreturnType": "int",
-				"sformals": [
-				{ "name": "fd", "datatype": "int" },
-				{ "name": "buf", "datatype": "char[]" },
-				{ "name": "nbyte", "datatype": "int" }
-				],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "write",
-				"sreturnType": "int",
-				"sformals": [
-				{ "name": "fd", "datatype": "int" },
-				{ "name": "buf", "datatype": "char[]" },
-				{ "name": "nbyte", "datatype": "int" }
-				],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "lseek",
-				"sreturnType": "int",
-				"sformals": [
-				{ "name": "fd", "datatype": "int" },
-				{ "name": "offset", "datatype": "int" },
-				{ "name": "whence", "datatype": "int" }
-				],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "exit",
-				"sreturnType": "void",
-				"sformals": [ { "name": "status", "datatype": "int" } ],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "getchar",
-				"sreturnType": "int",
-				"sformals": [],
-				"sbody": [],
-				"func_type": "reserved"
-			}
-		},
-		{
-			"sfdecl": {
-				"sfname": "input",
-				"sreturnType": "char[]",
-				"sformals": [],
-				"sbody": [],
-				"func_type": "reserved"
-			}
+			],
+			"func_type": "user"
 		}
-		]
+	},
+	"reserved": [
+	{
+		"sfdecl": {
+			"sfname": "print",
+			"sreturnType": "void",
+			"sformals": [ { "Many": "Any" } ],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "malloc",
+			"sreturnType": "char[]",
+			"sformals": [ { "name": "size", "datatype": "int" } ],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "cast",
+			"sreturnType": "Any",
+			"sformals": [ { "name": "in", "datatype": "Any" } ],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "sizeof",
+			"sreturnType": "int",
+			"sformals": [ { "name": "in", "datatype": "Any" } ],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "open",
+			"sreturnType": "int",
+			"sformals": [
+			{ "name": "path", "datatype": "char[]" },
+			{ "name": "flags", "datatype": "int" }
+			],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "close",
+			"sreturnType": "int",
+			"sformals": [ { "name": "fd", "datatype": "int" } ],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "read",
+			"sreturnType": "int",
+			"sformals": [
+			{ "name": "fd", "datatype": "int" },
+			{ "name": "buf", "datatype": "char[]" },
+			{ "name": "nbyte", "datatype": "int" }
+			],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "write",
+			"sreturnType": "int",
+			"sformals": [
+			{ "name": "fd", "datatype": "int" },
+			{ "name": "buf", "datatype": "char[]" },
+			{ "name": "nbyte", "datatype": "int" }
+			],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "lseek",
+			"sreturnType": "int",
+			"sformals": [
+			{ "name": "fd", "datatype": "int" },
+			{ "name": "offset", "datatype": "int" },
+			{ "name": "whence", "datatype": "int" }
+			],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "exit",
+			"sreturnType": "void",
+			"sformals": [ { "name": "status", "datatype": "int" } ],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "getchar",
+			"sreturnType": "int",
+			"sformals": [],
+			"sbody": [],
+			"func_type": "reserved"
+		}
+	},
+	{
+		"sfdecl": {
+			"sfname": "input",
+			"sreturnType": "char[]",
+			"sformals": [],
+			"sbody": [],
+			"func_type": "reserved"
+		}
 	}
+	]
+}
 }
 	\end{minted}
 	
