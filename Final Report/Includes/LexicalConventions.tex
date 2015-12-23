@@ -7,7 +7,7 @@
 	An identifier cannot have the same spelling (character sequence) as a keyword, boolean or null literal, a compile-time error occurs. Lowercase letters and uppercase letters are distinct, such that foo and Foo are two different identifiers.
 	
 	\begin{minted}{java}
-	ID = "['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z']|['0'-'9']|'\textunderscore')*"
+		ID = "['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z']|['0'-'9']|'\_')*"
 	\end{minted}
 	
 	\subsection{Keywords}
@@ -15,14 +15,14 @@
 	
 	\begin{center}
 		\begin{tabular}{ccccc}
-		if & else & for & while \\ 
-        break & continue & return \\
-		int & float & bool & char & void \\
-		null & true & false & class & constructor \\
-		public & private & extends & include & this \\
+			if & else & for & while & \\ 
+			break & continue & return & & \\
+			int & float & bool & char & void \\
+			null & true & false & class & constructor \\
+			public & private & extends & include & this \\
 		\end{tabular}
 	\end{center}
-
+	
 	
 	\subsection{Literals}
 	A literal is the source code representation of a value of a primitive type or the null type.
@@ -31,7 +31,7 @@
 	An integer literal is expressed in decimal (base 10). It is represented with either the single ASCII digit 0, representing the integer zero, or an ASCII digit from 1 to 9 optionally followed by one or more ASCII digits from 0 to 9. 
 	
 	\begin{minted}{java}
-			INT = "['0'-'9']+"
+		INT = "['0'-'9']+"
 	\end{minted}
 	
 	\subsubsection{Float Literals}
@@ -43,7 +43,7 @@
 	\subsubsection{Boolean Literals}
 	The boolean type has two values, represented by the boolean literals true and false, formed from ASCII letters.
 	\begin{minted}{java}
-				BOOL = "true|false"
+		BOOL = "true|false"
 	\end{minted}
 	
 	\subsubsection{Character Literals}
@@ -59,45 +59,47 @@
 	It is a compile-time error for the character following the character literal to be other than a single-quote character $'$.
 	
 	\begin{minted}{c}
-	CHAR = "\' ( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )\' "
+		CHAR = "\' ( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )\' "
 	\end{minted}
 	
 	
 	\subsubsection{String Literals}
 	A string literal is always of type char[] and is initialized with zero or more characters or escape sequences enclosed in double quotes.
-    \begin{minted}{c}
-	char[] x = "abcdef\n";
-    \end{minted}
+	\begin{minted}{c}
+		char[] x = "abcdef\n";
+	\end{minted}
 	
 	\begin{minted}{c}
-	STRING = "\"( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )*\""
+		STRING = "\"( ([' '-'!' '#'-'[' ']'-'~'] | '\\' [ '\\' '\"' 'n' 'r' 't' ]) )*\""
 	\end{minted}
 	
 	\subsection{Separators}
 	A separator separates tokens. White space is a separator but it is not a token. The other separators are all single-character tokens themselves:
-	     ( ) [ ] { } ; , .
+	( ) [ ] { } ; , .
 	\begin{minted}{ocaml}
-				'('      { LPAREN }
-				')'      { RPAREN }
-				'{'      { LBRACE }
-				'}'      { RBRACE }
-				';'      { SEMI }
-				','      { COMMA }
-				'['      { LBRACKET }
-				']'      { RBRACKET }
-				'.'      { DOT }
- 	\end{minted}
- 	
+		'('      { LPAREN }
+		')'      { RPAREN }
+		'{'      { LBRACE }
+		'}'      { RBRACE }
+		';'      { SEMI }
+		','      { COMMA }
+		'['      { LBRACKET }
+		']'      { RBRACKET }
+		'.'      { DOT }
+	\end{minted}
+	
 	\subsection{Operators}
 	The following operators are reserved lexical elements in the language. See the expression and operators section for more detail on their defined behavior.
 	\begin{center}
 		\begin{tabular}{ccccc}
-			+ & - & * & / & = \\
-			== & != & \textless & \textless= & \textgreater \\
-			\textgreater= 
+			+ & - & * & / & \% \\
+			= & == & != & & \\
+			\textless & \textless= \textgreater & \textgreater= & & \\
+			and & or & not & & \\
+			new & delete & & & \\
 		\end{tabular}
 	\end{center}
- 	
+	
 	\subsection{White Space}
 	White space refers to one or more of the following characters:
 	\begin{itemize}
@@ -106,33 +108,15 @@
 		\item the ASCII FF character, also known as "form feed"
 		\item LineTerminator
 	\end{itemize}
-	White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional. Hence, the following two snippets of source code are equivalent.
-	
+	White space is ignored, except when it is used to separate tokens. Aside from its use in separating tokens, it is optional.
 	\begin{minted}{java}
-	public int foo()
-	{
-		print( "hello, world\n" );
-		return 0;
-	}
-	
-	public int foo(){print("hello, world\n"); return 0;}
+		WHITESPACE = "[' ' '\t' '\r' '\n']"
 	\end{minted}
-	
-	\begin{minted}{java}
-				WHITESPACE = "[' ' '\t' '\r' '\n']"
- 	\end{minted}
 	
 	\subsection{Comments}
-    The characters $(*$ introduce a comment, which terminates with the characters $*)$.
-	Multiline comments can be distinguished from code by preceding each line of the comment with a * similar to the following:
-	\begin{minted}{ocaml}
-	(* This is a long comment 
-	* that spans multiple lines because
-	* there is a lot to say. *)
-	\end{minted}
-
+	The characters $(*$ introduce a comment, which terminates with the characters $*)$. Comments may be nested within each other.
 	\begin{minted}{java}
-				COMMENT = "(\* [^ \*)]* \*)"
+		COMMENT = "(\* [^ \*)]* \*)"
 	\end{minted}
-
+	
 \end{homeworkProblem}

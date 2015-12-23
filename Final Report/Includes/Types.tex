@@ -1,53 +1,53 @@
 \begin{homeworkProblem}
 	\section{Types}
-    There are two kinds of types in the Dice programming language: primitive types and non-primitive types.  There are, correspondingly, two kinds of data values that can be stored in variables, passed as arguments, returned by methods, and operated on: primitive values and non-primitive values.\\
+	There are two kinds of types in the Dice programming language: primitive types and non-primitive types.  There are, correspondingly, two kinds of data values that can be stored in variables, passed as arguments, returned by methods, and operated on: primitive values and non-primitive values.\\
 	\begin{minted}{java}
-    Type:
-        PrimitiveType
-        NonprimitiveType
-    \end{minted}
-    There is also a special null type, the type of the expression $null$, which has no name. Because the null type has no name, it is impossible to declare a variable of the null type. The null reference is the only possible value of an expression of null type. The null reference can always undergo a widening reference conversion to any reference type. In practice, the programmer can ignore the null type and just pretend that $null$ is merely a special literal that can be of any reference type.\\
-
+		Type:
+		PrimitiveType
+		NonprimitiveType
+	\end{minted}
+	There is also a special null type, the type of the expression $null$, which has no name. Because the null type has no name, it is impossible to declare a variable of the null type. The null reference is the only possible value of an expression of null type. The null reference can always undergo a widening reference conversion to any reference type. In practice, the programmer can ignore the null type and just pretend that $null$ is merely a special literal that can be of any reference type.\\
+	
 	\subsection{Primitive Types and Values}
-    A primitive type is predefined by the Dice programming language and named by its reserved keyword.
-    \begin{minted}{java}
-    PrimitiveType:
-        NumericType
-        bool
-    NumericType:
-        IntegralType
-        float
-    IntegralType: one of
-        int char
-    \end{minted}
-    
-    \subsubsection{int}
+	A primitive type is predefined by the Dice programming language and named by its reserved keyword.
+	\begin{minted}{java}
+		PrimitiveType:
+		NumericType
+		bool
+		NumericType:
+		IntegralType
+		float
+		IntegralType: one of
+		int char
+	\end{minted}
+	
+	\subsubsection{int}
 	A value of type $int$ is stored as a 32-bit signed two's-complement integer. The $int$ type can hold values ranging from -2,147,483,648 to 2,147,483,647, inclusive.
-
+	
 	\subsubsection{float}
-
+	
 	The float type stores the given value in 64 bits. The $float$ type can hold values ranging from 1e-37 to 1e37. Since all values are represented in binary, certain floating point values must be approximated.
-
+	
 	\subsubsection{char}
-
+	
 	The $char$ data type is a 8-bit ASCII character. A $char$ value maps to an integral ASCII code. The decimal values 0 through 31, and 127, represent non-printable control characters. All other characters can be printed by the computer, i.e. displayed on the screen or printed on printers, and are called printable characters.
-
-    The character 'A' has the code value of 65, 'B' has the value 66, and so on. The ASCII values of letters 'A' through 'Z' are in a contiguous increasing numeric sequence. The values of the lower case letters 'a' through 'z' are also in a contiguous increasing sequence starting at the code value 97. Similarly, the digit symbol characters '0' through '9' are also in an increasing contiguous sequence starting at the code value 48.
-
+	
+	The character 'A' has the code value of 65, 'B' has the value 66, and so on. The ASCII values of letters 'A' through 'Z' are in a contiguous increasing numeric sequence. The values of the lower case letters 'a' through 'z' are also in a contiguous increasing sequence starting at the code value 97. Similarly, the digit symbol characters '0' through '9' are also in an increasing contiguous sequence starting at the code value 48.
+	
 	\subsubsection{bool}
-
+	
 	A variable of type $bool$ can take one of two values, $true$ or $false$. A bool could also be $null$.\\
-
+	
 	\subsection{Non-Primitive Types}
-    Non-primitive types include arrays and classes.
+	Non-primitive types include arrays and classes.
 	\subsubsection{Arrays}
 	An array stores one or more values of the same type contiguously in memory. The type of an array can be any primitive or an array type. This allows the creation of an n-dimensional array, the members of which can be accessed by first indexing to the desired element of the outermost array, which is of type $array$, and then accessing into the desired element of the immediately nested array, and continuing n-1 times.
-
+	
 	\subsubsection{Classes}
 	
-	Classes are user-defined types. See chapter 7 to learn about the usage of objects.
-
+	Classes are user-defined types. See chapter 7 to learn about their usage.
+	
 	\subsection{Casting}
-	Casting is not supported in this language. There are interesting behaviors between ints and float defined in the section on operators that imitate casting, but there is no syntax to support casting between types directly. 
-
+	Casting is not supported in this language. There are behaviors between ints and float defined in the section on operators that imitate casting, but there is no syntax to support casting between types directly. 
+	
 \end{homeworkProblem}
