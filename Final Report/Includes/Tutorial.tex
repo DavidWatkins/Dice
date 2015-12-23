@@ -1,8 +1,309 @@
 \begin{homeworkProblem}
 	\chapter{Language Tutorial}
+	\section{Environment Setup}
+	The compiler has been built an tested using an Ubuntu 15.10 virtual machine. The ISO for downloading Ubuntu 15.10 can be found here\footnote{http://www.ubuntu.com/}. This is followed by downloading virtualbox and following the corresponding tutorial for setting up a custom Ubuntu VM here\footnote{http://www.wikihow.com/Install-Ubuntu-on-VirtualBox}. 
+	Once inside the VM there are a series of packages that need to be installed before you can compile the compiler. Run the following commands to install the corresponding packages:
+	\begin{minted}[breaklines]{bash}
+>sudo apt-get install m4 clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libclang1-3.7-dbg libllvm-3.7-ocaml-dev libllvm3.7 libllvm3.7-dbg lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 python-clang-3.7 lldb-3.7-dev liblldb-3.7-dbg opam llvm-runtime
+	\end{minted}
+	Then initialize OCaml's package manager (OPAM) in your home directory:
+	\begin{minted}[breaklines]{bash}
+	>opam init
+	>opam switch 4.02.1
+	>eval $(opam config env)
+	>opam install core batteries llvm yojson
+	\end{minted}
+	After OPAM is initialized, go to the the directory where you want Dice installed and clone the git repository:
+	\begin{minted}[breaklines]{bash}
+	>git clone https://github.com/DavidWatkins/Dice.git
+	\end{minted}
 	\section{Using the Compiler}
-	\section{Defining methods}
+	Inside the directory 'Dice' type \textbf{make}. This creates the dice compiler that takes in '.dice' files and compiles them to corresponding '.ll' files corresponding to LLVM IR. The syntax for running the dice executable is: \textbf{dice [optional-option] $\langle$source file$\rangle$}. There are also additional flags with respect to the compiler that allow for additional options.
+	\begin{itemize}
+		\item \textbf{-h} - Print help text
+		\item \textbf{-tendl} - Prints tokens with newlines intact
+		\item \textbf{-t} - Prints token stream
+		\item \textbf{-p} - Pretty prints Ast as a program
+		\item \textbf{-ast} - Prints abstract syntax tree as json
+		\item \textbf{-sast} - Prints semantically checked syntax tree as json
+		\item \textbf{-c} - Compiles source and prints result to stdout
+		\item \textbf{-f} - Compiles source to file ($\langle$filename$\rangle$.$\langle$ext$\rangle$ $\rightarrow$ $\langle$filename$\rangle$.ll)
+	\end{itemize}
+	
+	The following sample dice code demonstrates the following features:
+	\begin{itemize}
+		\item The mandatory main function that exists within \textbf{only} one class. The syntax for a main declaration is \textbf{public void main(char[][] args)}
+		\item Calling the built-in print function, which takes an arbitrary list of primitive values, including char[]. 
+		\item A string literal with escape characters
+		\item Defining a base class with one or more fields. 
+	\end{itemize}
+	\begin{minted}[breaklines,linenos]{java}
+	class example1 {
+		public void main(char[][] args) {
+			print("This is example 1\n");
+		}
+	}
+	\end{minted}
+	To compile the sample code above, type:
+	\begin{minted}{bash}
+	> ./dice example1.dice
+	\end{minted}
+	The output will be a file named \textbf{example1.ll} which will run using the \textbf{lli} command:
+	\begin{minted}{bash}
+	>lli example1.ll
+	This is example 1
+	>
+	\end{minted}
+	If you get an error: "error: expected value token" from lli, that means your version of lli is probably set incorrectly. Run the following command to verify the version:
+	\begin{minted}{bash}
+	>lli --version
+	\end{minted}
+	If it's anything other than version \textbf{3.7} change it with the following commands:
+	\begin{minted}{bash}
+	>sudo rm \usr\bin\lli
+	>ln -s /usr/lib/llvm-3.7/bin/lli /usr/bin/lli
+	\end{minted}
+
+	\pagebreak
+	\section{The basics}
+	\subsection{Primitives}
+	All primtives are declared starting with their type followed by an identification. Dice supports the following primitives:
+	\begin{itemize}
+		\item integers (int)
+		\item floating point (float)
+		\item characters (char)
+		\item booleans (bool)
+	\end{itemize}
+
+	\begin{minted}[breaklines,linenos]{java}
+	class example2 {
+		public void main(char[][] args) {
+
+			(* This is a comment (* with a nested one inside *) *)
+			int a; (* Declaring an integer primitive variable *)
+			a = 1; (* Assigning the number one to variable a *)
+
+			float b = 1.5; (* Combined declaration and assignment is okay *)
+
+			(* Characters and booleans are primitives as well *)
+			char c = 'c';    (* ASCII or digits only within single quotes*)
+			bool d = true;   (* or 'false' *)
+		}
+	}
+	\end{minted}
+
+	\subsection{Arrays}
+	Arrays are indexed collections of values of a datatype (primitive or object). Dice allows for single dimension arrays only. The elements within the arrays created default to null which, like C, are implemented with zeros.
+
+	\begin{minted}[breaklines,linenos]{java}
+	class example3 {
+		public void main(char[][] args) {
+
+			int[] a = new int[10]; (* int array with 10 elements set to zero *)
+
+			a[0] = 1; (* Access the first element and assign the integer 1 to it *)
+			
+			int[] b = |0,1,2,3,4,5|; (* int array with 6 int elements *)
+
+			print(b.length); (* prints 6 *)
+
+			char[] c = |'h','i', 0|; (* ints are allowed to be stored in char elements *) 
+
+		}
+	}
+	\end{minted}
+
+	\subsection{Operators}
+	Dice supports the following binary operators:
+	\begin{itemize}
+		\item Arithmetic ( + , - , * , / , %)
+		\item Relational ( == , != , > , >= , <= , < )
+		\item Logical (and, or)
+	\end{itemize}
+
+	Unary operators:
+	\begin{itemize}
+		\item Logical negation ( not )
+		\item Negative number ( - )
+	\end{itemize}
+
+	\begin{minted}[breaklines,linenos]{java}
+	class example4 {
+		public void main(char[][] args) {
+
+			int a = 1 + 2;      (* a is now 3 *)
+			float b = 2.5 - 2;  (* 2 is promoted to float, b is now 0.5 *)
+			int c = 5 + 2 * 4;  (* c is 13 due to operator precedence *)
+			int d = 10 / 5 + 3; (* d is now 5 *)
+			int e = 5 % 3; 	    (* e is now 2 *)
+
+			bool f = true; bool g = false; 
+			f == f; f != g; 5 > 2; 3 >= 3; f or g;  (* all expressions evaluate to true *)
+			f and g; not f; (* evaluate to false *)
+
+			c = -a;    (* c is now -3 *)
+		}
+	}
+	\end{minted}
+
 	\section{Control Flow}
-	\section{Defining custom classes}
-	\section{Using Inheritance}
+	The statements inside source files are generally executed from top to bottom, in the order that they appear. Control flow statements, however, break up the flow of execution by employing decision making, looping, and branching, enabling your program to conditionally execute particular blocks of code. This section describes the decision-making statements (if-then, if-then-else), the looping statements (for, while), and the branching statements (break, continue, return) supported by Dice.
+	\subsection{Branching}
+	\begin{minted}[breaklines,linenos]{java}
+	class example5 {
+		public void main(char[][] args) {
+			int a;
+			if (true)
+				a = 1;
+			else
+				a = 0;
+			(* a is now 1 *)
+
+			int b;
+			if (false){ 
+				b = 2; a = 3; 
+			}
+			else {
+				b = 0; a = 0; 
+			}
+			(* b and a are now 0 *)
+
+			int c;
+			if(false){ a = 1; b = 1; c = 1;}
+			else if(true) { a = 5; b = 5; c = 5;}
+			else { a = 0; b = 0; c = 0;}
+			(* a,b,c are now set to 5 *)
+		}
+	}
+	\end{minted}
+	\subsection{Loops}
+	The two types of loops that Dice supports are 'for' and 'while' loops. The ’for’ statement allows the programmer the iterate over a range of values. The ’while’ statement executes a user-defined block of statements as long as a particular conditional expression evaluates to true.
+	\begin{minted}[breaklines,linenos]{java}
+	class example6 {
+		public void main(char[][] args) {
+			int a = 0;
+			int i;		(* The loop counter must be declared outside the for loop *)
+	 		for (i = 0 ; i < 5 ; i = i + 1) {
+	 	    	a = a + 2;
+	 		}
+	 		(* a is now set to 10 *)
+
+	 		int b = 0;
+	 		int j;
+	 		for (j = 0 ; j < 5 ; j = j + 1) {
+	 			a = a + 2;
+	 	    	if(a >= 14){    
+	 	    		break;		(* will break out of the parent for loop *)
+	 	    	}
+	 	    	else { continue; } (* will skip the remaining code and start the next iteration *)
+	 	    	b = b + 10;
+	 		}
+	 		(* b is still zero, a is 14 *)
+
+	 		while(b<5){
+	 			b = b + 1;
+	 		}
+
+	 		(* b is now 4 *)
+		}
+	}
+	\end{minted}
+	\section{Defining methods}
+	Dice supports methods that return a datatype after execution or simply execute without returing anything. Methods can accept arguments which are computed in an applicative order. Each method must also contain a scope (public/private) which determine access for outside classes. The following example will show two kinds of methods:
+	\begin{minted}[breaklines,linenos]{java}
+	class example7 {
+		public int p(int i){ 
+			print(i); 
+			return i; 
+		}
+
+		public void q(int a, int b, int c){ 
+			int total = a ; 
+			print(b); 
+			total = total + c ; 
+		}
+		
+		public void main(char[][] args) {
+			this.q( this.p(1), 2, this.p(3));
+		}
+	}
+	\end{minted}
+	The output of this program is: 
+	\begin{minted}[breaklines]{bash}
+	132
+	\end{minted}
+
+	\section{Classes and Inheritance}
+	Since Dice is an Object Oriented language, you can create custom classes that can serve as datatypes. A class contains three sections:
+	\begin{itemize}
+		\item Fields
+		\item Constructors
+		\item Methods
+	\end{itemize}
+	These sections may be written in any order desired. You may also mix them up if desired. For example, a constructor may be added inbetween field declarations if desired. If no constructors are defined, Dice will use a default constructor to instantiate objects. A parent class can also be assigned any class that is a descendant of it as shown below:
+
+	\begin{minted}[breaklines,linenos]{java}
+	class shape {
+	  public int xCoord;    (* Fields *)
+	  public int yCoord;
+
+	  constructor(){  		(* Constructor *)
+	  	this.xCoord = 0;
+	  	this.yCoord = 0;
+	  }
+
+	 (* Constructor with a different signature due to the two arguments *)
+	  constructor(int x, int y){   
+	  	this.xCoord = x;
+	  	this.yCoord = y;
+	  }
+	  
+	  public void myAction(){  (* Method *)
+	  	print("shape");
+	  }
+	}
+
+	class circle extends shape {
+	  public int radius;  	(* Field unique to circle *)
+
+	  constructor(){
+	  	this.xCoord = 0;	(* xCoord and yCoord from parent class 'shape' *)
+	  	this.yCoord = 0;
+	  	this.radius = 0;
+	  }
+
+	  constructor(int x, int y, int r){
+	  	this.xCoord = x;
+	  	this.yCoord = y;
+	  	this.radius = r;
+	  }
+
+	  public void myAction(){   (* This method overrides the one defined in parent class *)
+	  	print("circle\n");
+	  	print(this.radius);
+
+	  }
+	}
+
+	class example8 {
+	  public void main(char[][] args) {
+	      class circle a = new circle(1, 2, 3); 
+	      class circle[] b = new class circle[10];
+	      b[0] = a;
+	      print(b[0].radius,"\n");
+
+	      class shape c = new circle(4, 5, 6);  (* Inheritance in action! *)
+	      c.myAction();
+	      print("\n");
+	  }
+	}
+	\end{minted}
+
+	The output for example8 is:
+	\begin{minted}[breaklines]{bash}
+	3
+	circle
+	6
+	\end{minted}
+	\section{Command Line Arguments}
 \end{homeworkProblem}

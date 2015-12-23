@@ -1,0 +1,14 @@
+\subsection{test-objectDeclarationInheritance.dice}
+\begin{minted}[breaklines,linenos]{java}
+class A {}
+class B extends A {}
+class C extends B {}
+
+class test {
+
+	public void main(char[][] args) {
+		class A myCObj = new C();
+		print("pass");
+	 }
+ }
+\end{minted}

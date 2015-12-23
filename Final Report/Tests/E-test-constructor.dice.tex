@@ -1,0 +1,18 @@
+\subsection{E-test-constructor.dice}
+\begin{minted}[breaklines,linenos]{java}
+class Foo {
+constructor(char c, float f) {}
+constructor(bool b, char c, float f) {}
+}
+
+class test {
+public void main(char[][] args) {
+int mya = 2;
+bool myb = false;
+char myc = 'z';
+float myf = 3.5;
+class Foo myFooObj = new Foo(mya, myb, myc, myf);
+}
+}
+
+\end{minted}

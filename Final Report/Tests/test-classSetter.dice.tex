@@ -1,0 +1,25 @@
+\subsection{test-classSetter.dice}
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+  public int xCoord;
+  public int yCoord;
+
+  public void setX(int x){
+  	this.xCoord = x;
+  }
+  public void setY(int y){
+   	this.yCoord = y;
+  }
+
+}
+
+class test {
+  public void main(char[][] args) {
+      class shape a = new shape(); 
+      a.setX(1);
+      a.setY(3);
+      print(a.xCoord);
+      print(a.yCoord);
+  }
+}
+\end{minted}

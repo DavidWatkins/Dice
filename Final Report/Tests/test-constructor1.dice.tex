@@ -1,0 +1,28 @@
+\subsection{test-constructor1.dice}
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+	public int xCoord;
+	public int yCoord;
+	
+	constructor(){
+		this.xCoord = 0;
+		this.yCoord = 0;
+	}
+
+	constructor(int x, int y){
+		this.xCoord = x;
+		this.yCoord = y;
+	}
+}
+
+ class test {
+	 public void main(char[][] args) {
+		 class shape a = new shape();
+		 class shape b = new shape(5,10);
+		 print (a.xCoord);
+		 print (a.yCoord);
+		 print (b.xCoord);
+		 print (b.yCoord);
+	 }
+ }
+\end{minted}

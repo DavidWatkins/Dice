@@ -1,0 +1,20 @@
+\subsection{test-arith3.dice}
+\begin{minted}[breaklines,linenos]{java}
+(* Test left-to-right evaluation of expressions *)
+
+class test {
+
+	public int a; (* Global variable *)
+
+	public int inca() { 
+		this.a = this.a + 1;  (* Increment a; return its new value *)
+		return this.a; 
+	} 
+
+	public void main(char[][] args) {
+  		this.a = 42;    (* Initialize a *)
+  		print(this.inca() + this.a);
+	}
+}
+
+\end{minted}

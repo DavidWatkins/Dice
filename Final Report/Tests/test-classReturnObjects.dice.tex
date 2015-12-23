@@ -1,0 +1,26 @@
+\subsection{test-classReturnObjects.dice}
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+  public int xCoord;
+  public int yCoord;
+
+  constructor (){
+  this.xCoord = 1;
+  this.yCoord = 2;
+  }
+
+}
+
+class test {
+  public void main(char[][] args) {
+      class shape a = this.returnMe();
+      print(a.xCoord);
+      print(a.yCoord);
+  }
+
+  public class shape returnMe(){
+    class shape b = new shape();
+    return b;
+  }
+}
+\end{minted}

@@ -1,0 +1,24 @@
+\subsection{test-classInheritanceArgument.dice}
+\begin{minted}[breaklines,linenos]{java}
+class shape {
+  public int xCoord;
+  public int yCoord;
+}
+
+class circle extends shape {
+  public int radius;
+}
+
+class test {
+
+  public void main(char[][] args) {
+      class circle a = new circle(); 
+      this.inheritanceTest(a);
+  }
+
+  public void inheritanceTest(class shape a){
+    print("pass");
+  }
+
+}
+\end{minted}
