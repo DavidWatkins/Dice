@@ -1,1 +1,238 @@
 \section{Grammar}
+Below you will find an entire grammar listing for our language. You will see several tokens that were generated directly from our Scanner. The following are the list of tokens and their associated regexes:
+
+\begin{minted}[breaklines,linenos]{ocaml}
+let alpha = ['a'-'z' 'A'-'Z']
+let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
+let escape_char = ''' (escape) '''
+let ascii = ([' '-'!' '#'-'[' ']'-'~'])
+let digit = ['0'-'9']
+let id = alpha (alpha | digit | '_')*
+let string = '"' ( (ascii | escape)* as s) '"'
+let char = ''' ( ascii | digit ) '''
+let float = (digit+) ['.'] digit+
+let int = digit+
+
+| '('      { LPAREN }
+| ')'      { RPAREN }
+| '{'      { LBRACE }
+| '}'      { RBRACE }
+| ';'      { SEMI }
+| ','      { COMMA }
+| '+'      { PLUS }
+| '-'      { MINUS }
+| '*'      { TIMES }
+| '/'      { DIVIDE }
+| '%'      { MODULO }
+| '='      { ASSIGN }
+| "=="     { EQ }
+| "!="     { NEQ }
+| '<'      { LT }
+| "<="     { LEQ }
+| ">"      { GT }
+| ">="     { GEQ }
+| "and"    { AND }
+| "or"     { OR }
+| "not"    { NOT }
+| '.'      { DOT }
+| '['      { LBRACKET }
+| ']'      { RBRACKET }
+| '|'	   { BAR }
+| "if"     { IF }
+| "else"   { ELSE }
+| "for"    { FOR }
+| "while"  { WHILE }
+| "return" { RETURN }
+| "int"    { INT }
+| "float"  { FLOAT }
+| "bool"   { BOOL }
+| "char"   { CHAR }
+| "void"   { VOID }
+| "null"   { NULL }
+| "true"   { TRUE }
+| "false"  { FALSE }
+| "class"       { CLASS }
+| "constructor" { CONSTRUCTOR }
+| "public"      { PUBLIC }
+| "private"     { PRIVATE }
+| "extends"     { EXTENDS }
+| "include"     { INCLUDE }
+| "this"        { THIS }
+| "break" 		{ BREAK }
+| "continue"	{ CONTINUE }
+| "new" 		{ NEW }
+| "delete" 		{ DELETE }
+
+| int as lxm   		{ INT_LITERAL(int_of_string lxm) }
+| float as lxm 		{ FLOAT_LITERAL(float_of_string lxm) }
+| char as lxm  		{ CHAR_LITERAL( String.get lxm 1 ) }
+| escape_char as lxm{ CHAR_LITERAL( String.get (unescape lxm) 1) }
+| string       		{ STRING_LITERAL(unescape s) }
+| id as lxm    		{ ID(lxm) }
+| eof          		{ EOF }
+
+| (* *) {COMMENT*}
+\end{minted}
+
+It should be noted that comments were handled to allow for nested comments. Therefore this cannot be captured strictly using a grammar, and instead is better shown in the scanner.mll documentation at the end of this document. The following grammar is the same as the grammar shown in parser.mly at the end of this document except it does not have the rules it will turn into regarding OCaml code. This is very similar to the syntax for ocamlyacc. 
+
+\begin{minted}[breaklines,linenos]{ocaml}
+program:
+	includes cdecls EOF
+
+includes:
+		/* nothing */ 		
+	| 	include_list
+
+include_list:
+		include_decl
+	| 	include_list include_decl
+
+include_decl:
+	INCLUDE LPAREN STRING_LITERAL RPAREN SEMI
+
+cdecls:
+	cdecl_list
+
+cdecl_list:
+		cdecl
+	| 	cdecl_list cdecl
+
+cdecl:
+		CLASS ID LBRACE cbody RBRACE
+	| 	CLASS ID EXTENDS ID LBRACE cbody RBRACE
+		
+cbody:
+		/* nothing */
+	| 	cbody field 
+	| 	cbody constructor
+	| 	cbody fdecl
+
+constructor:
+	CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+
+scope:
+		PRIVATE
+	| 	PUBLIC
+
+field:
+	scope datatype ID SEMI
+
+fname:
+	ID
+
+fdecl:
+	scope datatype fname LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
+
+formals_opt:
+		/* nothing */
+	| 	formal_list
+
+formal_list:
+		formal
+	| 	formal_list COMMA formal
+
+formal:
+	datatype ID
+
+actuals_opt:
+		/* nothing */
+	| 	actuals_list
+
+actuals_list:
+		expr
+	| 	actuals_list COMMA expr
+
+primitive:
+		INT 
+	| 	FLOAT
+	| 	CHAR
+	| 	BOOL 
+	| 	VOID   
+
+name:
+	CLASS ID
+
+type_tag:
+		primitive
+	|	name	 
+
+array_type:
+	type_tag LBRACKET brackets RBRACKET
+
+datatype:
+		type_tag   
+	| 	array_type
+
+brackets:
+		/* nothing */
+	| 	brackets RBRACKET LBRACKET
+
+stmt_list:
+		/* nothing */
+	| 	stmt_list stmt
+
+stmt:
+	expr SEMI
+| 	RETURN expr SEMI 
+|	RETURN SEMI		 
+| 	LBRACE stmt_list RBRACE 
+| 	IF LPAREN expr RPAREN stmt  
+| 	IF LPAREN expr RPAREN stmt ELSE stmt   
+| 	FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt
+| 	WHILE LPAREN expr RPAREN stmt 	
+|	BREAK SEMI					 	
+|	CONTINUE SEMI				 	
+|   datatype ID SEMI 			 	
+| 	datatype ID ASSIGN expr SEMI 	
+
+expr_opt:
+		/* nothing */
+	| 	expr
+
+expr:
+		literals		 				
+	| 	expr PLUS   expr 				
+	| 	expr MINUS  expr 				
+	| 	expr TIMES  expr 				
+	| 	expr DIVIDE expr 				
+	| 	expr EQ     expr 				
+	| 	expr NEQ    expr 				
+	| 	expr LT     expr 				
+	| 	expr LEQ    expr 				
+	| 	expr GT     expr 				
+	| 	expr GEQ    expr 				
+	| 	expr AND    expr 				
+	| 	expr MODULO expr 				
+	| 	NOT  expr 						
+	| 	expr OR     expr 				
+	| 	expr DOT    expr 				
+	| 	expr ASSIGN expr 				
+	| 	DELETE expr 					
+	|   MINUS expr 						
+	| 	ID LPAREN actuals_opt RPAREN 	
+	| 	NEW ID LPAREN actuals_opt RPAREN 
+	|	NEW type_tag bracket_args RBRACKET 
+	| 	expr bracket_args RBRACKET		 
+	| 	LPAREN expr RPAREN 				
+
+bracket_args:
+		LBRACKET expr
+	| 	bracket_args RBRACKET LBRACKET expr
+
+literals:
+		INT_LITERAL     
+	| 	FLOAT_LITERAL   
+	| 	TRUE			  
+	| 	FALSE			  
+	| 	STRING_LITERAL  
+	| 	CHAR_LITERAL
+	| 	THIS 			  
+	| 	ID 			   		
+	| 	NULL
+	| 	BAR array_prim BAR 
+
+array_prim:
+		expr
+	|	array_prim COMMA expr
+\end{minted}	
