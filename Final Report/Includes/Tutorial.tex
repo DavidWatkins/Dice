@@ -1,6 +1,49 @@
 \begin{homeworkProblem}
 	\chapter{Language Tutorial}
+	\section{Environment Setup}
+	The compiler has been built an tested using an Ubuntu 15.10 virtual machine. The ISO for downloading Ubuntu 15.10 can be found here\footnote{http://www.ubuntu.com/}. This is followed by downloading virtualbox and following the corresponding tutorial for setting up a custom Ubuntu VM here\footnote{http://www.wikihow.com/Install-Ubuntu-on-VirtualBox}. 
+	Once inside the VM there are a series of packages that need to be installed before you can compile the compiler. Run the following commands to install the corresponding packages:
+	\begin{minted}[breaklines]{bash}
+>sudo apt-get install m4 clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libclang1-3.7-dbg libllvm-3.7-ocaml-dev libllvm3.7 libllvm3.7-dbg lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 python-clang-3.7 lldb-3.7-dev liblldb-3.7-dbg opam llvm-runtime
+	\end{minted}
+	copy the tutorial from https://github.com/DavidWatkins/Dice
 	\section{Using the Compiler}
+	Inside the directory 'Dice' type \textbf{make}. This creates the dice compiler that takes in '.dice' files and compiles them to corresponding '.ll' files corresponding to LLVM IR. The syntax for running the dice executable is: \textbf{dice [optional-option] $\langle$source file$\rangle$}. There are also additional flags with respect to the compiler that allow for additional options.
+	\begin{itemize}
+		\item \textbf{-h} - Print help text
+		\item \textbf{-tendl} - Prints tokens with newlines intact
+		\item \textbf{-t} - Prints token stream
+		\item \textbf{-p} - Pretty prints Ast as a program
+		\item \textbf{-ast} - Prints abstract syntax tree as json
+		\item \textbf{-sast} - Prints semantically checked syntax tree as json
+		\item \textbf{-c} - Compiles source and prints result to stdout
+		\item \textbf{-f} - Compiles source to file ($\langle$filename$\rangle$.$\langle$ext$\rangle$ $\rightarrow$ $\langle$filename$\rangle$.ll)
+	\end{itemize}
+	
+	The following sample dice code demonstrates the following features:
+	\begin{itemize}
+		\item The mandatory main function that exists within \textbf{only} one class. The syntax for a main declaration is \textbf{public void main(char[][] args)}
+		\item Calling the built-in print function, which takes an arbitrary list of primitive values, including char[]. 
+		\item A string literal with escape characters
+		\item Defining a base class with one or more fields. 
+	\end{itemize}
+	\begin{minted}[breaklines,linenos]{java}
+	class example1 {
+		public void main(char[][] args) {
+			print("This is example 1\n");
+		}
+	}
+	\end{minted}
+	To compile the sample code above, type:
+	\begin{minted}{bash}
+	> ./dice example1.dice
+	\end{minted}
+	The output will be:
+	\begin{minted}{bash}
+	>lli example1.ll
+	This is example 1
+	>
+	\end{minted}
 	\section{Defining methods}
 	\section{Control Flow}
 	\section{Defining custom classes}
