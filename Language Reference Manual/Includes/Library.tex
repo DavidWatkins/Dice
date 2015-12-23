@@ -7,41 +7,41 @@
     Proivde useful functionality for string manipulation.
 
 	\subsection{Fields}
-	String has no public fields. Private fields include a char array my_string which stores the given string and an int to store the length of the string. 
+	String has no public fields. Private fields include a char array my\_string which stores the given string and an int to store the length of the string. 
 
 	\subsection{Constructors}
 	\subsubsection{String(char[] a)}
-    Accepts a char array, such as a string literal or a char array. This string is copied into the my_string field of the object and the private length() method is run to get the length of the input string.
+    Accepts a char array, such as a string literal or a char array. This string is copied into the my\_string field of the object and the private length() method is run to get the length of the input string.
 
 	\subsection{Methods}
-    \subsubsection{private int length_internal(char[] input)}
+    \subsubsection{private int length\_internal(char[] input)}
     Returns the length of the given char array.
-    \subsubsection{private char[] copy_iternal(char[] input)}
+    \subsubsection{private char[] copy\_iternal(char[] input)}
     Creates a new char array into which it copies the given char array.
     \subsubsection{public char[] string()}
-    Returns the char array contained in the my_string field.
+    Returns the char array contained in the my\_string field.
     \subsubsection{public char getChar(int index)}
-    Returns the char containted at the given index in the my_string field.
+    Returns the char containted at the given index in the my\_string field.
     \subsubsection{public int length()}
-    Returns the length of the my_string field
+    Returns the length of the my\_string field
     \subsubsection{public int toInteger()}
-    Converts the char array in the my_string field to an integer and returns that int. If the char array contained in the my_string field is not a  string representation of an int, the behavior is undefined.
+    Converts the char array in the my\_string field to an integer and returns that int. If the char array contained in the my\_string field is not a  string representation of an int, the behavior is undefined.
     \subsubsection{public int toDigit(char digit)}
     Returns the integer corresponding to the character passed in.
     \subsubsection{public class String copy(class String input)}
     Returns a copy of the current object.
     \subsubsection{public int indexOf(char input)}
-    Returns the index of the input character in the my_string field. Returns -1 if the character is not found in the field.
+    Returns the index of the input character in the my\_string field. Returns -1 if the character is not found in the field.
     \subsubsection{public class String reverse()}
-    Returns a string object with the my_string field containting the reverse of the current my_string char array.
+    Returns a string object with the my\_string field containting the reverse of the current my\_string char array.
     \subsubsection{public class String concat(class String temp)}
-    Returns a string object with the my_string field containing the concatenation of the current my_string field with the temp's my_string field.
+    Returns a string object with the my\_string field containing the concatenation of the current my\_string field with the temp's my\_string field.
     \subsubsection{public bool compare(class String input)}
-    Returns true if the my_string field of the input String is equal to the my_string field of the current String object.
+    Returns true if the my\_string field of the input String is equal to the my\_string field of the current String object.
     \subsubsection{public bool contains(class String check)}
-    Returns true if the my_string field of the input String is contained in the my_string field of the current String object.
+    Returns true if the my\_string field of the input String is contained in the my\_string field of the current String object.
     \subsubsection{public void free()}
-    Frees the memory for the my_string field of the current String object.
+    Frees the memory for the my\_string field of the current String object.
 
 	\section{File}
 	The File class constructor takes two arguments: a char[] that points to an already opened file on which the user wishes to operate and a boolean indicating whether the user wishes to open the file for writing. If the boolean is true the file is opened for reading and writing, and if false the file is opened as read only. The constructor stores the given path in a field and then calls open() on the given path and, if successful, sets the object’s file descriptor field to the return of open(). If open() fails, the program exits with error.
@@ -65,17 +65,17 @@
     \section{Integer}
     The Integer class provides for integers to be converted to char arrays.
     \subsection{Fields}
-    Integer has no public fields. There is one private field my_int which stores the given integer.
+    Integer has no public fields. There is one private field my\_int which stores the given integer.
 
     \subsection{Constructors}
     \subsubsection{Integer(int input)}
-    Accepts an integer which is stored in the field my_int.
+    Accepts an integer which is stored in the field my\_int.
 
     \subsection{Methods}
     \subsubsection{public int num()}
-    Returns the integer stored in the my_int field.
+    Returns the integer stored in the my\_int field.
     \subsubsection{public char toChar(int digit)}
     Returns in teh input digit as a character.
     \subsubsection{public class String toString()}
-    Converts the integer stored in the my_int field into a string using the toChar() method. Returns a string object.
+    Converts the integer stored in the my\_int field into a string using the toChar() method. Returns a string object.
 \end{homeworkProblem}

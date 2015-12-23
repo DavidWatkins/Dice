@@ -1,0 +1,28 @@
+\begin{homeworkProblem}
+	\section{Built-in Functions}
+    These are functions which are mapped from Dice to the C standard library, which is accessed through LLVM IR. The following function names may not be declared by the user since they are reserved. These are the only functions in dice which are not called as the method of an object; instead the user calls them directly with no dot operator.
+	
+	\subsection{Declarations}
+    \subsubsection{public int printf(char[] input, ...)}
+    The printf function can take a char array, int, float and boolean. For char arrays, the contents of the array are printed to stdout. For every other type, the type is converted to the proper variable identifier as used in the C standard library printf function, and then the identifier is replaced with the value of the passed in type when the string is printed to standard out. Arguments can be in any order and must be comma separated.
+    \subsubsection{public char[] malloc(int size)}
+    Returns a char pointer to an area of allocated memory on the heap of size bytes.
+    \subsubsection{public int open(char[] path)}
+    Attempts to open the file located at the path specified and, if successful, returns a file descriptor to the open file. Returns -1 on failure.
+    \subsubsection{public int close(int fd)}
+    Closes the open file identified by the integer fd. Returns 0 if successful and -1 on error.
+    \subsubsection{public int read(int fd, char[] buf, int num)}
+    Reads num bytes from the open file identified by fd and stores the resulting string in the char array buf. If successful the number of bytes read is returned. Otherwise returns -1.
+    \subsubsection{public int write(int fd, char[] buf, int size)}
+    Writes the contents of the char array buf, which contains size bytes, to the open file identified by fd. If successful the number of bytes written is returned. Otherwise returns -1.
+    \subsubsection{public int lseek(int fd, int offset, int whence)}
+    The lseek() function repositions the offset of the open file associated with the file descriptor fd to the argument offset according to the directive whence as follows: 0 - the offset is set to offset bytes, 1 - The offset is set to its current location plus offset bytes, 2 - The offset is set to the size of the file plus offset bytes.
+    \subsubsection{public void exit(int flag)}
+    Exits the program. Program exits without error is flag is 0 and exits with error if flag is set to any other integer.
+    \subsubsection{public char[] realloc(char[] pointer, int size)}
+    The realloc() function shall change the size of the memory object pointed to by pointer to the size specified by size.
+    \subsubsection{public int getchar()}
+    Gets a character from stdin. Returns the character cast to an int.
+    
+
+\end{homeworkProblem}
