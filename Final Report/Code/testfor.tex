@@ -2,15 +2,15 @@
 The following test is the first of several for loop checks. This one ensures that the correct amount of iterations are complete for the specified block within the curly braces:
 \subsubsection{test-for1.dice}
 \begin{minted}[breaklines,linenos]{java}
-	class test {
-		public void main(char[][] args) {
-			int i;
-			for (i = 0 ; i < 5 ; i = i + 1) {
-				print(i);
-			}
-			print(42);
+class test {
+	public void main(char[][] args) {
+		int i;
+		for (i = 0 ; i < 5 ; i = i + 1) {
+			print(i);
 		}
+		print(42);
 	}
+}
 \end{minted}
 \subsubsection{test-for1.ll}
 \begin{minted}[breaklines,linenos]{llvm}
