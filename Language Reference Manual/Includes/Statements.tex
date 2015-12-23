@@ -100,11 +100,15 @@
     \subsection{Instance Method Declaration}
     A method declaration statement declares an instance method of a class and has the following form:
     \newline
-    \textit{scope} \textit{type} \textit{identifier} (\textit{formal-list\textsubscript{opt}}) $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
+    \textit{scope} \textit{type} \textit{name} (\textit{formal-list\textsubscript{opt}}) $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
     \newline
     \textit{scope}: \textbf{public} $|$ \textbf{private}
     \newline
     \textit{type}: Any primitive or non-primitive type in Dice, or \textbf{void}. If the \textit{type} is \textbf{void}, then the method being declared returns no value.
+    \newline
+    \textit{name}: \textbf{main} $|$ \textit{identifier}
+    \newline
+    Only one method per program may be declared with the \textit{name} \textbf{main}.
     \newline
     \textit{identifier}: Any identifier, exluding the following, which are names of built-in functions in Dice:
     \newline
@@ -135,9 +139,13 @@
     \textit{expression-statement}: \textit{assignment-expression-statement} $|$ \textit{function-call-expression-statement}
 
     \subsection{Class Declaration}
-    A class declaration statement has the following form:
+    A class declaration statement has one of the following forms:
     \newline
     \textbf{class} \textit{identifier} $\left\{ \textit{cbody} \right\}$
+    \newline
+    \textbf{class} \textit{identifier} \textbf{extends} \textit{identifier} $\left\{ \textit{cbody} \right\}$
+    \newline
+    \textit{identifier}: The \textit{identifier} that follows the keyword \textbf{extends} must be the name of another class declared in the same program. The \textit{identifier} that follows the keyword \textbf{class} must not be identical to the name of any other class declared in the same program.
     \newline
     \textit{cbody}: $\left\{ \textit{statement-list\textsubscript{opt}} \right\}$
     \newline
