@@ -104,11 +104,18 @@
     \newline
     \textit{scope}: \textbf{public} $|$ \textbf{private}
     \newline
+    \textit{type}: Any primitive or non-primitive type in Dice, or \textbf{void}. If the \textit{type} is \textbf{void}, then the method being declared returns no value.
+    \newline
+    \textit{identifier}: Any identifier, exluding the following, which are names of built-in functions in Dice:
+    \newline
+    \begin{center}
+    \begin{tabular}{ccccc}
+    \textbf{print} & \textbf{input} & \textbf{malloc} & \textbf{open} \\
+    \textbf{close} & \textbf{read} & \textbf{write} & \textbf{lseek} \\
+    \textbf{exit} & \textbf{realloc} & \textbf{getchar}
+    \end{tabular}
+    \end{center}
     \textit{formal}: \textit{type} \textit{identifier}
-    \newline
-    \textit{type}: any primitive or non-primitive type in Dice, or \textbf{void}
-    \newline
-    If the \textit{type} is \textbf{void}, then the method being declared returns non value.
     \newline
     \textit{statement}: \textit{local-variable-declaration} $|$ \textit{expression-statement}
     \newline
