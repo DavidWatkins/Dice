@@ -1,0 +1,18 @@
+\begin{homeworkProblem}
+	\chapter{Test Plan}
+	We embodied a "Test Driven Development" approach while creating our programming language. This process entailed writing tests for specific features of our language before starting to implement them. Every test should start by failing in an automated script and then the script should be executed after every modification to any portion of the compiler  (from scanner to code generation). This way the team members would know if any modifications made resulted in other tests failing that had previously passed. 
+	
+	The majority of the test cases in our suite check the code generation through a comparison of print statement outputs from the code and our expected output. We created a test for every component of our language from basic variable declaration and assignment to class inheritance and method overriding. If it's in our language, there's a test case for it.
+	\section{Testing Phases}
+	\subsection{Unit Testing}
+	In the beginning of the testing process, we set out to thoroughly check the scanner and parser; however, the course instructor suggested we focus on the overall output of the project because testing end-to-end flow was his recommendation. To simplify checking of the Abstract Syntax Tree (AST) and the semantically checked AST (SAST), our manager created a pretty printer that would output the trees in a Javascript Object Notation (JSON) format for quick visual confirmation of their structure. In addition to quick visual feedback JSON objects provide, we also considered using an OCaml JSON visualization package known as yojson to render a visual tree of the data. We then compared the results of this output to the expected results based on the input.
+	\subsection{Integration Testing}
+	In addition to running the test suite routinely, we streamlined creation of new test cases by allowing any member of the team to create a git issue (labeled with "Testing") whenever a test case idea came to mind. Khaled (Test Suite Creator) would then screen all the open testing issues and add/modify the test according to schedule set by the manager.
+	
+	During the development process, we also realized that in addition to checking proper output from our programs, we should also check if our analyzer was correctly identifying semantically invalid code. For example, if trying to assign a float type number to an integer variable (a feature we do not support), the analyzer should throw the proper exception. We accounted for these cases and placed all the tests in a separate folder with an identifying prefix to easily determine the category of test case.
+	\section{Automation}
+	Testing was very simple using ./tester.sh. We can verify that a test works individually by running lli on the outputted ll file
+	\section{Test Suites}
+	We created a total of 121 tests divided into two categories. One checks that the compiler is properly recognizing invalid code. The other checks that the compiler accepts valid code and tests the output program. 
+
+\end{homeworkProblem}
