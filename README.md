@@ -1,4 +1,4 @@
-# Dice
+# Dice [![Build Status](https://travis-ci.org/DavidWatkins/Dice.svg?branch=master)](https://travis-ci.org/DavidWatkins/Dice)
 Java, but worse
 
 ##Requirements
@@ -51,8 +51,7 @@ Hello World!
 ##To test the compiler
 - cd into Test Suite and run tester.sh after having compiled the compiler
 ```bash
->cd Dice/'Test Suite'
->./tester.sh
+>make test
 ```
 
 ###If you get an error: "error: expected value token" from lli

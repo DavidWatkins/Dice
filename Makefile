@@ -42,3 +42,6 @@ master.pdf:
 
 depend:
 	echo "Not needed." 
+
+test:
+	@cd tests; ./tester.sh; cd ..
