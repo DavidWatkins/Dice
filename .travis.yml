@@ -17,6 +17,8 @@ addons:
     - llvm-3.8
     - llvm
 
+dist: yakkety
+
 before_script:
   - opam init -y
   - eval $(opam config env)
@@ -25,5 +27,4 @@ before_script:
   - export PATH=/usr/lib/llvm-3.8/bin:$PATH
 
 script:
-  - cd src
   - make all
