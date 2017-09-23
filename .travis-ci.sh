@@ -5,15 +5,7 @@ OPAM_DEPENDS="ocamlfind llvm3.8"
 
 APT="ocaml ocaml-native-compilers camlp4-extra opam m4 clang-3.8 llvm opam ocaml"
 	 
-case "$OCAML_VERSION,$OPAM_VERSION" in
-3.12.1,1.0.0) ppa=avsm/ocaml312+opam10 ;;
-3.12.1,1.1.0) ppa=avsm/ocaml312+opam11 ;;
-4.00.1,1.0.0) ppa=avsm/ocaml40+opam10 ;;
-4.00.1,1.1.0) ppa=avsm/ocaml40+opam11 ;;
-4.01.0,1.0.0) ppa=avsm/ocaml41+opam10 ;;
-4.01.0,1.1.0) ppa=avsm/ocaml41+opam11 ;;
-*) echo Unknown $OCAML_VERSION,$OPAM_VERSION; exit 1 ;;
-esac
+ppa=avsm/ppa
 	 
 echo "yes" | sudo add-apt-repository ppa:$ppa
 sudo apt-get update -qq
