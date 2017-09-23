@@ -1,4 +1,4 @@
-include("Test Suite/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludesDuplicate.dice");
+include("tests/Compiler_Test_Suite/Exceptions/E-test-cyclicalIncludesDuplicate.dice");
 
 class test {
 	

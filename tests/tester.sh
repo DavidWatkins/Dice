@@ -175,8 +175,8 @@ createDice(){
 	cd ..
 	make clean 2>&1 > /dev/null
 	make
-	#cp dice ../Test\ Suite/Hello_World_Demo/dice
-	# cd Test\ Suite
+	#cp dice ../tests/Hello_World_Demo/dice
+	# cd tests
 	echo "Compilation of dice executable complete"
 }
 
@@ -184,8 +184,8 @@ createDice(){
 if [ "$testOption" == "-s" ]; then
 	echo "Scanner Test Started"
 	createDice
-	logFile=Test\ Suite/scanner_tests.log
-	testPath=Test\ Suite/Scanner\ Test\ Suite/
+	logFile=tests/scanner_tests.log
+	testPath=tests/Scanner\ tests/
 	diceOption=-tendl
 	testExtension=.ManualTokens
 	test_function
@@ -205,10 +205,10 @@ elif [ "$testOption" == "-c" ] || [ "$testOption" == "-d" ] || [ "$testOption" =
 
 	fi
 
-	logFile=Test\ Suite/compiler_tests.log
-	testPath=Test\ Suite/Compiler_Test_Suite/
-	testExceptionsPath=Test\ Suite/Compiler_Test_Suite/Exceptions/
-	argsPath=Test\ Suite/Compiler_Test_Suite/Args/
+	logFile=tests/compiler_tests.log
+	testPath=tests/Compiler_Test_Suite/
+	testExceptionsPath=tests/Compiler_Test_Suite/Exceptions/
+	argsPath=tests/Compiler_Test_Suite/Args/
 	diceOption=-c
 	testExtension=.out
 	test_function
@@ -221,11 +221,9 @@ fi
 #Print out number of bash script errors and 
 if [ "$testOption" != "-s" ]; then
 	errorLines=$(cat $errorFile | wc -l)
-	mv $errorFile Test\ Suite/$errorFile
+	mv $errorFile tests/$errorFile
 	if [ $errorLines -ne 0 ]; then
-	echo "$errorLines lines of script errors reported. Please check $errorFile!"
-	else
-		mv Test\ Suite/$errorFile
+		echo "$errorLines lines of script errors reported. Please check $errorFile!"
 	fi
 fi
 

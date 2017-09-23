@@ -1,5 +1,5 @@
 TARGET=src/dice
-LIBS=-I,/usr/lib/ocaml/
+LIBS=-I,/usr/lib/ocaml/ -I/home/$USER/.opam/system/lib/llvm/.
 FLAGS= -j 0 -r -use-ocamlfind -pkgs yojson,llvm,llvm.analysis,llvm.bitwriter,llvm.bitreader,llvm.linker,llvm.target,batteries
 OCAMLBUILD=ocamlbuild
 OPAM=opam config env
@@ -7,8 +7,8 @@ CLIBEXT=_includes
 
 .PHONY: master.pdf all clean pdf pdfclean
 
-all: native pdf
-	@clang-3.7 -c -emit-llvm src/bindings.c
+all: native
+	@clang-3.8 -c -emit-llvm src/bindings.c
 	@mkdir -p $(CLIBEXT)
 	@mv bindings.bc $(CLIBEXT)/bindings.bc
 	@cp src/stdlib.dice $(CLIBEXT)/stdlib.dice

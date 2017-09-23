@@ -3,7 +3,7 @@ include("stdlib");
 class Two {
 
 	public void main(char[][] args) {
-        class File a = new File("Test Suite/Compiler_Test_Suite/test-fileio.dice", true);
+        class File a = new File("tests/Compiler_Test_Suite/test-fileio.dice", true);
         char[] buf = a.readfile(243);
         a.closefile();
         print(buf);

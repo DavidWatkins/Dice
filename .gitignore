@@ -29,3 +29,7 @@ includes/*
 # oasis generated files
 setup.data
 setup.log
+
+# Dice specific ignored files
+dice
+_includes/*

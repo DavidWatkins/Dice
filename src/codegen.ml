@@ -13,6 +13,7 @@ open Conf
 
 open Llvm.MemoryBuffer
 open Llvm_bitreader
+open Llvm_linker
 
 let context = global_context ()
 let the_module = create_module context "Dice Codegen"
@@ -907,7 +908,7 @@ let linker filename =
 	let llctx = Llvm.global_context () in
 	let llmem = Llvm.MemoryBuffer.of_file filename in
 	let llm = Llvm_bitreader.parse_bitcode llctx llmem in
-	ignore(Llvm_linker.link_modules the_module llm)
+	ignore(link_modules' the_module llm)
 
 let codegen_sprogram sprogram = 
 	let _ = codegen_library_functions () in

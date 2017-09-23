@@ -49,7 +49,7 @@ Hello World!
 ```
 
 ## To test the compiler
-- cd into Test Suite and run tester.sh after having compiled the compiler
+- cd into tests and run tester.sh after having compiled the compiler
 ```bash
 >make test
 ```
@@ -59,7 +59,7 @@ This means your version of lli is probably incorrect. Running "lli --version" sh
 - Run the following commands to remove the symlink of lli in your /usr/bin directory
 ```bash
 >sudo rm \usr\bin\lli
->ln -s /usr/lib/llvm-3.7/bin/lli /usr/bin/lli
+>ln -s /usr/lib/llvm-3.8/bin/lli /usr/bin/lli
 ```
 - Now you should be able to use lli with the outputted llvm code from dice
 
