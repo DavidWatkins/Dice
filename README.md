@@ -1,7 +1,7 @@
 # Dice [![Build Status](https://travis-ci.org/DavidWatkins/Dice.svg?branch=master)](https://travis-ci.org/DavidWatkins/Dice)
 Java, but worse
 
-##Requirements
+## Requirements
 - The test environment is Ubuntu 15.10 running within Virtualbox
 - The following ubuntu packages were installed:
   m4 clang-3.8 llvm opam ocaml
@@ -9,7 +9,7 @@ Java, but worse
   core batteries llvm yojson
 
 
-##How to run the compiler
+## How to run the compiler
 - Make sure you are running Ubuntu 15.10 or equivalent
 - clone the repo:
 ```bash
@@ -48,13 +48,13 @@ class HelloWorld {
 Hello World!
 ```
 
-##To test the compiler
+## To test the compiler
 - cd into Test Suite and run tester.sh after having compiled the compiler
 ```bash
 >make test
 ```
 
-###If you get an error: "error: expected value token" from lli
+### If you get an error: "error: expected value token" from lli
 This means your version of lli is probably incorrect. Running "lli --version" should return 3.7, but if it doesn't:
 - Run the following commands to remove the symlink of lli in your /usr/bin directory
 ```bash
