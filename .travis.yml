@@ -1,9 +1,8 @@
-language: ocaml
+language: c
 sudo: required
 dist: xenial
 
-install: ci/install_linux.sh
-script: make all
+script: .travis-ci.sh
 
 after_failure:
   - cat Testing/Temporary/LastTest.log
