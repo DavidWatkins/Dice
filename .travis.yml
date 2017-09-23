@@ -2,7 +2,7 @@ language: c
 sudo: required
 dist: xenial
 
-script: .travis-ci.sh
+script: bash -ex .travis-ci.sh
 
 after_failure:
   - cat Testing/Temporary/LastTest.log
