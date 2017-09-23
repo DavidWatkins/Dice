@@ -227,4 +227,4 @@ if [ "$testOption" != "-s" ]; then
 	fi
 fi
 
-exit 0
+exit fail
