@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Edit this for your own project dependencies
-OPAM_DEPENDS="ocamlfind llvm=3.8"
+OPAM_DEPENDS="core batteries llvm=3.8 yojson ocamlfind"
 
 APT="ocaml ocaml-native-compilers camlp4-extra opam m4 clang-3.8 llvm opam ocaml"
 	 	 
