@@ -13,22 +13,22 @@ Java, but worse
 - Make sure you are running Ubuntu 16.04 or equivalent
 - clone the repo:
 ```bash
->git clone https://github.com/DavidWatkins/Dice.git
+$ git clone https://github.com/DavidWatkins/Dice.git
 ```
 - Then install the required packages
 ```bash
->sudo apt-get install ocaml ocaml-native-compilers camlp4-extra opam m4 clang-3.8 llvm
+$ sudo apt-get install ocaml ocaml-native-compilers camlp4-extra opam m4 clang-3.8 llvm
 ```
 - Then initialize opam in your home directory
 ```bash
->opam init
->eval $(opam config env)
->opam install core batteries llvm.3.8 yojson ocamlfind
+$ opam init
+$ eval $(opam config env)
+$ opam install core batteries llvm.3.8 yojson ocamlfind
 ```
 - Then go into the Compiler directory and run the build script
 ```bash
->cd Dice
->make
+$ cd Dice
+$ make
 ```
 
 - Write a small Dice program
@@ -42,23 +42,23 @@ class HelloWorld {
 
 - Compile the code and then run it!
 ```bash
->./dice input.dice
->lli input.ll
+$ ./dice input.dice
+$ lli input.ll
 Hello World!
 ```
 
 ## To test the compiler
 - cd into tests and run tester.sh after having compiled the compiler
 ```bash
->make test
+$ make test
 ```
 
 ### If you get an error: "error: expected value token" from lli
 This means your version of lli is probably incorrect. Running "lli --version" should return 3.7, but if it doesn't:
 - Run the following commands to remove the symlink of lli in your /usr/bin directory
 ```bash
->sudo rm \usr\bin\lli
->ln -s /usr/lib/llvm-3.8/bin/lli /usr/bin/lli
+$ sudo rm \usr\bin\lli
+$ ln -s /usr/lib/llvm-3.8/bin/lli /usr/bin/lli
 ```
 - Now you should be able to use lli with the outputted llvm code from dice
 
