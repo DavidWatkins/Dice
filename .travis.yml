@@ -5,5 +5,5 @@ dist: xenial
 script: bash -ex .travis-ci.sh
 
 after_failure:
-  - cat Testing/Temporary/LastTest.log
-  - cat Testing/Temporary/LastTestsFailed.log
+  - cat tests/Temporary/compiler_tests.log
+  - cat tests/errors.log
