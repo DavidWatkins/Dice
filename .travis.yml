@@ -7,3 +7,6 @@ script: bash -ex .travis-ci.sh
 after_failure:
   - cat Testing/Temporary/LastTest.log
   - cat Testing/Temporary/LastTestsFailed.log
+
+env:
+  - OCAML_VERSION=4.04.2 OPAM_VERSION=1.2.2
