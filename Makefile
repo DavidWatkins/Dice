@@ -44,4 +44,4 @@ depend:
 	echo "Not needed." 
 
 test:
-	@cd tests; ./tester.sh; cd ..
+	@cd tests; bash tester.sh; cd ..

@@ -2,7 +2,7 @@
 Java, but worse
 
 ## Requirements
-- The test environment is Ubuntu 15.10 running within Virtualbox
+- The test environment is Ubuntu 16.04 running within Virtualbox
 - The following ubuntu packages were installed:
   m4 clang-3.8 llvm opam ocaml
 - The following opam packages were installed:
@@ -10,19 +10,18 @@ Java, but worse
 
 
 ## How to run the compiler
-- Make sure you are running Ubuntu 15.10 or equivalent
+- Make sure you are running Ubuntu 16.04 or equivalent
 - clone the repo:
 ```bash
 >git clone https://github.com/DavidWatkins/Dice.git
 ```
 - Then install the required packages
 ```bash
->sudo apt-get install m4 clang-3.8 llvm opam ocaml
+>sudo apt-get install ocaml ocaml-native-compilers camlp4-extra opam m4 clang-3.8 llvm
 ```
 - Then initialize opam in your home directory
 ```bash
 >opam init
->opam switch 4.02.1
 >eval $(opam config env)
 >opam install core batteries llvm.3.8 yojson ocamlfind
 ```
